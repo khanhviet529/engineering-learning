@@ -213,6 +213,7 @@ Barrel file là nguồn bundle phình to phổ biến nhất trong dự án lớ
 
 - [TypeScript ↔ runtime boundary](02-typescript-runtime-boundary.md) — type bị xoá lúc compile
 - [Server/Client boundary](../03-nextjs/01-server-client-boundary.md) — ranh giới do bundler thực thi
+- [Module system trong Node](../../02-backend-api/01-nodejs/06-module-system-node.md) — góc Node runtime: resolution, `exports`, decorator, `reflect-metadata`
 - [Modules & DI (NestJS)](../../02-backend-api/02-nestjs/02-modules-di.md) — circular dependency ở backend
 - [Frontend performance](../../05-cross-cutting/performance/02-frontend-performance.md) — ngân sách bundle
 - [Deployment & production (Next.js)](../03-nextjs/08-deployment-production.md)

@@ -11,6 +11,9 @@ Node như một **runtime có một thread JavaScript và một mô hình đồn
 | 3 | [Process & memory](03-process-memory.md) | Exit 137 không log — debug bằng cách nào? |
 | 4 | [Worker threads & CPU](04-worker-threads-cpu.md) | Việc CPU-bound nên đi đâu? |
 | 5 | [Graceful shutdown](05-graceful-shutdown.md) | Vì sao mỗi lần deploy mất một ít request? |
+| 6 | [Module system trong Node](06-module-system-node.md) | Vì sao circular import biến thành lỗi DI? |
+
+Note 6 là note nên đọc **trước khi sang NestJS** — circular import và `reflect-metadata` là hai nguồn lỗi DI phổ biến nhất, và cả hai đều là vấn đề module, không phải vấn đề framework.
 
 ## Ba metric mà mọi Node service nên có
 
@@ -29,6 +32,7 @@ Không có ba chỉ số này, bạn chỉ biết có vấn đề khi pod bị r
 | `.pipe()` xử lý lỗi và backpressure | Không lan lỗi, không cleanup. Dùng `pipeline()` | [2](02-streams-buffers.md) |
 | `--max-old-space-size` giới hạn toàn bộ memory | Chỉ heap; `external` (Buffer) không tính | [3](03-process-memory.md) |
 | `server.close()` là graceful shutdown | Cần readiness=false + delay **trước** đó | [5](05-graceful-shutdown.md) |
+| `forwardRef` sửa circular dependency | Nó chỉ hoãn phân giải; vòng lặp vẫn còn | [6](06-module-system-node.md) |
 
 ## Bảng chẩn đoán nhanh
 
@@ -44,6 +48,10 @@ Không có ba chỉ số này, bạn chỉ biết có vấn đề khi pod bị r
 | 502 chỉ trong lúc deploy | thiếu delay trước `server.close()` → [5](05-graceful-shutdown.md) |
 | Container mất ~30s mới tắt | PID 1 là `npm`, không forward SIGTERM → [5](05-graceful-shutdown.md) |
 | Process không chịu thoát | worker thread / timer chưa dọn → [4](04-worker-threads-cpu.md) |
+| `Nest can't resolve dependencies of X (?)` | circular import, không phải lỗi DI → [6](06-module-system-node.md) |
+| `Reflect.getMetadata is not a function` | `reflect-metadata` nạp sai thứ tự → [6](06-module-system-node.md) |
+| `ERR_MODULE_NOT_FOUND` dù file có thật | ESM thiếu đuôi `.js` → [6](06-module-system-node.md) |
+| `instanceof` thất bại bí ẩn | hai bản cùng package → [6](06-module-system-node.md) |
 
 ## Quyết định cấu hình quan trọng
 
