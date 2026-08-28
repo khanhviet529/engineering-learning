@@ -23,6 +23,25 @@ Con số đó là chỉ số sức khoẻ kiến trúc trung thực nhất. Nó 
 
 Note 1 → 3 đi từ ngoài vào trong (tầng → module → domain). Note 4 và 5 là hai quyết định xuyên suốt phải thống nhất từ đầu, vì thêm sau nghĩa là rà lại toàn bộ codebase.
 
+### Khi codebase đã lớn — bốn note về *chi phí* của trừu tượng
+
+Note 1–5 trả lời *"code đặt ở đâu"*. Bốn note sau trả lời câu khó hơn: *"khi nào thêm một tầng là đúng, và khi nào nó là over-engineering"*.
+
+| # | Note | Trả lời câu hỏi |
+|---|---|---|
+| 6 | [SOLID trong thực tế](06-solid-in-practice.md) | SOLID áp dụng tới đâu là đủ? Vì sao nó là heuristic, không phải luật? |
+| 7 | [Clean architecture pragmatic](07-clean-architecture-pragmatic.md) | Khi nào cần nhiều tầng, khi nào 2 tầng là đúng? |
+| 8 | [Service decomposition](08-service-decomposition.md) | Service inject 15 dependency nói lên điều gì? |
+| 9 | [BFF & aggregation](09-bff-and-aggregation.md) | Khi nào cần BFF, và ba thứ phải thiết kế cùng nó? |
+
+Câu hỏi chung của cả bốn note, và là câu nên hỏi trong mọi code review:
+
+> **Trừu tượng này cho phép tôi làm gì mà không có nó thì không làm được?**
+>
+> Không trả lời được → xoá nó.
+
+Đọc note 8 trước note 6 nếu bạn đang có một service quá lớn ngay bây giờ — nó cho quy trình chẩn đoán cụ thể, và bước sửa rẻ nhất (event cho side effect) thường giải quyết phần lớn vấn đề mà không tách class nào.
+
 ## Bốn ranh giới, bốn thứ chúng bảo vệ
 
 ```text

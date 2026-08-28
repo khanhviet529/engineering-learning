@@ -35,6 +35,9 @@ NestJS ───────────────────── 02-backen
 Application / Domain ─────── 02-backend-api/04-architecture
  │  service · use case · invariant
  ▼
+Data Access (ORM) ────────── 03-database/05-data-access
+ │  Prisma · N+1 · transaction · migration · raw SQL
+ ▼
 Cache / Queue ────────────── 03-database/02-redis · 04-message-queues
  │  cache-aside · TTL · producer/consumer · retry · DLQ
  ▼
@@ -164,6 +167,33 @@ Xuyên qua **toàn bộ** các tầng trên: [05-cross-cutting/](../05-cross-cut
 | Cần scale read | [Replication & scaling](../03-database/01-postgresql/operations/02-replication-scaling.md) |
 | Schema sẽ đau về sau | [Normalization](../03-database/03-data-modeling/02-normalization.md) · [Relationships & cardinality](../03-database/03-data-modeling/03-relationships-cardinality.md) |
 | Migration làm downtime | [Migrations](../03-database/03-data-modeling/04-migrations.md) |
+| Soft delete phá unique constraint | [Soft delete & audit](../03-database/03-data-modeling/05-soft-delete-audit-patterns.md) |
+
+### Tầng Data Access (ORM)
+
+| Bạn đang gặp | Đọc |
+|---|---|
+| Không rõ nên dùng ORM, query builder hay raw SQL | [ORM vs QB vs Raw SQL](../03-database/05-data-access/01-orm-vs-query-builder-vs-raw-sql.md) |
+| Compile sạch mà runtime báo cột không tồn tại | [Prisma model & client](../03-database/05-data-access/02-prisma-model-and-client.md) |
+| Endpoint chậm tuyến tính theo số dòng | [Prisma relations & N+1](../03-database/05-data-access/03-prisma-relations-and-n-plus-1.md) |
+| `P2024` pool timeout, dữ liệu không nhất quán | [Prisma transactions](../03-database/05-data-access/04-prisma-transactions.md) |
+| Đổi schema production mà không downtime | [Prisma migrations](../03-database/05-data-access/05-prisma-migrations-production.md) |
+| Cần window function / CTE / `FOR UPDATE` | [Raw SQL escape hatches](../03-database/05-data-access/06-raw-sql-escape-hatches.md) |
+| Không rõ có cần repository | [Repository pattern & testing](../03-database/05-data-access/07-repository-pattern-testing.md) |
+
+### Tầng MongoDB
+
+| Bạn đang gặp | Đọc |
+|---|---|
+| Đang chọn giữa PostgreSQL và MongoDB | [PostgreSQL vs MongoDB](../03-database/06-mongodb/08-postgresql-vs-mongodb.md) |
+| Chưa rõ document model khác quan hệ ở đâu | [Document model](../03-database/06-mongodb/01-document-model.md) |
+| Không biết nên nhúng hay tham chiếu | [Embed vs reference](../03-database/06-mongodb/02-embed-vs-reference.md) |
+| `BSONObjectTooLarge`, ghi chậm dần | [Embed vs reference](../03-database/06-mongodb/02-embed-vs-reference.md) |
+| Query bỏ sót dữ liệu im lặng | [Schema design & validation](../03-database/06-mongodb/03-schema-design-validation.md) |
+| `Sort exceeded memory limit`, `COLLSCAN` | [Indexes & query planning](../03-database/06-mongodb/04-indexes-query-planning.md) |
+| Aggregation chậm gấp nghìn lần | [Aggregation pipeline](../03-database/06-mongodb/05-aggregation-pipeline.md) |
+| Cần transaction đa document | [Transactions & consistency](../03-database/06-mongodb/06-transactions-consistency.md) |
+| Latency cao dù index đúng | [Operations & production](../03-database/06-mongodb/07-operations-production.md) |
 
 ### Tầng Cache / Queue
 

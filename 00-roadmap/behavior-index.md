@@ -91,6 +91,25 @@ Dùng file này khi bạn thấy một triệu chứng và chưa biết nó thu�
 | `deadlock detected` | Thứ tự lock | [Locking & deadlock](../03-database/01-postgresql/transactions-concurrency/03-locking-deadlock.md) |
 | App trắng khi có một lỗi render | Không có error boundary | [Error boundaries & Suspense](../01-web-frontend/02-react/behavior/09-error-boundaries-suspense.md) |
 
+### "Tôi biết công nghệ nhưng không biết xây application"
+
+| Nhu cầu | Note |
+|---|---|
+| Màn hình gọi 8 API — song song, phụ thuộc, partial failure | [Multi-API screen](../01-web-frontend/04-application-engineering/01-multi-api-screen.md) |
+| Không rõ state nào dùng công cụ nào | [Data fetching architecture](../01-web-frontend/04-application-engineering/02-data-fetching-architecture.md) |
+| API 5 giây — tối ưu thật và tối ưu cảm nhận | [Slow API UX](../01-web-frontend/04-application-engineering/03-slow-api-ux.md) |
+| UI chỉ có loading + success, người dùng gặp 8 trạng thái | [Frontend resilience](../01-web-frontend/04-application-engineering/04-frontend-resilience.md) |
+| Không biết có cần BFF | [BFF & aggregation](../02-backend-api/04-architecture/09-bff-and-aggregation.md) |
+| Service inject 15 dependency | [Service decomposition](../02-backend-api/04-architecture/08-service-decomposition.md) |
+| SOLID áp dụng tới đâu là đủ | [SOLID trong thực tế](../02-backend-api/04-architecture/06-solid-in-practice.md) |
+| Clean Architecture — cần hay quá mức? | [Clean architecture pragmatic](../02-backend-api/04-architecture/07-clean-architecture-pragmatic.md) |
+| ORM vs Query Builder vs Raw SQL | [ORM vs QB vs Raw SQL](../03-database/05-data-access/01-orm-vs-query-builder-vs-raw-sql.md) |
+| Có nên bọc Prisma trong repository | [Repository pattern & testing](../03-database/05-data-access/07-repository-pattern-testing.md) |
+| PostgreSQL hay MongoDB | [PostgreSQL vs MongoDB](../03-database/06-mongodb/08-postgresql-vs-mongodb.md) |
+| **Muốn luyện chẩn đoán bằng tình huống thật** | [Scenario walkthroughs](../05-cross-cutting/scenarios/01-scenario-walkthroughs.md) |
+
+Tra cứu đầy đủ theo problem: [Application Engineering Map](application-engineering-map.md).
+
 ### "Tôi không biết chuyện gì đang xảy ra"
 
 | Nhu cầu | Note |

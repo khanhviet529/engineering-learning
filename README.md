@@ -34,8 +34,10 @@ Nếu bạn chỉ có 30 phút đầu tiên: đọc Learning System, rồi đọ
 | Authentication / Authorization | [02-backend-api/03-auth/](./02-backend-api/03-auth/README.md) |
 | SQL | [03-database/00-sql/](./03-database/00-sql/README.md) |
 | PostgreSQL | [03-database/01-postgresql/](./03-database/01-postgresql/README.md) |
+| Prisma / ORM / data access | [03-database/05-data-access/](./03-database/05-data-access/README.md) |
 | Redis / cache | [03-database/02-redis/](./03-database/02-redis/README.md) |
 | Queue / messaging | [03-database/04-message-queues/](./03-database/04-message-queues/README.md) |
+| MongoDB / NoSQL | [03-database/06-mongodb/](./03-database/06-mongodb/README.md) |
 | Linux | [04-infrastructure/00-linux/](./04-infrastructure/00-linux/README.md) |
 | Networking | [04-infrastructure/01-networking/](./04-infrastructure/01-networking/README.md) |
 | Docker | [04-infrastructure/02-docker/](./04-infrastructure/02-docker/README.md) |
@@ -44,6 +46,21 @@ Nếu bạn chỉ có 30 phút đầu tiên: đọc Learning System, rồi đọ
 | Security, testing, observability, performance, reliability, concurrency | [05-cross-cutting/](./05-cross-cutting/README.md) |
 | System design | [06-system-design/](./06-system-design/README.md) |
 | Làm việc với AI | [09-ai-assisted-development/](./09-ai-assisted-development/README.md) |
+
+## Tôi biết công nghệ rồi — xây application thật thì sao?
+
+Đây là câu hỏi khác hẳn, và nó có view riêng:
+
+> **[Application Engineering Map](./00-roadmap/application-engineering-map.md)**
+
+Nó nhóm note theo **problem** thay vì theo công nghệ: data fetching · hệ thống chậm · data access · architecture · database choice · reliability. Dùng nó khi câu hỏi của bạn bắt đầu bằng *"làm sao"* thay vì *"cái gì"*:
+
+```text
+"Redis là gì?"                         → Topic Index
+"Màn hình gọi 8 API thì tổ chức sao?"  → Application Engineering Map
+```
+
+Và khi muốn luyện chẩn đoán: [5 scenario thật](./05-cross-cutting/scenarios/01-scenario-walkthroughs.md) — tự trả lời trước khi xem phân tích.
 
 ## Tôi đang debug, tìm ở đâu?
 

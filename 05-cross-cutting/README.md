@@ -40,6 +40,9 @@ Bảng này nói một điều: **quyết định ở một tầng không bảo 
 | **Performance** | Thời gian và tài nguyên đi đâu? | [performance/](./performance/README.md) |
 | **Reliability** | Khi một phần hỏng, phần còn lại thế nào? | [reliability/](./reliability/README.md) |
 | **Concurrency** | Nhiều thứ xảy ra cùng lúc thì sai ở đâu? | [concurrency/](./concurrency/README.md) |
+| **Scenarios** | Bài tập nối kiến thức từ nhiều tầng | [scenarios/](./scenarios/README.md) |
+
+`scenarios/` khác các folder còn lại: nó **không** chứa khái niệm mới. Nó là 5 tình huống thật, và mọi câu trả lời nằm ở note khác — mục đích là luyện khoảng cách giữa *"trang chậm"* và *"endpoint này thiếu index trên khoá ngoại"*.
 
 Ba concern xuyên tầng khác được đặt ở nơi chúng được implement, nhưng phải đọc với tư duy xuyên tầng:
 

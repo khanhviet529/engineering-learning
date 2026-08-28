@@ -24,8 +24,13 @@ Kiến trúc    04-architecture  khi một thứ đổi, phải sửa ở đâu
 | Đang viết feature trong NestJS | [02-nestjs/](./02-nestjs/README.md) |
 | Đang làm đăng nhập / phân quyền | [03-auth/](./03-auth/README.md) |
 | Codebase bắt đầu khó sửa | [04-architecture/](./04-architecture/README.md) |
+| Service inject 15 dependency, SOLID áp dụng tới đâu | [SOLID](./04-architecture/06-solid-in-practice.md) · [Service decomposition](./04-architecture/08-service-decomposition.md) |
+| Frontend gọi 8 API, cân nhắc gộp lại | [BFF & aggregation](./04-architecture/09-bff-and-aggregation.md) |
+| Đang truy cập database qua ORM | [03-database/05-data-access/](../03-database/05-data-access/README.md) |
 
 Thứ tự học mặc định: `00 → 01 → 02 → 04`, với `03` xen vào ngay sau khi bạn có endpoint đầu tiên cần bảo vệ.
+
+Bốn note kiến trúc mới (`06`–`09`) trả lời câu hỏi khác với `01`–`05`: không phải *"code đặt ở đâu"* mà *"khi nào thêm một tầng là đúng, khi nào là over-engineering"*. Đọc chúng khi codebase đã có kích thước thật, không phải lúc bắt đầu.
 
 ## Đường đi của một request, và note tương ứng
 

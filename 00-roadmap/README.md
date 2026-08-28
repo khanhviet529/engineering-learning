@@ -20,6 +20,9 @@ Ba trục tra cứu cho cùng một tập note:
 | [Behavior Index](behavior-index.md) | **triệu chứng** | "dữ liệu hiện sai", "pod CrashLoopBackOff" |
 | [Knowledge Map](knowledge-map.md) | **tầng hệ thống** | biết lỗi ở database nhưng chưa biết note nào |
 | [Topic Index](04-topic-index.md) | **công nghệ** | "tôi cần note về Redis" |
+| [Application Engineering Map](application-engineering-map.md) | **problem thực tế** | "màn hình 8 API thì làm sao", "có cần BFF" |
+
+Bốn view, một tập note. View cuối là view duy nhất tổ chức theo *"làm sao"* thay vì *"cái gì"* — dùng nó khi bạn đang xây một application thật chứ không đang học một công nghệ.
 
 ## Dùng AI
 

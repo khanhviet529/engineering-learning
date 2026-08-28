@@ -2,11 +2,12 @@
 
 Danh sách **toàn bộ note** trong repo, nhóm theo thư mục. Đây là index để **tra cứu theo tên**.
 
-Ba cách tìm khác, thường nhanh hơn:
+Bốn cách tìm khác, thường nhanh hơn:
 
 | Bạn đang | Dùng |
 |---|---|
 | Có một triệu chứng cụ thể ("504 khi deploy", "p99 tăng") | [Behavior Index](behavior-index.md) |
+| Có một problem thực tế ("màn hình 8 API", "có cần BFF") | [Application Engineering Map](application-engineering-map.md) |
 | Muốn thấy bản đồ theo tầng | [Knowledge Map](knowledge-map.md) |
 | Muốn một lộ trình học theo thứ tự | [Roadmap](02-roadmap.md) |
 
@@ -14,7 +15,7 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 
 ## Tổng số
 
-**241 note** (không tính README gốc và `templates/`).
+**273 note** (không tính README gốc và `templates/`).
 
 
 ### `00-roadmap`
@@ -24,13 +25,15 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 - [Roadmap](../00-roadmap/02-roadmap.md)
 - [AI-Assisted Learning](../00-roadmap/03-ai-assisted-learning.md)
 - [Topic Index](../00-roadmap/04-topic-index.md)
+- [00 Roadmap](../00-roadmap/README.md)
+- [Application Engineering Map](../00-roadmap/application-engineering-map.md)
 - [Behavior Index](../00-roadmap/behavior-index.md)
 - [Final Coverage Report](../00-roadmap/final-coverage-report.md)
 - [Knowledge Architecture Audit](../00-roadmap/knowledge-architecture-audit.md)
+- [Knowledge Architecture — Final Report](../00-roadmap/knowledge-architecture-final-report.md)
 - [Knowledge Audit](../00-roadmap/knowledge-audit.md)
 - [Knowledge Map](../00-roadmap/knowledge-map.md)
 - [Project Roadmap](../00-roadmap/project-roadmap.md)
-- [00 Roadmap](../00-roadmap/README.md)
 
 ### `01-web-frontend`
 
@@ -120,6 +123,14 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 - [Next.js foundations: cấu trúc thư mục và từ vựng routing](../01-web-frontend/03-nextjs/fundamentals/01-app-router-structure.md)
 - [Next.js 16: mô hình caching mới và những gì đã đổi](../01-web-frontend/03-nextjs/fundamentals/02-nextjs-16-changes.md)
 
+### `01-web-frontend/04-application-engineering`
+
+- [Một màn hình gọi nhiều API](../01-web-frontend/04-application-engineering/01-multi-api-screen.md)
+- [Data fetching architecture](../01-web-frontend/04-application-engineering/02-data-fetching-architecture.md)
+- [API chậm: tối ưu thật và tối ưu cảm nhận](../01-web-frontend/04-application-engineering/03-slow-api-ux.md)
+- [Frontend resilience](../01-web-frontend/04-application-engineering/04-frontend-resilience.md)
+- [Frontend Application Engineering](../01-web-frontend/04-application-engineering/README.md)
+
 ### `02-backend-api`
 
 - [Backend & API](../02-backend-api/README.md)
@@ -194,6 +205,10 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 - [Domain logic boundaries](../02-backend-api/04-architecture/03-domain-logic-boundaries.md)
 - [Error handling strategy](../02-backend-api/04-architecture/04-error-handling-strategy.md)
 - [Configuration](../02-backend-api/04-architecture/05-configuration.md)
+- [SOLID trong thực tế](../02-backend-api/04-architecture/06-solid-in-practice.md)
+- [Clean Architecture — góc nhìn thực dụng](../02-backend-api/04-architecture/07-clean-architecture-pragmatic.md)
+- [Service decomposition](../02-backend-api/04-architecture/08-service-decomposition.md)
+- [BFF & aggregation](../02-backend-api/04-architecture/09-bff-and-aggregation.md)
 - [Backend architecture](../02-backend-api/04-architecture/README.md)
 
 ### `03-database`
@@ -252,6 +267,7 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 - [Normalization & denormalization](../03-database/03-data-modeling/02-normalization.md)
 - [Relationships & cardinality](../03-database/03-data-modeling/03-relationships-cardinality.md)
 - [Migrations](../03-database/03-data-modeling/04-migrations.md)
+- [Soft delete & audit patterns](../03-database/03-data-modeling/05-soft-delete-audit-patterns.md)
 - [Data modeling](../03-database/03-data-modeling/README.md)
 
 ### `03-database/04-message-queues`
@@ -263,6 +279,29 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 - [Chọn broker](../03-database/04-message-queues/05-broker-comparison.md)
 - [Outbox pattern](../03-database/04-message-queues/06-outbox-pattern.md)
 - [Message queues](../03-database/04-message-queues/README.md)
+
+### `03-database/05-data-access`
+
+- [ORM vs Query Builder vs Raw SQL](../03-database/05-data-access/01-orm-vs-query-builder-vs-raw-sql.md)
+- [Prisma: schema và client](../03-database/05-data-access/02-prisma-model-and-client.md)
+- [Prisma relations & N+1](../03-database/05-data-access/03-prisma-relations-and-n-plus-1.md)
+- [Prisma transactions](../03-database/05-data-access/04-prisma-transactions.md)
+- [Prisma migrations trong production](../03-database/05-data-access/05-prisma-migrations-production.md)
+- [Raw SQL escape hatches](../03-database/05-data-access/06-raw-sql-escape-hatches.md)
+- [Repository pattern trên Prisma: có cần không?](../03-database/05-data-access/07-repository-pattern-testing.md)
+- [Data Access](../03-database/05-data-access/README.md)
+
+### `03-database/06-mongodb`
+
+- [Document model](../03-database/06-mongodb/01-document-model.md)
+- [Embed vs reference](../03-database/06-mongodb/02-embed-vs-reference.md)
+- [Schema design & validation](../03-database/06-mongodb/03-schema-design-validation.md)
+- [Indexes & query planning](../03-database/06-mongodb/04-indexes-query-planning.md)
+- [Aggregation pipeline](../03-database/06-mongodb/05-aggregation-pipeline.md)
+- [Transactions & consistency](../03-database/06-mongodb/06-transactions-consistency.md)
+- [Operations & production](../03-database/06-mongodb/07-operations-production.md)
+- [PostgreSQL vs MongoDB](../03-database/06-mongodb/08-postgresql-vs-mongodb.md)
+- [MongoDB](../03-database/06-mongodb/README.md)
 
 ### `04-infrastructure`
 
@@ -363,6 +402,7 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 - [Database performance](../05-cross-cutting/performance/04-database-performance.md)
 - [Profiling & load testing](../05-cross-cutting/performance/05-profiling-load-testing.md)
 - [Backpressure](../05-cross-cutting/performance/06-backpressure.md)
+- [Full-stack triage](../05-cross-cutting/performance/07-full-stack-triage.md)
 - [Performance](../05-cross-cutting/performance/README.md)
 
 ### `05-cross-cutting/reliability`
@@ -372,6 +412,11 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 - [Graceful degradation](../05-cross-cutting/reliability/03-graceful-degradation.md)
 - [Capacity & limits](../05-cross-cutting/reliability/04-capacity-and-limits.md)
 - [Reliability](../05-cross-cutting/reliability/README.md)
+
+### `05-cross-cutting/scenarios`
+
+- [Scenario walkthroughs](../05-cross-cutting/scenarios/01-scenario-walkthroughs.md)
+- [Scenarios](../05-cross-cutting/scenarios/README.md)
 
 ### `05-cross-cutting/security`
 
@@ -425,3 +470,4 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 - [Hallucination & verification](../09-ai-assisted-development/04-hallucination-verification.md)
 - [Rủi ro bảo mật và giới hạn](../09-ai-assisted-development/05-ai-security-limits.md)
 - [AI-Assisted Development](../09-ai-assisted-development/README.md)
+

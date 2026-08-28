@@ -4,14 +4,19 @@ Web như một **runtime**: browser, network, JavaScript engine, React, Next.js.
 
 Thứ tự các folder ở đây không tuỳ ý — mỗi tầng là nền của tầng sau. Hydration mismatch là vấn đề của browser; stale closure là vấn đề của JavaScript; race condition là vấn đề của network. Nếu học React trước, bạn sẽ tìm nguyên nhân trong tài liệu React cho những vấn đề không thuộc React.
 
-## Bốn tầng
+## Năm tầng
 
-| # | Folder | Học gì | Bao nhiêu note |
-|---|---|---|---|
-| 1 | [00-web-foundations/](./00-web-foundations/README.md) | DNS, TCP, TLS, HTTP, cache, DOM, rendering pipeline, cookie, CORS, CSP, WebSocket | 8 |
-| 2 | [01-javascript-typescript/](./01-javascript-typescript/README.md) | event loop, closure, promise, memory, module, type system | 9 |
-| 3 | [02-react/](./02-react/README.md) | render/commit, reconciliation, effect, async state, form, performance, test | 13 |
-| 4 | [03-nextjs/](./03-nextjs/README.md) | server/client boundary, rendering strategies, cache, action, auth, deploy | 8 |
+| # | Folder | Học gì |
+|---|---|---|
+| 1 | [00-web-foundations/](./00-web-foundations/README.md) | DNS, TCP, TLS, HTTP, cache, DOM, rendering pipeline, cookie, CORS, CSP, WebSocket |
+| 2 | [01-javascript-typescript/](./01-javascript-typescript/README.md) | event loop, closure, promise, memory, module, type system |
+| 3 | [02-react/](./02-react/README.md) | render/commit, reconciliation, effect, async state, form, performance, test |
+| 4 | [03-nextjs/](./03-nextjs/README.md) | server/client boundary, rendering strategies, cache, action, auth, deploy |
+| 5 | [04-application-engineering/](./04-application-engineering/README.md) | nhiều API trên một màn hình, cache layering, API chậm, 8 trạng thái UI |
+
+Bốn tầng đầu là **công nghệ**; tầng 5 là **application** — nó nằm trên và dùng cả bốn. Đọc nó sau khi đã có React và Next.js, khi câu hỏi chuyển từ *"hook này làm gì"* sang *"màn hình 8 API thì tổ chức thế nào"*.
+
+Tầng 5 chỉ chứa phần frontend của lớp kiến thức đó. Bức tranh đầy đủ (gồm cả backend, database, cross-cutting) ở [Application Engineering Map](../00-roadmap/application-engineering-map.md).
 
 ## Đường đi ngắn nhất nếu bạn đã biết React
 

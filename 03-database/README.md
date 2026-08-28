@@ -7,14 +7,16 @@ area: database
 
 Tầng nơi dữ liệu **tồn tại lâu hơn process của bạn**. Đó là câu nói đơn giản nhất về vì sao tầng này khác mọi tầng khác: một bug ở frontend biến mất khi F5; một bug ở đây để lại dấu vết vĩnh viễn trong dữ liệu.
 
-Năm folder, theo thứ tự phụ thuộc:
+Bảy folder, theo thứ tự phụ thuộc:
 
 ```text
 00-sql            ngôn ngữ: tập hợp, JOIN, NULL, cardinality
 01-postgresql     cỗ máy: MVCC, index, planner, khoá, WAL
-03-data-modeling  thiết kế: constraint, chuẩn hoá, quan hệ, migration
+03-data-modeling  thiết kế: constraint, chuẩn hoá, quan hệ, migration, soft delete
+05-data-access    app ↔ DB: ORM vs QB vs raw SQL, Prisma, N+1, repository
 02-redis          lớp tăng tốc: cache, lock, eviction, persistence
 04-message-queues hạ tầng bất đồng bộ: delivery, retry, outbox
+06-mongodb        mô hình khác: document, embed/reference, và PostgreSQL vs MongoDB
 ```
 
 ## Bắt đầu ở đâu
@@ -24,10 +26,14 @@ Năm folder, theo thứ tự phụ thuộc:
 | Chưa quen viết SQL, hay bị sai số liệu | [00-sql/](./00-sql/README.md) |
 | Query chậm, bảng phình, migration làm sập app | [01-postgresql/](./01-postgresql/README.md) |
 | Sắp thiết kế schema, hoặc schema đang gây đau | [03-data-modeling/](./03-data-modeling/README.md) |
+| Dùng Prisma/ORM, gặp N+1, không rõ có cần repository | [05-data-access/](./05-data-access/README.md) |
 | Cần giảm tải đọc, hoặc đang gặp dữ liệu cũ | [02-redis/](./02-redis/README.md) |
 | Cần chuyển việc nặng ra khỏi đường request | [04-message-queues/](./04-message-queues/README.md) |
+| Đang cân nhắc MongoDB, hoặc đã dùng nó | [06-mongodb/](./06-mongodb/README.md) |
 
-Thứ tự học mặc định: `00 → 01 → 03`, rồi `02` và `04` khi có nhu cầu thật.
+Thứ tự học mặc định: `00 → 01 → 03 → 05`, rồi `02` và `04` khi có nhu cầu thật. `06` khi thật sự đứng trước quyết định chọn database — và [note so sánh](./06-mongodb/08-postgresql-vs-mongodb.md) nên đọc **trước** khi quyết định, không phải sau.
+
+Lưu ý về `05-data-access`: nó nằm trong `03-database/` chứ không phải `02-backend-api/` vì đây là chủ đề **database**, chỉ tình cờ được viết bằng TypeScript. Ba câu chốt của nó — ORM không loại bỏ SQL, không tự tạo query tốt, không thay thế kiến thức database — là lý do nó phải nằm cạnh PostgreSQL.
 
 ## Bốn ý tưởng xuyên suốt cả tầng
 
@@ -71,6 +77,15 @@ Thứ tự học mặc định: `00 → 01 → 03`, rồi `02` và `04` khi có 
 | Deploy Redis làm đăng xuất hàng loạt | session không persistence | [Redis 05](./02-redis/05-persistence-failure.md) |
 | Email gửi hai lần | job không idempotent | [MQ 02](./04-message-queues/02-delivery-semantics.md) |
 | Đơn hàng tồn tại, không sự kiện nào | dual-write, thiếu outbox | [MQ 06](./04-message-queues/06-outbox-pattern.md) |
+| Endpoint chậm tuyến tính theo số dòng | N+1 (vòng lặp `await`, không phải `include`) | [DA 03](./05-data-access/03-prisma-relations-and-n-plus-1.md) |
+| `P2024` pool timeout | transaction dài, hoặc `Promise.all` không giới hạn | [DA 04](./05-data-access/04-prisma-transactions.md) |
+| Compile sạch mà runtime báo `column does not exist` | schema Prisma lệch database | [DA 02](./05-data-access/02-prisma-model-and-client.md) |
+| `Do not know how to serialize a BigInt` | `COUNT(*)` từ raw SQL | [DA 06](./05-data-access/06-raw-sql-escape-hatches.md) |
+| Xoá mềm rồi không đăng ký lại được email | unique index thiếu `partialFilterExpression` | [Modeling 05](./03-data-modeling/05-soft-delete-audit-patterns.md) |
+| User đã "xoá" vẫn đăng nhập được | query thiếu lọc `deleted_at IS NULL` | [Modeling 05](./03-data-modeling/05-soft-delete-audit-patterns.md) |
+| `BSONObjectTooLarge` | array không có trần | [Mongo 02](./06-mongodb/02-embed-vs-reference.md) |
+| Aggregation chậm gấp nghìn lần | `$lookup`/`$unwind` đặt trước `$match` | [Mongo 05](./06-mongodb/05-aggregation-pipeline.md) |
+| MongoDB: ghi mất sau failover | `w: 1` thay vì `w: "majority"` | [Mongo 06](./06-mongodb/06-transactions-consistency.md) |
 
 Nếu triệu chứng không có ở đây: bắt đầu bằng `EXPLAIN (ANALYZE, BUFFERS)` và `pg_stat_activity`.
 
@@ -128,4 +143,4 @@ NestJS → Repository → [Cache / Queue] → PostgreSQL → OS → disk
 
 ## Version / Context
 
-**PostgreSQL 16**, **Redis 7**, BullMQ 5. Lý thuyết quan hệ và các khái niệm queue là chung; cú pháp và hành vi cụ thể là đặc thù từng engine — mỗi note ghi rõ ở phần cuối.
+**PostgreSQL 16**, **Redis 7**, BullMQ 5, **Prisma 6.x**, **MongoDB 7.x/8.x**. Lý thuyết quan hệ và các khái niệm queue là chung; cú pháp và hành vi cụ thể là đặc thù từng engine — mỗi note ghi rõ ở phần cuối. Tính năng Prisma còn ở trạng thái preview (`relationJoins`, `typedSql`) được đánh dấu tại chỗ.
