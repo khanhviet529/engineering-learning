@@ -32,6 +32,7 @@ Nếu bạn chỉ có 30 phút đầu tiên: đọc Learning System, rồi đọ
 | Node.js | [02-backend-api/01-nodejs/](./02-backend-api/01-nodejs/README.md) |
 | NestJS | [02-backend-api/02-nestjs/](./02-backend-api/02-nestjs/README.md) |
 | Authentication / Authorization | [02-backend-api/03-auth/](./02-backend-api/03-auth/README.md) |
+| Email, webhook gửi ra, file storage | [02-backend-api/05-integrations/](./02-backend-api/05-integrations/README.md) |
 | SQL | [03-database/00-sql/](./03-database/00-sql/README.md) |
 | PostgreSQL | [03-database/01-postgresql/](./03-database/01-postgresql/README.md) |
 | Prisma / ORM / data access | [03-database/05-data-access/](./03-database/05-data-access/README.md) |
@@ -43,6 +44,7 @@ Nếu bạn chỉ có 30 phút đầu tiên: đọc Learning System, rồi đọ
 | Docker | [04-infrastructure/02-docker/](./04-infrastructure/02-docker/README.md) |
 | CI/CD | [04-infrastructure/03-cicd/](./04-infrastructure/03-cicd/README.md) |
 | Kubernetes | [04-infrastructure/04-kubernetes/](./04-infrastructure/04-kubernetes/README.md) |
+| Deploy ở đâu (VPS/PaaS/Cloudflare/edge) | [04-infrastructure/05-platforms/](./04-infrastructure/05-platforms/README.md) |
 | Security, testing, observability, performance, reliability, concurrency | [05-cross-cutting/](./05-cross-cutting/README.md) |
 | System design | [06-system-design/](./06-system-design/README.md) |
 | Làm việc với AI | [09-ai-assisted-development/](./09-ai-assisted-development/README.md) |
@@ -83,6 +85,8 @@ Nếu bạn biết vấn đề nằm ở tầng nào rồi thì dùng [Knowledge
 - DNS và IP cơ bản → [IP, port, DNS](./04-infrastructure/01-networking/01-ip-port-dns.md)
 
 Không có 5 thứ trên, `docker run` sẽ là phép thuật và mọi lỗi sẽ là bí ẩn.
+
+**Và trước Kubernetes, hãy deploy thật một lần.** Đây là khoảng trống mà [05-platforms/](./04-infrastructure/05-platforms/README.md) lấp: giữa `docker-compose` trên laptop và một K8s cluster có VPS, PaaS, serverless, edge — nơi phần lớn dự án thật sống. Quan trọng hơn: bạn **không kiểm chứng được** graceful shutdown, readiness probe, cache per-instance hay pool sizing cho tới khi có **hai instance sau một load balancer**. Tăng lên 2 replica là bài tập có giá trị học tập cao nhất và rẻ nhất trong repo này.
 
 **Trước Kubernetes**, cần thêm:
 

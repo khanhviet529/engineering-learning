@@ -15,7 +15,7 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 
 ## Tổng số
 
-**273 note** (không tính README gốc và `templates/`).
+**287 note** (không tính README gốc và `templates/`).
 
 
 ### `00-roadmap`
@@ -26,6 +26,7 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 - [AI-Assisted Learning](../00-roadmap/03-ai-assisted-learning.md)
 - [Topic Index](../00-roadmap/04-topic-index.md)
 - [00 Roadmap](../00-roadmap/README.md)
+- [Application Engineering Coverage Report](../00-roadmap/application-engineering-coverage-report.md)
 - [Application Engineering Map](../00-roadmap/application-engineering-map.md)
 - [Behavior Index](../00-roadmap/behavior-index.md)
 - [Final Coverage Report](../00-roadmap/final-coverage-report.md)
@@ -145,6 +146,8 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 - [API versioning & evolution](../02-backend-api/00-http-api/06-api-versioning-evolution.md)
 - [Rate limiting](../02-backend-api/00-http-api/07-rate-limiting.md)
 - [RPC, GraphQL & alternatives](../02-backend-api/00-http-api/08-rpc-graphql-alternatives.md)
+- [Upload & download file](../02-backend-api/00-http-api/09-file-upload-download.md)
+- [Export & reporting: CSV, Excel, PDF](../02-backend-api/00-http-api/10-export-and-reporting.md)
 - [HTTP & API Design](../02-backend-api/00-http-api/README.md)
 
 ### `02-backend-api/01-nodejs`
@@ -211,6 +214,13 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 - [BFF & aggregation](../02-backend-api/04-architecture/09-bff-and-aggregation.md)
 - [Backend architecture](../02-backend-api/04-architecture/README.md)
 
+### `02-backend-api/05-integrations`
+
+- [Gửi email](../02-backend-api/05-integrations/01-sending-email.md)
+- [Webhook gửi ra](../02-backend-api/05-integrations/02-outgoing-webhooks.md)
+- [File storage: S3, CDN, lifecycle](../02-backend-api/05-integrations/03-file-storage.md)
+- [Integrations](../02-backend-api/05-integrations/README.md)
+
 ### `03-database`
 
 - [Database](../03-database/README.md)
@@ -238,6 +248,7 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 - [Index & query plan](../03-database/01-postgresql/indexes-query-planning/01-index-query-plan.md)
 - [Index types](../03-database/01-postgresql/indexes-query-planning/02-index-types.md)
 - [EXPLAIN ANALYZE workflow](../03-database/01-postgresql/indexes-query-planning/03-explain-analyze-workflow.md)
+- [Full-text search trong PostgreSQL](../03-database/01-postgresql/indexes-query-planning/04-full-text-search.md)
 
 ### `03-database/01-postgresql/operations`
 
@@ -268,6 +279,9 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 - [Relationships & cardinality](../03-database/03-data-modeling/03-relationships-cardinality.md)
 - [Migrations](../03-database/03-data-modeling/04-migrations.md)
 - [Soft delete & audit patterns](../03-database/03-data-modeling/05-soft-delete-audit-patterns.md)
+- [ID strategy: serial vs UUIDv4 vs UUIDv7](../03-database/03-data-modeling/06-id-strategy.md)
+- [Date, time & timezone](../03-database/03-data-modeling/07-datetime-timezone.md)
+- [Tiền & Decimal](../03-database/03-data-modeling/08-money-decimal.md)
 - [Data modeling](../03-database/03-data-modeling/README.md)
 
 ### `03-database/04-message-queues`
@@ -373,6 +387,12 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 - [Ingress & service discovery](../04-infrastructure/04-kubernetes/workloads-networking/02-ingress-service-discovery.md)
 - [Rollout & rollback](../04-infrastructure/04-kubernetes/workloads-networking/03-rollout-rollback.md)
 - [Storage & StatefulSet](../04-infrastructure/04-kubernetes/workloads-networking/04-storage-statefulset.md)
+
+### `04-infrastructure/05-platforms`
+
+- [Chạy ở đâu: VPS, PaaS, container, serverless, edge](../04-infrastructure/05-platforms/01-where-to-run.md)
+- [Cloudflare & edge runtime](../04-infrastructure/05-platforms/02-cloudflare-and-edge.md)
+- [Platforms: chạy app ở đâu](../04-infrastructure/05-platforms/README.md)
 
 ### `05-cross-cutting`
 

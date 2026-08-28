@@ -151,6 +151,28 @@ Hai view còn lại: [Behavior Index](behavior-index.md) (tra theo triệu chứ
 
 ---
 
+## KIẾN THỨC THỰC DỤNG — thứ hay gặp mà ít được dạy
+
+**Câu hỏi:** những thứ mọi ứng dụng thật đều cần nhưng không có trong tutorial nào?
+
+| Vấn đề | Note |
+|---|---|
+| ID tăng dần hay UUID? Vì sao UUIDv4 làm INSERT chậm dần | [ID strategy](../03-database/03-data-modeling/06-id-strategy.md) |
+| "Hôm nay" của ai? Lưu gì, hiển thị gì | [Date, time & timezone](../03-database/03-data-modeling/07-datetime-timezone.md) |
+| Tiền: làm tròn, đơn vị nhỏ nhất, thuế, tỉ giá | [Tiền & Decimal](../03-database/03-data-modeling/08-money-decimal.md) |
+| Soft delete phá unique constraint; 4 mức audit | [Soft delete & audit](../03-database/03-data-modeling/05-soft-delete-audit-patterns.md) |
+| Upload file: magic bytes, presigned URL, path traversal | [Upload & download](../02-backend-api/00-http-api/09-file-upload-download.md) |
+| Export CSV/Excel/PDF — và **CSV formula injection** | [Export & reporting](../02-backend-api/00-http-api/10-export-and-reporting.md) |
+| Vì sao email vào spam: SPF/DKIM/DMARC, bounce | [Gửi email](../02-backend-api/05-integrations/01-sending-email.md) |
+| Gửi webhook: ký HMAC, retry, endpoint chết, SSRF | [Webhook gửi ra](../02-backend-api/05-integrations/02-outgoing-webhooks.md) |
+| S3/R2, CDN, lifecycle, và dual-write với database | [File storage](../02-backend-api/05-integrations/03-file-storage.md) |
+| Tìm kiếm: `tsvector`, tiếng Việt không dấu, khi nào cần Elasticsearch | [Full-text search](../03-database/01-postgresql/indexes-query-planning/04-full-text-search.md) |
+| Hash mật khẩu: argon2id / bcrypt / scrypt | [Password & MFA](../02-backend-api/03-auth/05-password-mfa.md) |
+| Deploy ở đâu: VPS / PaaS / serverless / edge | [Chạy ở đâu](../04-infrastructure/05-platforms/01-where-to-run.md) |
+| Cloudflare — và vì sao Workers **không phải** Node.js | [Cloudflare & edge](../04-infrastructure/05-platforms/02-cloudflare-and-edge.md) |
+
+Bốn note đầu là **kiểu dữ liệu dễ làm sai** — chúng ảnh hưởng schema, và schema là thứ khó đổi nhất.
+
 ## BÀI TẬP — nối tất cả lại
 
 | | |
