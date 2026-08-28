@@ -210,7 +210,62 @@ Xuyên qua **toàn bộ** các tầng trên: [05-cross-cutting/](../05-cross-cut
 
 ### Tầng xuyên suốt
 
-Xem [05-cross-cutting/README.md](../05-cross-cutting/README.md) cho auth, security, testing, observability, performance, reliability, concurrency.
+| Bạn đang gặp | Đọc |
+|---|---|
+| Đổi ID trong URL xem được dữ liệu người khác | [Access control](../05-cross-cutting/security/04-access-control.md) · [Authorization models](../02-backend-api/03-auth/06-authorization-models.md) |
+| Không biết bảo vệ cái gì, khỏi ai | [Security basics](../05-cross-cutting/security/01-security-basics.md) |
+| Dùng ORM khắp nơi vẫn lo injection | [Injection](../05-cross-cutting/security/02-injection.md) |
+| Script chạy trong origin của mình | [XSS & CSRF](../05-cross-cutting/security/03-xss-csrf.md) |
+| Tính năng "nhập từ URL" gọi được địa chỉ nội bộ | [SSRF & supply chain](../05-cross-cutting/security/05-ssrf-supply-chain.md) |
+| Không xoay được credential vì sợ downtime | [Secrets management](../05-cross-cutting/security/06-secrets-management.md) |
+| Cookie `secure` không được đặt ở production | [Secure headers & TLS](../05-cross-cutting/security/07-secure-headers-tls.md) |
+| Refactor làm hỏng hàng trăm test | [Test theo behavior](../05-cross-cutting/testing/01-testing-pyramid-behavior.md) |
+| Unit test xanh nhưng lỗi ở kiểu dữ liệu | [Unit vs integration](../05-cross-cutting/testing/02-unit-vs-integration.md) · [Testcontainers](../05-cross-cutting/testing/05-testcontainers.md) |
+| CI đỏ ngẫu nhiên, đội ngũ bỏ qua kết quả | [Deterministic tests](../05-cross-cutting/testing/06-deterministic-tests.md) · [API & E2E](../05-cross-cutting/testing/03-api-e2e-tests.md) |
+| Mock trôi khỏi API thật | [Mocking & test doubles](../05-cross-cutting/testing/04-mocking-test-doubles.md) · [Contract testing](../05-cross-cutting/testing/07-contract-testing.md) |
+| Có log, metric, trace mà vẫn không tìm ra nguyên nhân | [Logs, metrics, traces](../05-cross-cutting/observability/01-logs-metrics-traces.md) |
+| Không ghép được log của một request | [Structured logging](../05-cross-cutting/observability/02-structured-logging.md) · [Correlation & tracing](../05-cross-cutting/observability/03-correlation-tracing.md) |
+| SLO đạt nhưng khách hàng phàn nàn | [Metrics & SLO](../05-cross-cutting/observability/04-metrics-slo.md) |
+| Người trực đã tắt thông báo cảnh báo | [Alerting & dashboards](../05-cross-cutting/observability/05-alerting-dashboards.md) |
+| Tối ưu xong mà p99 không đổi | [Latency & bottleneck](../05-cross-cutting/performance/01-latency-throughput-bottleneck.md) |
+| Lighthouse cao nhưng người dùng vẫn kêu chậm | [Frontend performance](../05-cross-cutting/performance/02-frontend-performance.md) |
+| Endpoint không chạm I/O cũng chậm | [Backend performance](../05-cross-cutting/performance/03-backend-performance.md) |
+| Truy vấn nhanh ở staging, chậm ở production | [Database performance](../05-cross-cutting/performance/04-database-performance.md) |
+| Load test đẹp, production sập | [Profiling & load testing](../05-cross-cutting/performance/05-profiling-load-testing.md) |
+| Đột biến làm sập và rất lâu phục hồi | [Backpressure](../05-cross-cutting/performance/06-backpressure.md) |
+| Một tính năng phụ kéo sập cả hệ thống | [Failure modes](../05-cross-cutting/reliability/01-failure-modes.md) |
+| Retry làm dependency hỏng nặng hơn | [Timeout, retry & circuit breaker](../05-cross-cutting/reliability/02-timeout-retry-circuit-breaker.md) |
+| Mất một dependency = mất toàn bộ tính năng | [Graceful degradation](../05-cross-cutting/reliability/03-graceful-degradation.md) |
+| Scale lên làm database từ chối kết nối | [Capacity & limits](../05-cross-cutting/reliability/04-capacity-and-limits.md) |
+| Thêm worker threads mà không nhanh hơn | [Concurrency models](../05-cross-cutting/concurrency/01-concurrency-models.md) |
+| Giới hạn 100 suất mà bán được 137 | [Shared state & races](../05-cross-cutting/concurrency/02-shared-state-races.md) |
+| Hai job cùng chạy dù đã có khoá | [Distributed locks](../05-cross-cutting/concurrency/03-distributed-locks.md) |
+
+Tổng quan: [05-cross-cutting/README.md](../05-cross-cutting/README.md).
+
+### Tầng System Design
+
+| Bạn đang gặp | Đọc |
+|---|---|
+| Không biết bắt đầu thiết kế từ đâu | [Requirements & trade-offs](../06-system-design/01-requirements-tradeoffs.md) · [Design exercise template](../06-system-design/10-design-exercise-template.md) |
+| Cần chịu tải cao hơn | [Scaling: cache & queue](../06-system-design/02-scaling-cache-queue.md) |
+| Người dùng bị tính tiền hai lần | [Idempotency & retry](../06-system-design/03-idempotency-retry.md) |
+| Uptime cao nhưng dữ liệu sai | [Consistency & availability](../06-system-design/04-consistency-availability.md) |
+| Một database không đủ cho tải ghi | [Data partitioning & sharding](../06-system-design/05-data-partitioning-sharding.md) |
+| Không biết chọn kho dữ liệu nào | [Storage selection](../06-system-design/06-storage-selection.md) |
+| Luồng nghiệp vụ không còn ở chỗ nào | [Event-driven](../06-system-design/07-event-driven.md) |
+| Cân nhắc tách microservices | [Monolith → microservices](../06-system-design/08-monolith-to-microservices.md) |
+| Mọi dòng code đúng mà hệ thống vẫn chết | [Distributed systems fallacies](../06-system-design/09-distributed-systems-fallacies.md) |
+
+### Tầng làm việc với AI
+
+| Bạn đang gặp | Đọc |
+|---|---|
+| Code merge nhanh, sửa bug chậm | [AI thay đổi cái gì](../09-ai-assisted-development/01-what-ai-changes.md) |
+| Kết quả AI không khớp hệ thống của mình | [Context engineering](../09-ai-assisted-development/02-context-engineering.md) |
+| PR sạch, test xanh, vẫn lọt bug nghiêm trọng | [Reviewing AI code](../09-ai-assisted-development/03-reviewing-ai-code.md) |
+| Cấu hình apply thành công mà không có tác dụng | [Hallucination & verification](../09-ai-assisted-development/04-hallucination-verification.md) |
+| Đưa tính năng AI vào sản phẩm | [AI security & limits](../09-ai-assisted-development/05-ai-security-limits.md) |
 
 ## Học theo thứ tự nào?
 
