@@ -5,7 +5,7 @@ prerequisites:
   - 01-requirements-tradeoffs.md
 related:
   - 09-distributed-systems-fallacies.md
-  - ../03-database/01-postgresql/01-transaction-isolation.md
+  - ../03-database/01-postgresql/transactions-concurrency/01-transaction-isolation.md
 ---
 
 # Consistency & availability
@@ -440,8 +440,8 @@ Và với sự cố ở đầu note, quyết định phải được đưa ra m�
 - [Data partitioning & sharding](05-data-partitioning-sharding.md) — nhất quán xuyên shard
 - [Distributed systems fallacies](09-distributed-systems-fallacies.md) — giả định sai về mạng
 - [Event-driven](07-event-driven.md) — nhất quán cuối cùng trong thực tế
-- [Transaction isolation](../03-database/01-postgresql/01-transaction-isolation.md) — nhất quán trong một database
-- [Replication & scaling](../03-database/01-postgresql/09-replication-scaling.md) — độ trễ replica
+- [Transaction isolation](../03-database/01-postgresql/transactions-concurrency/01-transaction-isolation.md) — nhất quán trong một database
+- [Replication & scaling](../03-database/01-postgresql/operations/02-replication-scaling.md) — độ trễ replica
 - [Shared state & races](../05-cross-cutting/concurrency/02-shared-state-races.md) — bất biến dưới đồng thời
 - [Graceful degradation](../05-cross-cutting/reliability/03-graceful-degradation.md) — hành vi khi chọn C
 

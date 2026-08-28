@@ -20,6 +20,10 @@ Bốn câu đó giải thích gần như mọi sự cố liên quan tới Redis:
 
 | # | Note | Trả lời câu hỏi |
 |---|---|---|
+| 0 | [Redis data model](00-redis-data-model.md) | Sáu cấu trúc dữ liệu — cái nào cho bài toán nào? |
+
+| # | Note | Trả lời câu hỏi |
+|---|---|---|
 | 1 | [Cache & invalidation](01-cache-invalidation.md) | Vì sao tên cũ vẫn hiện ở 3 chỗ sau khi đã đổi? |
 | 2 | [Rate limit & locking](02-rate-limit-locking.md) | Vì sao giới hạn 100/phút thành 400/phút với 4 pod? |
 | 3 | [Cache patterns](03-cache-patterns.md) | Cache-aside, write-through, write-behind — chọn cái nào? |
@@ -139,9 +143,9 @@ Dòng cuối là ràng buộc bao trùm: **Redis là lớp tăng tốc, không p
 
 - [01-postgresql/](../01-postgresql/README.md) — nguồn sự thật
 - [04-message-queues/](../04-message-queues/README.md) — Redis Streams/BullMQ trong bức tranh queue
-- [Caching, queues & jobs (NestJS)](../../02-backend-api/02-nestjs/07-caching-queues-jobs.md) — implementation
+- [Caching, queues & jobs (NestJS)](../../02-backend-api/02-nestjs/behavior/07-caching-queues-jobs.md) — implementation
 - [HTTP & browser cache](../../01-web-frontend/00-web-foundations/02-http-browser-cache.md) — lớp cache ngoài cùng
-- [Data fetching & cache (Next.js)](../../01-web-frontend/03-nextjs/03-data-fetching-cache.md) — lớp framework
+- [Data fetching & cache (Next.js)](../../01-web-frontend/03-nextjs/behavior/03-data-fetching-cache.md) — lớp framework
 - [Rate limiting](../../02-backend-api/00-http-api/07-rate-limiting.md) — hợp đồng API
 - [Distributed locks](../../05-cross-cutting/concurrency/03-distributed-locks.md) — giới hạn cơ bản của lock
 - [Scaling, cache & queue](../../06-system-design/02-scaling-cache-queue.md) — cache ở tầng kiến trúc

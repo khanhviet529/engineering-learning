@@ -136,9 +136,9 @@ Dependency ── trần thật: N pod × pool ≤ max_connections  [4]
 - [Testing](../testing/README.md) — test đường suy giảm và đường lỗi
 - [Idempotency & retry](../../06-system-design/03-idempotency-retry.md) — thiết kế idempotency
 - [Consistency & availability](../../06-system-design/04-consistency-availability.md) — đánh đổi nền tảng
-- [Readiness & liveness](../../04-infrastructure/04-kubernetes/02-health-readiness-liveness.md) — health check đúng cách
+- [Readiness & liveness](../../04-infrastructure/04-kubernetes/scheduling-reliability/01-health-readiness-liveness.md) — health check đúng cách
 - [Deployment strategies](../../04-infrastructure/03-cicd/03-deployment-strategies.md) — rollback là giảm thiểu số một
-- [Graceful shutdown](../../02-backend-api/01-nodejs/05-graceful-shutdown.md) — không mất request khi tắt
+- [Graceful shutdown](../../02-backend-api/01-nodejs/production/02-graceful-shutdown.md) — không mất request khi tắt
 
 ## Version / Context
 

@@ -113,11 +113,11 @@ Client → [ XÁC THỰC: ai? ] → [ UỶ QUYỀN: được làm gì, trên cá
 ## Related
 
 - [02-backend-api/](../README.md) — đường đi của một request
-- [Guards & interceptors](../02-nestjs/04-guards-interceptors.md) — nơi cài đặt trong NestJS
+- [Guards & interceptors](../02-nestjs/behavior/04-guards-interceptors.md) — nơi cài đặt trong NestJS
 - [Security](../../05-cross-cutting/security/README.md) — XSS, CSRF, access control, secrets
 - [Cookies & storage](../../01-web-frontend/00-web-foundations/05-cookies-storage.md) — nơi lưu ở phía client
 - [Rate limit & locking](../../03-database/02-redis/02-rate-limit-locking.md) — chống thử mật khẩu
-- [Transaction isolation](../../03-database/01-postgresql/01-transaction-isolation.md) — bối cảnh cho RLS
+- [Transaction isolation](../../03-database/01-postgresql/transactions-concurrency/01-transaction-isolation.md) — bối cảnh cho RLS
 - [Structured logging](../../05-cross-cutting/observability/02-structured-logging.md) — audit trail
 
 ## Version / Context

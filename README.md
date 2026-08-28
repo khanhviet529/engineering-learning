@@ -13,45 +13,45 @@ Vì vậy repo này không có note "Học Redis". Nó có note trả lời: *v�
 
 ## Tôi nên bắt đầu ở đâu?
 
-1. Đọc [Learning System](00-roadmap/00-learning-system.md) — vòng học `MODEL → PREDICT → BREAK → EXPLAIN → RECALL`. Khoảng 5 phút.
-2. Mở [Roadmap](00-roadmap/02-roadmap.md) — 12 behavior theo thứ tự phụ thuộc. Bắt đầu ở **Behavior 01**.
-3. Dựng [Fullstack Lab](07-projects/fullstack-lab/README.md) — mọi experiment cần một nơi để chạy.
-4. Mỗi buổi ghi một note từ [template](templates/learning-log.md) vào [08-learning-log/](08-learning-log/README.md). Chỉ ghi cái bạn **dự đoán sai**.
+1. Đọc [Learning System](./00-roadmap/00-learning-system.md) — vòng học `MODEL → PREDICT → BREAK → EXPLAIN → RECALL`. Khoảng 5 phút.
+2. Mở [Roadmap](./00-roadmap/02-roadmap.md) — 12 behavior theo thứ tự phụ thuộc. Bắt đầu ở **Behavior 01**.
+3. Dựng [Fullstack Lab](./07-projects/fullstack-lab/README.md) — mọi experiment cần một nơi để chạy.
+4. Mỗi buổi ghi một note từ [template](./templates/learning-log.md) vào [08-learning-log/](./08-learning-log/README.md). Chỉ ghi cái bạn **dự đoán sai**.
 
-Nếu bạn chỉ có 30 phút đầu tiên: đọc Learning System, rồi đọc [Browser request → render](01-web-frontend/00-web-foundations/01-browser-request-render.md) và trả lời phần *Prediction* của nó bằng bút.
+Nếu bạn chỉ có 30 phút đầu tiên: đọc Learning System, rồi đọc [Browser request → render](./01-web-frontend/00-web-foundations/01-browser-request-render.md) và trả lời phần *Prediction* của nó bằng bút.
 
 ## Tôi đang học X thì đọc gì?
 
 | Bạn đang học | Vào đây |
 |---|---|
-| Web / browser fundamentals | [01-web-frontend/00-web-foundations/](01-web-frontend/00-web-foundations/README.md) |
-| JavaScript / TypeScript | [01-web-frontend/01-javascript-typescript/](01-web-frontend/01-javascript-typescript/README.md) |
-| React | [01-web-frontend/02-react/](01-web-frontend/02-react/README.md) |
-| Next.js | [01-web-frontend/03-nextjs/](01-web-frontend/03-nextjs/README.md) |
-| HTTP / API design | [02-backend-api/00-http-api/](02-backend-api/00-http-api/README.md) |
-| Node.js | [02-backend-api/01-nodejs/](02-backend-api/01-nodejs/README.md) |
-| NestJS | [02-backend-api/02-nestjs/](02-backend-api/02-nestjs/README.md) |
-| Authentication / Authorization | [02-backend-api/03-auth/](02-backend-api/03-auth/README.md) |
-| SQL | [03-database/00-sql/](03-database/00-sql/README.md) |
-| PostgreSQL | [03-database/01-postgresql/](03-database/01-postgresql/README.md) |
-| Redis / cache | [03-database/02-redis/](03-database/02-redis/README.md) |
-| Queue / messaging | [03-database/04-message-queues/](03-database/04-message-queues/README.md) |
-| Linux | [04-infrastructure/00-linux/](04-infrastructure/00-linux/README.md) |
-| Networking | [04-infrastructure/01-networking/](04-infrastructure/01-networking/README.md) |
-| Docker | [04-infrastructure/02-docker/](04-infrastructure/02-docker/README.md) |
-| CI/CD | [04-infrastructure/03-cicd/](04-infrastructure/03-cicd/README.md) |
-| Kubernetes | [04-infrastructure/04-kubernetes/](04-infrastructure/04-kubernetes/README.md) |
-| Security, testing, observability, performance, reliability, concurrency | [05-cross-cutting/](05-cross-cutting/README.md) |
-| System design | [06-system-design/](06-system-design/README.md) |
-| Làm việc với AI | [09-ai-assisted-development/](09-ai-assisted-development/README.md) |
+| Web / browser fundamentals | [01-web-frontend/00-web-foundations/](./01-web-frontend/00-web-foundations/README.md) |
+| JavaScript / TypeScript | [01-web-frontend/01-javascript-typescript/](./01-web-frontend/01-javascript-typescript/README.md) |
+| React | [01-web-frontend/02-react/](./01-web-frontend/02-react/README.md) |
+| Next.js | [01-web-frontend/03-nextjs/](./01-web-frontend/03-nextjs/README.md) |
+| HTTP / API design | [02-backend-api/00-http-api/](./02-backend-api/00-http-api/README.md) |
+| Node.js | [02-backend-api/01-nodejs/](./02-backend-api/01-nodejs/README.md) |
+| NestJS | [02-backend-api/02-nestjs/](./02-backend-api/02-nestjs/README.md) |
+| Authentication / Authorization | [02-backend-api/03-auth/](./02-backend-api/03-auth/README.md) |
+| SQL | [03-database/00-sql/](./03-database/00-sql/README.md) |
+| PostgreSQL | [03-database/01-postgresql/](./03-database/01-postgresql/README.md) |
+| Redis / cache | [03-database/02-redis/](./03-database/02-redis/README.md) |
+| Queue / messaging | [03-database/04-message-queues/](./03-database/04-message-queues/README.md) |
+| Linux | [04-infrastructure/00-linux/](./04-infrastructure/00-linux/README.md) |
+| Networking | [04-infrastructure/01-networking/](./04-infrastructure/01-networking/README.md) |
+| Docker | [04-infrastructure/02-docker/](./04-infrastructure/02-docker/README.md) |
+| CI/CD | [04-infrastructure/03-cicd/](./04-infrastructure/03-cicd/README.md) |
+| Kubernetes | [04-infrastructure/04-kubernetes/](./04-infrastructure/04-kubernetes/README.md) |
+| Security, testing, observability, performance, reliability, concurrency | [05-cross-cutting/](./05-cross-cutting/README.md) |
+| System design | [06-system-design/](./06-system-design/README.md) |
+| Làm việc với AI | [09-ai-assisted-development/](./09-ai-assisted-development/README.md) |
 
 ## Tôi đang debug, tìm ở đâu?
 
-Đi từ **triệu chứng** chứ không từ công nghệ: [Behavior Index](00-roadmap/behavior-index.md).
+Đi từ **triệu chứng** chứ không từ công nghệ: [Behavior Index](./00-roadmap/behavior-index.md).
 
 Ví dụ có sẵn trong đó: *"dữ liệu nhảy về giá trị cũ"*, *"nhanh với 1k dòng, chết với 1M dòng"*, *"chạy trên máy nhưng chết trong container"*, *"pod CrashLoopBackOff"*, *"user A đọc được dữ liệu của user B"*.
 
-Nếu bạn biết vấn đề nằm ở tầng nào rồi thì dùng [Knowledge Map](00-roadmap/knowledge-map.md) (tra theo tầng hệ thống).
+Nếu bạn biết vấn đề nằm ở tầng nào rồi thì dùng [Knowledge Map](./00-roadmap/knowledge-map.md) (tra theo tầng hệ thống).
 
 ## Tôi muốn học Docker / Kubernetes, cần biết gì trước?
 
@@ -59,21 +59,21 @@ Nếu bạn biết vấn đề nằm ở tầng nào rồi thì dùng [Knowledge
 
 **Trước Docker**, cần hiểu ở mức có thể tự debug:
 
-- process là gì, PID 1 là gì, signal làm gì → [Process, file, env](04-infrastructure/00-linux/01-process-files-env.md), [Signals & lifecycle](04-infrastructure/00-linux/04-signals-lifecycle.md)
-- port và socket: ai listen ở đâu, bind `127.0.0.1` khác `0.0.0.0` thế nào → [Ports & sockets](04-infrastructure/00-linux/05-ports-sockets.md)
-- filesystem và permission: UID, ownership → [Filesystem & permissions](04-infrastructure/00-linux/03-filesystem-permissions.md)
-- environment variable và cách app đọc config → [Configuration](02-backend-api/04-architecture/05-configuration.md)
-- DNS và IP cơ bản → [IP, port, DNS](04-infrastructure/01-networking/01-ip-port-dns.md)
+- process là gì, PID 1 là gì, signal làm gì → [Process, file, env](./04-infrastructure/00-linux/01-process-files-env.md), [Signals & lifecycle](./04-infrastructure/00-linux/04-signals-lifecycle.md)
+- port và socket: ai listen ở đâu, bind `127.0.0.1` khác `0.0.0.0` thế nào → [Ports & sockets](./04-infrastructure/00-linux/05-ports-sockets.md)
+- filesystem và permission: UID, ownership → [Filesystem & permissions](./04-infrastructure/00-linux/03-filesystem-permissions.md)
+- environment variable và cách app đọc config → [Configuration](./02-backend-api/04-architecture/05-configuration.md)
+- DNS và IP cơ bản → [IP, port, DNS](./04-infrastructure/01-networking/01-ip-port-dns.md)
 
 Không có 5 thứ trên, `docker run` sẽ là phép thuật và mọi lỗi sẽ là bí ẩn.
 
 **Trước Kubernetes**, cần thêm:
 
-- Docker: image vs container, layer, volume, network → [02-docker/](04-infrastructure/02-docker/README.md)
-- Docker Compose ở mức đã tự dựng được multi-service → [Compose](04-infrastructure/02-docker/06-compose.md)
-- Networking: reverse proxy, load balancer, TLS termination → [Reverse proxy & load balancer](04-infrastructure/01-networking/05-reverse-proxy-load-balancer.md)
-- Health check và graceful shutdown trong app của bạn → [Graceful shutdown](02-backend-api/01-nodejs/05-graceful-shutdown.md)
-- Và quan trọng nhất: **đã tự gặp giới hạn của Compose** → [Vì sao cần Kubernetes](04-infrastructure/04-kubernetes/04-why-kubernetes.md)
+- Docker: image vs container, layer, volume, network → [02-docker/](./04-infrastructure/02-docker/README.md)
+- Docker Compose ở mức đã tự dựng được multi-service → [Compose](./04-infrastructure/02-docker/06-compose.md)
+- Networking: reverse proxy, load balancer, TLS termination → [Reverse proxy & load balancer](./04-infrastructure/01-networking/05-reverse-proxy-load-balancer.md)
+- Health check và graceful shutdown trong app của bạn → [Graceful shutdown](./02-backend-api/01-nodejs/production/02-graceful-shutdown.md)
+- Và quan trọng nhất: **đã tự gặp giới hạn của Compose** → [Vì sao cần Kubernetes](./04-infrastructure/04-kubernetes/fundamentals/01-why-kubernetes.md)
 
 Học K8s trước khi gặp vấn đề mà nó giải quyết là cách nhanh nhất để thuộc YAML mà không hiểu gì.
 
@@ -86,8 +86,8 @@ Browser → React/Next.js → HTTP → Reverse proxy → NestJS → Domain logic
    → Cache/Queue → PostgreSQL → OS → Container → Network → Kubernetes
 ```
 
-Chi tiết từng tầng: [Knowledge Map](00-roadmap/knowledge-map.md).
-Các chủ đề chạy xuyên tất cả các tầng: [05-cross-cutting/](05-cross-cutting/README.md).
+Chi tiết từng tầng: [Knowledge Map](./00-roadmap/knowledge-map.md).
+Các chủ đề chạy xuyên tất cả các tầng: [05-cross-cutting/](./05-cross-cutting/README.md).
 
 ## Cách học mặc định
 
@@ -102,7 +102,7 @@ RECALL     → buổi sau, 5 phút nhắc lại
 
 Bước dễ bị bỏ nhất là **PREDICT**, và đó cũng là bước duy nhất tạo ra học tập thật: nếu bạn không dự đoán thì bạn không thể sai, và nếu không sai thì mental model không được sửa.
 
-Cấu trúc một note đầy đủ: [templates/topic-note.md](templates/topic-note.md).
+Cấu trúc một note đầy đủ: [templates/topic-note.md](./templates/topic-note.md).
 
 ## Nguyên tắc dùng AI
 
@@ -112,8 +112,8 @@ AI có thể scaffold, sinh boilerplate, viết test mẫu và review code. Như
 
 Cụ thể: đừng để AI làm hộ *prediction*, *thiết kế experiment*, *kết luận nguyên nhân bug*, *explanation bằng lời của bạn*, *quyết định trade-off*.
 
-- Dùng AI để **học**: [AI-Assisted Learning](00-roadmap/03-ai-assisted-learning.md)
-- Dùng AI để **làm việc**: [09-ai-assisted-development/](09-ai-assisted-development/README.md)
+- Dùng AI để **học**: [AI-Assisted Learning](./00-roadmap/03-ai-assisted-learning.md)
+- Dùng AI để **làm việc**: [09-ai-assisted-development/](./09-ai-assisted-development/README.md)
 
 ## Tiêu chuẩn của repo này
 
@@ -142,10 +142,10 @@ Trade-off của giải pháp này là gì?
 
 | File | Dùng khi |
 |---|---|
-| [00-roadmap/02-roadmap.md](00-roadmap/02-roadmap.md) | Muốn biết học gì tiếp theo |
-| [00-roadmap/behavior-index.md](00-roadmap/behavior-index.md) | Đang gặp một triệu chứng cụ thể |
-| [00-roadmap/knowledge-map.md](00-roadmap/knowledge-map.md) | Biết tầng nào đang có vấn đề |
-| [00-roadmap/04-topic-index.md](00-roadmap/04-topic-index.md) | Muốn tra theo tên công nghệ |
-| [00-roadmap/project-roadmap.md](00-roadmap/project-roadmap.md) | Muốn biết phase nào build cái gì |
-| [00-roadmap/knowledge-audit.md](00-roadmap/knowledge-audit.md) | Muốn biết repo này thiếu gì |
-| [00-roadmap/final-coverage-report.md](00-roadmap/final-coverage-report.md) | Muốn biết vùng nào cố tình chưa đào sâu |
+| [00-roadmap/02-roadmap.md](./00-roadmap/02-roadmap.md) | Muốn biết học gì tiếp theo |
+| [00-roadmap/behavior-index.md](./00-roadmap/behavior-index.md) | Đang gặp một triệu chứng cụ thể |
+| [00-roadmap/knowledge-map.md](./00-roadmap/knowledge-map.md) | Biết tầng nào đang có vấn đề |
+| [00-roadmap/04-topic-index.md](./00-roadmap/04-topic-index.md) | Muốn tra theo tên công nghệ |
+| [00-roadmap/project-roadmap.md](./00-roadmap/project-roadmap.md) | Muốn biết phase nào build cái gì |
+| [00-roadmap/knowledge-audit.md](./00-roadmap/knowledge-audit.md) | Muốn biết repo này thiếu gì |
+| [00-roadmap/final-coverage-report.md](./00-roadmap/final-coverage-report.md) | Muốn biết vùng nào cố tình chưa đào sâu |

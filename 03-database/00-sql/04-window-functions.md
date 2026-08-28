@@ -5,7 +5,7 @@ prerequisites:
   - 02-joins-aggregation.md
 related:
   - 03-subqueries-cte.md
-  - ../01-postgresql/02-index-query-plan.md
+  - ../01-postgresql/indexes-query-planning/01-index-query-plan.md
 ---
 
 # Window functions
@@ -356,8 +356,8 @@ orders: user 1 có đơn 100, 200, 200;  user 2 có đơn 50
 - [Joins & aggregation](02-joins-aggregation.md) — `GROUP BY` và fan-out
 - [Subqueries & CTE](03-subqueries-cte.md) — bọc window function để lọc; `LATERAL`
 - [Relational thinking](01-relational-thinking.md) — thứ tự thực thi logic
-- [Index & query plan](../01-postgresql/02-index-query-plan.md) — index khớp cửa sổ để bỏ sort
-- [EXPLAIN ANALYZE workflow](../01-postgresql/08-explain-analyze-workflow.md) — đọc `WindowAgg`
+- [Index & query plan](../01-postgresql/indexes-query-planning/01-index-query-plan.md) — index khớp cửa sổ để bỏ sort
+- [EXPLAIN ANALYZE workflow](../01-postgresql/indexes-query-planning/03-explain-analyze-workflow.md) — đọc `WindowAgg`
 - [Pagination](../../02-backend-api/00-http-api/04-pagination-filtering-sorting.md) — `ORDER BY` tất định
 
 ## Version / Context

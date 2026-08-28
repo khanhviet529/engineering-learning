@@ -121,7 +121,7 @@ Code → [ unit ] → [ integration ] → [ API ] → [ E2E ] → [ smoke ] → 
 ## Related
 
 - [05-cross-cutting/](../README.md) — các concern xuyên tầng khác
-- [Testing NestJS](../../02-backend-api/02-nestjs/09-testing-nestjs.md) — cài đặt cụ thể
+- [Testing NestJS](../../02-backend-api/02-nestjs/behavior/09-testing-nestjs.md) — cài đặt cụ thể
 - [Access control](../security/04-access-control.md) — test đường từ chối
 - [Shared state & races](../concurrency/02-shared-state-races.md) — khi flaky là bug thật
 - [Pipeline](../../04-infrastructure/03-cicd/01-pipeline.md) — nơi test chạy và ngân sách thời gian

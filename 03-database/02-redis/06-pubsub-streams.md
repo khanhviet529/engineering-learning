@@ -5,7 +5,7 @@ prerequisites:
   - 05-persistence-failure.md
 related:
   - ../04-message-queues/02-delivery-semantics.md
-  - ../../02-backend-api/02-nestjs/08-websocket-gateway.md
+  - ../../02-backend-api/02-nestjs/behavior/08-websocket-gateway.md
 ---
 
 # Pub/Sub & Streams
@@ -396,7 +396,7 @@ Và trường `v: '1'` trong payload: version của schema sự kiện. Consumer
 - [Retry & DLQ](../04-message-queues/03-retry-dlq.md) — poison message
 - [Outbox pattern](../04-message-queues/06-outbox-pattern.md) — sự kiện nguyên tử với ghi DB
 - [Vì sao cần queue](../04-message-queues/01-why-queue.md) — chọn công cụ
-- [WebSocket gateway](../../02-backend-api/02-nestjs/08-websocket-gateway.md) — Pub/Sub cho broadcast xuyên pod
+- [WebSocket gateway](../../02-backend-api/02-nestjs/behavior/08-websocket-gateway.md) — Pub/Sub cho broadcast xuyên pod
 - [Event-driven](../../06-system-design/07-event-driven.md) — kiến trúc hướng sự kiện
 - [Cache & invalidation](01-cache-invalidation.md) — Pub/Sub cho invalidate L1
 

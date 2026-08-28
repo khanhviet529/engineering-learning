@@ -433,11 +433,11 @@ Khi nghi ngờ một hallucination:
 - [Context engineering](02-context-engineering.md) — nêu phiên bản giảm loại ④
 - [Reviewing AI code](03-reviewing-ai-code.md) — xác minh là bước ⑤ của review
 - [AI security & limits](05-ai-security-limits.md) — hallucination về thư viện và rủi ro chuỗi cung ứng
-- [TypeScript runtime boundary](../01-web-frontend/01-javascript-typescript/02-typescript-runtime-boundary.md) — type không kiểm tra dữ liệu runtime
+- [TypeScript runtime boundary](../01-web-frontend/01-javascript-typescript/typescript/01-runtime-boundary.md) — type không kiểm tra dữ liệu runtime
 - [Configuration](../02-backend-api/04-architecture/05-configuration.md) — validate lúc khởi động
-- [Config, Secret & resources](../04-infrastructure/04-kubernetes/03-config-secrets-resources.md) — đơn vị và trường trong manifest
-- [Graceful shutdown](../02-backend-api/01-nodejs/05-graceful-shutdown.md) — grace period thật sự làm gì
-- [Transaction isolation](../03-database/01-postgresql/01-transaction-isolation.md) — mặc định thật của PostgreSQL
+- [Config, Secret & resources](../04-infrastructure/04-kubernetes/operations/01-config-secrets-resources.md) — đơn vị và trường trong manifest
+- [Graceful shutdown](../02-backend-api/01-nodejs/production/02-graceful-shutdown.md) — grace period thật sự làm gì
+- [Transaction isolation](../03-database/01-postgresql/transactions-concurrency/01-transaction-isolation.md) — mặc định thật của PostgreSQL
 
 ## Version / Context
 

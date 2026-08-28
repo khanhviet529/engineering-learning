@@ -16,21 +16,38 @@ Hai câu đó giải thích gần như mọi thứ, kể cả những lỗi khó
 
 Học framework này nghĩa là học hai mô hình đó, không phải học tên decorator.
 
+## Cấu trúc
+
+```text
+fundamentals/   building blocks, decorator, DI, provider, scope
+behavior/       request lifecycle, guard, pipe, transaction, testing
+```
+
+Kiến trúc (ranh giới module, modular monolith, god service) nằm ở
+[04-architecture/](../04-architecture/README.md) — nó áp dụng cho backend nói chung.
+
 ## Thứ tự đọc
+
+### Bước 0 — từ vựng (đọc trước mọi note behavior)
 
 | # | Note | Trả lời câu hỏi |
 |---|---|---|
-| 1 | [Request lifecycle](01-request-lifecycle.md) | Code mới nên đặt ở đâu, và vì sao thứ tôi thêm không chạy? |
-| 2 | [Modules & DI](02-modules-di.md) | Dấu `?` trong thông báo lỗi nghĩa là gì? |
-| 3 | [Validation & errors](03-validation-errors.md) | Biên giới giữa dữ liệu không đáng tin và đáng tin nằm ở dòng nào? |
-| 4 | [Guards & interceptors](04-guards-interceptors.md) | Vì sao đăng nhập hợp lệ vẫn đọc được dữ liệu của người khác? |
-| 5 | [Config & lifecycle](05-config-lifecycle.md) | Vì sao chạy được ở local nhưng hỏng ở staging? |
-| 6 | [Database & transactions](06-database-integration-transactions.md) | Vì sao dữ liệu ở trạng thái nửa vời khi lỗi giữa chừng? |
-| 7 | [Caching, queues & jobs](07-caching-queues-jobs.md) | Việc nặng nên đi đâu, và cache sai ở đâu? |
-| 8 | [WebSocket gateway](08-websocket-gateway.md) | Vì sao realtime chạy với 1 pod nhưng hỏng với 3 pod? |
-| 9 | [Testing NestJS](09-testing-nestjs.md) | Vì sao 340 test xanh mà production vẫn vỡ? |
+| 0a | [Building blocks](./fundamentals/01-building-blocks.md) | `main.ts` → AppModule → Controller → Service là gì? Decorator nào ở đâu? |
+| 0b | [DI & providers](./fundamentals/02-di-providers.md) | Vì sao "Nest can't resolve dependencies"? `useFactory` khác `useExisting` ở đâu? |
 
-Note 1 và 2 là nền của bảy note còn lại — đừng nhảy cóc. Note 6 cần [Transaction isolation](../../03-database/01-postgresql/01-transaction-isolation.md) trước.
+| # | Note | Trả lời câu hỏi |
+|---|---|---|
+| 1 | [Request lifecycle](./behavior/01-request-lifecycle.md) | Code mới nên đặt ở đâu, và vì sao thứ tôi thêm không chạy? |
+| 2 | [Modules & DI](./behavior/02-modules-di.md) | Dấu `?` trong thông báo lỗi nghĩa là gì? |
+| 3 | [Validation & errors](./behavior/03-validation-errors.md) | Biên giới giữa dữ liệu không đáng tin và đáng tin nằm ở dòng nào? |
+| 4 | [Guards & interceptors](./behavior/04-guards-interceptors.md) | Vì sao đăng nhập hợp lệ vẫn đọc được dữ liệu của người khác? |
+| 5 | [Config & lifecycle](./behavior/05-config-lifecycle.md) | Vì sao chạy được ở local nhưng hỏng ở staging? |
+| 6 | [Database & transactions](./behavior/06-database-integration-transactions.md) | Vì sao dữ liệu ở trạng thái nửa vời khi lỗi giữa chừng? |
+| 7 | [Caching, queues & jobs](./behavior/07-caching-queues-jobs.md) | Việc nặng nên đi đâu, và cache sai ở đâu? |
+| 8 | [WebSocket gateway](./behavior/08-websocket-gateway.md) | Vì sao realtime chạy với 1 pod nhưng hỏng với 3 pod? |
+| 9 | [Testing NestJS](./behavior/09-testing-nestjs.md) | Vì sao 340 test xanh mà production vẫn vỡ? |
+
+Note 1 và 2 là nền của bảy note còn lại — đừng nhảy cóc. Note 6 cần [Transaction isolation](../../03-database/01-postgresql/transactions-concurrency/01-transaction-isolation.md) trước.
 
 ## Hai mô hình phải thuộc
 
@@ -68,36 +85,36 @@ Quy tắc quan trọng nhất: **`imports` không bắc cầu.** A→B→C khôn
 
 | Triệu chứng | Nghi ngờ |
 |---|---|
-| `Nest can't resolve dependencies of X (?)` | circular import, interface làm token, thiếu `emitDecoratorMetadata` → [2](02-modules-di.md) |
-| `...(Y, ?)` + "available in the X context" | thiếu `exports` hoặc `imports` → [2](02-modules-di.md) |
-| Guard/interceptor có dependency `undefined` | đăng ký bằng `new` thay vì `APP_*` → [2](02-modules-di.md) |
-| Guard thêm vào nhưng không chạy | sai phạm vi đăng ký, hoặc request dừng trước đó → [1](01-request-lifecycle.md) |
-| 401 dù token hợp lệ | `RolesGuard` khai báo trước `JwtAuthGuard` → [4](04-guards-interceptors.md) |
-| Guard trả 403 khi đáng lẽ 401 | `return false` thay vì `throw UnauthorizedException` → [4](04-guards-interceptors.md) |
-| User đọc được dữ liệu user khác | thiếu ownership check, hoặc cache key thiếu `userId` → [4](04-guards-interceptors.md) |
-| Endpoint trả 200 với body rỗng, không log lỗi | interceptor nuốt lỗi (`catchError` không ném lại) → [4](04-guards-interceptors.md) |
-| Field client gửi thừa lọt vào DB | thiếu `whitelist: true` → [3](03-validation-errors.md) |
-| Field bị mất im lặng, request vẫn 201 | `whitelist` bật, `forbidNonWhitelisted` tắt, tên field gõ sai → [3](03-validation-errors.md) |
-| Nested object không được validate | thiếu `@Type()` cạnh `@ValidateNested()` → [3](03-validation-errors.md) |
-| Input sai trả 500 thay vì 400 | chưa có `ValidationPipe` toàn cục → [3](03-validation-errors.md) |
-| Lỗi domain ra 500 | filter chưa nhận biết class lỗi → [3](03-validation-errors.md) |
-| Lỗi trùng ra 500 thay vì 409 | repository chưa dịch mã lỗi driver → [3](03-validation-errors.md) |
-| Chạy local ổn, staging `undefined` | không validate env → [5](05-config-lifecycle.md) |
-| Connection DB tăng dần mỗi lần deploy | thiếu `app.enableShutdownHooks()` → [5](05-config-lifecycle.md) |
-| Pod CrashLoopBackOff, log rỗng | crash trước khi logger sẵn sàng: validate env hoặc lỗi DI → [5](05-config-lifecycle.md) |
-| "DB chậm" nhưng DB rảnh | network call bên trong transaction, pool bị giữ → [6](06-database-integration-transactions.md) |
-| Dữ liệu nửa vời sau lỗi | không có ranh giới transaction, hoặc repository quên `tx` → [6](06-database-integration-transactions.md) |
-| `current transaction is aborted` | `try/catch` bên trong transaction → [6](06-database-integration-transactions.md) |
-| Endpoint chậm tuyến tính theo số dòng | N+1 → [6](06-database-integration-transactions.md) |
-| 500 ngẫu nhiên chỉ khi tải cao | deadlock (`40P01`) → [6](06-database-integration-transactions.md) |
-| Dữ liệu "lúc cũ lúc mới" khi F5 | cache in-memory với nhiều replica → [7](07-caching-queues-jobs.md) |
-| Cron gửi email 3 lần | `@Cron` chạy trên mọi replica → [7](07-caching-queues-jobs.md) |
-| Job chạy hai lần, email trùng | job không idempotent → [7](07-caching-queues-jobs.md) |
-| Redis đầy bộ nhớ | thiếu `removeOnComplete` → [7](07-caching-queues-jobs.md) |
-| Realtime chạy với 1 pod, hỏng với 3 pod | thiếu Redis adapter → [8](08-websocket-gateway.md) |
-| WebSocket reconnect đều đặn mỗi ~60s | `proxy_read_timeout` của reverse proxy → [8](08-websocket-gateway.md) |
-| Handshake WebSocket trả 400 | proxy thiếu header `Upgrade`/`Connection` → [8](08-websocket-gateway.md) |
-| Test xanh nhưng production vỡ | e2e không dùng cấu hình của `main.ts` → [9](09-testing-nestjs.md) |
+| `Nest can't resolve dependencies of X (?)` | circular import, interface làm token, thiếu `emitDecoratorMetadata` → [2](./behavior/02-modules-di.md) |
+| `...(Y, ?)` + "available in the X context" | thiếu `exports` hoặc `imports` → [2](./behavior/02-modules-di.md) |
+| Guard/interceptor có dependency `undefined` | đăng ký bằng `new` thay vì `APP_*` → [2](./behavior/02-modules-di.md) |
+| Guard thêm vào nhưng không chạy | sai phạm vi đăng ký, hoặc request dừng trước đó → [1](./behavior/01-request-lifecycle.md) |
+| 401 dù token hợp lệ | `RolesGuard` khai báo trước `JwtAuthGuard` → [4](./behavior/04-guards-interceptors.md) |
+| Guard trả 403 khi đáng lẽ 401 | `return false` thay vì `throw UnauthorizedException` → [4](./behavior/04-guards-interceptors.md) |
+| User đọc được dữ liệu user khác | thiếu ownership check, hoặc cache key thiếu `userId` → [4](./behavior/04-guards-interceptors.md) |
+| Endpoint trả 200 với body rỗng, không log lỗi | interceptor nuốt lỗi (`catchError` không ném lại) → [4](./behavior/04-guards-interceptors.md) |
+| Field client gửi thừa lọt vào DB | thiếu `whitelist: true` → [3](./behavior/03-validation-errors.md) |
+| Field bị mất im lặng, request vẫn 201 | `whitelist` bật, `forbidNonWhitelisted` tắt, tên field gõ sai → [3](./behavior/03-validation-errors.md) |
+| Nested object không được validate | thiếu `@Type()` cạnh `@ValidateNested()` → [3](./behavior/03-validation-errors.md) |
+| Input sai trả 500 thay vì 400 | chưa có `ValidationPipe` toàn cục → [3](./behavior/03-validation-errors.md) |
+| Lỗi domain ra 500 | filter chưa nhận biết class lỗi → [3](./behavior/03-validation-errors.md) |
+| Lỗi trùng ra 500 thay vì 409 | repository chưa dịch mã lỗi driver → [3](./behavior/03-validation-errors.md) |
+| Chạy local ổn, staging `undefined` | không validate env → [5](./behavior/05-config-lifecycle.md) |
+| Connection DB tăng dần mỗi lần deploy | thiếu `app.enableShutdownHooks()` → [5](./behavior/05-config-lifecycle.md) |
+| Pod CrashLoopBackOff, log rỗng | crash trước khi logger sẵn sàng: validate env hoặc lỗi DI → [5](./behavior/05-config-lifecycle.md) |
+| "DB chậm" nhưng DB rảnh | network call bên trong transaction, pool bị giữ → [6](./behavior/06-database-integration-transactions.md) |
+| Dữ liệu nửa vời sau lỗi | không có ranh giới transaction, hoặc repository quên `tx` → [6](./behavior/06-database-integration-transactions.md) |
+| `current transaction is aborted` | `try/catch` bên trong transaction → [6](./behavior/06-database-integration-transactions.md) |
+| Endpoint chậm tuyến tính theo số dòng | N+1 → [6](./behavior/06-database-integration-transactions.md) |
+| 500 ngẫu nhiên chỉ khi tải cao | deadlock (`40P01`) → [6](./behavior/06-database-integration-transactions.md) |
+| Dữ liệu "lúc cũ lúc mới" khi F5 | cache in-memory với nhiều replica → [7](./behavior/07-caching-queues-jobs.md) |
+| Cron gửi email 3 lần | `@Cron` chạy trên mọi replica → [7](./behavior/07-caching-queues-jobs.md) |
+| Job chạy hai lần, email trùng | job không idempotent → [7](./behavior/07-caching-queues-jobs.md) |
+| Redis đầy bộ nhớ | thiếu `removeOnComplete` → [7](./behavior/07-caching-queues-jobs.md) |
+| Realtime chạy với 1 pod, hỏng với 3 pod | thiếu Redis adapter → [8](./behavior/08-websocket-gateway.md) |
+| WebSocket reconnect đều đặn mỗi ~60s | `proxy_read_timeout` của reverse proxy → [8](./behavior/08-websocket-gateway.md) |
+| Handshake WebSocket trả 400 | proxy thiếu header `Upgrade`/`Connection` → [8](./behavior/08-websocket-gateway.md) |
+| Test xanh nhưng production vỡ | e2e không dùng cấu hình của `main.ts` → [9](./behavior/09-testing-nestjs.md) |
 
 ## Mười quyết định mặc định
 
@@ -139,11 +156,11 @@ it('người khác KHÔNG đọc được', () => request(app).get(url).set(bobA
 
 | Hiểu nhầm | Thực tế | Note |
 |---|---|---|
-| Pipe validate trước khi guard chạy | Guard chạy **trước**; nó thấy dữ liệu thô | [1](01-request-lifecycle.md) |
-| `imports` bắc cầu qua nhiều tầng module | Không; mỗi module phải import trực tiếp | [2](02-modules-di.md) |
-| DTO có type TypeScript nghĩa là đã validate | Type biến mất khi compile | [3](03-validation-errors.md) |
-| Đăng nhập rồi thì được truy cập tài nguyên của mình | Không có gì tự ràng buộc "của mình" | [4](04-guards-interceptors.md) |
-| `interceptor.timeout()` huỷ được query | Chỉ ngừng chờ; query vẫn commit | [4](04-guards-interceptors.md) · [6](06-database-integration-transactions.md) |
+| Pipe validate trước khi guard chạy | Guard chạy **trước**; nó thấy dữ liệu thô | [1](./behavior/01-request-lifecycle.md) |
+| `imports` bắc cầu qua nhiều tầng module | Không; mỗi module phải import trực tiếp | [2](./behavior/02-modules-di.md) |
+| DTO có type TypeScript nghĩa là đã validate | Type biến mất khi compile | [3](./behavior/03-validation-errors.md) |
+| Đăng nhập rồi thì được truy cập tài nguyên của mình | Không có gì tự ràng buộc "của mình" | [4](./behavior/04-guards-interceptors.md) |
+| `interceptor.timeout()` huỷ được query | Chỉ ngừng chờ; query vẫn commit | [4](./behavior/04-guards-interceptors.md) · [6](./behavior/06-database-integration-transactions.md) |
 
 ## Position
 
@@ -155,7 +172,7 @@ HTTP → Node runtime → NestJS → Domain/Service → Cache/Queue → PostgreS
 ## Related
 
 - [00-http-api/](../00-http-api/README.md) — hợp đồng mà framework này phục vụ
-- [01-nodejs/](../01-nodejs/README.md) — runtime bên dưới; đọc [Module system](../01-nodejs/06-module-system-node.md) trước note 2
+- [01-nodejs/](../01-nodejs/README.md) — runtime bên dưới; đọc [Module system](../01-nodejs/fundamentals/02-module-system.md) trước note 2
 - [04-architecture/](../04-architecture/README.md) — cái gì xảy ra sau controller
 - [03-auth/](../03-auth/README.md) — cơ chế đằng sau guard
 - [03-database/](../../03-database/README.md) — tầng dưới của note 6 và 7

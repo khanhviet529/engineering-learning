@@ -6,7 +6,7 @@ prerequisites:
 related:
   - 02-modular-monolith.md
   - 04-error-handling-strategy.md
-  - ../02-nestjs/06-database-integration-transactions.md
+  - ../02-nestjs/behavior/06-database-integration-transactions.md
 ---
 
 # Domain logic boundaries
@@ -110,7 +110,7 @@ INVARIANT (domain)         "task đã đóng không đóng lại được"
                            → domain object
 ```
 
-Đưa invariant vào DTO là lỗi hay gặp vì `class-validator` có `@ValidateIf` và nó *trông như* làm được. Nhưng DTO chỉ thấy payload, không thấy trạng thái hiện tại của hệ thống — nên quy tắc đó sẽ không bao giờ đầy đủ. Xem [Validation & errors](../02-nestjs/03-validation-errors.md).
+Đưa invariant vào DTO là lỗi hay gặp vì `class-validator` có `@ValidateIf` và nó *trông như* làm được. Nhưng DTO chỉ thấy payload, không thấy trạng thái hiện tại của hệ thống — nên quy tắc đó sẽ không bao giờ đầy đủ. Xem [Validation & errors](../02-nestjs/behavior/03-validation-errors.md).
 
 ## How It Works
 
@@ -145,7 +145,7 @@ SAU:    domain ◀────── Prisma        (hạ tầng phụ thuộc do
         (domain định nghĩa interface, hạ tầng implement)
 ```
 
-Chi tiết kỹ thuật: dùng `abstract class`, **không** dùng `interface` — interface bị xoá khi compile nên không làm token DI được. Xem [Modules & DI](../02-nestjs/02-modules-di.md).
+Chi tiết kỹ thuật: dùng `abstract class`, **không** dùng `interface` — interface bị xoá khi compile nên không làm token DI được. Xem [Modules & DI](../02-nestjs/behavior/02-modules-di.md).
 
 Câu hỏi công bằng: *"đây có phải over-engineering không?"* Với CRUD thuần thì có. Nó bắt đầu trả lãi khi quy tắc nghiệp vụ đủ nhiều để bạn muốn test chúng mà không cần DB — và bạn sẽ biết lúc nào, vì bạn sẽ thấy mình tránh viết test.
 
@@ -391,7 +391,7 @@ Hai dòng setup, không DB, không HTTP, chạy trong một mili giây. So sánh
 - **Quy tắc quan trọng nên có hai lớp**: domain (thông báo tốt, test rẻ) và DB constraint (đúng cả khi có concurrency và cả khi có người sửa dữ liệu bằng tay). Chúng bổ sung, không thay thế nhau.
 - **Domain ném lỗi domain**; đúng một chỗ dịch sang HTTP. Xem [Error handling strategy](04-error-handling-strategy.md).
 - **Ghi lại quy tắc dưới dạng test có tên đọc được**: `it('gói free chặn project thứ tư')`. Đây là tài liệu duy nhất không bao giờ lỗi thời.
-- **Aggregate lớn là vấn đề vận hành**, không chỉ vấn đề thiết kế: nó tạo transaction dài, khoá rộng và deadlock. Xem [Locking & deadlock](../../03-database/01-postgresql/05-locking-deadlock.md).
+- **Aggregate lớn là vấn đề vận hành**, không chỉ vấn đề thiết kế: nó tạo transaction dài, khoá rộng và deadlock. Xem [Locking & deadlock](../../03-database/01-postgresql/transactions-concurrency/03-locking-deadlock.md).
 - **Value object cho tiền và thời gian là hai chỗ đáng đầu tư nhất.** Số thực cho tiền và `Date` không có múi giờ là hai nguồn bug âm thầm phổ biến nhất trong hệ thống nghiệp vụ.
 - **Đừng bắt đầu bằng kiến trúc đầy đủ.** Bắt đầu bằng service + repository; rút domain object ra khi bạn thấy quy tắc thứ hai bị lặp. Trừu tượng dựa trên hai ví dụ thật tốt hơn trừu tượng dựa trên dự đoán.
 
@@ -424,8 +424,8 @@ Hai dòng setup, không DB, không HTTP, chạy trong một mili giây. So sánh
 - [Controller → Service → Repository](01-controller-service-repository.md) — layer, nền của note này
 - [Modular monolith](02-modular-monolith.md) — ranh giới giữa các module
 - [Error handling strategy](04-error-handling-strategy.md) — lỗi domain đi ra HTTP thế nào
-- [Validation & errors](../02-nestjs/03-validation-errors.md) — validation vs invariant
-- [Modules & DI](../02-nestjs/02-modules-di.md) — vì sao interface không làm token được
-- [Database & transactions](../02-nestjs/06-database-integration-transactions.md) — aggregate và transaction
+- [Validation & errors](../02-nestjs/behavior/03-validation-errors.md) — validation vs invariant
+- [Modules & DI](../02-nestjs/behavior/02-modules-di.md) — vì sao interface không làm token được
+- [Database & transactions](../02-nestjs/behavior/06-database-integration-transactions.md) — aggregate và transaction
 - [Constraints & invariants](../../03-database/03-data-modeling/01-constraints-invariants.md) — lớp phòng thủ ở DB
-- [Type system](../../01-web-frontend/01-javascript-typescript/07-typescript-type-system.md) — branded type, mô hình hoá bằng kiểu
+- [Type system](../../01-web-frontend/01-javascript-typescript/typescript/02-type-system.md) — branded type, mô hình hoá bằng kiểu

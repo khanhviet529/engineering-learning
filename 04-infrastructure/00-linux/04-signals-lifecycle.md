@@ -5,8 +5,8 @@ prerequisites:
   - 01-process-files-env.md
 related:
   - 02-memory-cpu-limits.md
-  - ../../02-backend-api/01-nodejs/05-graceful-shutdown.md
-  - ../04-kubernetes/07-rollout-rollback.md
+  - ../../02-backend-api/01-nodejs/production/02-graceful-shutdown.md
+  - ../04-kubernetes/workloads-networking/03-rollout-rollback.md
 ---
 
 # Signals & lifecycle
@@ -144,7 +144,7 @@ Vì thế shutdown đúng phải **chờ một chút trước khi đóng**:
 6. exit 0
 ```
 
-Chi tiết implementation: [Graceful shutdown](../../02-backend-api/01-nodejs/05-graceful-shutdown.md).
+Chi tiết implementation: [Graceful shutdown](../../02-backend-api/01-nodejs/production/02-graceful-shutdown.md).
 
 ### `preStop` hook: tạo delay không cần sửa code
 
@@ -203,7 +203,7 @@ Ba tình huống handler **không** chạy:
 ③ SIGKILL — không bao giờ chạy
 ```
 
-Điểm ② đáng nhớ: một job CPU-nặng đang chạy làm handler shutdown không bao giờ được gọi, và bạn nhận exit 137 dù code hoàn toàn đúng. Xem [Worker threads & CPU](../../02-backend-api/01-nodejs/04-worker-threads-cpu.md).
+Điểm ② đáng nhớ: một job CPU-nặng đang chạy làm handler shutdown không bao giờ được gọi, và bạn nhận exit 137 dù code hoàn toàn đúng. Xem [Worker threads & CPU](../../02-backend-api/01-nodejs/runtime-io/02-worker-threads-cpu.md).
 
 Và handler phải **idempotent** — orchestrator có thể gửi SIGTERM nhiều lần:
 
@@ -404,12 +404,12 @@ Ba thí nghiệm này phân biệt ba nguyên nhân hoàn toàn khác nhau của
 - [Process, file & env](01-process-files-env.md) — PID 1, `exec`
 - [Memory, CPU & limits](02-memory-cpu-limits.md) — exit 137 vì OOM
 - [Debugging toolbox](07-debugging-toolbox.md) — quan sát process
-- [Graceful shutdown](../../02-backend-api/01-nodejs/05-graceful-shutdown.md) — implementation đầy đủ
-- [Worker threads & CPU](../../02-backend-api/01-nodejs/04-worker-threads-cpu.md) — event loop bị chặn
-- [Rollout & rollback](../04-kubernetes/07-rollout-rollback.md) — chuỗi shutdown trên K8s
-- [Readiness & liveness](../04-kubernetes/02-health-readiness-liveness.md) — probe nào phản ánh shutdown
+- [Graceful shutdown](../../02-backend-api/01-nodejs/production/02-graceful-shutdown.md) — implementation đầy đủ
+- [Worker threads & CPU](../../02-backend-api/01-nodejs/runtime-io/02-worker-threads-cpu.md) — event loop bị chặn
+- [Rollout & rollback](../04-kubernetes/workloads-networking/03-rollout-rollback.md) — chuỗi shutdown trên K8s
+- [Readiness & liveness](../04-kubernetes/scheduling-reliability/01-health-readiness-liveness.md) — probe nào phản ánh shutdown
 - [Image & container](../02-docker/01-image-container.md) — `CMD`, `ENTRYPOINT`
-- [Config & lifecycle (NestJS)](../../02-backend-api/02-nestjs/05-config-lifecycle.md) — `enableShutdownHooks`
+- [Config & lifecycle (NestJS)](../../02-backend-api/02-nestjs/behavior/05-config-lifecycle.md) — `enableShutdownHooks`
 
 ## Version / Context
 

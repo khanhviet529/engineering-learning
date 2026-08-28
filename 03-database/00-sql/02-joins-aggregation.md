@@ -6,7 +6,7 @@ prerequisites:
 related:
   - 03-subqueries-cte.md
   - 04-window-functions.md
-  - ../01-postgresql/02-index-query-plan.md
+  - ../01-postgresql/indexes-query-planning/01-index-query-plan.md
 ---
 
 # Joins & aggregation
@@ -235,7 +235,7 @@ Hai triệu chứng đáng nhớ:
 - **Nested loop trên bảng lớn không index** → chậm theo cấp số nhân. Thường là do thiếu index trên cột FK.
 - **Hash join tràn ra đĩa** (`Batches: 8` trong `EXPLAIN ANALYZE`) → `work_mem` không đủ.
 
-Chi tiết: [Index & query plan](../01-postgresql/02-index-query-plan.md) và [EXPLAIN ANALYZE workflow](../01-postgresql/08-explain-analyze-workflow.md).
+Chi tiết: [Index & query plan](../01-postgresql/indexes-query-planning/01-index-query-plan.md) và [EXPLAIN ANALYZE workflow](../01-postgresql/indexes-query-planning/03-explain-analyze-workflow.md).
 
 Một điều quan trọng về index: **PostgreSQL tự tạo index cho PRIMARY KEY nhưng KHÔNG tự tạo index cho FOREIGN KEY.** Đây là nguyên nhân rất phổ biến của join chậm.
 
@@ -417,12 +417,12 @@ Bước 1 và 2 chỉ cần `count(*)` và giải quyết phần lớn bug JOIN 
 - [Relational thinking](01-relational-thinking.md) — thứ tự logic, NULL, cardinality
 - [Subqueries & CTE](03-subqueries-cte.md) — chia query lớn, gom trước khi join
 - [Window functions](04-window-functions.md) — số liệu theo nhóm mà **không** gom dòng
-- [Index & query plan](../01-postgresql/02-index-query-plan.md) — vì sao join nhanh hay chậm
-- [EXPLAIN ANALYZE workflow](../01-postgresql/08-explain-analyze-workflow.md) — đọc plan
-- [Index types](../01-postgresql/07-index-types.md) — composite, partial, covering
+- [Index & query plan](../01-postgresql/indexes-query-planning/01-index-query-plan.md) — vì sao join nhanh hay chậm
+- [EXPLAIN ANALYZE workflow](../01-postgresql/indexes-query-planning/03-explain-analyze-workflow.md) — đọc plan
+- [Index types](../01-postgresql/indexes-query-planning/02-index-types.md) — composite, partial, covering
 - [Relationships & cardinality](../03-data-modeling/03-relationships-cardinality.md) — nguồn của fan-out
 - [Pagination](../../02-backend-api/00-http-api/04-pagination-filtering-sorting.md) — keyset vs offset
-- [Database & transactions](../../02-backend-api/02-nestjs/06-database-integration-transactions.md) — N+1 từ phía ORM
+- [Database & transactions](../../02-backend-api/02-nestjs/behavior/06-database-integration-transactions.md) — N+1 từ phía ORM
 
 ## Version / Context
 

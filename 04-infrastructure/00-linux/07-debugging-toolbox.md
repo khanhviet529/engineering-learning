@@ -453,7 +453,7 @@ Bước ⑦ cũng vậy: đổi ba thứ cùng lúc rồi thấy hết chậm ng
 - [Ports & sockets](05-ports-sockets.md) — `ss`, trạng thái TCP
 - [Logs & services](06-logs-and-services.md) — `journalctl`, `df`, `du`
 - [Network debugging](../01-networking/06-network-debugging.md) — tầng mạng
-- [Debugging Kubernetes](../04-kubernetes/10-debugging-k8s.md) — tầng orchestrator
+- [Debugging Kubernetes](../04-kubernetes/operations/02-debugging-k8s.md) — tầng orchestrator
 - [Latency & throughput](../../05-cross-cutting/performance/01-latency-throughput-bottleneck.md) — phương pháp chung
 - [Logs, metrics & traces](../../05-cross-cutting/observability/01-logs-metrics-traces.md) — quan sát trước khi cần
 

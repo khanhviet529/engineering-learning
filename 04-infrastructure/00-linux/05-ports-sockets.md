@@ -392,7 +392,7 @@ Xem thêm [Network debugging](../01-networking/06-network-debugging.md).
 - [Network debugging](../01-networking/06-network-debugging.md) — quy trình đầy đủ
 - [Container networking](../02-docker/02-container-networking.md) — namespace mạng, `localhost`
 - [Docker common failures](../02-docker/08-common-failures.md) — `connection refused` kinh điển
-- [Node runtime & concurrency](../../02-backend-api/01-nodejs/01-node-runtime-concurrency.md) — event loop và `accept()`
+- [Node runtime & concurrency](../../02-backend-api/01-nodejs/fundamentals/01-runtime-concurrency.md) — event loop và `accept()`
 
 ## Version / Context
 

@@ -430,7 +430,7 @@ Khi kết quả không như mong đợi, đi theo thứ tự này:
 - [Reviewing AI code](03-reviewing-ai-code.md) — kiểm tra kết quả
 - [Hallucination & verification](04-hallucination-verification.md) — vì sao phiên bản quan trọng
 - [AI security & limits](05-ai-security-limits.md) — cái không nên đưa vào ngữ cảnh
-- [TypeScript runtime boundary](../01-web-frontend/01-javascript-typescript/02-typescript-runtime-boundary.md) — type là đặc tả
+- [TypeScript runtime boundary](../01-web-frontend/01-javascript-typescript/typescript/01-runtime-boundary.md) — type là đặc tả
 - [Configuration](../02-backend-api/04-architecture/05-configuration.md) — ràng buộc vận hành
 - [Requirements & trade-offs](../06-system-design/01-requirements-tradeoffs.md) — nêu ràng buộc bằng số
 - [Test theo behavior](../05-cross-cutting/testing/01-testing-pyramid-behavior.md) — behavior là hợp đồng bạn định nghĩa

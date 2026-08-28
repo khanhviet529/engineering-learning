@@ -424,7 +424,7 @@ Cùng dữ liệu, khác định dạng — và khác biệt là giữa 40 phút
 - [Secrets management](../security/06-secrets-management.md) — log là nơi bí mật rò rỉ
 - [Error handling strategy](../../02-backend-api/04-architecture/04-error-handling-strategy.md) — log lỗi ở đâu
 - [Logs & services](../../04-infrastructure/00-linux/06-logs-and-services.md) — stdout, xoay vòng, journald
-- [Request lifecycle](../../02-backend-api/02-nestjs/01-request-lifecycle.md) — nơi đặt middleware ngữ cảnh
+- [Request lifecycle](../../02-backend-api/02-nestjs/behavior/01-request-lifecycle.md) — nơi đặt middleware ngữ cảnh
 - [Access control](../security/04-access-control.md) — log quyết định từ chối
 
 ## Version / Context

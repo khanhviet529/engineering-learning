@@ -116,7 +116,7 @@ Yêu cầu nghiệp vụ → SCHEMA → Constraint → Query → Index → Hiệ
 - [00-sql/](../00-sql/README.md) — ngôn ngữ để truy vấn mô hình này
 - [01-postgresql/](../01-postgresql/README.md) — engine: index, MVCC, khoá, plan
 - [Domain logic boundaries](../../02-backend-api/04-architecture/03-domain-logic-boundaries.md) — mô hình dữ liệu vs mô hình domain
-- [Validation & errors](../../02-backend-api/02-nestjs/03-validation-errors.md) — ba tầng kiểm tra
+- [Validation & errors](../../02-backend-api/02-nestjs/behavior/03-validation-errors.md) — ba tầng kiểm tra
 - [CI/CD pipeline](../../04-infrastructure/03-cicd/01-pipeline.md) — migration trong pipeline
 - [Modular monolith](../../02-backend-api/04-architecture/02-modular-monolith.md) — ranh giới dữ liệu giữa module
 

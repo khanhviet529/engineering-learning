@@ -84,7 +84,7 @@ Mỗi record có **TTL**. TTL là lý do đổi DNS không có hiệu lực ngay
 
 Record thường gặp: `A` (IPv4), `AAAA` (IPv6), `CNAME` (bí danh trỏ tên khác), `TXT` (xác thực domain), `SRV` (tên + port).
 
-Trong Docker và Kubernetes, DNS được cung cấp bởi platform: service name → IP nội bộ. Xem [Container networking](../../04-infrastructure/02-docker/02-container-networking.md) và [Service discovery](../../04-infrastructure/04-kubernetes/06-ingress-service-discovery.md).
+Trong Docker và Kubernetes, DNS được cung cấp bởi platform: service name → IP nội bộ. Xem [Container networking](../../04-infrastructure/02-docker/02-container-networking.md) và [Service discovery](../../04-infrastructure/04-kubernetes/workloads-networking/02-ingress-service-discovery.md).
 
 ### TCP
 

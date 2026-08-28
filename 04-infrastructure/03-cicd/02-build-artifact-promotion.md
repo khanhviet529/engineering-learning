@@ -413,8 +413,8 @@ Bước 3 chia đôi không gian tìm kiếm cho lớp lỗi "chỉ có ở prod
 - [Image & container](../02-docker/01-image-container.md) — tag vs digest
 - [Configuration](../../02-backend-api/04-architecture/05-configuration.md) — khác biệt môi trường
 - [Migrations](../../03-database/03-data-modeling/04-migrations.md) — điều kiện để rollback được
-- [Rollout & rollback](../04-kubernetes/07-rollout-rollback.md) — phía Kubernetes
-- [Config & lifecycle (NestJS)](../../02-backend-api/02-nestjs/05-config-lifecycle.md) — validate config
+- [Rollout & rollback](../04-kubernetes/workloads-networking/03-rollout-rollback.md) — phía Kubernetes
+- [Config & lifecycle (NestJS)](../../02-backend-api/02-nestjs/behavior/05-config-lifecycle.md) — validate config
 
 ## Version / Context
 

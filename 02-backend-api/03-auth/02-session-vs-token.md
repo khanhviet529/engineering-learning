@@ -387,9 +387,9 @@ path: '/auth/refresh'    → cookie chỉ gửi tới đúng endpoint đó, gi�
 - [Password & MFA](05-password-mfa.md) — bước xác thực đầu tiên
 - [Cookies & storage](../../01-web-frontend/00-web-foundations/05-cookies-storage.md) — phía trình duyệt
 - [XSS & CSRF](../../05-cross-cutting/security/03-xss-csrf.md) — hai tấn công quyết định nơi lưu token
-- [Middleware & auth patterns (Next.js)](../../01-web-frontend/03-nextjs/06-middleware-auth-patterns.md)
+- [Middleware & auth patterns (Next.js)](../../01-web-frontend/03-nextjs/behavior/06-middleware-auth-patterns.md)
 - [Persistence & failure (Redis)](../../03-database/02-redis/05-persistence-failure.md) — session store
-- [Guards & interceptors](../02-nestjs/04-guards-interceptors.md) — implementation
+- [Guards & interceptors](../02-nestjs/behavior/04-guards-interceptors.md) — implementation
 
 ## Version / Context
 

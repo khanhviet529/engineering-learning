@@ -431,7 +431,7 @@ Và một deadman switch để biết chính hệ thống cảnh báo còn sốn
 - [Failure modes](../reliability/01-failure-modes.md) — thứ cần cảnh báo
 - [Graceful degradation](../reliability/03-graceful-degradation.md) — giảm thiểu trong runbook
 - [Deployment strategies](../../04-infrastructure/03-cicd/03-deployment-strategies.md) — rollback là bước giảm thiểu số một
-- [Debugging Kubernetes](../../04-infrastructure/04-kubernetes/10-debugging-k8s.md) — điều tra ở tầng hạ tầng
+- [Debugging Kubernetes](../../04-infrastructure/04-kubernetes/operations/02-debugging-k8s.md) — điều tra ở tầng hạ tầng
 
 ## Version / Context
 

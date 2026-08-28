@@ -127,10 +127,10 @@ người dùng → app ───┼─── TRACE   "sai ở đâu?"  ───
 - [Reliability](../reliability/README.md) — thứ observability giúp bạn giữ
 - [Performance](../performance/README.md) — dùng cùng dữ liệu để tối ưu
 - [Security](../security/README.md) — audit log và phát hiện bất thường
-- [Graceful shutdown](../../02-backend-api/01-nodejs/05-graceful-shutdown.md) — log lúc tắt
-- [Debugging Kubernetes](../../04-infrastructure/04-kubernetes/10-debugging-k8s.md) — quan sát ở tầng hạ tầng
+- [Graceful shutdown](../../02-backend-api/01-nodejs/production/02-graceful-shutdown.md) — log lúc tắt
+- [Debugging Kubernetes](../../04-infrastructure/04-kubernetes/operations/02-debugging-k8s.md) — quan sát ở tầng hạ tầng
 - [Logs & services](../../04-infrastructure/00-linux/06-logs-and-services.md) — stdout, journald, xoay vòng
-- [Explain analyze workflow](../../03-database/01-postgresql/08-explain-analyze-workflow.md) — quan sát ở tầng database
+- [Explain analyze workflow](../../03-database/01-postgresql/indexes-query-planning/03-explain-analyze-workflow.md) — quan sát ở tầng database
 
 ## Version / Context
 

@@ -363,7 +363,7 @@ Nếu đảo ngược — chạy 5 trường hợp điều kiện qua database �
 - [Deterministic tests](06-deterministic-tests.md) — chống flaky khi chạy song song
 - [Migrations](../../03-database/03-data-modeling/04-migrations.md) — thứ cần được test
 - [Constraints & invariants](../../03-database/03-data-modeling/01-constraints-invariants.md) — ràng buộc mà mock không có
-- [Testing NestJS](../../02-backend-api/02-nestjs/09-testing-nestjs.md) — cài đặt cụ thể
+- [Testing NestJS](../../02-backend-api/02-nestjs/behavior/09-testing-nestjs.md) — cài đặt cụ thể
 
 ## Version / Context
 

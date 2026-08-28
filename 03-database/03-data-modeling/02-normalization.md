@@ -6,7 +6,7 @@ prerequisites:
 related:
   - 03-relationships-cardinality.md
   - 01-constraints-invariants.md
-  - ../01-postgresql/02-index-query-plan.md
+  - ../01-postgresql/indexes-query-planning/01-index-query-plan.md
 ---
 
 # Normalization & denormalization
@@ -403,8 +403,8 @@ Dòng cuối là bài kiểm tra quan trọng nhất trước khi quyết địn
 - [Migrations](04-migrations.md) — đổi mô hình dữ liệu ở production
 - [Relational thinking](../00-sql/01-relational-thinking.md) — vì sao dữ liệu được chia ra
 - [Joins & aggregation](../00-sql/02-joins-aggregation.md) — cái giá thật của JOIN
-- [Index types](../01-postgresql/07-index-types.md) — GIN cho jsonb, expression index
-- [Index & query plan](../01-postgresql/02-index-query-plan.md) — đo trước khi denormalize
+- [Index types](../01-postgresql/indexes-query-planning/02-index-types.md) — GIN cho jsonb, expression index
+- [Index & query plan](../01-postgresql/indexes-query-planning/01-index-query-plan.md) — đo trước khi denormalize
 - [Domain logic boundaries](../../02-backend-api/04-architecture/03-domain-logic-boundaries.md) — mô hình dữ liệu và mô hình domain
 
 ## Version / Context

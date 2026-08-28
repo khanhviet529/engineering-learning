@@ -2,11 +2,11 @@
 level: intermediate
 area: database
 prerequisites:
-  - ../../02-backend-api/01-nodejs/01-node-runtime-concurrency.md
+  - ../../02-backend-api/01-nodejs/fundamentals/01-runtime-concurrency.md
 related:
   - 02-delivery-semantics.md
   - 05-broker-comparison.md
-  - ../../02-backend-api/02-nestjs/07-caching-queues-jobs.md
+  - ../../02-backend-api/02-nestjs/behavior/07-caching-queues-jobs.md
 ---
 
 # Vì sao cần queue
@@ -287,7 +287,7 @@ CẦN PHÁT LẠI, THỨ TỰ, THÔNG LƯỢNG RẤT CAO
   - vận hành nặng
 ```
 
-Điểm về PostgreSQL đáng nhấn mạnh vì nó bị đánh giá thấp: nếu bạn đã có PostgreSQL và throughput vừa phải, một bảng `jobs` với `SKIP LOCKED` cho bạn một tính chất mà **không** broker nào có được — job được enqueue trong **cùng transaction** với dữ liệu nghiệp vụ, nên không bao giờ có job mồ côi hay sự kiện mất. Đó chính là outbox pattern ở dạng đơn giản nhất. Xem [Locking & deadlock](../01-postgresql/05-locking-deadlock.md) và [Broker comparison](05-broker-comparison.md).
+Điểm về PostgreSQL đáng nhấn mạnh vì nó bị đánh giá thấp: nếu bạn đã có PostgreSQL và throughput vừa phải, một bảng `jobs` với `SKIP LOCKED` cho bạn một tính chất mà **không** broker nào có được — job được enqueue trong **cùng transaction** với dữ liệu nghiệp vụ, nên không bao giờ có job mồ côi hay sự kiện mất. Đó chính là outbox pattern ở dạng đơn giản nhất. Xem [Locking & deadlock](../01-postgresql/transactions-concurrency/03-locking-deadlock.md) và [Broker comparison](05-broker-comparison.md).
 
 ## Example
 
@@ -448,7 +448,7 @@ Cái mất:
 - **Version hoá payload** ngay từ job đầu tiên — thêm một trường `v`.
 - **Job phải idempotent**, và điều đó phải được **test**: chạy cùng job hai lần trong test tích hợp và khẳng định trạng thái không đổi.
 - **Enqueue nguyên tử với ghi DB** cho việc quan trọng — dùng outbox. Xem [Outbox pattern](06-outbox-pattern.md).
-- **Graceful shutdown cho worker**: ngừng nhận job mới, chờ job hiện tại xong, rồi mới đóng DB/Redis. Xem [Graceful shutdown](../../02-backend-api/01-nodejs/05-graceful-shutdown.md).
+- **Graceful shutdown cho worker**: ngừng nhận job mới, chờ job hiện tại xong, rồi mới đóng DB/Redis. Xem [Graceful shutdown](../../02-backend-api/01-nodejs/production/02-graceful-shutdown.md).
 - **Job dài phải có checkpoint** — nó sẽ bị cắt giữa chừng khi deploy.
 - **Giới hạn tài nguyên riêng cho worker** (CPU/memory), khác với API.
 - **Ghi lại danh sách job**: tên, ý nghĩa, idempotent bằng cách nào, hành vi khi fail. Đây là tài liệu vận hành thật.
@@ -488,11 +488,11 @@ Cái mất:
 - [Ordering & partitioning](04-ordering-partitioning.md) — khi thứ tự quan trọng
 - [Broker comparison](05-broker-comparison.md) — chọn công nghệ
 - [Outbox pattern](06-outbox-pattern.md) — enqueue nguyên tử với ghi DB
-- [Caching, queues & jobs (NestJS)](../../02-backend-api/02-nestjs/07-caching-queues-jobs.md) — implementation
-- [Locking & deadlock](../01-postgresql/05-locking-deadlock.md) — `SKIP LOCKED` làm hàng đợi
-- [Node runtime & concurrency](../../02-backend-api/01-nodejs/01-node-runtime-concurrency.md) — vì sao job CPU chặn event loop
+- [Caching, queues & jobs (NestJS)](../../02-backend-api/02-nestjs/behavior/07-caching-queues-jobs.md) — implementation
+- [Locking & deadlock](../01-postgresql/transactions-concurrency/03-locking-deadlock.md) — `SKIP LOCKED` làm hàng đợi
+- [Node runtime & concurrency](../../02-backend-api/01-nodejs/fundamentals/01-runtime-concurrency.md) — vì sao job CPU chặn event loop
 - [Backpressure](../../05-cross-cutting/performance/06-backpressure.md) — vào > ra
-- [Autoscaling](../../04-infrastructure/04-kubernetes/09-autoscaling.md) — scale theo độ dài hàng đợi
+- [Autoscaling](../../04-infrastructure/04-kubernetes/scheduling-reliability/03-autoscaling.md) — scale theo độ dài hàng đợi
 
 ## Version / Context
 

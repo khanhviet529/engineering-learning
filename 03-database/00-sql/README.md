@@ -21,6 +21,10 @@ Ba câu đó bắt được gần hết bug SQL thật, và không câu nào li�
 
 | # | Note | Trả lời câu hỏi |
 |---|---|---|
+| 0 | [SQL basics](00-sql-basics.md) | Bảng, ràng buộc, bốn câu lệnh, và ba cái bẫy của NULL |
+
+| # | Note | Trả lời câu hỏi |
+|---|---|---|
 | 1 | [Relational thinking](01-relational-thinking.md) | Vì sao tư duy mảng làm SQL vừa chậm vừa sai? |
 | 2 | [Joins & aggregation](02-joins-aggregation.md) | Vì sao báo cáo doanh thu ra số lớn gấp 6 lần? |
 | 3 | [Subqueries & CTE](03-subqueries-cte.md) | Làm sao chia một query 180 dòng thành phần kiểm chứng được? |
@@ -124,7 +128,7 @@ Service → Repository → SQL → PostgreSQL planner → storage
 
 - [01-postgresql/](../01-postgresql/README.md) — engine bên dưới: index, plan, MVCC, lock
 - [03-data-modeling/](../03-data-modeling/README.md) — vì sao dữ liệu được chia ra nhiều bảng
-- [Database & transactions](../../02-backend-api/02-nestjs/06-database-integration-transactions.md) — SQL qua ORM, N+1
+- [Database & transactions](../../02-backend-api/02-nestjs/behavior/06-database-integration-transactions.md) — SQL qua ORM, N+1
 - [Pagination](../../02-backend-api/00-http-api/04-pagination-filtering-sorting.md) — keyset vs offset
 - [Database performance](../../05-cross-cutting/performance/04-database-performance.md) — đo và tối ưu
 

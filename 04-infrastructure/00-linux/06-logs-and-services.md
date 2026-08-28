@@ -454,7 +454,7 @@ lsof +L1                          # link count = 0 → đã xoá nhưng còn m�
 - [Structured logging](../../05-cross-cutting/observability/02-structured-logging.md) — hình dạng dòng log
 - [Correlation ID & tracing](../../05-cross-cutting/observability/03-correlation-tracing.md) — `requestId`
 - [Image & container](../02-docker/01-image-container.md) — log driver
-- [Caching, queues & jobs](../../02-backend-api/02-nestjs/07-caching-queues-jobs.md) — job định kỳ trên nhiều replica
+- [Caching, queues & jobs](../../02-backend-api/02-nestjs/behavior/07-caching-queues-jobs.md) — job định kỳ trên nhiều replica
 - [Secrets management](../../05-cross-cutting/security/06-secrets-management.md) — secret trong log
 
 ## Version / Context

@@ -2,11 +2,11 @@
 level: intermediate
 area: database
 prerequisites:
-  - ../01-postgresql/02-index-query-plan.md
+  - ../01-postgresql/indexes-query-planning/01-index-query-plan.md
 related:
   - 03-cache-patterns.md
   - 04-eviction-memory.md
-  - ../../02-backend-api/02-nestjs/07-caching-queues-jobs.md
+  - ../../02-backend-api/02-nestjs/behavior/07-caching-queues-jobs.md
 ---
 
 # Cache & invalidation
@@ -439,7 +439,7 @@ metric hit/miss          biết cache có hoạt động không
 - **Tách Redis cache khỏi Redis queue.** Cache dùng `allkeys-lru`; queue **không** được evict. Xem [Vì sao cần queue](../04-message-queues/01-why-queue.md).
 - **Không cache dữ liệu nhạy cảm về quyền** — hoặc nếu có, TTL rất ngắn và biết rõ cửa sổ mà quyền bị thu hồi vẫn còn hiệu lực.
 - **Ghi lại danh sách cache** ở một chỗ: key pattern, TTL, ai invalidate. Đây là tài liệu ngăn ví dụ mở đầu xảy ra.
-- **Cache nhất quán giữa các instance** — nghĩa là dùng Redis, không dùng `Map` trong bộ nhớ. Xem [Caching, queues & jobs](../../02-backend-api/02-nestjs/07-caching-queues-jobs.md).
+- **Cache nhất quán giữa các instance** — nghĩa là dùng Redis, không dùng `Map` trong bộ nhớ. Xem [Caching, queues & jobs](../../02-backend-api/02-nestjs/behavior/07-caching-queues-jobs.md).
 
 ## Trade-offs
 
@@ -474,9 +474,9 @@ metric hit/miss          biết cache có hoạt động không
 - [Eviction & memory](04-eviction-memory.md) — `maxmemory-policy`, key biến mất
 - [Persistence & failure](05-persistence-failure.md) — Redis restart mất gì
 - [Rate limit & locking](02-rate-limit-locking.md) — Redis ngoài vai trò cache
-- [Caching, queues & jobs (NestJS)](../../02-backend-api/02-nestjs/07-caching-queues-jobs.md) — implementation
+- [Caching, queues & jobs (NestJS)](../../02-backend-api/02-nestjs/behavior/07-caching-queues-jobs.md) — implementation
 - [HTTP & browser cache](../../01-web-frontend/00-web-foundations/02-http-browser-cache.md) — lớp cache ngoài cùng
-- [Data fetching & cache (Next.js)](../../01-web-frontend/03-nextjs/03-data-fetching-cache.md) — lớp framework
+- [Data fetching & cache (Next.js)](../../01-web-frontend/03-nextjs/behavior/03-data-fetching-cache.md) — lớp framework
 - [Timeout, retry & circuit breaker](../../05-cross-cutting/reliability/02-timeout-retry-circuit-breaker.md) — khi cache chết
 - [Scaling, cache & queue](../../06-system-design/02-scaling-cache-queue.md) — cache ở tầng kiến trúc
 

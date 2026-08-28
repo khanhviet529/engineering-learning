@@ -30,6 +30,8 @@ Ba trục tra cứu cho cùng một tập note:
 
 - [Knowledge Audit](knowledge-audit.md) — trạng thái ban đầu, gap, kế hoạch, quyết định về IA
 - [Final Coverage Report](final-coverage-report.md) — kết quả sau khi mở rộng, gap còn lại, vùng cố tình chưa đào sâu
+- [Knowledge Architecture Audit](knowledge-architecture-audit.md) — quyết định taxonomy: khu vực nào tách thành thư mục con và vì sao
+- [Knowledge Architecture Final Report](knowledge-architecture-final-report.md) — kết quả restructure, file đã di chuyển, gap đã lấp
 
 ## Template
 

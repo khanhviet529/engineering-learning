@@ -438,7 +438,7 @@ Với nhiều **tab**, cần thêm khoá liên tab (`BroadcastChannel` hoặc We
 - [Cookies & storage](../../01-web-frontend/00-web-foundations/05-cookies-storage.md) — nơi lưu
 - [XSS & CSRF](../../05-cross-cutting/security/03-xss-csrf.md) — vector đánh cắp token
 - [Secrets management](../../05-cross-cutting/security/06-secrets-management.md) — khoá ký
-- [Guards & interceptors](../02-nestjs/04-guards-interceptors.md) — verify trong request lifecycle
+- [Guards & interceptors](../02-nestjs/behavior/04-guards-interceptors.md) — verify trong request lifecycle
 
 ## Version / Context
 

@@ -121,7 +121,7 @@ Code → CI (kiểm tra, build) → Registry (artifact) → CD (promotion) → P
 
 - [02-docker/](../02-docker/README.md) — artifact là image
 - [04-kubernetes/](../04-kubernetes/README.md) — nơi artifact chạy
-- [Rollout & rollback](../04-kubernetes/07-rollout-rollback.md) — cơ chế deploy trong K8s
+- [Rollout & rollback](../04-kubernetes/workloads-networking/03-rollout-rollback.md) — cơ chế deploy trong K8s
 - [Migrations](../../03-database/03-data-modeling/04-migrations.md) — điều kiện của tương thích ngược
 - [Configuration](../../02-backend-api/04-architecture/05-configuration.md) — khác biệt môi trường
 - [Testing](../../05-cross-cutting/testing/README.md) — cái gì chạy trong pipeline

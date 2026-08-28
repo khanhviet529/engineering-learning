@@ -5,7 +5,7 @@ prerequisites:
   - 01-failure-modes.md
 related:
   - ../performance/06-backpressure.md
-  - ../../04-infrastructure/04-kubernetes/09-autoscaling.md
+  - ../../04-infrastructure/04-kubernetes/scheduling-reliability/03-autoscaling.md
 ---
 
 # Capacity & limits
@@ -397,9 +397,9 @@ if (Number.isFinite(remaining) && Number.isFinite(limit)) {
 - [Backpressure](../performance/06-backpressure.md) — hành vi khi vượt giới hạn
 - [Profiling & load testing](../performance/05-profiling-load-testing.md) — đo giới hạn thật
 - [Latency & bottleneck](../performance/01-latency-throughput-bottleneck.md) — đường cong hàng đợi
-- [Connection pool](../../03-database/01-postgresql/03-connection-pool.md) — phép tính kết nối
-- [Autoscaling](../../04-infrastructure/04-kubernetes/09-autoscaling.md) — cấu hình HPA
-- [Replication & scaling](../../03-database/01-postgresql/09-replication-scaling.md) — scale tầng dữ liệu
+- [Connection pool](../../03-database/01-postgresql/fundamentals/02-connection-pool.md) — phép tính kết nối
+- [Autoscaling](../../04-infrastructure/04-kubernetes/scheduling-reliability/03-autoscaling.md) — cấu hình HPA
+- [Replication & scaling](../../03-database/01-postgresql/operations/02-replication-scaling.md) — scale tầng dữ liệu
 - [Scaling, cache & queue](../../06-system-design/02-scaling-cache-queue.md) — quyết định kiến trúc
 - [Metrics & SLO](../observability/04-metrics-slo.md) — theo dõi bão hoà
 

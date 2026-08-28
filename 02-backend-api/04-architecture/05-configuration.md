@@ -2,10 +2,10 @@
 level: intermediate
 area: backend
 prerequisites:
-  - ../02-nestjs/05-config-lifecycle.md
+  - ../02-nestjs/behavior/05-config-lifecycle.md
 related:
   - ../../05-cross-cutting/security/06-secrets-management.md
-  - ../../04-infrastructure/04-kubernetes/03-config-secrets-resources.md
+  - ../../04-infrastructure/04-kubernetes/operations/01-config-secrets-resources.md
   - ../../04-infrastructure/02-docker/07-production-image.md
 ---
 
@@ -26,7 +26,7 @@ Nguồn cấu hình (bên ngoài artifact)
    config object có kiểu → mọi tầng của app
 ```
 
-Note [Config & lifecycle](../02-nestjs/05-config-lifecycle.md) nói về cơ chế trong NestJS. Note này nói về **nguyên tắc** — thứ đúng bất kể framework, và thứ quyết định ứng dụng của bạn có deploy được một cách an toàn hay không.
+Note [Config & lifecycle](../02-nestjs/behavior/05-config-lifecycle.md) nói về cơ chế trong NestJS. Note này nói về **nguyên tắc** — thứ đúng bất kể framework, và thứ quyết định ứng dụng của bạn có deploy được một cách an toàn hay không.
 
 ## Problem
 
@@ -108,7 +108,7 @@ process.env   là INPUT KHÔNG ĐÁNG TIN  — string | undefined, ai cũng đ�
 config object là dữ liệu ĐÃ KIỂM TRA, có kiểu
 ```
 
-Đây là cùng một mô hình với validation của request body ở [Validation & errors](../02-nestjs/03-validation-errors.md). Sự khác biệt: request sai chỉ hỏng một request; config sai hỏng toàn bộ instance.
+Đây là cùng một mô hình với validation của request body ở [Validation & errors](../02-nestjs/behavior/03-validation-errors.md). Sự khác biệt: request sai chỉ hỏng một request; config sai hỏng toàn bộ instance.
 
 Vì thế **fail fast** ở đây quan trọng hơn: process không được khởi động với config không hợp lệ.
 
@@ -158,7 +158,7 @@ Crash lúc khởi động là hành vi **mong muốn**: pod mới không bao gi�
 ✅ ALLOWED_ORIGINS bắt buộc, không có mặc định       → quên = không start
 ```
 
-Nguyên tắc chung: **hướng của lỗi khi con người quên phải là hướng an toàn.** Đây là cùng nguyên tắc với "guard toàn cục + opt-out" ở [Guards & interceptors](../02-nestjs/04-guards-interceptors.md).
+Nguyên tắc chung: **hướng của lỗi khi con người quên phải là hướng an toàn.** Đây là cùng nguyên tắc với "guard toàn cục + opt-out" ở [Guards & interceptors](../02-nestjs/behavior/04-guards-interceptors.md).
 
 ### Phân tầng nguồn cấu hình
 
@@ -426,11 +426,11 @@ Dòng này trả lời câu hỏi đầu tiên của mọi cuộc điều tra s�
 
 ## Related
 
-- [Config & lifecycle (NestJS)](../02-nestjs/05-config-lifecycle.md) — implementation cụ thể
+- [Config & lifecycle (NestJS)](../02-nestjs/behavior/05-config-lifecycle.md) — implementation cụ thể
 - [Secrets management](../../05-cross-cutting/security/06-secrets-management.md) — secret ở tầng bảo mật
-- [Config, secrets & resources (K8s)](../../04-infrastructure/04-kubernetes/03-config-secrets-resources.md) — ConfigMap, Secret, mount
+- [Config, secrets & resources (K8s)](../../04-infrastructure/04-kubernetes/operations/01-config-secrets-resources.md) — ConfigMap, Secret, mount
 - [Production image](../../04-infrastructure/02-docker/07-production-image.md) — không nướng secret vào image
 - [Compose](../../04-infrastructure/02-docker/06-compose.md) — giữ local gần production
 - [Build & artifact promotion](../../04-infrastructure/03-cicd/02-build-artifact-promotion.md) — một artifact, nhiều môi trường
 - [Error handling strategy](04-error-handling-strategy.md) — config sai là lỗi khởi động
-- [TypeScript ↔ runtime boundary](../../01-web-frontend/01-javascript-typescript/02-typescript-runtime-boundary.md) — `process.env` là `string | undefined`
+- [TypeScript ↔ runtime boundary](../../01-web-frontend/01-javascript-typescript/typescript/01-runtime-boundary.md) — `process.env` là `string | undefined`

@@ -246,7 +246,7 @@ t=4  Server: thấy abc, status=done → trả lại { paymentId: 'pay_1' }
 - **Retry 4xx** → tải vô ích.
 - **Retry không backoff/jitter** → thundering herd.
 - **Không có TTL** cho bảng idempotency key.
-- **Webhook không idempotent** — mọi provider gửi lại. Xem [Route Handlers](../../01-web-frontend/03-nextjs/05-route-handlers-server-actions.md).
+- **Webhook không idempotent** — mọi provider gửi lại. Xem [Route Handlers](../../01-web-frontend/03-nextjs/behavior/05-route-handlers-server-actions.md).
 
 ## Common Misconceptions
 
@@ -311,5 +311,5 @@ t=4  Server: thấy abc, status=done → trả lại { paymentId: 'pay_1' }
 - [Delivery semantics](../../03-database/04-message-queues/02-delivery-semantics.md) — at-least-once cần idempotency
 - [Constraints & invariants](../../03-database/03-data-modeling/01-constraints-invariants.md) — unique constraint
 - [Timeout, retry, circuit breaker](../../05-cross-cutting/reliability/02-timeout-retry-circuit-breaker.md)
-- [Async race condition](../../01-web-frontend/02-react/03-async-race-condition.md) — double submit ở client
-- [Transaction isolation](../../03-database/01-postgresql/01-transaction-isolation.md)
+- [Async race condition](../../01-web-frontend/02-react/behavior/03-async-race-condition.md) — double submit ở client
+- [Transaction isolation](../../03-database/01-postgresql/transactions-concurrency/01-transaction-isolation.md)

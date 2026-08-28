@@ -355,7 +355,7 @@ resources:
 - [Memory, CPU & limits](../00-linux/02-memory-cpu-limits.md) — cgroup chi tiết
 - [Process, file & env](../00-linux/01-process-files-env.md) — PID namespace, `/proc`
 - [Filesystem & permissions](../00-linux/03-filesystem-permissions.md) — UID và capability
-- [Config, secrets & resources (K8s)](../04-kubernetes/03-config-secrets-resources.md) — `securityContext`
+- [Config, secrets & resources (K8s)](../04-kubernetes/operations/01-config-secrets-resources.md) — `securityContext`
 - [Access control](../../05-cross-cutting/security/04-access-control.md) — nguyên tắc least privilege
 
 ## Version / Context

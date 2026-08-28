@@ -352,7 +352,7 @@ Khung điều tra dùng được cho hầu hết sự cố:
 - [Alerting & dashboards](05-alerting-dashboards.md) — biến tín hiệu thành hành động
 - [Latency & bottleneck](../performance/01-latency-throughput-bottleneck.md) — đọc số độ trễ
 - [Failure modes](../reliability/01-failure-modes.md) — thứ cần quan sát
-- [Debugging Kubernetes](../../04-infrastructure/04-kubernetes/10-debugging-k8s.md) — quan sát ở tầng hạ tầng
+- [Debugging Kubernetes](../../04-infrastructure/04-kubernetes/operations/02-debugging-k8s.md) — quan sát ở tầng hạ tầng
 - [Debugging toolbox](../../04-infrastructure/00-linux/07-debugging-toolbox.md) — khi cần xuống tầng OS
 
 ## Version / Context

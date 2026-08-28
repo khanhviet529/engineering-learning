@@ -155,8 +155,8 @@ Linux (namespace, cgroup) → DOCKER → Compose (một máy) → Kubernetes (c�
 - [01-networking/](../01-networking/README.md) — DNS, TCP, proxy
 - [04-kubernetes/](../04-kubernetes/README.md) — khi Compose không đủ
 - [03-cicd/](../03-cicd/README.md) — nơi image được build và promote
-- [Vì sao cần Kubernetes](../04-kubernetes/04-why-kubernetes.md) — ranh giới của Compose
-- [Graceful shutdown](../../02-backend-api/01-nodejs/05-graceful-shutdown.md) — PID 1 và SIGTERM
+- [Vì sao cần Kubernetes](../04-kubernetes/fundamentals/01-why-kubernetes.md) — ranh giới của Compose
+- [Graceful shutdown](../../02-backend-api/01-nodejs/production/02-graceful-shutdown.md) — PID 1 và SIGTERM
 - [Configuration](../../02-backend-api/04-architecture/05-configuration.md) — không nướng config vào image
 - [Secrets management](../../05-cross-cutting/security/06-secrets-management.md)
 - [Fullstack Lab](../../07-projects/fullstack-lab/README.md) — nơi thực hành

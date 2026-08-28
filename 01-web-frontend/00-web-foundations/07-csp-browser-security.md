@@ -234,4 +234,4 @@ Câu 4 là câu quan trọng: nó cho thấy vì sao cần khoá **nhiều** dir
 - [Secure headers & TLS](../../05-cross-cutting/security/07-secure-headers-tls.md) — tập header đầy đủ
 - [Cookies & storage](05-cookies-storage.md) — `HttpOnly` là lớp bổ sung
 - [CORS](06-cors.md) — cơ chế khác, đừng nhầm lẫn
-- [Middleware & auth patterns](../03-nextjs/06-middleware-auth-patterns.md) — nơi đặt header trong Next.js
+- [Middleware & auth patterns](../03-nextjs/behavior/06-middleware-auth-patterns.md) — nơi đặt header trong Next.js

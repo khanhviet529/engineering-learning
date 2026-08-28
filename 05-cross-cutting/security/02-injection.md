@@ -353,7 +353,7 @@ Lưu ý `'%' || $2 || '%'`: ký tự `%` và `_` trong `q` vẫn hoạt động 
 - [SSRF & supply chain](05-ssrf-supply-chain.md) — injection vào URL
 - [Relational thinking](../../03-database/00-sql/01-relational-thinking.md) — cách query được xây
 - [Constraints & invariants](../../03-database/03-data-modeling/01-constraints-invariants.md) — lớp bảo vệ ở dữ liệu
-- [Validation & errors](../../02-backend-api/02-nestjs/03-validation-errors.md) — validate ở biên
+- [Validation & errors](../../02-backend-api/02-nestjs/behavior/03-validation-errors.md) — validate ở biên
 - [Error handling strategy](../../02-backend-api/04-architecture/04-error-handling-strategy.md) — lỗi nào lộ ra ngoài
 - [Authentication vs Authorization](../../02-backend-api/03-auth/01-authentication-authorization.md) — RLS
 

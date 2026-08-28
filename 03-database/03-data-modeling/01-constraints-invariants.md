@@ -5,7 +5,7 @@ prerequisites:
   - ../00-sql/01-relational-thinking.md
 related:
   - 02-normalization.md
-  - ../01-postgresql/01-transaction-isolation.md
+  - ../01-postgresql/transactions-concurrency/01-transaction-isolation.md
   - ../../02-backend-api/04-architecture/03-domain-logic-boundaries.md
 ---
 
@@ -173,7 +173,7 @@ Hai chi tiết vận hành:
    ```sql
    CREATE INDEX ON order_items (order_id);   -- gần như luôn cần
    ```
-2. **FK lấy khoá trên dòng cha khi ghi dòng con** — đây là một nguồn deadlock ít rõ ràng. Xem [Locking & deadlock](../01-postgresql/05-locking-deadlock.md).
+2. **FK lấy khoá trên dòng cha khi ghi dòng con** — đây là một nguồn deadlock ít rõ ràng. Xem [Locking & deadlock](../01-postgresql/transactions-concurrency/03-locking-deadlock.md).
 
 ### `EXCLUDE`: bất biến giữa nhiều dòng
 
@@ -224,7 +224,7 @@ ALTER TABLE orders ALTER COLUMN user_id SET NOT NULL;   -- nhanh: PG tin CHECK �
 ALTER TABLE orders DROP CONSTRAINT user_id_not_null;
 ```
 
-Xem [Migrations](04-migrations.md) và [Locking & deadlock](../01-postgresql/05-locking-deadlock.md).
+Xem [Migrations](04-migrations.md) và [Locking & deadlock](../01-postgresql/transactions-concurrency/03-locking-deadlock.md).
 
 ### Dịch lỗi constraint thành lỗi có nghĩa
 
@@ -436,10 +436,10 @@ Và nó đọc như một đặc tả nghiệp vụ — thứ mà không tài li
 - [Normalization](02-normalization.md) — cấu trúc bảng quyết định constraint nào khả thi
 - [Relationships & cardinality](03-relationships-cardinality.md) — FK và các loại quan hệ
 - [Migrations](04-migrations.md) — thêm constraint an toàn ở production
-- [Transaction isolation](../01-postgresql/01-transaction-isolation.md) — vì sao kiểm tra ở app sai dưới concurrency
-- [Locking & deadlock](../01-postgresql/05-locking-deadlock.md) — FK và deadlock; `ACCESS EXCLUSIVE` khi `ALTER`
-- [Index types](../01-postgresql/07-index-types.md) — partial unique, exclusion constraint
-- [Validation & errors](../../02-backend-api/02-nestjs/03-validation-errors.md) — tầng validation và dịch lỗi
+- [Transaction isolation](../01-postgresql/transactions-concurrency/01-transaction-isolation.md) — vì sao kiểm tra ở app sai dưới concurrency
+- [Locking & deadlock](../01-postgresql/transactions-concurrency/03-locking-deadlock.md) — FK và deadlock; `ACCESS EXCLUSIVE` khi `ALTER`
+- [Index types](../01-postgresql/indexes-query-planning/02-index-types.md) — partial unique, exclusion constraint
+- [Validation & errors](../../02-backend-api/02-nestjs/behavior/03-validation-errors.md) — tầng validation và dịch lỗi
 - [Domain logic boundaries](../../02-backend-api/04-architecture/03-domain-logic-boundaries.md) — bất biến ở domain
 
 ## Version / Context

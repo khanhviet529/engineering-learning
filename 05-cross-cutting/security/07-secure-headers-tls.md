@@ -411,7 +411,7 @@ Chuyển hướng 80→443 vẫn cần thiết **kể cả khi có HSTS** — n�
 - [Security basics](01-security-basics.md) — mô hình đe doạ
 - [TLS](../../04-infrastructure/01-networking/03-tls.md) — bắt tay, chuỗi tin cậy, SNI
 - [Reverse proxy & load balancer](../../04-infrastructure/01-networking/05-reverse-proxy-load-balancer.md) — nơi TLS kết thúc
-- [Ingress & service discovery](../../04-infrastructure/04-kubernetes/06-ingress-service-discovery.md) — cert trong K8s
+- [Ingress & service discovery](../../04-infrastructure/04-kubernetes/workloads-networking/02-ingress-service-discovery.md) — cert trong K8s
 - [Session vs token](../../02-backend-api/03-auth/02-session-vs-token.md) — thuộc tính cookie
 - [Cookies & storage](../../01-web-frontend/00-web-foundations/05-cookies-storage.md) — cơ chế cookie
 

@@ -5,7 +5,7 @@ prerequisites:
   - 02-scaling-cache-queue.md
 related:
   - 06-storage-selection.md
-  - ../03-database/01-postgresql/09-replication-scaling.md
+  - ../03-database/01-postgresql/operations/02-replication-scaling.md
 ---
 
 # Data partitioning & sharding
@@ -472,8 +472,8 @@ Với hash % 8 → % 9: gần như TOÀN BỘ dữ liệu phải di chuyển.
 - [Storage selection](06-storage-selection.md) — một số kho dữ liệu tự shard
 - [Consistency & availability](04-consistency-availability.md) — nhất quán xuyên shard
 - [Requirements & trade-offs](01-requirements-tradeoffs.md) — có số trước khi quyết định
-- [Replication & scaling](../03-database/01-postgresql/09-replication-scaling.md) — replica và giới hạn của nó
-- [Index & query plan](../03-database/01-postgresql/02-index-query-plan.md) — partition pruning
+- [Replication & scaling](../03-database/01-postgresql/operations/02-replication-scaling.md) — replica và giới hạn của nó
+- [Index & query plan](../03-database/01-postgresql/indexes-query-planning/01-index-query-plan.md) — partition pruning
 - [Migrations](../03-database/03-data-modeling/04-migrations.md) — migration trên nhiều shard
 - [Ordering & partitioning](../03-database/04-message-queues/04-ordering-partitioning.md) — cùng ý tưởng ở tầng message
 - [Capacity & limits](../05-cross-cutting/reliability/04-capacity-and-limits.md) — biết trần trước khi chạm

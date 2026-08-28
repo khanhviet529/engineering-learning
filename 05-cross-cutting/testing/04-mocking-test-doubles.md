@@ -417,7 +417,7 @@ it('dừng sau khi hết số lần thử và giữ đơn ở trạng thái fail
 - [Testcontainers](05-testcontainers.md) — dùng thật cho hạ tầng
 - [Deterministic tests](06-deterministic-tests.md) — thời gian, ngẫu nhiên, thứ tự
 - [Contract testing](07-contract-testing.md) — chống mock trôi giữa các service
-- [Testing NestJS](../../02-backend-api/02-nestjs/09-testing-nestjs.md) — `overrideProvider`
+- [Testing NestJS](../../02-backend-api/02-nestjs/behavior/09-testing-nestjs.md) — `overrideProvider`
 - [Timeout, retry & circuit breaker](../reliability/02-timeout-retry-circuit-breaker.md) — hành vi cần fake để test
 
 ## Version / Context

@@ -146,9 +146,9 @@ Nhiều instance ── advisory lock · leader · khoá Redis + fencing       [
 - [Performance](../performance/README.md) — giới hạn đồng thời và tranh chấp
 - [Reliability](../reliability/README.md) — retry tạo ra đồng thời
 - [Testing](../testing/README.md) — khi flaky hoá ra là race thật
-- [Event loop](../../02-backend-api/01-nodejs/01-node-runtime-concurrency.md) — cơ chế nền
-- [Transaction isolation](../../03-database/01-postgresql/01-transaction-isolation.md) — mức isolation
-- [Locking & deadlock](../../03-database/01-postgresql/05-locking-deadlock.md) — khoá ở PostgreSQL
+- [Event loop](../../02-backend-api/01-nodejs/fundamentals/01-runtime-concurrency.md) — cơ chế nền
+- [Transaction isolation](../../03-database/01-postgresql/transactions-concurrency/01-transaction-isolation.md) — mức isolation
+- [Locking & deadlock](../../03-database/01-postgresql/transactions-concurrency/03-locking-deadlock.md) — khoá ở PostgreSQL
 - [Rate limit & locking](../../03-database/02-redis/02-rate-limit-locking.md) — khoá ở Redis
 - [Idempotency & retry](../../06-system-design/03-idempotency-retry.md) — lựa chọn tốt hơn khoá
 

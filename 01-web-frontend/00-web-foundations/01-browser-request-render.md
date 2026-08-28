@@ -55,7 +55,7 @@ Browser là một **pipeline có nhiều trạm, và một số trạm chặn tr
 
 Hai từ quan trọng nhất trong bảng trên là **CHẶN**. Tối ưu frontend hầu hết là việc trả lời: *cái gì đang chặn cái gì, và có thể bỏ chặn không?*
 
-Bước 5 là streaming: browser **không** chờ nhận hết HTML mới bắt đầu dựng DOM. Nó dựng dần. Đây là nền tảng của streaming SSR trong [Next.js](../03-nextjs/04-rendering-strategies.md).
+Bước 5 là streaming: browser **không** chờ nhận hết HTML mới bắt đầu dựng DOM. Nó dựng dần. Đây là nền tảng của streaming SSR trong [Next.js](../03-nextjs/behavior/04-rendering-strategies.md).
 
 ## How It Works
 
@@ -199,6 +199,6 @@ Nguyên tắc: **xác định TTFB trước**. Nó chia bài toán thành "lỗi
 - [URL → DNS → TCP → TLS](03-url-dns-tcp-tls.md) — chi tiết 3 trạm đầu
 - [Rendering pipeline](04-rendering-pipeline.md) — chi tiết 5 trạm cuối
 - [HTTP & browser cache](02-http-browser-cache.md) — vì sao request không đi ra mạng
-- [Event loop](../01-javascript-typescript/01-event-loop-async.md) — JS chạy khi nào trong pipeline này
-- [Next.js rendering strategies](../03-nextjs/04-rendering-strategies.md) — server can thiệp vào pipeline này ở đâu
+- [Event loop](../01-javascript-typescript/async-concurrency/01-event-loop-async.md) — JS chạy khi nào trong pipeline này
+- [Next.js rendering strategies](../03-nextjs/behavior/04-rendering-strategies.md) — server can thiệp vào pipeline này ở đâu
 - [Frontend performance](../../05-cross-cutting/performance/02-frontend-performance.md) — đo và tối ưu

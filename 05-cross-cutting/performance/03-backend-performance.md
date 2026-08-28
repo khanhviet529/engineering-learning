@@ -162,7 +162,7 @@ Pool QUÁ LỚN  → database quá tải; vượt max_connections
                 và: N pod × pool size là con số DB thực sự thấy
 ```
 
-Xem [Connection pool](../../03-database/01-postgresql/03-connection-pool.md).
+Xem [Connection pool](../../03-database/01-postgresql/fundamentals/02-connection-pool.md).
 
 ### Chi phí mỗi request: những thứ cộng dồn
 
@@ -430,9 +430,9 @@ Và metric để nó không tái diễn:
 - [Database performance](04-database-performance.md) — nút thắt ở tầng dưới
 - [Backpressure](06-backpressure.md) — khi tải vượt khả năng
 - [Profiling & load testing](05-profiling-load-testing.md) — công cụ đo
-- [Event loop](../../02-backend-api/01-nodejs/01-node-runtime-concurrency.md) — cơ chế nền tảng
-- [Connection pool](../../03-database/01-postgresql/03-connection-pool.md) — kích thước pool
-- [Caching, queues & jobs](../../02-backend-api/02-nestjs/07-caching-queues-jobs.md) — đẩy việc ra khỏi request
+- [Event loop](../../02-backend-api/01-nodejs/fundamentals/01-runtime-concurrency.md) — cơ chế nền tảng
+- [Connection pool](../../03-database/01-postgresql/fundamentals/02-connection-pool.md) — kích thước pool
+- [Caching, queues & jobs](../../02-backend-api/02-nestjs/behavior/07-caching-queues-jobs.md) — đẩy việc ra khỏi request
 - [Memory & CPU limits](../../04-infrastructure/00-linux/02-memory-cpu-limits.md) — cgroup và OOMKill
 - [Correlation & tracing](../observability/03-correlation-tracing.md) — đọc trace
 

@@ -407,7 +407,7 @@ Bước 5 là bước hay bị bỏ: `openssl` trên máy bạn dùng trust stor
 - [Secrets management](../../05-cross-cutting/security/06-secrets-management.md) — private key
 - [URL → DNS → TCP → TLS](../../01-web-frontend/00-web-foundations/03-url-dns-tcp-tls.md) — từ phía browser
 - [Production image](../02-docker/07-production-image.md) — CA bundle trong image
-- [Ingress & service discovery](../04-kubernetes/06-ingress-service-discovery.md) — cert-manager
+- [Ingress & service discovery](../04-kubernetes/workloads-networking/02-ingress-service-discovery.md) — cert-manager
 
 ## Version / Context
 

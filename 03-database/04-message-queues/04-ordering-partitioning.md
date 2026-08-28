@@ -193,7 +193,7 @@ await db.userProjection.updateMany({
 // nếu 0 dòng được cập nhật → sự kiện này cũ hơn → bỏ qua, đúng
 ```
 
-Điều kiện `version: { lt: ... }` nằm **trong** câu `UPDATE` là chi tiết quyết định: kiểm tra rồi ghi ở hai bước sẽ có race condition. Xem [Transaction isolation](../01-postgresql/01-transaction-isolation.md).
+Điều kiện `version: { lt: ... }` nằm **trong** câu `UPDATE` là chi tiết quyết định: kiểm tra rồi ghi ở hai bước sẽ có race condition. Xem [Transaction isolation](../01-postgresql/transactions-concurrency/01-transaction-isolation.md).
 
 Kỹ thuật ③ đơn giản nhất và mạnh nhất:
 
@@ -418,7 +418,7 @@ Test ở bước 7 đáng tự động hoá: nó bắt được lớp bug này t
 - [Broker comparison](05-broker-comparison.md) — mỗi broker hỗ trợ thứ tự thế nào
 - [Vì sao cần queue](01-why-queue.md) — nền tảng
 - [Event-driven](../../06-system-design/07-event-driven.md) — thứ tự trong kiến trúc sự kiện
-- [Transaction isolation](../01-postgresql/01-transaction-isolation.md) — kiểm tra version nguyên tử
+- [Transaction isolation](../01-postgresql/transactions-concurrency/01-transaction-isolation.md) — kiểm tra version nguyên tử
 - [Redis pub/sub & streams](../02-redis/06-pubsub-streams.md) — thứ tự trong Redis Streams
 - [Consistency & availability](../../06-system-design/04-consistency-availability.md) — eventual consistency
 

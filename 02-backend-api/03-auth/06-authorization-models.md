@@ -5,7 +5,7 @@ prerequisites:
   - 01-authentication-authorization.md
 related:
   - ../../05-cross-cutting/security/04-access-control.md
-  - ../../03-database/01-postgresql/02-index-query-plan.md
+  - ../../03-database/01-postgresql/indexes-query-planning/01-index-query-plan.md
 ---
 
 # Authorization models
@@ -208,7 +208,7 @@ Hai nơi quan trọng nhất là **guard** (permission) và **query** (ownership
    → endpoint mới bị QUÊN → bị chặn → phát hiện ngay khi test
 ```
 
-Cả hai đều có thể bị quên. Khác biệt là **chiều của hậu quả khi quên**. Xem [Guards & interceptors](../02-nestjs/04-guards-interceptors.md).
+Cả hai đều có thể bị quên. Khác biệt là **chiều của hậu quả khi quên**. Xem [Guards & interceptors](../02-nestjs/behavior/04-guards-interceptors.md).
 
 ### Quyền là dữ liệu, không phải code
 
@@ -403,10 +403,10 @@ Việc `findOne` và `findMany` dùng **cùng một hàm scope** là điểm qua
 - [Authentication vs Authorization](01-authentication-authorization.md) — hai câu hỏi tách biệt, RLS
 - [JWT & refresh token](03-jwt-refresh-token.md) — vì sao quyền không nên nằm trong token
 - [OAuth 2 & OIDC](04-oauth-oidc.md) — scope ở provider khác quyền trong hệ thống bạn
-- [Guards & interceptors](../02-nestjs/04-guards-interceptors.md) — cài đặt mặc định đóng
+- [Guards & interceptors](../02-nestjs/behavior/04-guards-interceptors.md) — cài đặt mặc định đóng
 - [Access control](../../05-cross-cutting/security/04-access-control.md) — lớp lỗi IDOR/BOLA
 - [Domain logic boundaries](../04-architecture/03-domain-logic-boundaries.md) — quy tắc nghiệp vụ đặt ở đâu
-- [Index & query plan](../../03-database/01-postgresql/02-index-query-plan.md) — điều kiện authz cần index
+- [Index & query plan](../../03-database/01-postgresql/indexes-query-planning/01-index-query-plan.md) — điều kiện authz cần index
 - [Constraints & invariants](../../03-database/03-data-modeling/01-constraints-invariants.md) — ràng buộc ở tầng dữ liệu
 
 ## Version / Context

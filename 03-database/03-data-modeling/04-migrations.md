@@ -3,10 +3,10 @@ level: advanced
 area: database
 prerequisites:
   - 01-constraints-invariants.md
-  - ../01-postgresql/05-locking-deadlock.md
+  - ../01-postgresql/transactions-concurrency/03-locking-deadlock.md
 related:
   - ../../04-infrastructure/03-cicd/01-pipeline.md
-  - ../../04-infrastructure/04-kubernetes/07-rollout-rollback.md
+  - ../../04-infrastructure/04-kubernetes/workloads-networking/03-rollout-rollback.md
 ---
 
 # Migrations
@@ -146,7 +146,7 @@ for i in 1 2 3 4 5; do
 done
 ```
 
-Xem [Locking & deadlock](../01-postgresql/05-locking-deadlock.md) cho cơ chế đầy đủ.
+Xem [Locking & deadlock](../01-postgresql/transactions-concurrency/03-locking-deadlock.md) cho cơ chế đầy đủ.
 
 ### Backfill: theo lô, ngoài transaction lớn
 
@@ -452,14 +452,14 @@ Dòng về `CREATE INDEX CONCURRENTLY` bị huỷ đáng nhớ: nó để lại 
 ## Related
 
 - [Constraints & invariants](01-constraints-invariants.md) — `NOT VALID` → `VALIDATE`
-- [Locking & deadlock](../01-postgresql/05-locking-deadlock.md) — khoá dây chuyền, `lock_timeout`
-- [MVCC & vacuum](../01-postgresql/04-mvcc-vacuum.md) — vì sao `UPDATE` hàng loạt gây bloat
+- [Locking & deadlock](../01-postgresql/transactions-concurrency/03-locking-deadlock.md) — khoá dây chuyền, `lock_timeout`
+- [MVCC & vacuum](../01-postgresql/transactions-concurrency/02-mvcc-vacuum.md) — vì sao `UPDATE` hàng loạt gây bloat
 - [Normalization](02-normalization.md) — thay đổi mô hình dữ liệu
 - [Relationships & cardinality](03-relationships-cardinality.md) — đổi quan hệ là migration lớn
 - [CI/CD pipeline](../../04-infrastructure/03-cicd/01-pipeline.md) — migration ở đâu trong pipeline
-- [Rollout & rollback](../../04-infrastructure/04-kubernetes/07-rollout-rollback.md) — hai phiên bản song song
-- [WAL, durability & backup](../01-postgresql/06-wal-durability-backup.md) — backup trước migration
-- [Config & lifecycle](../../02-backend-api/02-nestjs/05-config-lifecycle.md) — vì sao không chạy ở `onModuleInit`
+- [Rollout & rollback](../../04-infrastructure/04-kubernetes/workloads-networking/03-rollout-rollback.md) — hai phiên bản song song
+- [WAL, durability & backup](../01-postgresql/operations/01-wal-durability-backup.md) — backup trước migration
+- [Config & lifecycle](../../02-backend-api/02-nestjs/behavior/05-config-lifecycle.md) — vì sao không chạy ở `onModuleInit`
 
 ## Version / Context
 

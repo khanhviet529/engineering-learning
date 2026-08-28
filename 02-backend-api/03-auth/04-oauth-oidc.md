@@ -412,7 +412,7 @@ Bước ⑦ đáng chú ý: nếu bạn chuyển hướng tới `returnTo` do ng
 - [Password & MFA](05-password-mfa.md) — khi bạn tự quản lý danh tính
 - [XSS & CSRF](../../05-cross-cutting/security/03-xss-csrf.md) — `state` chống CSRF
 - [Access control](../../05-cross-cutting/security/04-access-control.md) — kiểm soát truy cập nói chung
-- [Guards & interceptors](../02-nestjs/04-guards-interceptors.md) — cài đặt trong NestJS
+- [Guards & interceptors](../02-nestjs/behavior/04-guards-interceptors.md) — cài đặt trong NestJS
 
 ## Version / Context
 

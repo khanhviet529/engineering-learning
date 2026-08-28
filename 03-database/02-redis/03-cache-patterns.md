@@ -218,7 +218,7 @@ async get<T>(key: string): Promise<T | undefined> {
 
 L1 có ý nghĩa khi một key được đọc nhiều lần trong vài giây (config, feature flag, danh mục). Nó tiết kiệm cả round-trip mạng.
 
-Cái giá: **L1 không nhất quán giữa các instance.** Vì thế TTL của L1 phải rất ngắn (1–10 giây) và chỉ dùng cho dữ liệu chấp nhận được độ trễ đó. Xem [Caching, queues & jobs](../../02-backend-api/02-nestjs/07-caching-queues-jobs.md).
+Cái giá: **L1 không nhất quán giữa các instance.** Vì thế TTL của L1 phải rất ngắn (1–10 giây) và chỉ dùng cho dữ liệu chấp nhận được độ trễ đó. Xem [Caching, queues & jobs](../../02-backend-api/02-nestjs/behavior/07-caching-queues-jobs.md).
 
 ### Chọn cấu trúc dữ liệu Redis
 
@@ -413,7 +413,7 @@ Dòng "quyền" đáng chú ý: cache quyền là một đánh đổi bảo mậ
 - [Cache & invalidation](01-cache-invalidation.md) — key, TTL, stampede, invalidation
 - [Eviction & memory](04-eviction-memory.md) — khi Redis đầy
 - [Persistence & failure](05-persistence-failure.md) — Redis restart mất gì
-- [Caching, queues & jobs (NestJS)](../../02-backend-api/02-nestjs/07-caching-queues-jobs.md) — implementation
+- [Caching, queues & jobs (NestJS)](../../02-backend-api/02-nestjs/behavior/07-caching-queues-jobs.md) — implementation
 - [Scaling, cache & queue](../../06-system-design/02-scaling-cache-queue.md) — cache ở tầng kiến trúc
 - [Graceful degradation](../../05-cross-cutting/reliability/03-graceful-degradation.md) — sống sót khi cache chết
 - [Database performance](../../05-cross-cutting/performance/04-database-performance.md) — đo trước khi cache

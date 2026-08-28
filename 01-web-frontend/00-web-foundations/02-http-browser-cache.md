@@ -4,7 +4,7 @@ area: frontend
 prerequisites:
   - 01-browser-request-render.md
 related:
-  - ../03-nextjs/03-data-fetching-cache.md
+  - ../03-nextjs/behavior/03-data-fetching-cache.md
   - ../../03-database/02-redis/01-cache-invalidation.md
 ---
 
@@ -214,7 +214,7 @@ Nguyên tắc: **đi từ ngoài vào trong** (browser → CDN → app → Redis
 ## Related
 
 - [Browser request → render](01-browser-request-render.md) — cache là bước 2 của pipeline
-- [Next.js data cache](../03-nextjs/03-data-fetching-cache.md) — lớp cache tiếp theo
+- [Next.js data cache](../03-nextjs/behavior/03-data-fetching-cache.md) — lớp cache tiếp theo
 - [Cache invalidation](../../03-database/02-redis/01-cache-invalidation.md) — lớp application
 - [Cache patterns](../../03-database/02-redis/03-cache-patterns.md) — cache-aside, stampede
 - [HTTP semantics](../../02-backend-api/00-http-api/03-http-semantics-idempotency.md) — method nào cache được

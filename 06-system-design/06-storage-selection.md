@@ -435,7 +435,7 @@ Job đối soát này là phần biến kiến trúc nhiều kho từ "hy vọng
 - [Consistency & availability](04-consistency-availability.md) — mô hình nhất quán của mỗi kho
 - [Event-driven](07-event-driven.md) — CDC và event làm cầu nối
 - [Normalization](../03-database/03-data-modeling/02-normalization.md) — mô hình hoá quan hệ
-- [Index types](../03-database/01-postgresql/07-index-types.md) — GIN, GiST, BRIN cho jsonb và time-series
+- [Index types](../03-database/01-postgresql/indexes-query-planning/02-index-types.md) — GIN, GiST, BRIN cho jsonb và time-series
 - [Outbox pattern](../03-database/04-message-queues/06-outbox-pattern.md) — chống dual-write
 - [Cache patterns](../03-database/02-redis/03-cache-patterns.md) — Redis đúng vai trò
 - [Persistence & failure](../03-database/02-redis/05-persistence-failure.md) — vì sao Redis không phải nguồn sự thật

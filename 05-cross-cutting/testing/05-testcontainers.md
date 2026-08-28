@@ -378,7 +378,7 @@ Test này bắt được: biến môi trường thiếu, user non-root không gh
 - [Migrations](../../03-database/03-data-modeling/04-migrations.md) — thứ được kiểm chứng miễn phí
 - [Production image](../../04-infrastructure/02-docker/07-production-image.md) — image được test
 - [Pipeline](../../04-infrastructure/03-cicd/01-pipeline.md) — chạy container trong CI
-- [Testing NestJS](../../02-backend-api/02-nestjs/09-testing-nestjs.md) — ghép vào bộ test
+- [Testing NestJS](../../02-backend-api/02-nestjs/behavior/09-testing-nestjs.md) — ghép vào bộ test
 
 ## Version / Context
 

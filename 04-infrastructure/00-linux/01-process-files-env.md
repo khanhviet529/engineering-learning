@@ -394,8 +394,8 @@ Bước 2 là bước có tỉ lệ giá trị/chi phí cao nhất và ít ngư�
 - [Filesystem & permissions](03-filesystem-permissions.md) — UID và volume
 - [Ports & sockets](05-ports-sockets.md) — socket là fd
 - [Debugging toolbox](07-debugging-toolbox.md) — `/proc`, `lsof`, `strace`
-- [Process & memory (Node.js)](../../02-backend-api/01-nodejs/03-process-memory.md) — phía runtime
-- [Graceful shutdown](../../02-backend-api/01-nodejs/05-graceful-shutdown.md) — PID 1 và SIGTERM
+- [Process & memory (Node.js)](../../02-backend-api/01-nodejs/production/01-process-memory.md) — phía runtime
+- [Graceful shutdown](../../02-backend-api/01-nodejs/production/02-graceful-shutdown.md) — PID 1 và SIGTERM
 - [Image & container](../02-docker/01-image-container.md) — process trong container
 - [Configuration](../../02-backend-api/04-architecture/05-configuration.md) — env var ở tầng ứng dụng
 - [Secrets management](../../05-cross-cutting/security/06-secrets-management.md)

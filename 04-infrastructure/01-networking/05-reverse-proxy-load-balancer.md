@@ -6,8 +6,8 @@ prerequisites:
   - 03-tls.md
 related:
   - 04-nat-firewall-routing.md
-  - ../04-kubernetes/06-ingress-service-discovery.md
-  - ../../02-backend-api/01-nodejs/05-graceful-shutdown.md
+  - ../04-kubernetes/workloads-networking/02-ingress-service-discovery.md
+  - ../../02-backend-api/01-nodejs/production/02-graceful-shutdown.md
 ---
 
 # Reverse proxy & load balancer
@@ -157,7 +157,7 @@ Cách sửa gồm ba phần, và cần cả ba:
 ③ readiness probe interval ngắn (2s) + failureThreshold 1
 ```
 
-Xem [Graceful shutdown](../../02-backend-api/01-nodejs/05-graceful-shutdown.md).
+Xem [Graceful shutdown](../../02-backend-api/01-nodejs/production/02-graceful-shutdown.md).
 
 ### Timeout phải xếp thứ tự
 
@@ -219,7 +219,7 @@ location /socket.io/ {
 }
 ```
 
-Thiếu hai header `Upgrade` → handshake trả **400**. Thiếu `proxy_read_timeout` → kết nối đứt sau 60 giây im lặng, và log trông như "mạng người dùng kém". Xem [WebSocket gateway](../../02-backend-api/02-nestjs/08-websocket-gateway.md).
+Thiếu hai header `Upgrade` → handshake trả **400**. Thiếu `proxy_read_timeout` → kết nối đứt sau 60 giây im lặng, và log trông như "mạng người dùng kém". Xem [WebSocket gateway](../../02-backend-api/02-nestjs/behavior/08-websocket-gateway.md).
 
 ### Header phải truyền xuống
 
@@ -450,10 +450,10 @@ Bước 6 là bước duy nhất chứng minh vấn đề đã được sửa. "
 - [TLS](03-tls.md) — terminate, `X-Forwarded-Proto`
 - [NAT, firewall & routing](04-nat-firewall-routing.md) — mất IP nguồn, PROXY protocol
 - [Network debugging](06-network-debugging.md) — quy trình
-- [Ingress & service discovery](../04-kubernetes/06-ingress-service-discovery.md) — Ingress là reverse proxy
-- [Readiness & liveness](../04-kubernetes/02-health-readiness-liveness.md) — probe trong K8s
-- [Graceful shutdown](../../02-backend-api/01-nodejs/05-graceful-shutdown.md) — chống 502 khi deploy
-- [WebSocket gateway](../../02-backend-api/02-nestjs/08-websocket-gateway.md) — Upgrade header, timeout
+- [Ingress & service discovery](../04-kubernetes/workloads-networking/02-ingress-service-discovery.md) — Ingress là reverse proxy
+- [Readiness & liveness](../04-kubernetes/scheduling-reliability/01-health-readiness-liveness.md) — probe trong K8s
+- [Graceful shutdown](../../02-backend-api/01-nodejs/production/02-graceful-shutdown.md) — chống 502 khi deploy
+- [WebSocket gateway](../../02-backend-api/02-nestjs/behavior/08-websocket-gateway.md) — Upgrade header, timeout
 - [HTTP semantics & idempotency](../../02-backend-api/00-http-api/03-http-semantics-idempotency.md) — retry an toàn
 - [Rate limiting](../../02-backend-api/00-http-api/07-rate-limiting.md) — chặn ở biên
 

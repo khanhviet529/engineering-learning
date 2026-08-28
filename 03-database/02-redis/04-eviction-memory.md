@@ -387,7 +387,7 @@ Sự khác biệt trong hai dòng đó chính là điều mà việc dùng chung
 - [Cache patterns](03-cache-patterns.md) — thundering herd khi cache trống
 - [Persistence & failure](05-persistence-failure.md) — restart mất gì; fork và bộ nhớ
 - [Rate limit & locking](02-rate-limit-locking.md) — vì sao lock không được ở instance có eviction
-- [Caching, queues & jobs (NestJS)](../../02-backend-api/02-nestjs/07-caching-queues-jobs.md) — `removeOnComplete`
+- [Caching, queues & jobs (NestJS)](../../02-backend-api/02-nestjs/behavior/07-caching-queues-jobs.md) — `removeOnComplete`
 - [Vì sao cần queue](../04-message-queues/01-why-queue.md) — queue cần `noeviction`
 - [Memory, CPU & limits](../../04-infrastructure/00-linux/02-memory-cpu-limits.md) — OOMKilled ở tầng OS
 - [Capacity & limits](../../05-cross-cutting/reliability/04-capacity-and-limits.md)

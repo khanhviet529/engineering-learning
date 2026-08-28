@@ -3,7 +3,7 @@ level: advanced
 area: backend
 prerequisites:
   - 01-controller-service-repository.md
-  - ../02-nestjs/02-modules-di.md
+  - ../02-nestjs/behavior/02-modules-di.md
 related:
   - ../../06-system-design/08-monolith-to-microservices.md
   - 03-domain-logic-boundaries.md
@@ -402,9 +402,9 @@ Chỉ số 6 là chỉ số trung thực nhất, vì nó đọc hành vi thật 
 
 - [Controller → Service → Repository](01-controller-service-repository.md) — layer, và vì sao nó chưa đủ
 - [Domain logic boundaries](03-domain-logic-boundaries.md) — ranh giới bên trong một module
-- [Modules & DI](../02-nestjs/02-modules-di.md) — module graph của NestJS là kiến trúc thật
+- [Modules & DI](../02-nestjs/behavior/02-modules-di.md) — module graph của NestJS là kiến trúc thật
 - [Monolith → microservices](../../06-system-design/08-monolith-to-microservices.md) — quyết định ở tầng hệ thống
 - [Event-driven](../../06-system-design/07-event-driven.md) — event ở quy mô hệ thống phân tán
 - [Outbox pattern](../../03-database/04-message-queues/06-outbox-pattern.md) — event không mất
 - [Normalization](../../03-database/03-data-modeling/02-normalization.md) — ranh giới dữ liệu
-- [Testing NestJS](../02-nestjs/09-testing-nestjs.md) — test kiến trúc trong CI
+- [Testing NestJS](../02-nestjs/behavior/09-testing-nestjs.md) — test kiến trúc trong CI

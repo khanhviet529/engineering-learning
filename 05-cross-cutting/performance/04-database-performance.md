@@ -4,7 +4,7 @@ area: cross-cutting
 prerequisites:
   - 01-latency-throughput-bottleneck.md
 related:
-  - ../../03-database/01-postgresql/08-explain-analyze-workflow.md
+  - ../../03-database/01-postgresql/indexes-query-planning/03-explain-analyze-workflow.md
   - 03-backend-performance.md
 ---
 
@@ -183,7 +183,7 @@ Cạm bẫy phổ biến:
   · loops=N trong node con → nhân thời gian lên N lần
 ```
 
-Xem [EXPLAIN ANALYZE workflow](../../03-database/01-postgresql/08-explain-analyze-workflow.md).
+Xem [EXPLAIN ANALYZE workflow](../../03-database/01-postgresql/indexes-query-planning/03-explain-analyze-workflow.md).
 
 ### Vì sao staging nhanh mà production chậm
 
@@ -472,14 +472,14 @@ it('endpoint danh sách đơn hàng chạy tối đa 3 truy vấn', async () => 
 
 - [Latency & bottleneck](01-latency-throughput-bottleneck.md) — khung tối ưu chung
 - [Backend performance](03-backend-performance.md) — pool và tầng ứng dụng
-- [EXPLAIN ANALYZE workflow](../../03-database/01-postgresql/08-explain-analyze-workflow.md) — quy trình chi tiết
-- [Index & query plan](../../03-database/01-postgresql/02-index-query-plan.md) — cách planner quyết định
-- [Index types](../../03-database/01-postgresql/07-index-types.md) — B-tree, GIN, GiST, BRIN
-- [MVCC & vacuum](../../03-database/01-postgresql/04-mvcc-vacuum.md) — bloat và dead tuple
-- [Locking & deadlock](../../03-database/01-postgresql/05-locking-deadlock.md) — tranh chấp
-- [Connection pool](../../03-database/01-postgresql/03-connection-pool.md) — hàng đợi trước database
+- [EXPLAIN ANALYZE workflow](../../03-database/01-postgresql/indexes-query-planning/03-explain-analyze-workflow.md) — quy trình chi tiết
+- [Index & query plan](../../03-database/01-postgresql/indexes-query-planning/01-index-query-plan.md) — cách planner quyết định
+- [Index types](../../03-database/01-postgresql/indexes-query-planning/02-index-types.md) — B-tree, GIN, GiST, BRIN
+- [MVCC & vacuum](../../03-database/01-postgresql/transactions-concurrency/02-mvcc-vacuum.md) — bloat và dead tuple
+- [Locking & deadlock](../../03-database/01-postgresql/transactions-concurrency/03-locking-deadlock.md) — tranh chấp
+- [Connection pool](../../03-database/01-postgresql/fundamentals/02-connection-pool.md) — hàng đợi trước database
 - [Cache invalidation](../../03-database/02-redis/01-cache-invalidation.md) — giảm tải đọc
-- [Replication & scaling](../../03-database/01-postgresql/09-replication-scaling.md) — replica đọc
+- [Replication & scaling](../../03-database/01-postgresql/operations/02-replication-scaling.md) — replica đọc
 
 ## Version / Context
 

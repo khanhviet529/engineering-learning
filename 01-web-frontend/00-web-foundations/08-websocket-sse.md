@@ -5,7 +5,7 @@ prerequisites:
   - 01-browser-request-render.md
   - 03-url-dns-tcp-tls.md
 related:
-  - ../../02-backend-api/02-nestjs/08-websocket-gateway.md
+  - ../../02-backend-api/02-nestjs/behavior/08-websocket-gateway.md
   - ../../04-infrastructure/01-networking/05-reverse-proxy-load-balancer.md
 ---
 
@@ -225,7 +225,7 @@ Jitter (`Math.random()`) không phải chi tiết nhỏ: không có nó, sau m�
 - **Sticky session hoặc stateless connection** — quyết định sớm; đổi sau rất đau.
 - **Đo số kết nối đồng thời** như một metric hạng nhất, cùng với RAM/fd per connection.
 - **Kế hoạch cho deploy**: rolling restart sẽ ngắt mọi kết nối. Reconnect có backoff + jitter là điều kiện bắt buộc.
-- **Graceful shutdown** phải đóng kết nối có thông báo, không cắt đột ngột. Xem [Graceful shutdown](../../02-backend-api/01-nodejs/05-graceful-shutdown.md).
+- **Graceful shutdown** phải đóng kết nối có thông báo, không cắt đột ngột. Xem [Graceful shutdown](../../02-backend-api/01-nodejs/production/02-graceful-shutdown.md).
 
 ## Trade-offs
 
@@ -246,8 +246,8 @@ Jitter (`Math.random()`) không phải chi tiết nhỏ: không có nó, sau m�
 
 ## Related
 
-- [WebSocket gateway (NestJS)](../../02-backend-api/02-nestjs/08-websocket-gateway.md) — phía server
+- [WebSocket gateway (NestJS)](../../02-backend-api/02-nestjs/behavior/08-websocket-gateway.md) — phía server
 - [Pub/Sub & streams](../../03-database/02-redis/06-pubsub-streams.md) — fan-out cho nhiều instance
 - [Reverse proxy & load balancer](../../04-infrastructure/01-networking/05-reverse-proxy-load-balancer.md) — cấu hình cho kết nối dài
 - [Timeout, retry, circuit breaker](../../05-cross-cutting/reliability/02-timeout-retry-circuit-breaker.md) — backoff và jitter
-- [Server state & cache](../02-react/04-server-state-cache.md) — kết hợp realtime với cache của client
+- [Server state & cache](../02-react/behavior/04-server-state-cache.md) — kết hợp realtime với cache của client

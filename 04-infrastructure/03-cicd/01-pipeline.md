@@ -443,7 +443,7 @@ services + healthcheck             DB thật cho integration test, chờ sẵn s
 - [Testing pyramid & behavior](../../05-cross-cutting/testing/01-testing-pyramid-behavior.md) — test gì ở tầng nào
 - [Deterministic tests](../../05-cross-cutting/testing/06-deterministic-tests.md) — chống flaky
 - [Testcontainers](../../05-cross-cutting/testing/05-testcontainers.md) — DB thật trong CI
-- [Rollout & rollback](../04-kubernetes/07-rollout-rollback.md) — phía Kubernetes
+- [Rollout & rollback](../04-kubernetes/workloads-networking/03-rollout-rollback.md) — phía Kubernetes
 - [Secrets management](../../05-cross-cutting/security/06-secrets-management.md)
 
 ## Version / Context

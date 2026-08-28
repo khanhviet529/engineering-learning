@@ -116,7 +116,7 @@ FROM next WHERE jobs.id = next.id
 RETURNING jobs.*;
 ```
 
-`SKIP LOCKED` là thứ làm điều này khả thi: worker không chờ nhau. Xem [Locking & deadlock](../01-postgresql/05-locking-deadlock.md).
+`SKIP LOCKED` là thứ làm điều này khả thi: worker không chờ nhau. Xem [Locking & deadlock](../01-postgresql/transactions-concurrency/03-locking-deadlock.md).
 
 Điều bạn nhận được và không công cụ nào khác cho:
 
@@ -130,7 +130,7 @@ COMMIT;
 
 Điều bạn phải tự làm: backoff, DLQ, dọn job cũ, UI, và theo dõi. Khoảng 200 dòng code — và với nhiều hệ thống, đó là một đánh đổi tốt so với việc vận hành thêm một hệ thống.
 
-Giới hạn: throughput vài nghìn job/giây, và job tạo tải ghi lên chính database nghiệp vụ (bloat từ `UPDATE` liên tục — cân nhắc `fillfactor` thấp). Xem [MVCC & vacuum](../01-postgresql/04-mvcc-vacuum.md).
+Giới hạn: throughput vài nghìn job/giây, và job tạo tải ghi lên chính database nghiệp vụ (bloat từ `UPDATE` liên tục — cân nhắc `fillfactor` thấp). Xem [MVCC & vacuum](../01-postgresql/transactions-concurrency/02-mvcc-vacuum.md).
 
 ### BullMQ: điểm ngọt cho Node.js
 
@@ -414,7 +414,7 @@ Khi đánh giá hoặc xem lại lựa chọn:
 - [Retry & DLQ](03-retry-dlq.md) — cái nào có sẵn, cái nào tự xây
 - [Ordering & partitioning](04-ordering-partitioning.md) — hỗ trợ thứ tự khác nhau
 - [Outbox pattern](06-outbox-pattern.md) — đóng khe hở enqueue với mọi broker
-- [Locking & deadlock](../01-postgresql/05-locking-deadlock.md) — `SKIP LOCKED`
+- [Locking & deadlock](../01-postgresql/transactions-concurrency/03-locking-deadlock.md) — `SKIP LOCKED`
 - [Persistence & failure](../02-redis/05-persistence-failure.md) — durability của Redis
 - [Redis pub/sub & streams](../02-redis/06-pubsub-streams.md) — Streams vs broker thật
 - [Event-driven](../../06-system-design/07-event-driven.md) — kiến trúc quyết định công cụ

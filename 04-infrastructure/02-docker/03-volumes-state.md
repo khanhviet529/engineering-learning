@@ -6,7 +6,7 @@ prerequisites:
   - ../00-linux/03-filesystem-permissions.md
 related:
   - 06-compose.md
-  - ../04-kubernetes/08-storage-statefulset.md
+  - ../04-kubernetes/workloads-networking/04-storage-statefulset.md
 ---
 
 # Volumes & state
@@ -167,7 +167,7 @@ Nhưng với database, **tar file dữ liệu của một database đang chạy 
 docker exec db pg_dump -U user app | gzip > backup.sql.gz
 ```
 
-Xem [WAL, durability & backup](../../03-database/01-postgresql/06-wal-durability-backup.md).
+Xem [WAL, durability & backup](../../03-database/01-postgresql/operations/01-wal-durability-backup.md).
 
 ### Stateful trong container: khi nào nên, khi nào không
 
@@ -215,7 +215,7 @@ Hai điều đáng biết:
   → không scale ngang được với volume đó
 ```
 
-Xem [Storage & StatefulSet](../04-kubernetes/08-storage-statefulset.md).
+Xem [Storage & StatefulSet](../04-kubernetes/workloads-networking/04-storage-statefulset.md).
 
 ## Example
 
@@ -405,8 +405,8 @@ Và một quy tắc vận hành: **`docker compose down -v` chỉ chạy khi b�
 - [Compose](06-compose.md) — volume trong môi trường dev
 - [Production image](07-production-image.md) — `readOnlyRootFilesystem`
 - [Common failures](08-common-failures.md) — mất dữ liệu là lỗi kinh điển
-- [Storage & StatefulSet](../04-kubernetes/08-storage-statefulset.md) — PVC, PV, StatefulSet
-- [WAL, durability & backup](../../03-database/01-postgresql/06-wal-durability-backup.md) — backup đúng cách
+- [Storage & StatefulSet](../04-kubernetes/workloads-networking/04-storage-statefulset.md) — PVC, PV, StatefulSet
+- [WAL, durability & backup](../../03-database/01-postgresql/operations/01-wal-durability-backup.md) — backup đúng cách
 - [Logs & services](../00-linux/06-logs-and-services.md) — log ra stdout, không ra file
 - [Secrets management](../../05-cross-cutting/security/06-secrets-management.md) — secret mount thành file
 

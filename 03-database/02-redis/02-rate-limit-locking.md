@@ -6,7 +6,7 @@ prerequisites:
 related:
   - ../../02-backend-api/00-http-api/07-rate-limiting.md
   - ../../05-cross-cutting/concurrency/03-distributed-locks.md
-  - ../01-postgresql/05-locking-deadlock.md
+  - ../01-postgresql/transactions-concurrency/03-locking-deadlock.md
 ---
 
 # Rate limit & locking
@@ -53,7 +53,7 @@ await redis.set(key, Number(current) + 1);
 
 Hai request đồng thời đều đọc `99`, cả hai ghi `100`. Bộ đếm mất một lần tăng, và giới hạn bị vượt.
 
-Đây là cùng một họ vấn đề với lost update trong PostgreSQL — chỉ khác chỗ xảy ra. Xem [Transaction isolation](../01-postgresql/01-transaction-isolation.md).
+Đây là cùng một họ vấn đề với lost update trong PostgreSQL — chỉ khác chỗ xảy ra. Xem [Transaction isolation](../01-postgresql/transactions-concurrency/01-transaction-isolation.md).
 
 ## Mental Model
 
@@ -234,7 +234,7 @@ không cần DB                     cần một connection
 Redis chết = lock biến mất       connection chết = lock tự thả (đúng)
 ```
 
-Với "chỉ một instance được chạy job này", advisory lock thường là lựa chọn đúng hơn vì nó không có chế độ hỏng "lock hết hạn khi việc chưa xong". Xem [Locking & deadlock](../01-postgresql/05-locking-deadlock.md) và [Distributed locks](../../05-cross-cutting/concurrency/03-distributed-locks.md).
+Với "chỉ một instance được chạy job này", advisory lock thường là lựa chọn đúng hơn vì nó không có chế độ hỏng "lock hết hạn khi việc chưa xong". Xem [Locking & deadlock](../01-postgresql/transactions-concurrency/03-locking-deadlock.md) và [Distributed locks](../../05-cross-cutting/concurrency/03-distributed-locks.md).
 
 ### Redis cho những việc khác
 
@@ -445,13 +445,13 @@ Về `MULTI/EXEC`: nó đảm bảo các lệnh chạy liên tiếp không xen k
 
 - [Rate limiting (HTTP)](../../02-backend-api/00-http-api/07-rate-limiting.md) — hợp đồng API, 429, header
 - [Distributed locks](../../05-cross-cutting/concurrency/03-distributed-locks.md) — giới hạn cơ bản của lock phân tán
-- [Locking & deadlock](../01-postgresql/05-locking-deadlock.md) — advisory lock, `SKIP LOCKED`
-- [Transaction isolation](../01-postgresql/01-transaction-isolation.md) — cùng họ vấn đề ở tầng DB
+- [Locking & deadlock](../01-postgresql/transactions-concurrency/03-locking-deadlock.md) — advisory lock, `SKIP LOCKED`
+- [Transaction isolation](../01-postgresql/transactions-concurrency/01-transaction-isolation.md) — cùng họ vấn đề ở tầng DB
 - [Cache & invalidation](01-cache-invalidation.md) — Redis trong vai trò cache
 - [Eviction & memory](04-eviction-memory.md) — vì sao không trộn lock với cache
-- [Caching, queues & jobs (NestJS)](../../02-backend-api/02-nestjs/07-caching-queues-jobs.md) — `@Cron` + lock
+- [Caching, queues & jobs (NestJS)](../../02-backend-api/02-nestjs/behavior/07-caching-queues-jobs.md) — `@Cron` + lock
 - [Idempotency & retry](../../06-system-design/03-idempotency-retry.md) — vì sao idempotent quan trọng hơn lock
-- [Guards & interceptors](../../02-backend-api/02-nestjs/04-guards-interceptors.md) — nơi đặt rate limit guard
+- [Guards & interceptors](../../02-backend-api/02-nestjs/behavior/04-guards-interceptors.md) — nơi đặt rate limit guard
 
 ## Version / Context
 

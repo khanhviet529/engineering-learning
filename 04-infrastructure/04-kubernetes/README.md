@@ -14,7 +14,7 @@ Controller chạy vòng lặp vô hạn: thực tế ≠ mong muốn → hành �
 
 Một câu đó giải thích gần như mọi hành vi: vì sao xoá pod không có tác dụng, vì sao đổi image gây rolling update, vì sao node chết thì pod xuất hiện ở nơi khác.
 
-**Đọc [Vì sao cần Kubernetes](04-why-kubernetes.md) trước.** Học K8s trước khi gặp vấn đề mà nó giải quyết là cách nhanh nhất để thuộc YAML mà không hiểu gì.
+**Đọc [Vì sao cần Kubernetes](./fundamentals/01-why-kubernetes.md) trước.** Học K8s trước khi gặp vấn đề mà nó giải quyết là cách nhanh nhất để thuộc YAML mà không hiểu gì.
 
 ## Điều kiện tiên quyết
 
@@ -32,20 +32,29 @@ Cần hiểu ở mức **tự debug được**, không phải mức "đã đọc
 
 Gần như mọi lỗi Kubernetes là một trong bảy cơ chế trên rò rỉ qua nhiều lớp trừu tượng.
 
+## Cấu trúc
+
+```text
+fundamentals/             vì sao cần K8s, bản đồ đối tượng
+workloads-networking/     Pod/Deployment/Service, Ingress, rollout, storage
+scheduling-reliability/   probe, scheduling, autoscaling
+operations/               config & secret, debugging
+```
+
 ## Thứ tự đọc
 
 | # | Note | Trả lời câu hỏi |
 |---|---|---|
-| 0 | [Vì sao cần Kubernetes](04-why-kubernetes.md) | Compose thiếu gì? Bạn có cần K8s không? |
-| 1 | [Pod, Deployment, Service](01-pod-deployment-service.md)| Vì sao Service trả 404 dù 3 pod đều Running? |
-| 2 | [Readiness & liveness](02-health-readiness-liveness.md) | Vì sao DB chậm 90 giây làm restart toàn bộ pod? |
-| 3 | [Config, Secret & resources](03-config-secrets-resources.md) | Secret có được mã hoá không? Request khác limit thế nào? |
-| 4 | [Scheduling & resources](05-scheduling-resources.md) | Vì sao pod Pending dù node rảnh 70%? |
-| 5 | [Ingress & service discovery](06-ingress-service-discovery.md) | Vì sao Ingress trả 404 khi Service ở namespace khác? |
-| 6 | [Rollout & rollback](07-rollout-rollback.md) | Vì sao mỗi lần deploy có 300 lỗi 502? |
-| 7 | [Storage & StatefulSet](08-storage-statefulset.md) | Vì sao hai pod ghi cùng volume làm hỏng database? |
-| 8 | [Autoscaling](09-autoscaling.md) | Vì sao HPA làm sập database? |
-| 9 | [Debugging Kubernetes](10-debugging-k8s.md) | CrashLoopBackOff, log rỗng — bắt đầu từ đâu? |
+| 0 | [Vì sao cần Kubernetes](./fundamentals/01-why-kubernetes.md) | Compose thiếu gì? Bạn có cần K8s không? |
+| 1 | [Pod, Deployment, Service](./workloads-networking/01-pod-deployment-service.md)| Vì sao Service trả 404 dù 3 pod đều Running? |
+| 2 | [Readiness & liveness](./scheduling-reliability/01-health-readiness-liveness.md) | Vì sao DB chậm 90 giây làm restart toàn bộ pod? |
+| 3 | [Config, Secret & resources](./operations/01-config-secrets-resources.md) | Secret có được mã hoá không? Request khác limit thế nào? |
+| 4 | [Scheduling & resources](./scheduling-reliability/02-scheduling-resources.md) | Vì sao pod Pending dù node rảnh 70%? |
+| 5 | [Ingress & service discovery](./workloads-networking/02-ingress-service-discovery.md) | Vì sao Ingress trả 404 khi Service ở namespace khác? |
+| 6 | [Rollout & rollback](./workloads-networking/03-rollout-rollback.md) | Vì sao mỗi lần deploy có 300 lỗi 502? |
+| 7 | [Storage & StatefulSet](./workloads-networking/04-storage-statefulset.md) | Vì sao hai pod ghi cùng volume làm hỏng database? |
+| 8 | [Autoscaling](./scheduling-reliability/03-autoscaling.md) | Vì sao HPA làm sập database? |
+| 9 | [Debugging Kubernetes](./operations/02-debugging-k8s.md) | CrashLoopBackOff, log rỗng — bắt đầu từ đâu? |
 
 Note 9 là note bạn sẽ mở lại nhiều nhất.
 
@@ -64,25 +73,25 @@ Dừng ở câu đầu tiên trả lời "không".
 
 | Triệu chứng | Nghi ngờ | Note |
 |---|---|---|
-| `Pending` dù node rảnh | scheduler dùng **requests**, không phải usage | [4](05-scheduling-resources.md) |
-| `Pending` + `volume node affinity conflict` | volume ở zone khác | [7](08-storage-statefulset.md) |
-| `ImagePullBackOff` | sai digest, thiếu pull secret | [9](10-debugging-k8s.md) |
-| `CrashLoopBackOff`, log rỗng | dùng `logs --previous`; nghi lỗi config | [9](10-debugging-k8s.md) |
-| Exit 137 + `OOMKilled` | vượt memory limit | [3](03-config-secrets-resources.md) |
-| Exit 137 + `Error` | liveness giết, hoặc hết grace period | [2](02-health-readiness-liveness.md) |
-| `Running 0/1` | readiness probe fail | [2](02-health-readiness-liveness.md) |
-| Mọi pod restart khi DB chậm | liveness kiểm tra dependency | [2](02-health-readiness-liveness.md) |
-| `endpoints` rỗng, pod `1/1` | selector không khớp label | [1](01-pod-deployment-service.md) |
-| `endpoints` rỗng, pod `0/1` | pod chưa ready | [2](02-health-readiness-liveness.md) |
-| Ingress 404 | Ingress và Service khác namespace | [5](06-ingress-service-discovery.md) |
-| 502 mỗi lần deploy | readiness period dài, thiếu delay khi shutdown | [6](07-rollout-rollback.md) |
-| Rollout treo | readiness không pass; K8s **không** tự rollback | [6](07-rollout-rollback.md) |
-| gRPC dồn vào một pod | ClusterIP cân bằng theo **kết nối** | [5](06-ingress-service-discovery.md) |
-| Pod không phân giải được tên nào | NetworkPolicy chặn DNS | [5](06-ingress-service-discovery.md) |
-| Pod thứ hai `Pending` với PVC | `ReadWriteOnce` = một **node** | [7](08-storage-statefulset.md) |
-| HPA không scale | CPU request sai, hoặc metric sai loại | [8](09-autoscaling.md) |
-| Scale lên làm database chết | `maxReplicas × pool > max_connections` | [8](09-autoscaling.md) |
-| Cluster không thu nhỏ | pod không di chuyển được, hoặc PDB chặn | [4](05-scheduling-resources.md) |
+| `Pending` dù node rảnh | scheduler dùng **requests**, không phải usage | [4](./scheduling-reliability/02-scheduling-resources.md) |
+| `Pending` + `volume node affinity conflict` | volume ở zone khác | [7](./workloads-networking/04-storage-statefulset.md) |
+| `ImagePullBackOff` | sai digest, thiếu pull secret | [9](./operations/02-debugging-k8s.md) |
+| `CrashLoopBackOff`, log rỗng | dùng `logs --previous`; nghi lỗi config | [9](./operations/02-debugging-k8s.md) |
+| Exit 137 + `OOMKilled` | vượt memory limit | [3](./operations/01-config-secrets-resources.md) |
+| Exit 137 + `Error` | liveness giết, hoặc hết grace period | [2](./scheduling-reliability/01-health-readiness-liveness.md) |
+| `Running 0/1` | readiness probe fail | [2](./scheduling-reliability/01-health-readiness-liveness.md) |
+| Mọi pod restart khi DB chậm | liveness kiểm tra dependency | [2](./scheduling-reliability/01-health-readiness-liveness.md) |
+| `endpoints` rỗng, pod `1/1` | selector không khớp label | [1](./workloads-networking/01-pod-deployment-service.md) |
+| `endpoints` rỗng, pod `0/1` | pod chưa ready | [2](./scheduling-reliability/01-health-readiness-liveness.md) |
+| Ingress 404 | Ingress và Service khác namespace | [5](./workloads-networking/02-ingress-service-discovery.md) |
+| 502 mỗi lần deploy | readiness period dài, thiếu delay khi shutdown | [6](./workloads-networking/03-rollout-rollback.md) |
+| Rollout treo | readiness không pass; K8s **không** tự rollback | [6](./workloads-networking/03-rollout-rollback.md) |
+| gRPC dồn vào một pod | ClusterIP cân bằng theo **kết nối** | [5](./workloads-networking/02-ingress-service-discovery.md) |
+| Pod không phân giải được tên nào | NetworkPolicy chặn DNS | [5](./workloads-networking/02-ingress-service-discovery.md) |
+| Pod thứ hai `Pending` với PVC | `ReadWriteOnce` = một **node** | [7](./workloads-networking/04-storage-statefulset.md) |
+| HPA không scale | CPU request sai, hoặc metric sai loại | [8](./scheduling-reliability/03-autoscaling.md) |
+| Scale lên làm database chết | `maxReplicas × pool > max_connections` | [8](./scheduling-reliability/03-autoscaling.md) |
+| Cluster không thu nhỏ | pod không di chuyển được, hoặc PDB chặn | [4](./scheduling-reliability/02-scheduling-resources.md) |
 
 ## Manifest tham chiếu
 
@@ -208,9 +217,9 @@ Linux (namespace, cgroup) → Docker → Compose (một máy) → KUBERNETES (c�
 
 - [00-linux/](../00-linux/README.md) · [01-networking/](../01-networking/README.md) · [02-docker/](../02-docker/README.md) — điều kiện tiên quyết
 - [03-cicd/](../03-cicd/README.md) — artifact và chiến lược deploy
-- [Graceful shutdown](../../02-backend-api/01-nodejs/05-graceful-shutdown.md) — điều kiện để rollout không mất request
+- [Graceful shutdown](../../02-backend-api/01-nodejs/production/02-graceful-shutdown.md) — điều kiện để rollout không mất request
 - [Configuration](../../02-backend-api/04-architecture/05-configuration.md) — validate config lúc khởi động
-- [Connection pool](../../03-database/01-postgresql/03-connection-pool.md) — giới hạn thật của autoscaling
+- [Connection pool](../../03-database/01-postgresql/fundamentals/02-connection-pool.md) — giới hạn thật của autoscaling
 - [Observability](../../05-cross-cutting/observability/README.md) — quan sát trước khi cần
 - [Reliability](../../05-cross-cutting/reliability/README.md) — probe, PDB, degradation
 - [Fullstack Lab](../../07-projects/fullstack-lab/README.md) — nơi thực hành

@@ -418,7 +418,7 @@ sum(rate(http_request_duration_seconds_count{route!="/health"}[5m]))
 - [Failure modes](../reliability/01-failure-modes.md) — thứ SLO bảo vệ
 - [Capacity & limits](../reliability/04-capacity-and-limits.md) — bão hoà và giới hạn
 - [Latency & bottleneck](../performance/01-latency-throughput-bottleneck.md) — đọc số độ trễ
-- [Autoscaling](../../04-infrastructure/04-kubernetes/09-autoscaling.md) — metric làm đầu vào cho scaling
+- [Autoscaling](../../04-infrastructure/04-kubernetes/scheduling-reliability/03-autoscaling.md) — metric làm đầu vào cho scaling
 - [Deployment strategies](../../04-infrastructure/03-cicd/03-deployment-strategies.md) — ngân sách lỗi và tốc độ phát hành
 
 ## Version / Context

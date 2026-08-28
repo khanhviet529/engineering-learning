@@ -5,7 +5,7 @@ prerequisites:
   - 01-process-files-env.md
 related:
   - ../02-docker/03-volumes-state.md
-  - ../04-kubernetes/08-storage-statefulset.md
+  - ../04-kubernetes/workloads-networking/04-storage-statefulset.md
 ---
 
 # Filesystem & permissions
@@ -380,7 +380,7 @@ Bước 6 đáng nhớ: trên hệ thống có SELinux, `ls -l` cho thấy quy�
 - [Process, file & env](01-process-files-env.md) — UID của process
 - [Volumes & state](../02-docker/03-volumes-state.md) — bind mount vs named volume
 - [Production image](../02-docker/07-production-image.md) — non-root, read-only rootfs
-- [Storage & StatefulSet](../04-kubernetes/08-storage-statefulset.md) — `fsGroup`, PV
+- [Storage & StatefulSet](../04-kubernetes/workloads-networking/04-storage-statefulset.md) — `fsGroup`, PV
 - [Debugging toolbox](07-debugging-toolbox.md) — `namei`, `lsof`, `stat`
 - [Injection](../../05-cross-cutting/security/02-injection.md) — path traversal
 - [Secrets management](../../05-cross-cutting/security/06-secrets-management.md) — mode của file secret

@@ -6,7 +6,7 @@ prerequisites:
   - 03-volumes-state.md
 related:
   - 07-production-image.md
-  - ../04-kubernetes/04-why-kubernetes.md
+  - ../04-kubernetes/fundamentals/01-why-kubernetes.md
 ---
 
 # Docker Compose
@@ -226,7 +226,7 @@ Compose **hợp lý** cho: môi trường dev, CI, ứng dụng nội bộ nhỏ
 
 Nó **không hợp lý** khi bạn cần: không downtime khi deploy, tự phục hồi khi node chết, hoặc nhiều hơn một máy.
 
-Đó chính là ranh giới dẫn tới Kubernetes. Xem [Vì sao cần Kubernetes](../04-kubernetes/04-why-kubernetes.md).
+Đó chính là ranh giới dẫn tới Kubernetes. Xem [Vì sao cần Kubernetes](../04-kubernetes/fundamentals/01-why-kubernetes.md).
 
 ### Compose trong CI
 
@@ -402,7 +402,7 @@ reset:   ; docker compose down -v && docker compose up -d
 - [Volumes & state](03-volumes-state.md) — named volume, anonymous volume
 - [Dockerfile & build cache](05-dockerfile-build-cache.md) — `target` cho multi-stage
 - [Production image](07-production-image.md) — image dùng ở production
-- [Vì sao cần Kubernetes](../04-kubernetes/04-why-kubernetes.md) — giới hạn của Compose
+- [Vì sao cần Kubernetes](../04-kubernetes/fundamentals/01-why-kubernetes.md) — giới hạn của Compose
 - [Common failures](08-common-failures.md) — lỗi kinh điển
 - [Testcontainers](../../05-cross-cutting/testing/05-testcontainers.md) — thay Compose trong test
 - [Configuration](../../02-backend-api/04-architecture/05-configuration.md) — biến môi trường

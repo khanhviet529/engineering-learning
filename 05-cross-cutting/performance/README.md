@@ -137,7 +137,7 @@ Database / cache / queue
 - [Reliability](../reliability/README.md) — hành vi khi vượt giới hạn
 - [Concurrency](../concurrency/README.md) — tranh chấp và song song
 - [03-database/](../../03-database/README.md) — tầng thường là nút thắt
-- [Event loop](../../02-backend-api/01-nodejs/01-node-runtime-concurrency.md) — cơ chế nền của backend Node.js
+- [Event loop](../../02-backend-api/01-nodejs/fundamentals/01-runtime-concurrency.md) — cơ chế nền của backend Node.js
 - [Scaling, cache & queue](../../06-system-design/02-scaling-cache-queue.md) — quyết định ở tầng kiến trúc
 - [Fullstack Lab](../../07-projects/fullstack-lab/README.md) — nơi đo và phá thử
 

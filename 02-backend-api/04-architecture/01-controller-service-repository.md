@@ -2,11 +2,11 @@
 level: intermediate
 area: backend
 prerequisites:
-  - ../02-nestjs/01-request-lifecycle.md
+  - ../02-nestjs/behavior/01-request-lifecycle.md
 related:
   - 02-modular-monolith.md
   - 03-domain-logic-boundaries.md
-  - ../02-nestjs/06-database-integration-transactions.md
+  - ../02-nestjs/behavior/06-database-integration-transactions.md
 ---
 
 # Controller → Service → Repository
@@ -275,7 +275,7 @@ Số "1 chỗ" đó là toàn bộ giá trị của việc phân tầng. Nếu m
 3. **Mọi service** gọi repository đó — vì chúng đang nói bằng cú pháp Prisma. Trừu tượng hoá đã thất bại.
 4. Rò rỉ dữ liệu chéo tenant. Ép ở repository thì service mới không thể quên.
 5. **Không.** Hai transaction riêng; lỗi giữa chừng để lại dữ liệu nửa vời.
-6. Mass assignment — client tự đặt `ownerId`, `role`. Xem [Validation & errors](../02-nestjs/03-validation-errors.md).
+6. Mass assignment — client tự đặt `ownerId`, `role`. Xem [Validation & errors](../02-nestjs/behavior/03-validation-errors.md).
 7. `Nest can't resolve dependencies` hoặc phải dùng `forwardRef`. Vòng phụ thuộc là tín hiệu ranh giới sai.
 8. Cao. Đây chính là lý do quy tắc nên nằm cạnh dữ liệu, không lặp trong từng use case.
 </details>
@@ -332,7 +332,7 @@ Số "1 chỗ" đó là toàn bộ giá trị của việc phân tầng. Nếu m
 ## Production Considerations
 
 - **Ranh giới quan trọng nhất là ranh giới bạn dùng để ép quy tắc bảo mật.** Đặt `tenantId`/`ownerId` ở nơi không thể quên (repository, hoặc RLS ở PostgreSQL) đáng giá hơn mọi tinh chỉnh layering khác.
-- **Ranh giới transaction phải rõ ai sở hữu**, và phải ngắn. Xem [Database & transactions](../02-nestjs/06-database-integration-transactions.md).
+- **Ranh giới transaction phải rõ ai sở hữu**, và phải ngắn. Xem [Database & transactions](../02-nestjs/behavior/06-database-integration-transactions.md).
 - **Repository là nơi đặt đo đạc**: đếm query, log query chậm, gắn tên use case vào query (`/* task.close */`) để `pg_stat_statements` đọc được.
 - **Đừng trừu tượng hoá trước khi có ví dụ thứ hai.** Một trừu tượng hoá dựa trên một trường hợp gần như luôn sai hình dạng.
 - **Layer không thay được module.** Một codebase có ba layer hoàn hảo nhưng chỉ một module vẫn là một cục. Xem [Modular monolith](02-modular-monolith.md).
@@ -366,8 +366,8 @@ Về dòng cuối: với CRUD đơn giản, dùng chung kiểu là lựa chọn 
 - [Modular monolith](02-modular-monolith.md) — chia theo năng lực, không chỉ theo layer
 - [Domain logic boundaries](03-domain-logic-boundaries.md) — domain không biết HTTP
 - [Error handling strategy](04-error-handling-strategy.md) — lỗi đi qua các tầng thế nào
-- [Request lifecycle](../02-nestjs/01-request-lifecycle.md) — cái gì xảy ra trước controller
-- [Database & transactions](../02-nestjs/06-database-integration-transactions.md) — ai sở hữu transaction
-- [Modules & DI](../02-nestjs/02-modules-di.md) — module graph là kiến trúc thật
-- [Testing NestJS](../02-nestjs/09-testing-nestjs.md) — ranh giới quyết định test rẻ hay đắt
+- [Request lifecycle](../02-nestjs/behavior/01-request-lifecycle.md) — cái gì xảy ra trước controller
+- [Database & transactions](../02-nestjs/behavior/06-database-integration-transactions.md) — ai sở hữu transaction
+- [Modules & DI](../02-nestjs/behavior/02-modules-di.md) — module graph là kiến trúc thật
+- [Testing NestJS](../02-nestjs/behavior/09-testing-nestjs.md) — ranh giới quyết định test rẻ hay đắt
 - [REST API contract](../00-http-api/02-rest-api-contract.md) — hình dạng ở tầng controller

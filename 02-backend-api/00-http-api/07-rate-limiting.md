@@ -316,4 +316,4 @@ Người dùng thật (burst rồi nghỉ) không bao giờ chạm giới hạn.
 - [Capacity & limits](../../05-cross-cutting/reliability/04-capacity-and-limits.md) — chọn con số
 - [Timeout, retry, circuit breaker](../../05-cross-cutting/reliability/02-timeout-retry-circuit-breaker.md)
 - [Password & MFA](../03-auth/05-password-mfa.md) — brute-force protection
-- [Guards & interceptors](../02-nestjs/04-guards-interceptors.md) — nơi đặt trong NestJS
+- [Guards & interceptors](../02-nestjs/behavior/04-guards-interceptors.md) — nơi đặt trong NestJS

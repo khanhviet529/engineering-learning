@@ -151,7 +151,7 @@ Thiết kế bảo mật là thiết kế **hướng của lỗi khi con ngườ
 login() {}
 ```
 
-Xem [Guards & interceptors](../02-nestjs/04-guards-interceptors.md).
+Xem [Guards & interceptors](../02-nestjs/behavior/04-guards-interceptors.md).
 
 ### 401 và 403 có nghĩa khác nhau
 
@@ -303,7 +303,7 @@ it.each(getAllRoutes(app).filter(r => !r.isPublic))(
 - **Không có audit log** → không trả lời được câu hỏi sau sự cố.
 - **403 khi thiếu token** → frontend không biết redirect tới login.
 - **Quyền được cache lâu** → thu hồi quyền không có hiệu lực ngay.
-- **Mass assignment** → client tự đặt `role` hoặc `tenantId` trong body. Xem [Validation & errors](../02-nestjs/03-validation-errors.md).
+- **Mass assignment** → client tự đặt `role` hoặc `tenantId` trong body. Xem [Validation & errors](../02-nestjs/behavior/03-validation-errors.md).
 
 ## Common Misconceptions
 
@@ -378,9 +378,9 @@ it.each(getAllRoutes(app).filter(r => !r.isPublic))(
 - [Password & MFA](05-password-mfa.md) — xác thực bằng mật khẩu
 - [Authorization models](06-authorization-models.md) — RBAC, ABAC, ownership, tenant
 - [Access control](../../05-cross-cutting/security/04-access-control.md) — lớp lỗ hổng ở tầng bảo mật
-- [Guards & interceptors](../02-nestjs/04-guards-interceptors.md) — implementation
-- [Validation & errors](../02-nestjs/03-validation-errors.md) — mass assignment
-- [Testing NestJS](../02-nestjs/09-testing-nestjs.md) — test nhánh phủ định
+- [Guards & interceptors](../02-nestjs/behavior/04-guards-interceptors.md) — implementation
+- [Validation & errors](../02-nestjs/behavior/03-validation-errors.md) — mass assignment
+- [Testing NestJS](../02-nestjs/behavior/09-testing-nestjs.md) — test nhánh phủ định
 - [Cache & invalidation](../../03-database/02-redis/01-cache-invalidation.md) — cache key thiếu chiều
 
 ## Version / Context

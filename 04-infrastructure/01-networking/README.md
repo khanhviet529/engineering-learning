@@ -116,8 +116,8 @@ App → socket → TCP/IP → NAT/firewall → mạng → LB → App khác
 - [02-docker/](../02-docker/README.md) — network namespace, `localhost` trong container
 - [04-kubernetes/](../04-kubernetes/README.md) — Service, Ingress, NetworkPolicy
 - [URL → DNS → TCP → TLS](../../01-web-frontend/00-web-foundations/03-url-dns-tcp-tls.md) — cùng chuỗi từ browser
-- [Graceful shutdown](../../02-backend-api/01-nodejs/05-graceful-shutdown.md) — chống 502 khi deploy
-- [WebSocket gateway](../../02-backend-api/02-nestjs/08-websocket-gateway.md) — kết nối dài qua proxy
+- [Graceful shutdown](../../02-backend-api/01-nodejs/production/02-graceful-shutdown.md) — chống 502 khi deploy
+- [WebSocket gateway](../../02-backend-api/02-nestjs/behavior/08-websocket-gateway.md) — kết nối dài qua proxy
 - [Timeout, retry & circuit breaker](../../05-cross-cutting/reliability/02-timeout-retry-circuit-breaker.md)
 - [Correlation ID & tracing](../../05-cross-cutting/observability/03-correlation-tracing.md) — biết tầng nào chậm trước khi debug mạng
 

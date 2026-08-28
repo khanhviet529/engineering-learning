@@ -5,7 +5,7 @@ prerequisites:
   - 01-concurrency-models.md
 related:
   - 03-distributed-locks.md
-  - ../../03-database/01-postgresql/01-transaction-isolation.md
+  - ../../03-database/01-postgresql/transactions-concurrency/01-transaction-isolation.md
 ---
 
 # Shared state & race conditions
@@ -158,7 +158,7 @@ Nó chuyển từ "dữ liệu sai im lặng" sang "lỗi rõ ràng cần retry"
 Đó là cải thiện lớn — nhưng chỉ khi bạn CÓ vòng retry.
 ```
 
-Xem [Transaction isolation](../../03-database/01-postgresql/01-transaction-isolation.md).
+Xem [Transaction isolation](../../03-database/01-postgresql/transactions-concurrency/01-transaction-isolation.md).
 
 ### Write skew: race mà isolation thấp không thấy
 
@@ -454,8 +454,8 @@ So sánh:
 
 - [Concurrency models](01-concurrency-models.md) — nơi đồng thời đến từ đâu
 - [Distributed locks](03-distributed-locks.md) — phối hợp giữa nhiều instance
-- [Transaction isolation](../../03-database/01-postgresql/01-transaction-isolation.md) — chi tiết isolation level
-- [Locking & deadlock](../../03-database/01-postgresql/05-locking-deadlock.md) — khoá ở PostgreSQL
+- [Transaction isolation](../../03-database/01-postgresql/transactions-concurrency/01-transaction-isolation.md) — chi tiết isolation level
+- [Locking & deadlock](../../03-database/01-postgresql/transactions-concurrency/03-locking-deadlock.md) — khoá ở PostgreSQL
 - [Constraints & invariants](../../03-database/03-data-modeling/01-constraints-invariants.md) — ràng buộc ở tầng dữ liệu
 - [Idempotency & retry](../../06-system-design/03-idempotency-retry.md) — race giữa request và retry
 - [Timeout, retry & circuit breaker](../reliability/02-timeout-retry-circuit-breaker.md) — nguồn của retry đồng thời

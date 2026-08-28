@@ -405,7 +405,7 @@ Chú ý dòng `degraded: recommendations === null`: hệ thống **biết** nó 
 - [Backpressure](../performance/06-backpressure.md) — hành vi khi vượt giới hạn
 - [Metrics & SLO](../observability/04-metrics-slo.md) — đo độ tin cậy
 - [Alerting & dashboards](../observability/05-alerting-dashboards.md) — phát hiện và runbook
-- [Readiness & liveness](../../04-infrastructure/04-kubernetes/02-health-readiness-liveness.md) — health check ở tầng K8s
+- [Readiness & liveness](../../04-infrastructure/04-kubernetes/scheduling-reliability/01-health-readiness-liveness.md) — health check ở tầng K8s
 - [Deployment strategies](../../04-infrastructure/03-cicd/03-deployment-strategies.md) — rollback là biện pháp giảm thiểu số một
 - [Consistency & availability](../../06-system-design/04-consistency-availability.md) — đánh đổi ở tầng kiến trúc
 

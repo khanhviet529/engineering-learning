@@ -188,7 +188,7 @@ Service thường (ClusterIP)  → DNS trả về MỘT IP ảo; kube-proxy phâ
 Headless Service (None)     → DNS trả về IP của TỪNG pod
 ```
 
-Headless service dùng cho StatefulSet và cho client tự làm load balancing (gRPC). Xem [Ingress & service discovery](../04-kubernetes/06-ingress-service-discovery.md).
+Headless service dùng cho StatefulSet và cho client tự làm load balancing (gRPC). Xem [Ingress & service discovery](../04-kubernetes/workloads-networking/02-ingress-service-discovery.md).
 
 ### DNS cache trong ứng dụng
 
@@ -378,7 +378,7 @@ Bước 6 với `-w` là công cụ ít dùng nhưng rất hiệu quả — nó 
 - [Reverse proxy & load balancer](05-reverse-proxy-load-balancer.md) — thay round-robin DNS
 - [Network debugging](06-network-debugging.md) — quy trình đầy đủ
 - [Container networking](../02-docker/02-container-networking.md) — DNS trong Docker
-- [Ingress & service discovery](../04-kubernetes/06-ingress-service-discovery.md) — DNS trong K8s
+- [Ingress & service discovery](../04-kubernetes/workloads-networking/02-ingress-service-discovery.md) — DNS trong K8s
 - [URL → DNS → TCP → TLS](../../01-web-frontend/00-web-foundations/03-url-dns-tcp-tls.md) — cùng chuỗi từ phía browser
 
 ## Version / Context

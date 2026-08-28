@@ -3,10 +3,10 @@ level: advanced
 area: database
 prerequisites:
   - 02-delivery-semantics.md
-  - ../01-postgresql/01-transaction-isolation.md
+  - ../01-postgresql/transactions-concurrency/01-transaction-isolation.md
 related:
   - 05-broker-comparison.md
-  - ../../02-backend-api/02-nestjs/06-database-integration-transactions.md
+  - ../../02-backend-api/02-nestjs/behavior/06-database-integration-transactions.md
   - ../../06-system-design/07-event-driven.md
 ---
 
@@ -128,7 +128,7 @@ CREATE TABLE outbox (
 CREATE INDEX ON outbox (id) WHERE sent_at IS NULL;
 ```
 
-Partial index là chi tiết quan trọng: bảng outbox tích luỹ hàng triệu dòng đã gửi, nhưng index chỉ chứa vài chục dòng chưa gửi. Xem [Index types](../01-postgresql/07-index-types.md).
+Partial index là chi tiết quan trọng: bảng outbox tích luỹ hàng triệu dòng đã gửi, nhưng index chỉ chứa vài chục dòng chưa gửi. Xem [Index types](../01-postgresql/indexes-query-planning/02-index-types.md).
 
 ### Ghi: một transaction
 
@@ -252,7 +252,7 @@ WHERE id IN (
 );
 ```
 
-Với khối lượng lớn, `DELETE` định kỳ tạo bloat đáng kể. Giải pháp tốt hơn: **partition theo tháng và `DROP` partition cũ** — tức thì, không tạo dead tuple nào. Xem [MVCC & vacuum](../01-postgresql/04-mvcc-vacuum.md).
+Với khối lượng lớn, `DELETE` định kỳ tạo bloat đáng kể. Giải pháp tốt hơn: **partition theo tháng và `DROP` partition cũ** — tức thì, không tạo dead tuple nào. Xem [MVCC & vacuum](../01-postgresql/transactions-concurrency/02-mvcc-vacuum.md).
 
 Giữ lại 7–30 ngày là hợp lý: đủ để điều tra sự cố, không đủ để thành gánh nặng.
 
@@ -507,11 +507,11 @@ Và một chi tiết vận hành đáng giá: **thêm `correlationId` vào paylo
 - [Retry & DLQ](03-retry-dlq.md) — xử lý sự kiện fail ở phía consumer
 - [Ordering & partitioning](04-ordering-partitioning.md) — `aggregateId` làm partition key
 - [Broker comparison](05-broker-comparison.md) — PostgreSQL queue = outbox có sẵn
-- [Transaction isolation](../01-postgresql/01-transaction-isolation.md) — nguyên tử
-- [Locking & deadlock](../01-postgresql/05-locking-deadlock.md) — advisory lock, `SKIP LOCKED`
-- [MVCC & vacuum](../01-postgresql/04-mvcc-vacuum.md) — bloat từ `DELETE` định kỳ
-- [Index types](../01-postgresql/07-index-types.md) — partial index
-- [Database & transactions (NestJS)](../../02-backend-api/02-nestjs/06-database-integration-transactions.md) — implementation
+- [Transaction isolation](../01-postgresql/transactions-concurrency/01-transaction-isolation.md) — nguyên tử
+- [Locking & deadlock](../01-postgresql/transactions-concurrency/03-locking-deadlock.md) — advisory lock, `SKIP LOCKED`
+- [MVCC & vacuum](../01-postgresql/transactions-concurrency/02-mvcc-vacuum.md) — bloat từ `DELETE` định kỳ
+- [Index types](../01-postgresql/indexes-query-planning/02-index-types.md) — partial index
+- [Database & transactions (NestJS)](../../02-backend-api/02-nestjs/behavior/06-database-integration-transactions.md) — implementation
 - [Event-driven](../../06-system-design/07-event-driven.md) — outbox trong kiến trúc sự kiện
 - [Correlation ID & tracing](../../05-cross-cutting/observability/03-correlation-tracing.md) — lần theo qua outbox
 

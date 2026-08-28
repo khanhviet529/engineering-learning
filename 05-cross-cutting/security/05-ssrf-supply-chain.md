@@ -415,7 +415,7 @@ Lựa chọn 1 đáng cân nhắc nghiêm túc trước khi làm lựa chọn 2.
 - [NAT, firewall & routing](../../04-infrastructure/01-networking/04-nat-firewall-routing.md) — tách mạng egress
 - [Production image](../../04-infrastructure/02-docker/07-production-image.md) — base image, digest
 - [Build & artifact promotion](../../04-infrastructure/03-cicd/02-build-artifact-promotion.md) — ghim và ký artifact
-- [Config, Secret & resources](../../04-infrastructure/04-kubernetes/03-config-secrets-resources.md) — service account, quyền pod
+- [Config, Secret & resources](../../04-infrastructure/04-kubernetes/operations/01-config-secrets-resources.md) — service account, quyền pod
 - [Timeout, retry & circuit breaker](../reliability/02-timeout-retry-circuit-breaker.md) — gọi ra ngoài an toàn
 
 ## Version / Context

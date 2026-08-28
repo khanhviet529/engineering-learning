@@ -2,24 +2,40 @@
 
 Node như một **runtime có một thread JavaScript và một mô hình đồng thời cụ thể**. Gần như mọi vấn đề production của một Node service quy về một trong ba câu: có gì đang chặn event loop, memory đi đâu, và process có thoát sạch không.
 
+## Cấu trúc
+
+```text
+fundamentals/   runtime, module system, bản đồ core API
+runtime-io/     stream, buffer, worker threads
+production/     process & memory, graceful shutdown
+```
+
 ## Thứ tự đọc
+
+### Bước 0 — nền
 
 | # | Note | Trả lời câu hỏi |
 |---|---|---|
-| 1 | [Node runtime & concurrency](01-node-runtime-concurrency.md) | Vì sao 10.000 kết nối ổn nhưng một vòng lặp 3 giây làm đứng tất cả? |
-| 2 | [Streams & buffers](02-streams-buffers.md) | Vì sao export CSV làm pod bị OOMKilled? |
-| 3 | [Process & memory](03-process-memory.md) | Exit 137 không log — debug bằng cách nào? |
-| 4 | [Worker threads & CPU](04-worker-threads-cpu.md) | Việc CPU-bound nên đi đâu? |
-| 5 | [Graceful shutdown](05-graceful-shutdown.md) | Vì sao mỗi lần deploy mất một ít request? |
-| 6 | [Module system trong Node](06-module-system-node.md) | Vì sao circular import biến thành lỗi DI? |
+| 0a | [Runtime & concurrency](./fundamentals/01-runtime-concurrency.md) | V8, libuv, event loop phases, thread pool |
+| 0b | [Module system](./fundamentals/02-module-system.md) | CommonJS vs ESM, `type` trong package.json |
+| 0c | [Core API map](./fundamentals/03-core-apis-map.md) | `fs`, `path`, `events`, `AbortController`, `crypto` — cái nào cho việc gì? |
+
+| # | Note | Trả lời câu hỏi |
+|---|---|---|
+| 1 | [Node runtime & concurrency](./fundamentals/01-runtime-concurrency.md) | Vì sao 10.000 kết nối ổn nhưng một vòng lặp 3 giây làm đứng tất cả? |
+| 2 | [Streams & buffers](./runtime-io/01-streams-buffers.md) | Vì sao export CSV làm pod bị OOMKilled? |
+| 3 | [Process & memory](./production/01-process-memory.md) | Exit 137 không log — debug bằng cách nào? |
+| 4 | [Worker threads & CPU](./runtime-io/02-worker-threads-cpu.md) | Việc CPU-bound nên đi đâu? |
+| 5 | [Graceful shutdown](./production/02-graceful-shutdown.md) | Vì sao mỗi lần deploy mất một ít request? |
+| 6 | [Module system trong Node](./fundamentals/02-module-system.md) | Vì sao circular import biến thành lỗi DI? |
 
 Note 6 là note nên đọc **trước khi sang NestJS** — circular import và `reflect-metadata` là hai nguồn lỗi DI phổ biến nhất, và cả hai đều là vấn đề module, không phải vấn đề framework.
 
 ## Ba metric mà mọi Node service nên có
 
-1. **Event loop lag (p99)** — phát hiện code đồng bộ chặn. CPU usage không phát hiện được điều này. → [1](01-node-runtime-concurrency.md)
-2. **`heapUsed`** — phát hiện leak. RSS là tín hiệu nhiễu. → [3](03-process-memory.md)
-3. **Số lỗi trong cửa sổ deploy** — xác nhận graceful shutdown thật sự hoạt động. → [5](05-graceful-shutdown.md)
+1. **Event loop lag (p99)** — phát hiện code đồng bộ chặn. CPU usage không phát hiện được điều này. → [1](./fundamentals/01-runtime-concurrency.md)
+2. **`heapUsed`** — phát hiện leak. RSS là tín hiệu nhiễu. → [3](./production/01-process-memory.md)
+3. **Số lỗi trong cửa sổ deploy** — xác nhận graceful shutdown thật sự hoạt động. → [5](./production/02-graceful-shutdown.md)
 
 Không có ba chỉ số này, bạn chỉ biết có vấn đề khi pod bị restart.
 
@@ -27,31 +43,31 @@ Không có ba chỉ số này, bạn chỉ biết có vấn đề khi pod bị r
 
 | Hiểu nhầm | Thực tế | Note |
 |---|---|---|
-| Node là multi-threaded | JS chạy một thread; libuv có pool 4 cho *một số* việc I/O | [1](01-node-runtime-concurrency.md) |
-| Network I/O dùng thread pool | Không — dùng epoll/kqueue. Chỉ fs/dns/crypto/zlib dùng pool | [1](01-node-runtime-concurrency.md) |
-| `.pipe()` xử lý lỗi và backpressure | Không lan lỗi, không cleanup. Dùng `pipeline()` | [2](02-streams-buffers.md) |
-| `--max-old-space-size` giới hạn toàn bộ memory | Chỉ heap; `external` (Buffer) không tính | [3](03-process-memory.md) |
-| `server.close()` là graceful shutdown | Cần readiness=false + delay **trước** đó | [5](05-graceful-shutdown.md) |
-| `forwardRef` sửa circular dependency | Nó chỉ hoãn phân giải; vòng lặp vẫn còn | [6](06-module-system-node.md) |
+| Node là multi-threaded | JS chạy một thread; libuv có pool 4 cho *một số* việc I/O | [1](./fundamentals/01-runtime-concurrency.md) |
+| Network I/O dùng thread pool | Không — dùng epoll/kqueue. Chỉ fs/dns/crypto/zlib dùng pool | [1](./fundamentals/01-runtime-concurrency.md) |
+| `.pipe()` xử lý lỗi và backpressure | Không lan lỗi, không cleanup. Dùng `pipeline()` | [2](./runtime-io/01-streams-buffers.md) |
+| `--max-old-space-size` giới hạn toàn bộ memory | Chỉ heap; `external` (Buffer) không tính | [3](./production/01-process-memory.md) |
+| `server.close()` là graceful shutdown | Cần readiness=false + delay **trước** đó | [5](./production/02-graceful-shutdown.md) |
+| `forwardRef` sửa circular dependency | Nó chỉ hoãn phân giải; vòng lặp vẫn còn | [6](./fundamentals/02-module-system.md) |
 
 ## Bảng chẩn đoán nhanh
 
 | Triệu chứng | Nghi ngờ |
 |---|---|
-| Một endpoint chậm làm mọi endpoint chậm | event loop bị chặn → [1](01-node-runtime-concurrency.md) |
-| CPU thấp nhưng latency cao | thread pool cạn, hoặc connection pool cạn → [1](01-node-runtime-concurrency.md) |
-| Health check timeout dưới tải | CPU-bound trong handler → [4](04-worker-threads-cpu.md) |
-| RSS tăng theo kích thước dữ liệu | đang buffer thay vì stream → [2](02-streams-buffers.md) |
-| `heapUsed` tăng đều, restart thì hết | leak (Map global, listener, timer) → [3](03-process-memory.md) |
-| Exit code 137, không log | OOMKilled — heap limit > container limit → [3](03-process-memory.md) |
-| Exit code 143 | SIGTERM, shutdown bình thường → [5](05-graceful-shutdown.md) |
-| 502 chỉ trong lúc deploy | thiếu delay trước `server.close()` → [5](05-graceful-shutdown.md) |
-| Container mất ~30s mới tắt | PID 1 là `npm`, không forward SIGTERM → [5](05-graceful-shutdown.md) |
-| Process không chịu thoát | worker thread / timer chưa dọn → [4](04-worker-threads-cpu.md) |
-| `Nest can't resolve dependencies of X (?)` | circular import, không phải lỗi DI → [6](06-module-system-node.md) |
-| `Reflect.getMetadata is not a function` | `reflect-metadata` nạp sai thứ tự → [6](06-module-system-node.md) |
-| `ERR_MODULE_NOT_FOUND` dù file có thật | ESM thiếu đuôi `.js` → [6](06-module-system-node.md) |
-| `instanceof` thất bại bí ẩn | hai bản cùng package → [6](06-module-system-node.md) |
+| Một endpoint chậm làm mọi endpoint chậm | event loop bị chặn → [1](./fundamentals/01-runtime-concurrency.md) |
+| CPU thấp nhưng latency cao | thread pool cạn, hoặc connection pool cạn → [1](./fundamentals/01-runtime-concurrency.md) |
+| Health check timeout dưới tải | CPU-bound trong handler → [4](./runtime-io/02-worker-threads-cpu.md) |
+| RSS tăng theo kích thước dữ liệu | đang buffer thay vì stream → [2](./runtime-io/01-streams-buffers.md) |
+| `heapUsed` tăng đều, restart thì hết | leak (Map global, listener, timer) → [3](./production/01-process-memory.md) |
+| Exit code 137, không log | OOMKilled — heap limit > container limit → [3](./production/01-process-memory.md) |
+| Exit code 143 | SIGTERM, shutdown bình thường → [5](./production/02-graceful-shutdown.md) |
+| 502 chỉ trong lúc deploy | thiếu delay trước `server.close()` → [5](./production/02-graceful-shutdown.md) |
+| Container mất ~30s mới tắt | PID 1 là `npm`, không forward SIGTERM → [5](./production/02-graceful-shutdown.md) |
+| Process không chịu thoát | worker thread / timer chưa dọn → [4](./runtime-io/02-worker-threads-cpu.md) |
+| `Nest can't resolve dependencies of X (?)` | circular import, không phải lỗi DI → [6](./fundamentals/02-module-system.md) |
+| `Reflect.getMetadata is not a function` | `reflect-metadata` nạp sai thứ tự → [6](./fundamentals/02-module-system.md) |
+| `ERR_MODULE_NOT_FOUND` dù file có thật | ESM thiếu đuôi `.js` → [6](./fundamentals/02-module-system.md) |
+| `instanceof` thất bại bí ẩn | hai bản cùng package → [6](./fundamentals/02-module-system.md) |
 
 ## Quyết định cấu hình quan trọng
 
@@ -74,8 +90,8 @@ HTTP request → Node.js runtime (event loop, libuv) → NestJS → Domain → D
 
 ## Related
 
-- [Event loop & async](../../01-web-frontend/01-javascript-typescript/01-event-loop-async.md) — cơ chế nền, đọc trước
-- [Memory & GC](../../01-web-frontend/01-javascript-typescript/05-memory-gc.md) — quy trình tìm leak
+- [Event loop & async](../../01-web-frontend/01-javascript-typescript/async-concurrency/01-event-loop-async.md) — cơ chế nền, đọc trước
+- [Memory & GC](../../01-web-frontend/01-javascript-typescript/runtime-behavior/01-memory-gc.md) — quy trình tìm leak
 - [00-http-api/](../00-http-api/README.md) — hợp đồng mà runtime này phục vụ
 - [02-nestjs/](../02-nestjs/README.md) — framework trên runtime này
 - [Concurrency models](../../05-cross-cutting/concurrency/01-concurrency-models.md) — so với thread và distributed

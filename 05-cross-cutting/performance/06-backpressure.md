@@ -451,8 +451,8 @@ Kết quả trong kịch bản đột biến 6x:
 - [Capacity & limits](../reliability/04-capacity-and-limits.md) — lập kế hoạch dung lượng
 - [Why queue](../../03-database/04-message-queues/01-why-queue.md) — hàng đợi như một công cụ
 - [Rate limit & locking](../../03-database/02-redis/02-rate-limit-locking.md) — giới hạn ở biên
-- [Streams](../../02-backend-api/01-nodejs/02-streams-buffers.md) — backpressure trong Node.js
-- [Connection pool](../../03-database/01-postgresql/03-connection-pool.md) — hàng đợi trước database
+- [Streams](../../02-backend-api/01-nodejs/runtime-io/01-streams-buffers.md) — backpressure trong Node.js
+- [Connection pool](../../03-database/01-postgresql/fundamentals/02-connection-pool.md) — hàng đợi trước database
 
 ## Version / Context
 

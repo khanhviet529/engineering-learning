@@ -5,7 +5,7 @@ prerequisites:
   - 04-eviction-memory.md
 related:
   - 06-pubsub-streams.md
-  - ../01-postgresql/06-wal-durability-backup.md
+  - ../01-postgresql/operations/01-wal-durability-backup.md
   - ../../05-cross-cutting/reliability/01-failure-modes.md
 ---
 
@@ -367,7 +367,7 @@ Thí nghiệm về Sentinel đáng làm một lần trên staging: nó cho bạn
 - [Eviction & memory](04-eviction-memory.md) — `maxmemory`, fork và OOM
 - [Cache patterns](03-cache-patterns.md) — thundering herd khi Redis trống
 - [Redis pub/sub & streams](06-pubsub-streams.md) — pub/sub không có persistence
-- [WAL, durability & backup](../01-postgresql/06-wal-durability-backup.md) — so sánh với PostgreSQL
+- [WAL, durability & backup](../01-postgresql/operations/01-wal-durability-backup.md) — so sánh với PostgreSQL
 - [Outbox pattern](../04-message-queues/06-outbox-pattern.md) — nguồn sự thật cho job
 - [Vì sao cần queue](../04-message-queues/01-why-queue.md) — Redis queue vs broker chuyên dụng
 - [Consistency & availability](../../06-system-design/04-consistency-availability.md) — CAP và `min-replicas-to-write`

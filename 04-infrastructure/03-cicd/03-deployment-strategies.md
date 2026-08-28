@@ -4,7 +4,7 @@ area: infra
 prerequisites:
   - 02-build-artifact-promotion.md
 related:
-  - ../04-kubernetes/07-rollout-rollback.md
+  - ../04-kubernetes/workloads-networking/03-rollout-rollback.md
   - ../../05-cross-cutting/observability/05-alerting-dashboards.md
 ---
 
@@ -343,7 +343,7 @@ spec:
 - **Feature flag có hạn xoá** ngay khi tạo, và một job liệt kê flag quá hạn.
 - **Deploy thường xuyên, mỗi lần ít thay đổi** — nó giảm rủi ro nhiều hơn mọi chiến lược phức tạp.
 - **Ghi lại mọi deploy** (ai, digest, lúc nào) và hiển thị trên dashboard cạnh biểu đồ lỗi — tương quan thời gian là công cụ chẩn đoán đầu tiên.
-- **Kết nối dài (WebSocket) cần xử lý riêng** — chúng đứt ở mọi chiến lược trừ feature flag. Xem [WebSocket gateway](../../02-backend-api/02-nestjs/08-websocket-gateway.md).
+- **Kết nối dài (WebSocket) cần xử lý riêng** — chúng đứt ở mọi chiến lược trừ feature flag. Xem [WebSocket gateway](../../02-backend-api/02-nestjs/behavior/08-websocket-gateway.md).
 - **Đo bốn chỉ số DORA** — chúng cho biết quy trình deploy đang giúp hay cản.
 
 ## Trade-offs
@@ -376,13 +376,13 @@ spec:
 
 - [Build & artifact promotion](02-build-artifact-promotion.md) — deploy bằng digest
 - [CI/CD pipeline](01-pipeline.md) — nơi artifact được tạo
-- [Rollout & rollback](../04-kubernetes/07-rollout-rollback.md) — cơ chế trong Kubernetes
+- [Rollout & rollback](../04-kubernetes/workloads-networking/03-rollout-rollback.md) — cơ chế trong Kubernetes
 - [Migrations](../../03-database/03-data-modeling/04-migrations.md) — tương thích ngược
 - [Configuration](../../02-backend-api/04-architecture/05-configuration.md) — feature flag vs config
 - [Alerting & dashboards](../../05-cross-cutting/observability/05-alerting-dashboards.md) — phát hiện tự động
 - [Metrics & SLO](../../05-cross-cutting/observability/04-metrics-slo.md) — metric cho canary analysis
-- [Graceful shutdown](../../02-backend-api/01-nodejs/05-graceful-shutdown.md) — điều kiện để rolling không mất request
-- [WebSocket gateway](../../02-backend-api/02-nestjs/08-websocket-gateway.md) — kết nối dài khi deploy
+- [Graceful shutdown](../../02-backend-api/01-nodejs/production/02-graceful-shutdown.md) — điều kiện để rolling không mất request
+- [WebSocket gateway](../../02-backend-api/02-nestjs/behavior/08-websocket-gateway.md) — kết nối dài khi deploy
 
 ## Version / Context
 

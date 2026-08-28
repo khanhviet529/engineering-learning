@@ -386,7 +386,7 @@ Bốn test này sống sót qua mọi refactor nội bộ và bắt được đ�
 - [Testcontainers](05-testcontainers.md) — DB thật trong test
 - [Deterministic tests](06-deterministic-tests.md) — chống flaky
 - [Contract testing](07-contract-testing.md) — ranh giới giữa các service
-- [Testing NestJS](../../02-backend-api/02-nestjs/09-testing-nestjs.md) — cài đặt cụ thể
+- [Testing NestJS](../../02-backend-api/02-nestjs/behavior/09-testing-nestjs.md) — cài đặt cụ thể
 - [Access control](../security/04-access-control.md) — test đường từ chối
 - [Pipeline](../../04-infrastructure/03-cicd/01-pipeline.md) — nơi test chạy
 

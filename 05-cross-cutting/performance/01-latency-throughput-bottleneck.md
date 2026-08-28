@@ -400,7 +400,7 @@ Chú ý: bước ① không cần biết gì về `analytics.summary` và đã l
 - [Backpressure](06-backpressure.md) — khi tải vượt khả năng
 - [Metrics & SLO](../observability/04-metrics-slo.md) — theo dõi phân vị
 - [Correlation & tracing](../observability/03-correlation-tracing.md) — đọc trace để tìm nút thắt
-- [Connection pool](../../03-database/01-postgresql/03-connection-pool.md) — `λ × W` trong thực tế
+- [Connection pool](../../03-database/01-postgresql/fundamentals/02-connection-pool.md) — `λ × W` trong thực tế
 - [Capacity & limits](../reliability/04-capacity-and-limits.md) — lập kế hoạch dung lượng
 
 ## Version / Context

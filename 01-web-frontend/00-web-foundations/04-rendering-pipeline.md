@@ -4,7 +4,7 @@ area: frontend
 prerequisites:
   - 01-browser-request-render.md
 related:
-  - ../02-react/12-performance.md
+  - ../02-react/behavior/12-performance.md
   - ../../05-cross-cutting/performance/02-frontend-performance.md
 ---
 
@@ -154,7 +154,7 @@ Thí nghiệm thứ 4 và 5 cạnh nhau là thí nghiệm quan trọng nhất tr
 - **Animate thuộc tính layout** (`left`, `top`, `width`, `margin`) thay vì `transform`/`opacity`.
 - **Layout thrashing** trong code đo kích thước — thường là trong thư viện tooltip, virtual list, drag-and-drop tự viết.
 - **`will-change` bừa bãi** — được coi là "thuốc tăng lực", thực chất là đánh đổi RAM.
-- **Long task JS** chặn mọi frame; React render lớn là một dạng long task. Xem [React performance](../02-react/12-performance.md).
+- **Long task JS** chặn mọi frame; React render lớn là một dạng long task. Xem [React performance](../02-react/behavior/12-performance.md).
 - **Layout shift** vì ảnh/font/ad không có kích thước dự phòng.
 - **DOM quá lớn** — 10.000 node làm mọi layout đắt, kể cả thay đổi nhỏ. Giải pháp là virtualization.
 
@@ -207,6 +207,6 @@ Thí nghiệm thứ 4 và 5 cạnh nhau là thí nghiệm quan trọng nhất tr
 ## Related
 
 - [Browser request → render](01-browser-request-render.md) — pipeline này là nửa sau
-- [React performance](../02-react/12-performance.md) — long task từ React render
+- [React performance](../02-react/behavior/12-performance.md) — long task từ React render
 - [Frontend performance](../../05-cross-cutting/performance/02-frontend-performance.md) — đo Core Web Vitals
-- [Event loop](../01-javascript-typescript/01-event-loop-async.md) — vì sao JS chặn render
+- [Event loop](../01-javascript-typescript/async-concurrency/01-event-loop-async.md) — vì sao JS chặn render

@@ -73,45 +73,45 @@ Xuyên qua **toàn bộ** các tầng trên: [05-cross-cutting/](../05-cross-cut
 
 | Bạn đang gặp | Đọc |
 |---|---|
-| Thứ tự log không như dự đoán | [Event loop & async](../01-web-frontend/01-javascript-typescript/01-event-loop-async.md) |
-| Hàm đọc giá trị cũ | [Execution context & closure](../01-web-frontend/01-javascript-typescript/03-execution-context-closure.md) |
-| `Promise.all` vs tuần tự, unhandled rejection | [Promise & concurrency](../01-web-frontend/01-javascript-typescript/04-promise-concurrency.md) |
-| Process RSS tăng dần | [Memory & GC](../01-web-frontend/01-javascript-typescript/05-memory-gc.md) |
-| `Cannot use import outside a module` | [Modules & bundling](../01-web-frontend/01-javascript-typescript/06-modules-bundling.md) |
-| Type đúng nhưng runtime sai | [TypeScript ↔ runtime boundary](../01-web-frontend/01-javascript-typescript/02-typescript-runtime-boundary.md) |
-| Cần mô hình hoá state bằng type | [Type system](../01-web-frontend/01-javascript-typescript/07-typescript-type-system.md) · [Advanced types](../01-web-frontend/01-javascript-typescript/08-typescript-advanced-types.md) |
-| Error bị mất, stack trace vô dụng | [Error handling & immutability](../01-web-frontend/01-javascript-typescript/09-error-handling-immutability.md) |
+| Thứ tự log không như dự đoán | [Event loop & async](../01-web-frontend/01-javascript-typescript/async-concurrency/01-event-loop-async.md) |
+| Hàm đọc giá trị cũ | [Execution context & closure](../01-web-frontend/01-javascript-typescript/fundamentals/01-execution-context-closure.md) |
+| `Promise.all` vs tuần tự, unhandled rejection | [Promise & concurrency](../01-web-frontend/01-javascript-typescript/async-concurrency/02-promise-concurrency.md) |
+| Process RSS tăng dần | [Memory & GC](../01-web-frontend/01-javascript-typescript/runtime-behavior/01-memory-gc.md) |
+| `Cannot use import outside a module` | [Modules & bundling](../01-web-frontend/01-javascript-typescript/fundamentals/02-modules-bundling.md) |
+| Type đúng nhưng runtime sai | [TypeScript ↔ runtime boundary](../01-web-frontend/01-javascript-typescript/typescript/01-runtime-boundary.md) |
+| Cần mô hình hoá state bằng type | [Type system](../01-web-frontend/01-javascript-typescript/typescript/02-type-system.md) · [Advanced types](../01-web-frontend/01-javascript-typescript/typescript/03-advanced-types.md) |
+| Error bị mất, stack trace vô dụng | [Error handling & immutability](../01-web-frontend/01-javascript-typescript/fundamentals/03-error-handling-immutability.md) |
 
 ### Tầng React
 
 | Bạn đang gặp | Đọc |
 |---|---|
-| Không biết cái gì gây re-render | [State → render](../01-web-frontend/02-react/01-state-render.md) |
-| List mất state / input reset khi sắp xếp | [Reconciliation & keys](../01-web-frontend/02-react/05-reconciliation-keys.md) |
-| Effect chạy 2 lần, chạy vô hạn | [Effects & lifecycle](../01-web-frontend/02-react/02-effects-lifecycle.md) |
-| Dữ liệu nhảy sai khi click nhanh | [Async race condition](../01-web-frontend/02-react/03-async-race-condition.md) |
-| Fetch trong effect ngày càng khó quản | [Server state & cache](../01-web-frontend/02-react/04-server-state-cache.md) |
-| State ở đâu, ai sở hữu | [Props, composition & state design](../01-web-frontend/02-react/06-props-composition-state-design.md) |
-| Context làm cả cây re-render | [Context & memoization](../01-web-frontend/02-react/07-context-memoization.md) |
-| Input lag, cần focus/scroll DOM | [Refs & uncontrolled](../01-web-frontend/02-react/08-refs-uncontrolled.md) |
-| App trắng khi có lỗi | [Error boundaries & Suspense](../01-web-frontend/02-react/09-error-boundaries-suspense.md) |
-| Form phức tạp, validate rối | [Forms](../01-web-frontend/02-react/10-forms.md) |
-| Muốn tách logic tái dùng | [Custom hooks](../01-web-frontend/02-react/11-custom-hooks.md) |
-| App chậm khi list dài | [React performance](../01-web-frontend/02-react/12-performance.md) |
-| Không biết test cái gì | [Testing React](../01-web-frontend/02-react/13-testing-react.md) |
+| Không biết cái gì gây re-render | [State → render](../01-web-frontend/02-react/behavior/01-state-render.md) |
+| List mất state / input reset khi sắp xếp | [Reconciliation & keys](../01-web-frontend/02-react/behavior/05-reconciliation-keys.md) |
+| Effect chạy 2 lần, chạy vô hạn | [Effects & lifecycle](../01-web-frontend/02-react/behavior/02-effects-lifecycle.md) |
+| Dữ liệu nhảy sai khi click nhanh | [Async race condition](../01-web-frontend/02-react/behavior/03-async-race-condition.md) |
+| Fetch trong effect ngày càng khó quản | [Server state & cache](../01-web-frontend/02-react/behavior/04-server-state-cache.md) |
+| State ở đâu, ai sở hữu | [Props, composition & state design](../01-web-frontend/02-react/behavior/06-props-composition-state-design.md) |
+| Context làm cả cây re-render | [Context & memoization](../01-web-frontend/02-react/behavior/07-context-memoization.md) |
+| Input lag, cần focus/scroll DOM | [Refs & uncontrolled](../01-web-frontend/02-react/behavior/08-refs-uncontrolled.md) |
+| App trắng khi có lỗi | [Error boundaries & Suspense](../01-web-frontend/02-react/behavior/09-error-boundaries-suspense.md) |
+| Form phức tạp, validate rối | [Forms](../01-web-frontend/02-react/behavior/10-forms.md) |
+| Muốn tách logic tái dùng | [Custom hooks](../01-web-frontend/02-react/behavior/11-custom-hooks.md) |
+| App chậm khi list dài | [React performance](../01-web-frontend/02-react/behavior/12-performance.md) |
+| Không biết test cái gì | [Testing React](../01-web-frontend/02-react/behavior/13-testing-react.md) |
 
 ### Tầng Next.js
 
 | Bạn đang gặp | Đọc |
 |---|---|
-| `useState is not defined` / lỗi khi import server code | [Server/Client boundary](../01-web-frontend/03-nextjs/01-server-client-boundary.md) |
-| Không biết trang render lúc nào | [Rendering strategies](../01-web-frontend/03-nextjs/04-rendering-strategies.md) |
-| Layout không reset, loading không hiện | [Routing & layout](../01-web-frontend/03-nextjs/02-routing-layout-rendering.md) |
-| DB đã đổi mà trang vẫn cũ | [Data fetching & cache](../01-web-frontend/03-nextjs/03-data-fetching-cache.md) |
-| Cần API endpoint / mutation | [Route Handlers & Server Actions](../01-web-frontend/03-nextjs/05-route-handlers-server-actions.md) |
-| Cần bảo vệ route | [Middleware & auth patterns](../01-web-frontend/03-nextjs/06-middleware-auth-patterns.md) |
-| SEO, OG image, ảnh chậm | [Metadata, images & assets](../01-web-frontend/03-nextjs/07-metadata-images-assets.md) |
-| Build được nhưng production sai | [Deployment & production](../01-web-frontend/03-nextjs/08-deployment-production.md) |
+| `useState is not defined` / lỗi khi import server code | [Server/Client boundary](../01-web-frontend/03-nextjs/behavior/01-server-client-boundary.md) |
+| Không biết trang render lúc nào | [Rendering strategies](../01-web-frontend/03-nextjs/behavior/04-rendering-strategies.md) |
+| Layout không reset, loading không hiện | [Routing & layout](../01-web-frontend/03-nextjs/behavior/02-routing-layout-rendering.md) |
+| DB đã đổi mà trang vẫn cũ | [Data fetching & cache](../01-web-frontend/03-nextjs/behavior/03-data-fetching-cache.md) |
+| Cần API endpoint / mutation | [Route Handlers & Server Actions](../01-web-frontend/03-nextjs/behavior/05-route-handlers-server-actions.md) |
+| Cần bảo vệ route | [Middleware & auth patterns](../01-web-frontend/03-nextjs/behavior/06-middleware-auth-patterns.md) |
+| SEO, OG image, ảnh chậm | [Metadata, images & assets](../01-web-frontend/03-nextjs/behavior/07-metadata-images-assets.md) |
+| Build được nhưng production sai | [Deployment & production](../01-web-frontend/03-nextjs/behavior/08-deployment-production.md) |
 
 ### Tầng HTTP / API
 
@@ -129,25 +129,25 @@ Xuyên qua **toàn bộ** các tầng trên: [05-cross-cutting/](../05-cross-cut
 
 | Bạn đang gặp | Đọc |
 |---|---|
-| Server treo, latency tăng đều | [Node runtime & concurrency](../02-backend-api/01-nodejs/01-node-runtime-concurrency.md) |
-| File lớn làm hết RAM | [Streams & buffers](../02-backend-api/01-nodejs/02-streams-buffers.md) |
-| OOM, heap tăng dần | [Process & memory](../02-backend-api/01-nodejs/03-process-memory.md) |
-| Tác vụ CPU chặn request khác | [Worker threads & CPU](../02-backend-api/01-nodejs/04-worker-threads-cpu.md) |
-| Deploy làm mất request đang xử lý | [Graceful shutdown](../02-backend-api/01-nodejs/05-graceful-shutdown.md) |
+| Server treo, latency tăng đều | [Node runtime & concurrency](../02-backend-api/01-nodejs/fundamentals/01-runtime-concurrency.md) |
+| File lớn làm hết RAM | [Streams & buffers](../02-backend-api/01-nodejs/runtime-io/01-streams-buffers.md) |
+| OOM, heap tăng dần | [Process & memory](../02-backend-api/01-nodejs/production/01-process-memory.md) |
+| Tác vụ CPU chặn request khác | [Worker threads & CPU](../02-backend-api/01-nodejs/runtime-io/02-worker-threads-cpu.md) |
+| Deploy làm mất request đang xử lý | [Graceful shutdown](../02-backend-api/01-nodejs/production/02-graceful-shutdown.md) |
 
 ### Tầng NestJS
 
 | Bạn đang gặp | Đọc |
 |---|---|
-| Không biết code mới nên đặt đâu | [Request lifecycle](../02-backend-api/02-nestjs/01-request-lifecycle.md) |
-| Circular dependency, provider not found | [Modules & DI](../02-backend-api/02-nestjs/02-modules-di.md) |
-| Payload sai không bị chặn | [Validation & errors](../02-backend-api/02-nestjs/03-validation-errors.md) |
-| Cần auth / logging / transform response | [Guards & interceptors](../02-backend-api/02-nestjs/04-guards-interceptors.md) |
-| Config khác nhau giữa môi trường | [Config & lifecycle](../02-backend-api/02-nestjs/05-config-lifecycle.md) |
-| Transaction rải rác nhiều service | [Database integration & transactions](../02-backend-api/02-nestjs/06-database-integration-transactions.md) |
-| Request chậm vì việc nặng | [Caching, queues & jobs](../02-backend-api/02-nestjs/07-caching-queues-jobs.md) |
-| Cần realtime từ backend | [WebSocket gateway](../02-backend-api/02-nestjs/08-websocket-gateway.md) |
-| Test chậm và giòn | [Testing NestJS](../02-backend-api/02-nestjs/09-testing-nestjs.md) |
+| Không biết code mới nên đặt đâu | [Request lifecycle](../02-backend-api/02-nestjs/behavior/01-request-lifecycle.md) |
+| Circular dependency, provider not found | [Modules & DI](../02-backend-api/02-nestjs/behavior/02-modules-di.md) |
+| Payload sai không bị chặn | [Validation & errors](../02-backend-api/02-nestjs/behavior/03-validation-errors.md) |
+| Cần auth / logging / transform response | [Guards & interceptors](../02-backend-api/02-nestjs/behavior/04-guards-interceptors.md) |
+| Config khác nhau giữa môi trường | [Config & lifecycle](../02-backend-api/02-nestjs/behavior/05-config-lifecycle.md) |
+| Transaction rải rác nhiều service | [Database integration & transactions](../02-backend-api/02-nestjs/behavior/06-database-integration-transactions.md) |
+| Request chậm vì việc nặng | [Caching, queues & jobs](../02-backend-api/02-nestjs/behavior/07-caching-queues-jobs.md) |
+| Cần realtime từ backend | [WebSocket gateway](../02-backend-api/02-nestjs/behavior/08-websocket-gateway.md) |
+| Test chậm và giòn | [Testing NestJS](../02-backend-api/02-nestjs/behavior/09-testing-nestjs.md) |
 
 ### Tầng Database
 
@@ -157,11 +157,11 @@ Xuyên qua **toàn bộ** các tầng trên: [05-cross-cutting/](../05-cross-cut
 | JOIN ra sai số dòng | [Joins & aggregation](../03-database/00-sql/02-joins-aggregation.md) |
 | Query lồng nhau khó đọc | [Subqueries & CTE](../03-database/00-sql/03-subqueries-cte.md) |
 | Cần xếp hạng, running total | [Window functions](../03-database/00-sql/04-window-functions.md) |
-| Dữ liệu sai khi ghi đồng thời | [Transaction isolation](../03-database/01-postgresql/01-transaction-isolation.md) · [Locking & deadlock](../03-database/01-postgresql/05-locking-deadlock.md) |
-| Table phình to dù đã xoá | [MVCC & vacuum](../03-database/01-postgresql/04-mvcc-vacuum.md) |
-| Query chậm | [Index & query plan](../03-database/01-postgresql/02-index-query-plan.md) · [EXPLAIN ANALYZE workflow](../03-database/01-postgresql/08-explain-analyze-workflow.md) |
-| `too many connections` | [Connection pool](../03-database/01-postgresql/03-connection-pool.md) |
-| Cần scale read | [Replication & scaling](../03-database/01-postgresql/09-replication-scaling.md) |
+| Dữ liệu sai khi ghi đồng thời | [Transaction isolation](../03-database/01-postgresql/transactions-concurrency/01-transaction-isolation.md) · [Locking & deadlock](../03-database/01-postgresql/transactions-concurrency/03-locking-deadlock.md) |
+| Table phình to dù đã xoá | [MVCC & vacuum](../03-database/01-postgresql/transactions-concurrency/02-mvcc-vacuum.md) |
+| Query chậm | [Index & query plan](../03-database/01-postgresql/indexes-query-planning/01-index-query-plan.md) · [EXPLAIN ANALYZE workflow](../03-database/01-postgresql/indexes-query-planning/03-explain-analyze-workflow.md) |
+| `too many connections` | [Connection pool](../03-database/01-postgresql/fundamentals/02-connection-pool.md) |
+| Cần scale read | [Replication & scaling](../03-database/01-postgresql/operations/02-replication-scaling.md) |
 | Schema sẽ đau về sau | [Normalization](../03-database/03-data-modeling/02-normalization.md) · [Relationships & cardinality](../03-database/03-data-modeling/03-relationships-cardinality.md) |
 | Migration làm downtime | [Migrations](../03-database/03-data-modeling/04-migrations.md) |
 
@@ -199,14 +199,14 @@ Xuyên qua **toàn bộ** các tầng trên: [05-cross-cutting/](../05-cross-cut
 
 | Bạn đang gặp | Đọc |
 |---|---|
-| Docker Compose đủ rồi, vì sao cần K8s? | [Vì sao cần Kubernetes](../04-infrastructure/04-kubernetes/04-why-kubernetes.md) |
-| Không hiểu quan hệ pod/deployment/service | [Pod, Deployment, Service](../04-infrastructure/04-kubernetes/01-pod-deployment-service.md) |
-| Pod restart liên tục | [Readiness & liveness](../04-infrastructure/04-kubernetes/02-health-readiness-liveness.md) · [Debugging K8s](../04-infrastructure/04-kubernetes/10-debugging-k8s.md) |
-| `Pending`, không được schedule | [Scheduling & resources](../04-infrastructure/04-kubernetes/05-scheduling-resources.md) |
-| Không truy cập được từ ngoài | [Ingress & service discovery](../04-infrastructure/04-kubernetes/06-ingress-service-discovery.md) |
-| Deploy gây downtime | [Rollout & rollback](../04-infrastructure/04-kubernetes/07-rollout-rollback.md) |
-| Chạy database trên K8s | [Storage & StatefulSet](../04-infrastructure/04-kubernetes/08-storage-statefulset.md) |
-| Tải tăng, cần tự scale | [Autoscaling](../04-infrastructure/04-kubernetes/09-autoscaling.md) |
+| Docker Compose đủ rồi, vì sao cần K8s? | [Vì sao cần Kubernetes](../04-infrastructure/04-kubernetes/fundamentals/01-why-kubernetes.md) |
+| Không hiểu quan hệ pod/deployment/service | [Pod, Deployment, Service](../04-infrastructure/04-kubernetes/workloads-networking/01-pod-deployment-service.md) |
+| Pod restart liên tục | [Readiness & liveness](../04-infrastructure/04-kubernetes/scheduling-reliability/01-health-readiness-liveness.md) · [Debugging K8s](../04-infrastructure/04-kubernetes/operations/02-debugging-k8s.md) |
+| `Pending`, không được schedule | [Scheduling & resources](../04-infrastructure/04-kubernetes/scheduling-reliability/02-scheduling-resources.md) |
+| Không truy cập được từ ngoài | [Ingress & service discovery](../04-infrastructure/04-kubernetes/workloads-networking/02-ingress-service-discovery.md) |
+| Deploy gây downtime | [Rollout & rollback](../04-infrastructure/04-kubernetes/workloads-networking/03-rollout-rollback.md) |
+| Chạy database trên K8s | [Storage & StatefulSet](../04-infrastructure/04-kubernetes/workloads-networking/04-storage-statefulset.md) |
+| Tải tăng, cần tự scale | [Autoscaling](../04-infrastructure/04-kubernetes/scheduling-reliability/03-autoscaling.md) |
 
 ### Tầng xuyên suốt
 

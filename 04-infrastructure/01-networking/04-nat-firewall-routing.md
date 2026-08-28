@@ -408,7 +408,7 @@ Bước 7 là công cụ mạnh nhất: nó phân biệt dứt khoát "không g�
 - [Reverse proxy & load balancer](05-reverse-proxy-load-balancer.md) — `X-Forwarded-For`, PROXY protocol
 - [Network debugging](06-network-debugging.md) — quy trình đầy đủ
 - [Container networking](../02-docker/02-container-networking.md) — NAT của Docker
-- [Ingress & service discovery](../04-kubernetes/06-ingress-service-discovery.md) — NetworkPolicy, `externalTrafficPolicy`
+- [Ingress & service discovery](../04-kubernetes/workloads-networking/02-ingress-service-discovery.md) — NetworkPolicy, `externalTrafficPolicy`
 - [Ports & sockets](../00-linux/05-ports-sockets.md) — `refused` vs `timeout`
 - [Rate limiting](../../02-backend-api/00-http-api/07-rate-limiting.md) — vì sao IP nguồn quan trọng
 - [Access control](../../05-cross-cutting/security/04-access-control.md) — mạng là một lớp phòng thủ

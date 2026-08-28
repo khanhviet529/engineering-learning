@@ -112,8 +112,8 @@ App → RUNTIME (process, fd, signal) → cgroup/namespace → kernel → phần
 - [01-networking/](../01-networking/README.md) — tầng mạng phía trên socket
 - [02-docker/](../02-docker/README.md) — namespace và cgroup được đóng gói
 - [04-kubernetes/](../04-kubernetes/README.md) — điều phối nhiều container
-- [Process & memory (Node.js)](../../02-backend-api/01-nodejs/03-process-memory.md) — phía runtime
-- [Graceful shutdown](../../02-backend-api/01-nodejs/05-graceful-shutdown.md) — signal ở tầng ứng dụng
+- [Process & memory (Node.js)](../../02-backend-api/01-nodejs/production/01-process-memory.md) — phía runtime
+- [Graceful shutdown](../../02-backend-api/01-nodejs/production/02-graceful-shutdown.md) — signal ở tầng ứng dụng
 - [Structured logging](../../05-cross-cutting/observability/02-structured-logging.md)
 - [Latency & throughput](../../05-cross-cutting/performance/01-latency-throughput-bottleneck.md)
 

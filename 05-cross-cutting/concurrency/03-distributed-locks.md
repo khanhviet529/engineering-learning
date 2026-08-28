@@ -424,10 +424,10 @@ async claimNextJob(workerId: string) {
 - [Shared state & races](02-shared-state-races.md) — vì sao cần loại trừ
 - [Concurrency models](01-concurrency-models.md) — nguồn của đồng thời
 - [Rate limit & locking](../../03-database/02-redis/02-rate-limit-locking.md) — cài đặt Redis chi tiết
-- [Locking & deadlock](../../03-database/01-postgresql/05-locking-deadlock.md) — khoá trong PostgreSQL
+- [Locking & deadlock](../../03-database/01-postgresql/transactions-concurrency/03-locking-deadlock.md) — khoá trong PostgreSQL
 - [Idempotency & retry](../../06-system-design/03-idempotency-retry.md) — lựa chọn tốt hơn khoá
 - [Ordering & partitioning](../../03-database/04-message-queues/04-ordering-partitioning.md) — tuần tự hoá bằng phân vùng
-- [Caching, queues & jobs](../../02-backend-api/02-nestjs/07-caching-queues-jobs.md) — `@Cron` trên nhiều replica
+- [Caching, queues & jobs](../../02-backend-api/02-nestjs/behavior/07-caching-queues-jobs.md) — `@Cron` trên nhiều replica
 - [Failure modes](../reliability/01-failure-modes.md) — fail open/closed
 - [Persistence & failure](../../03-database/02-redis/05-persistence-failure.md) — Redis có thể mất dữ liệu
 

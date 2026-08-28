@@ -205,7 +205,7 @@ SERVICE          IP ảo ổn định + DNS + load balancing
 
 Khác biệt lớn nhất so với Docker: **không có port mapping** trong K8s theo nghĩa của Docker. `containerPort` chỉ là tài liệu; Service và Ingress lo việc lộ ra ngoài.
 
-Và mô hình pod chính là `--network=container:<id>` — cùng cơ chế, tên khác. Xem [Ingress & service discovery](../04-kubernetes/06-ingress-service-discovery.md).
+Và mô hình pod chính là `--network=container:<id>` — cùng cơ chế, tên khác. Xem [Ingress & service discovery](../04-kubernetes/workloads-networking/02-ingress-service-discovery.md).
 
 ## Example
 
@@ -383,7 +383,7 @@ Bước 8 đáng nhớ: `endpoints` rỗng nghĩa là Service không khớp pod 
 - [Ports & sockets](../00-linux/05-ports-sockets.md) — bind interface, `refused` vs `timeout`
 - [IP, port & DNS](../01-networking/01-ip-port-dns.md) — DNS nói chung
 - [NAT, firewall & routing](../01-networking/04-nat-firewall-routing.md) — DNAT, hairpin
-- [Ingress & service discovery](../04-kubernetes/06-ingress-service-discovery.md) — mô hình mạng K8s
+- [Ingress & service discovery](../04-kubernetes/workloads-networking/02-ingress-service-discovery.md) — mô hình mạng K8s
 - [Network debugging](../01-networking/06-network-debugging.md) — quy trình đầy đủ
 
 ## Version / Context

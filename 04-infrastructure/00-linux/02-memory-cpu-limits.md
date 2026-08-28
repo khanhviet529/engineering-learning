@@ -5,8 +5,8 @@ prerequisites:
   - 01-process-files-env.md
 related:
   - 04-signals-lifecycle.md
-  - ../../02-backend-api/01-nodejs/03-process-memory.md
-  - ../04-kubernetes/05-scheduling-resources.md
+  - ../../02-backend-api/01-nodejs/production/01-process-memory.md
+  - ../04-kubernetes/scheduling-reliability/02-scheduling-resources.md
 ---
 
 # Memory, CPU & limits
@@ -199,7 +199,7 @@ Không đặt:  container OOMKilled → SIGKILL → không log, không stack tra
 Có đặt:     V8 ném "JavaScript heap out of memory" → CÓ stack trace
 ```
 
-Một lỗi có stack trace đáng giá hơn nhiều một exit code 137. Xem [Process & memory](../../02-backend-api/01-nodejs/03-process-memory.md).
+Một lỗi có stack trace đáng giá hơn nhiều một exit code 137. Xem [Process & memory](../../02-backend-api/01-nodejs/production/01-process-memory.md).
 
 ### Exit code
 
@@ -254,7 +254,7 @@ external lớn      → Buffer không giải phóng → đang buffer thay vì ST
 rss >> cả hai     → native module, hoặc phân mảnh
 ```
 
-Với `external` lớn, `--max-old-space-size` **không** giúp — nó chỉ giới hạn heap. Vấn đề là code đang đọc file/response vào bộ nhớ thay vì stream. Xem [Streams & buffers](../../02-backend-api/01-nodejs/02-streams-buffers.md).
+Với `external` lớn, `--max-old-space-size` **không** giúp — nó chỉ giới hạn heap. Vấn đề là code đang đọc file/response vào bộ nhớ thay vì stream. Xem [Streams & buffers](../../02-backend-api/01-nodejs/runtime-io/01-streams-buffers.md).
 
 ## Prediction
 
@@ -393,10 +393,10 @@ Với `external` lớn, `--max-old-space-size` **không** giúp — nó chỉ gi
 - [Process, file & env](01-process-files-env.md) — process, `/proc`
 - [Signals & lifecycle](04-signals-lifecycle.md) — SIGKILL, exit code
 - [Debugging toolbox](07-debugging-toolbox.md) — công cụ quan sát
-- [Process & memory (Node.js)](../../02-backend-api/01-nodejs/03-process-memory.md) — heap vs external
-- [Streams & buffers](../../02-backend-api/01-nodejs/02-streams-buffers.md) — cách sửa gốc cho OOM
-- [Worker threads & CPU](../../02-backend-api/01-nodejs/04-worker-threads-cpu.md) — CPU-bound và throttling
-- [Scheduling & resources (K8s)](../04-kubernetes/05-scheduling-resources.md) — request/limit và QoS
+- [Process & memory (Node.js)](../../02-backend-api/01-nodejs/production/01-process-memory.md) — heap vs external
+- [Streams & buffers](../../02-backend-api/01-nodejs/runtime-io/01-streams-buffers.md) — cách sửa gốc cho OOM
+- [Worker threads & CPU](../../02-backend-api/01-nodejs/runtime-io/02-worker-threads-cpu.md) — CPU-bound và throttling
+- [Scheduling & resources (K8s)](../04-kubernetes/scheduling-reliability/02-scheduling-resources.md) — request/limit và QoS
 - [Image & container](../02-docker/01-image-container.md) — cgroup từ phía Docker
 - [Capacity & limits](../../05-cross-cutting/reliability/04-capacity-and-limits.md) — tài nguyên hữu hạn
 

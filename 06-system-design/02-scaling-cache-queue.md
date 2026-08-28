@@ -465,7 +465,7 @@ Việc dùng outbox thay vì publish trực tiếp sau commit là điểm đáng
 - [Cache patterns](../03-database/02-redis/03-cache-patterns.md) — ba mẫu cache
 - [Why queue](../03-database/04-message-queues/01-why-queue.md) — khi nào cần hàng đợi
 - [Outbox pattern](../03-database/04-message-queues/06-outbox-pattern.md) — chống dual-write
-- [Replication & scaling](../03-database/01-postgresql/09-replication-scaling.md) — replica đọc
+- [Replication & scaling](../03-database/01-postgresql/operations/02-replication-scaling.md) — replica đọc
 - [Latency & bottleneck](../05-cross-cutting/performance/01-latency-throughput-bottleneck.md) — đo trước khi tối ưu
 
 ## Version / Context

@@ -2,7 +2,7 @@
 level: intermediate
 area: backend
 prerequisites:
-  - ../02-nestjs/03-validation-errors.md
+  - ../02-nestjs/behavior/03-validation-errors.md
 related:
   - ../00-http-api/05-error-model.md
   - ../../05-cross-cutting/reliability/02-timeout-retry-circuit-breaker.md
@@ -262,7 +262,7 @@ process.on('uncaughtException', (err) => {
 });
 ```
 
-Vì sao thoát chứ không cố sống tiếp: sau một `uncaughtException`, bạn không biết state nào đã hỏng. Một process ở trạng thái không xác định phục vụ request là nguy hiểm hơn một process chết được restart. Xem [Process & memory](../01-nodejs/03-process-memory.md).
+Vì sao thoát chứ không cố sống tiếp: sau một `uncaughtException`, bạn không biết state nào đã hỏng. Một process ở trạng thái không xác định phục vụ request là nguy hiểm hơn một process chết được restart. Xem [Process & memory](../01-nodejs/production/01-process-memory.md).
 
 Bốn nơi khác cũng nằm ngoài filter:
 
@@ -454,15 +454,15 @@ Khác biệt không nằm ở việc tránh được sự cố — không tránh
 ## Related
 
 - [Error model](../00-http-api/05-error-model.md) — hình dạng lỗi ở tầng hợp đồng API
-- [Validation & errors](../02-nestjs/03-validation-errors.md) — implementation trong NestJS
+- [Validation & errors](../02-nestjs/behavior/03-validation-errors.md) — implementation trong NestJS
 - [Domain logic boundaries](03-domain-logic-boundaries.md) — vì sao domain ném lỗi domain
 - [Timeout, retry & circuit breaker](../../05-cross-cutting/reliability/02-timeout-retry-circuit-breaker.md) — `retryable` được dùng ở đâu
 - [Graceful degradation](../../05-cross-cutting/reliability/03-graceful-degradation.md) — dependency bắt buộc vs tuỳ chọn
 - [Structured logging](../../05-cross-cutting/observability/02-structured-logging.md) — hình dạng dòng log
 - [Correlation ID & tracing](../../05-cross-cutting/observability/03-correlation-tracing.md) — `requestId` xuyên hệ thống
 - [Metrics & SLO](../../05-cross-cutting/observability/04-metrics-slo.md) — error rate như một mục tiêu
-- [Error handling & immutability (JS)](../../01-web-frontend/01-javascript-typescript/09-error-handling-immutability.md) — cơ chế lỗi trong JavaScript
-- [Process & memory](../01-nodejs/03-process-memory.md) — vì sao thoát khi state không xác định
+- [Error handling & immutability (JS)](../../01-web-frontend/01-javascript-typescript/fundamentals/03-error-handling-immutability.md) — cơ chế lỗi trong JavaScript
+- [Process & memory](../01-nodejs/production/01-process-memory.md) — vì sao thoát khi state không xác định
 
 ## Version / Context
 

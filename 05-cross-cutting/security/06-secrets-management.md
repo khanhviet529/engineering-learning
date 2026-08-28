@@ -5,7 +5,7 @@ prerequisites:
   - 01-security-basics.md
 related:
   - ../../02-backend-api/04-architecture/05-configuration.md
-  - ../../04-infrastructure/04-kubernetes/03-config-secrets-resources.md
+  - ../../04-infrastructure/04-kubernetes/operations/01-config-secrets-resources.md
 ---
 
 # Secrets management
@@ -128,7 +128,7 @@ Ai đọc được etcd hoặc có quyền `get secrets` trong namespace đều 
   ④ audit log cho truy cập secret
 ```
 
-Xem [Config, Secret & resources](../../04-infrastructure/04-kubernetes/03-config-secrets-resources.md).
+Xem [Config, Secret & resources](../../04-infrastructure/04-kubernetes/operations/01-config-secrets-resources.md).
 
 ### Bí mật trong Docker image
 
@@ -424,7 +424,7 @@ Hai method này biến một lỗi tiềm ẩn (`logger.info({ config })`) thàn
 - [Security basics](01-security-basics.md) — đặc quyền tối thiểu, ranh giới tin cậy
 - [SSRF & supply chain](05-ssrf-supply-chain.md) — credential mà SSRF nhắm tới
 - [Configuration](../../02-backend-api/04-architecture/05-configuration.md) — validate lúc khởi động
-- [Config, Secret & resources](../../04-infrastructure/04-kubernetes/03-config-secrets-resources.md) — Secret trong K8s
+- [Config, Secret & resources](../../04-infrastructure/04-kubernetes/operations/01-config-secrets-resources.md) — Secret trong K8s
 - [Production image](../../04-infrastructure/02-docker/07-production-image.md) — BuildKit secret
 - [Pipeline](../../04-infrastructure/03-cicd/01-pipeline.md) — bí mật trong CI
 - [JWT & refresh token](../../02-backend-api/03-auth/03-jwt-refresh-token.md) — xoay khoá ký qua JWKS

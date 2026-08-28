@@ -4,7 +4,7 @@ area: backend
 prerequisites:
   - 02-rest-api-contract.md
 related:
-  - ../../03-database/01-postgresql/02-index-query-plan.md
+  - ../../03-database/01-postgresql/indexes-query-planning/01-index-query-plan.md
   - ../../05-cross-cutting/performance/04-database-performance.md
 ---
 
@@ -120,7 +120,7 @@ Bốn chi tiết quyết định tính đúng đắn:
    ```sql
    CREATE INDEX idx_tasks_project_created ON tasks (project_id, created_at DESC, id DESC);
    ```
-   Không có index này, mọi query phải sort toàn bộ bảng. Xem [Index & query plan](../../03-database/01-postgresql/02-index-query-plan.md).
+   Không có index này, mọi query phải sort toàn bộ bảng. Xem [Index & query plan](../../03-database/01-postgresql/indexes-query-planning/01-index-query-plan.md).
 
 ### `COUNT(*)` là bẫy hiệu năng
 
@@ -260,7 +260,7 @@ Cursor là **opaque** với client — nó không nên parse hoặc tự tạo c
 2. **Chậm chỉ ở trang sau** → dấu hiệu chắc chắn của OFFSET. Đo với OFFSET tăng dần.
 3. **Item lặp** → kiểm tra `ORDER BY` có tiebreaker duy nhất.
 4. **Đo phần nào chậm** → tách `COUNT` ra khỏi query dữ liệu và đo riêng. Thường `COUNT` là thủ phạm.
-5. **Index không được dùng** → so `ORDER BY` với định nghĩa index, kể cả **chiều** (`DESC` vs `ASC`). Xem [Index types](../../03-database/01-postgresql/07-index-types.md).
+5. **Index không được dùng** → so `ORDER BY` với định nghĩa index, kể cả **chiều** (`DESC` vs `ASC`). Xem [Index types](../../03-database/01-postgresql/indexes-query-planning/02-index-types.md).
 6. **Timeout với limit lớn** → kiểm tra có trần limit chưa.
 
 ## Production Considerations
@@ -297,9 +297,9 @@ Cursor là **opaque** với client — nó không nên parse hoặc tự tạo c
 ## Related
 
 - [REST API contract](02-rest-api-contract.md) — hình dạng response
-- [Index & query plan](../../03-database/01-postgresql/02-index-query-plan.md) — index cho pagination
-- [Index types](../../03-database/01-postgresql/07-index-types.md) — composite index và chiều sort
-- [EXPLAIN ANALYZE workflow](../../03-database/01-postgresql/08-explain-analyze-workflow.md)
+- [Index & query plan](../../03-database/01-postgresql/indexes-query-planning/01-index-query-plan.md) — index cho pagination
+- [Index types](../../03-database/01-postgresql/indexes-query-planning/02-index-types.md) — composite index và chiều sort
+- [EXPLAIN ANALYZE workflow](../../03-database/01-postgresql/indexes-query-planning/03-explain-analyze-workflow.md)
 - [Database performance](../../05-cross-cutting/performance/04-database-performance.md) — N+1 và query nặng
 - [Rate limiting](07-rate-limiting.md)
 - [SQL injection](../../05-cross-cutting/security/02-injection.md)

@@ -5,7 +5,7 @@ prerequisites:
   - ../../01-web-frontend/00-web-foundations/03-url-dns-tcp-tls.md
 related:
   - 03-http-semantics-idempotency.md
-  - ../01-nodejs/01-node-runtime-concurrency.md
+  - ../01-nodejs/fundamentals/01-runtime-concurrency.md
 ---
 
 # HTTP request & response
@@ -144,7 +144,7 @@ Client A: PUT /tasks/1  If-Match: "v1" → 200, ETag mới "v2"
 Client B: PUT /tasks/1  If-Match: "v1" → 412 Precondition Failed  ← ghi bị chặn
 ```
 
-Đây là optimistic concurrency control, cùng nguyên lý với version column trong database. Xem [Transaction isolation](../../03-database/01-postgresql/01-transaction-isolation.md).
+Đây là optimistic concurrency control, cùng nguyên lý với version column trong database. Xem [Transaction isolation](../../03-database/01-postgresql/transactions-concurrency/01-transaction-isolation.md).
 
 ### HTTP/1.1 → 2 → 3
 
@@ -286,5 +286,5 @@ curl -X POST https://api.example.com/tasks \
 - [Error model](05-error-model.md) — hình dạng body lỗi
 - [URL → DNS → TCP → TLS](../../01-web-frontend/00-web-foundations/03-url-dns-tcp-tls.md) — tầng dưới
 - [HTTP & browser cache](../../01-web-frontend/00-web-foundations/02-http-browser-cache.md) — cache dựa trên header
-- [Request lifecycle (NestJS)](../02-nestjs/01-request-lifecycle.md) — request đi đâu sau khi tới app
+- [Request lifecycle (NestJS)](../02-nestjs/behavior/01-request-lifecycle.md) — request đi đâu sau khi tới app
 - [Rate limiting](07-rate-limiting.md) — 429 và `Retry-After`

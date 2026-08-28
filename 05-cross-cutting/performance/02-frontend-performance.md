@@ -212,7 +212,7 @@ ISR/streaming  HTML tĩnh + phần động chảy về sau
       ✓ tổ hợp thực dụng cho hầu hết trang thương mại
 ```
 
-Xem [Rendering strategies](../../01-web-frontend/03-nextjs/04-rendering-strategies.md).
+Xem [Rendering strategies](../../01-web-frontend/03-nextjs/behavior/04-rendering-strategies.md).
 
 ### Cache: mỗi lớp một vai trò
 
@@ -428,8 +428,8 @@ làm trình duyệt không thể phát hiện nó trong bước quét trước (
 - [Latency & bottleneck](01-latency-throughput-bottleneck.md) — khung tối ưu chung
 - [Backend performance](03-backend-performance.md) — TTFB đến từ đâu
 - [HTTP & browser cache](../../01-web-frontend/00-web-foundations/02-http-browser-cache.md) — cơ chế cache
-- [Rendering strategies](../../01-web-frontend/03-nextjs/04-rendering-strategies.md) — CSR/SSR/SSG/ISR
-- [Data fetching & cache](../../01-web-frontend/03-nextjs/03-data-fetching-cache.md) — cache ở tầng framework
+- [Rendering strategies](../../01-web-frontend/03-nextjs/behavior/04-rendering-strategies.md) — CSR/SSR/SSG/ISR
+- [Data fetching & cache](../../01-web-frontend/03-nextjs/behavior/03-data-fetching-cache.md) — cache ở tầng framework
 - [Reverse proxy & load balancer](../../04-infrastructure/01-networking/05-reverse-proxy-load-balancer.md) — CDN và TTFB
 - [TLS](../../04-infrastructure/01-networking/03-tls.md) — chi phí bắt tay
 - [Profiling & load testing](05-profiling-load-testing.md) — công cụ đo

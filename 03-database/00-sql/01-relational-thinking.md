@@ -5,7 +5,7 @@ prerequisites: []
 related:
   - 02-joins-aggregation.md
   - ../03-data-modeling/02-normalization.md
-  - ../01-postgresql/02-index-query-plan.md
+  - ../01-postgresql/indexes-query-planning/01-index-query-plan.md
 ---
 
 # Relational thinking
@@ -396,7 +396,7 @@ Bước 1 và 3 giải quyết phần lớn bug SQL thật, và cả hai chỉ c
 - [Normalization](../03-data-modeling/02-normalization.md) — vì sao dữ liệu được chia ra nhiều bảng
 - [Relationships & cardinality](../03-data-modeling/03-relationships-cardinality.md) — 1:1, 1:N, N:M
 - [Constraints & invariants](../03-data-modeling/01-constraints-invariants.md) — FK, UNIQUE, CHECK
-- [Index & query plan](../01-postgresql/02-index-query-plan.md) — vì sao query nhanh hay chậm
+- [Index & query plan](../01-postgresql/indexes-query-planning/01-index-query-plan.md) — vì sao query nhanh hay chậm
 - [Pagination](../../02-backend-api/00-http-api/04-pagination-filtering-sorting.md) — `ORDER BY` ổn định
 
 ## Version / Context

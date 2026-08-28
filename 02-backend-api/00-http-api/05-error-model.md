@@ -5,7 +5,7 @@ prerequisites:
   - 01-http-request-response.md
 related:
   - ../04-architecture/04-error-handling-strategy.md
-  - ../02-nestjs/03-validation-errors.md
+  - ../02-nestjs/behavior/03-validation-errors.md
 ---
 
 # Error model
@@ -314,8 +314,8 @@ Controller không có `try/catch`. Exception filter là boundary duy nhất. Xem
 
 - [HTTP request/response](01-http-request-response.md) — chọn status code
 - [Error handling strategy](../04-architecture/04-error-handling-strategy.md) — chiến lược trong app
-- [Validation & errors (NestJS)](../02-nestjs/03-validation-errors.md) — implementation
-- [Error handling & immutability](../../01-web-frontend/01-javascript-typescript/09-error-handling-immutability.md) — phân loại lỗi
-- [Forms](../../01-web-frontend/02-react/10-forms.md) — map `details` về field
+- [Validation & errors (NestJS)](../02-nestjs/behavior/03-validation-errors.md) — implementation
+- [Error handling & immutability](../../01-web-frontend/01-javascript-typescript/fundamentals/03-error-handling-immutability.md) — phân loại lỗi
+- [Forms](../../01-web-frontend/02-react/behavior/10-forms.md) — map `details` về field
 - [Structured logging](../../05-cross-cutting/observability/02-structured-logging.md)
 - [Rate limiting](07-rate-limiting.md) — 429 và `Retry-After`

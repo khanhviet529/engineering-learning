@@ -88,11 +88,11 @@ Behavior 13 không phải một bước mới mà là năng lực tổng hợp: 
 - Reconciliation và `key` — vì sao list mất state khi sắp xếp lại.
 
 **Note:**
-[Event loop & async](../01-web-frontend/01-javascript-typescript/01-event-loop-async.md) ·
-[Execution context & closure](../01-web-frontend/01-javascript-typescript/03-execution-context-closure.md) ·
-[State → render](../01-web-frontend/02-react/01-state-render.md) ·
-[Reconciliation & keys](../01-web-frontend/02-react/05-reconciliation-keys.md) ·
-[Effects & lifecycle](../01-web-frontend/02-react/02-effects-lifecycle.md)
+[Event loop & async](../01-web-frontend/01-javascript-typescript/async-concurrency/01-event-loop-async.md) ·
+[Execution context & closure](../01-web-frontend/01-javascript-typescript/fundamentals/01-execution-context-closure.md) ·
+[State → render](../01-web-frontend/02-react/behavior/01-state-render.md) ·
+[Reconciliation & keys](../01-web-frontend/02-react/behavior/05-reconciliation-keys.md) ·
+[Effects & lifecycle](../01-web-frontend/02-react/behavior/02-effects-lifecycle.md)
 
 **Xong khi:** bạn dự đoán đúng số lần render của một component trước khi mở React DevTools Profiler.
 
@@ -112,10 +112,10 @@ Behavior 13 không phải một bước mới mà là năng lực tổng hợp: 
 - Vì sao server state cần cache, và vì sao `useEffect` + `useState` không đủ.
 
 **Note:**
-[Async race condition](../01-web-frontend/02-react/03-async-race-condition.md) ·
-[Server state & cache](../01-web-frontend/02-react/04-server-state-cache.md) ·
-[Promise & concurrency](../01-web-frontend/01-javascript-typescript/04-promise-concurrency.md) ·
-[Error boundaries & Suspense](../01-web-frontend/02-react/09-error-boundaries-suspense.md)
+[Async race condition](../01-web-frontend/02-react/behavior/03-async-race-condition.md) ·
+[Server state & cache](../01-web-frontend/02-react/behavior/04-server-state-cache.md) ·
+[Promise & concurrency](../01-web-frontend/01-javascript-typescript/async-concurrency/02-promise-concurrency.md) ·
+[Error boundaries & Suspense](../01-web-frontend/02-react/behavior/09-error-boundaries-suspense.md)
 
 **Xong khi:** bạn tự tạo được race condition có thể tái hiện 100%, rồi sửa nó bằng hai cách khác nhau và nói được trade-off.
 
@@ -135,10 +135,10 @@ Behavior 13 không phải một bước mới mà là năng lực tổng hợp: 
 - Cache của Next.js có mấy lớp và lớp nào gây stale data.
 
 **Note:**
-[Server/Client boundary](../01-web-frontend/03-nextjs/01-server-client-boundary.md) ·
-[Rendering strategies](../01-web-frontend/03-nextjs/04-rendering-strategies.md) ·
-[Routing & layout](../01-web-frontend/03-nextjs/02-routing-layout-rendering.md) ·
-[Data fetching & cache](../01-web-frontend/03-nextjs/03-data-fetching-cache.md)
+[Server/Client boundary](../01-web-frontend/03-nextjs/behavior/01-server-client-boundary.md) ·
+[Rendering strategies](../01-web-frontend/03-nextjs/behavior/04-rendering-strategies.md) ·
+[Routing & layout](../01-web-frontend/03-nextjs/behavior/02-routing-layout-rendering.md) ·
+[Data fetching & cache](../01-web-frontend/03-nextjs/behavior/03-data-fetching-cache.md)
 
 **Xong khi:** bạn giải thích được vì sao một thay đổi trong database không hiện lên trang, mà không cần đoán.
 
@@ -159,7 +159,7 @@ Behavior 13 không phải một bước mới mà là năng lực tổng hợp: 
 **Note:**
 [HTTP request/response](../02-backend-api/00-http-api/01-http-request-response.md) ·
 [HTTP semantics & idempotency](../02-backend-api/00-http-api/03-http-semantics-idempotency.md) ·
-[Node runtime & concurrency](../02-backend-api/01-nodejs/01-node-runtime-concurrency.md) ·
+[Node runtime & concurrency](../02-backend-api/01-nodejs/fundamentals/01-runtime-concurrency.md) ·
 [REST API contract](../02-backend-api/00-http-api/02-rest-api-contract.md)
 
 **Xong khi:** bạn viết được một handler làm treo cả server, giải thích vì sao, rồi sửa.
@@ -179,10 +179,10 @@ Behavior 13 không phải một bước mới mà là năng lực tổng hợp: 
 - Vì sao business logic không nên nằm trong controller.
 
 **Note:**
-[Request lifecycle](../02-backend-api/02-nestjs/01-request-lifecycle.md) ·
-[Modules & DI](../02-backend-api/02-nestjs/02-modules-di.md) ·
-[Guards & interceptors](../02-backend-api/02-nestjs/04-guards-interceptors.md) ·
-[Validation & errors](../02-backend-api/02-nestjs/03-validation-errors.md) ·
+[Request lifecycle](../02-backend-api/02-nestjs/behavior/01-request-lifecycle.md) ·
+[Modules & DI](../02-backend-api/02-nestjs/behavior/02-modules-di.md) ·
+[Guards & interceptors](../02-backend-api/02-nestjs/behavior/04-guards-interceptors.md) ·
+[Validation & errors](../02-backend-api/02-nestjs/behavior/03-validation-errors.md) ·
 [Controller–Service–Repository](../02-backend-api/04-architecture/01-controller-service-repository.md)
 
 **Xong khi:** cho một yêu cầu mới ("chỉ owner được sửa"), bạn biết ngay nó thuộc trạm nào và vì sao không thuộc trạm khác.
@@ -205,7 +205,7 @@ Behavior 13 không phải một bước mới mà là năng lực tổng hợp: 
 [Relational thinking](../03-database/00-sql/01-relational-thinking.md) ·
 [Joins & aggregation](../03-database/00-sql/02-joins-aggregation.md) ·
 [Constraints & invariants](../03-database/03-data-modeling/01-constraints-invariants.md) ·
-[WAL, durability & backup](../03-database/01-postgresql/06-wal-durability-backup.md)
+[WAL, durability & backup](../03-database/01-postgresql/operations/01-wal-durability-backup.md)
 
 **Xong khi:** bạn giết process PostgreSQL ngay sau commit, khởi động lại, và dự đoán đúng dữ liệu còn hay mất.
 
@@ -225,9 +225,9 @@ Behavior 13 không phải một bước mới mà là năng lực tổng hợp: 
 - Pessimistic lock vs optimistic version.
 
 **Note:**
-[Transaction isolation](../03-database/01-postgresql/01-transaction-isolation.md) ·
-[MVCC & vacuum](../03-database/01-postgresql/04-mvcc-vacuum.md) ·
-[Locking & deadlock](../03-database/01-postgresql/05-locking-deadlock.md) ·
+[Transaction isolation](../03-database/01-postgresql/transactions-concurrency/01-transaction-isolation.md) ·
+[MVCC & vacuum](../03-database/01-postgresql/transactions-concurrency/02-mvcc-vacuum.md) ·
+[Locking & deadlock](../03-database/01-postgresql/transactions-concurrency/03-locking-deadlock.md) ·
 [Shared state & races](../05-cross-cutting/concurrency/02-shared-state-races.md)
 
 **Xong khi:** bạn tạo được lost update, deadlock và write skew theo yêu cầu, mỗi cái bằng hai session `psql`.
@@ -248,9 +248,9 @@ Behavior 13 không phải một bước mới mà là năng lực tổng hợp: 
 - N+1 query.
 
 **Note:**
-[Index & query plan](../03-database/01-postgresql/02-index-query-plan.md) ·
-[Index types](../03-database/01-postgresql/07-index-types.md) ·
-[EXPLAIN ANALYZE workflow](../03-database/01-postgresql/08-explain-analyze-workflow.md) ·
+[Index & query plan](../03-database/01-postgresql/indexes-query-planning/01-index-query-plan.md) ·
+[Index types](../03-database/01-postgresql/indexes-query-planning/02-index-types.md) ·
+[EXPLAIN ANALYZE workflow](../03-database/01-postgresql/indexes-query-planning/03-explain-analyze-workflow.md) ·
 [Database performance](../05-cross-cutting/performance/04-database-performance.md)
 
 **Xong khi:** bạn tăng dữ liệu lên 10× và dự đoán đúng query nào chậm đi tuyến tính, query nào chậm đi tệ hơn tuyến tính.
@@ -321,10 +321,10 @@ Behavior 13 không phải một bước mới mà là năng lực tổng hợp: 
 - Timeout, retry, circuit breaker phải thiết kế cùng nhau.
 
 **Note:**
-[Vì sao cần Kubernetes](../04-infrastructure/04-kubernetes/04-why-kubernetes.md) ·
-[Pod, Deployment, Service](../04-infrastructure/04-kubernetes/01-pod-deployment-service.md) ·
-[Readiness & liveness](../04-infrastructure/04-kubernetes/02-health-readiness-liveness.md) ·
-[Rollout & rollback](../04-infrastructure/04-kubernetes/07-rollout-rollback.md) ·
+[Vì sao cần Kubernetes](../04-infrastructure/04-kubernetes/fundamentals/01-why-kubernetes.md) ·
+[Pod, Deployment, Service](../04-infrastructure/04-kubernetes/workloads-networking/01-pod-deployment-service.md) ·
+[Readiness & liveness](../04-infrastructure/04-kubernetes/scheduling-reliability/01-health-readiness-liveness.md) ·
+[Rollout & rollback](../04-infrastructure/04-kubernetes/workloads-networking/03-rollout-rollback.md) ·
 [Logs, metrics, traces](../05-cross-cutting/observability/01-logs-metrics-traces.md) ·
 [Timeout, retry, circuit breaker](../05-cross-cutting/reliability/02-timeout-retry-circuit-breaker.md) ·
 [Failure modes](../05-cross-cutting/reliability/01-failure-modes.md)

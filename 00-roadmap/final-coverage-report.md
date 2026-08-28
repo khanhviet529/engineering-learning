@@ -111,7 +111,7 @@ Ba việc nên chạy định kỳ:
 
 ```text
 ① KIỂM TRA LIÊN KẾT
-   duyệt mọi .md, trích liên kết dạng ](*.md), phân giải tương đối,
+   duyệt mọi .md, trích mọi liên kết markdown trỏ tới file .md, phân giải tương đối,
    báo cáo file không tồn tại kèm số lần được tham chiếu.
    → phát hiện note bị hứa hẹn mà chưa viết, và note bị đổi tên
 

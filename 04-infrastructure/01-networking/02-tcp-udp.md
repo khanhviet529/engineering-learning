@@ -393,7 +393,7 @@ const res = await fetch(url, { signal: controller });
 - [Ports & sockets](../00-linux/05-ports-sockets.md) — socket, trạng thái, backlog
 - [Timeout, retry & circuit breaker](../../05-cross-cutting/reliability/02-timeout-retry-circuit-breaker.md)
 - [URL → DNS → TCP → TLS](../../01-web-frontend/00-web-foundations/03-url-dns-tcp-tls.md) — cùng chuỗi từ browser
-- [WebSocket gateway](../../02-backend-api/02-nestjs/08-websocket-gateway.md) — kết nối dài, keepalive
+- [WebSocket gateway](../../02-backend-api/02-nestjs/behavior/08-websocket-gateway.md) — kết nối dài, keepalive
 
 ## Version / Context
 

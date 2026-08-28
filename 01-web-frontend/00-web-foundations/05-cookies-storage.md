@@ -80,7 +80,7 @@ Set-Cookie: session=abc123; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=6048
 - Theo **origin** (scheme + host + port). `http://a.com` và `https://a.com` là hai storage khác nhau.
 - `sessionStorage` theo *tab*: mở tab mới là storage mới.
 - Không có expiry tự động — bạn phải tự quản.
-- Không truy cập được từ Server Component / SSR. Đọc nó trong lúc render server gây hydration mismatch. Xem [Server/Client boundary](../03-nextjs/01-server-client-boundary.md).
+- Không truy cập được từ Server Component / SSR. Đọc nó trong lúc render server gây hydration mismatch. Xem [Server/Client boundary](../03-nextjs/behavior/01-server-client-boundary.md).
 
 ### Khi nào dùng gì
 
@@ -209,4 +209,4 @@ Luôn bọc `localStorage` trong `try/catch` — nó *throw*, không chỉ trả
 - [XSS & CSRF](../../05-cross-cutting/security/03-xss-csrf.md) — hai tấn công tương ứng
 - [Session vs token](../../02-backend-api/03-auth/02-session-vs-token.md) — quyết định ở backend
 - [JWT & refresh token](../../02-backend-api/03-auth/03-jwt-refresh-token.md)
-- [Server/Client boundary](../03-nextjs/01-server-client-boundary.md) — vì sao không đọc storage khi render server
+- [Server/Client boundary](../03-nextjs/behavior/01-server-client-boundary.md) — vì sao không đọc storage khi render server

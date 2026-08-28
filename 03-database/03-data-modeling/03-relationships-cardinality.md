@@ -417,8 +417,8 @@ Về dòng cuối: PostgreSQL có kiểu mảng và `tags text[]` trông tiện.
 - [Migrations](04-migrations.md) — đổi quan hệ trên hệ thống đang chạy
 - [Joins & aggregation](../00-sql/02-joins-aggregation.md) — cardinality quyết định số dòng và fan-out
 - [Subqueries & CTE](../00-sql/03-subqueries-cte.md) — `WITH RECURSIVE` cho cây
-- [Index & query plan](../01-postgresql/02-index-query-plan.md) — tiền tố trái, index chiều ngược
-- [Locking & deadlock](../01-postgresql/05-locking-deadlock.md) — FK và deadlock
+- [Index & query plan](../01-postgresql/indexes-query-planning/01-index-query-plan.md) — tiền tố trái, index chiều ngược
+- [Locking & deadlock](../01-postgresql/transactions-concurrency/03-locking-deadlock.md) — FK và deadlock
 
 ## Version / Context
 

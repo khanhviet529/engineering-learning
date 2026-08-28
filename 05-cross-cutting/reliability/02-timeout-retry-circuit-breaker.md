@@ -447,7 +447,7 @@ Kết quả với sự cố ở đầu note:
 - [Idempotency & retry](../../06-system-design/03-idempotency-retry.md) — thiết kế idempotency
 - [Retry & DLQ](../../03-database/04-message-queues/03-retry-dlq.md) — retry trong hệ thống bất đồng bộ
 - [Delivery semantics](../../03-database/04-message-queues/02-delivery-semantics.md) — at-least-once và hệ quả
-- [Graceful shutdown](../../02-backend-api/01-nodejs/05-graceful-shutdown.md) — timeout khi tắt
+- [Graceful shutdown](../../02-backend-api/01-nodejs/production/02-graceful-shutdown.md) — timeout khi tắt
 - [Metrics & SLO](../observability/04-metrics-slo.md) — đo tỉ lệ retry và timeout
 
 ## Version / Context

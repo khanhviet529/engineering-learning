@@ -19,11 +19,11 @@ Kiến trúc    04-architecture  khi một thứ đổi, phải sửa ở đâu
 
 | Bạn đang | Vào |
 |---|---|
-| Chưa rõ HTTP thật sự hoạt động thế nào | [00-http-api/](00-http-api/README.md) |
-| Muốn hiểu vì sao Node "chậm" hoặc "treo" | [01-nodejs/](01-nodejs/README.md) |
-| Đang viết feature trong NestJS | [02-nestjs/](02-nestjs/README.md) |
-| Đang làm đăng nhập / phân quyền | [03-auth/](03-auth/README.md) |
-| Codebase bắt đầu khó sửa | [04-architecture/](04-architecture/README.md) |
+| Chưa rõ HTTP thật sự hoạt động thế nào | [00-http-api/](./00-http-api/README.md) |
+| Muốn hiểu vì sao Node "chậm" hoặc "treo" | [01-nodejs/](./01-nodejs/README.md) |
+| Đang viết feature trong NestJS | [02-nestjs/](./02-nestjs/README.md) |
+| Đang làm đăng nhập / phân quyền | [03-auth/](./03-auth/README.md) |
+| Codebase bắt đầu khó sửa | [04-architecture/](./04-architecture/README.md) |
 
 Thứ tự học mặc định: `00 → 01 → 02 → 04`, với `03` xen vào ngay sau khi bạn có endpoint đầu tiên cần bảo vệ.
 
@@ -62,12 +62,12 @@ Nếu bạn định vị được một bug trên sơ đồ này trước khi m�
 
 Không phải checklist hình thức — mỗi câu tương ứng một lớp sự cố production có thật:
 
-1. **Ai được gọi nó, và ai **không** được?** Có test cho nhánh phủ định chưa? → [Guards & interceptors](02-nestjs/04-guards-interceptors.md)
-2. **Input sai thì sao?** Field lạ có bị loại không? → [Validation & errors](02-nestjs/03-validation-errors.md)
-3. **Nó có nguyên tử không?** Lỗi giữa chừng để lại gì? → [Database & transactions](02-nestjs/06-database-integration-transactions.md)
-4. **Gọi hai lần thì sao?** → [HTTP semantics & idempotency](00-http-api/03-http-semantics-idempotency.md)
-5. **Nó chậm thế nào với 1 triệu dòng?** Có N+1 không? → [Pagination](00-http-api/04-pagination-filtering-sorting.md)
-6. **Lỗi lúc 3 giờ sáng thì tìm nguyên nhân bằng dữ liệu nào?** → [Error handling strategy](04-architecture/04-error-handling-strategy.md)
+1. **Ai được gọi nó, và ai **không** được?** Có test cho nhánh phủ định chưa? → [Guards & interceptors](./02-nestjs/behavior/04-guards-interceptors.md)
+2. **Input sai thì sao?** Field lạ có bị loại không? → [Validation & errors](./02-nestjs/behavior/03-validation-errors.md)
+3. **Nó có nguyên tử không?** Lỗi giữa chừng để lại gì? → [Database & transactions](./02-nestjs/behavior/06-database-integration-transactions.md)
+4. **Gọi hai lần thì sao?** → [HTTP semantics & idempotency](./00-http-api/03-http-semantics-idempotency.md)
+5. **Nó chậm thế nào với 1 triệu dòng?** Có N+1 không? → [Pagination](./00-http-api/04-pagination-filtering-sorting.md)
+6. **Lỗi lúc 3 giờ sáng thì tìm nguyên nhân bằng dữ liệu nào?** → [Error handling strategy](./04-architecture/04-error-handling-strategy.md)
 
 ## Năm quyết định định hình cả codebase
 

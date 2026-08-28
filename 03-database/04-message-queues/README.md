@@ -115,15 +115,15 @@ API ──▶ [đồng bộ: việc người dùng cần] ──▶ response
 
 ## Related
 
-- [Caching, queues & jobs (NestJS)](../../02-backend-api/02-nestjs/07-caching-queues-jobs.md) — implementation
+- [Caching, queues & jobs (NestJS)](../../02-backend-api/02-nestjs/behavior/07-caching-queues-jobs.md) — implementation
 - [02-redis/](../02-redis/README.md) — BullMQ chạy trên Redis; Streams; eviction
 - [01-postgresql/](../01-postgresql/README.md) — `SKIP LOCKED`, advisory lock, transaction
-- [Graceful shutdown](../../02-backend-api/01-nodejs/05-graceful-shutdown.md) — đóng worker đúng cách
+- [Graceful shutdown](../../02-backend-api/01-nodejs/production/02-graceful-shutdown.md) — đóng worker đúng cách
 - [Timeout, retry & circuit breaker](../../05-cross-cutting/reliability/02-timeout-retry-circuit-breaker.md)
 - [Event-driven](../../06-system-design/07-event-driven.md) — kiến trúc hướng sự kiện
 - [Idempotency & retry](../../06-system-design/03-idempotency-retry.md) — nguyên lý ở tầng hệ thống
 - [Backpressure](../../05-cross-cutting/performance/06-backpressure.md) — vào > ra
-- [Autoscaling](../../04-infrastructure/04-kubernetes/09-autoscaling.md) — scale worker theo hàng đợi
+- [Autoscaling](../../04-infrastructure/04-kubernetes/scheduling-reliability/03-autoscaling.md) — scale worker theo hàng đợi
 
 ## Version / Context
 

@@ -3,7 +3,7 @@ level: intermediate
 area: cross-cutting
 related:
   - 02-shared-state-races.md
-  - ../../02-backend-api/01-nodejs/01-node-runtime-concurrency.md
+  - ../../02-backend-api/01-nodejs/fundamentals/01-runtime-concurrency.md
 ---
 
 # Concurrency models
@@ -409,11 +409,11 @@ if (!ok) return;
 
 - [Shared state & races](02-shared-state-races.md) — logic race và cách chặn
 - [Distributed locks](03-distributed-locks.md) — phối hợp giữa nhiều instance
-- [Event loop](../../02-backend-api/01-nodejs/01-node-runtime-concurrency.md) — cơ chế chi tiết
-- [Streams & buffers](../../02-backend-api/01-nodejs/02-streams-buffers.md) — xử lý dữ liệu lớn
+- [Event loop](../../02-backend-api/01-nodejs/fundamentals/01-runtime-concurrency.md) — cơ chế chi tiết
+- [Streams & buffers](../../02-backend-api/01-nodejs/runtime-io/01-streams-buffers.md) — xử lý dữ liệu lớn
 - [Backend performance](../performance/03-backend-performance.md) — chặn event loop và thread pool
 - [Backpressure](../performance/06-backpressure.md) — giới hạn số đồng thời
-- [Caching, queues & jobs](../../02-backend-api/02-nestjs/07-caching-queues-jobs.md) — đẩy việc ra queue
+- [Caching, queues & jobs](../../02-backend-api/02-nestjs/behavior/07-caching-queues-jobs.md) — đẩy việc ra queue
 - [Why queue](../../03-database/04-message-queues/01-why-queue.md) — khi nào cần hàng đợi
 - [Process, files & env](../../04-infrastructure/00-linux/01-process-files-env.md) — process ở tầng OS
 

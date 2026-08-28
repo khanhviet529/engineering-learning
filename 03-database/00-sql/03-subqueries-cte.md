@@ -5,7 +5,7 @@ prerequisites:
   - 02-joins-aggregation.md
 related:
   - 04-window-functions.md
-  - ../01-postgresql/08-explain-analyze-workflow.md
+  - ../01-postgresql/indexes-query-planning/03-explain-analyze-workflow.md
 ---
 
 # Subqueries & CTE
@@ -353,7 +353,7 @@ ORDER BY tất định            revenue có thể hoà → thêm u.id
 - **Đặt tên CTE theo nghĩa nghiệp vụ** (`paid_orders`, `active_customers`), không phải `t1`, `cte2`. Query báo cáo sống nhiều năm.
 - **CTE đệ quy phải có giới hạn độ sâu**, không có ngoại lệ. Dữ liệu có chu trình là chuyện *khi nào*, không phải *có hay không*.
 - **`statement_timeout`** cho query báo cáo — nó là mạng lưới an toàn cuối cùng khi một CTE đệ quy đi sai hướng.
-- **Query báo cáo nặng nên chạy trên read replica**, không trên primary. Xem [Replication & scaling](../01-postgresql/09-replication-scaling.md).
+- **Query báo cáo nặng nên chạy trên read replica**, không trên primary. Xem [Replication & scaling](../01-postgresql/operations/02-replication-scaling.md).
 - **View cho query dùng lại nhiều nơi**; materialized view khi chấp nhận được độ trễ. `REFRESH MATERIALIZED VIEW CONCURRENTLY` không khoá đọc nhưng đòi hỏi view có một unique index.
 - **Đưa query báo cáo vào version control** cùng code, không để nó sống trong một BI tool mà không ai review.
 - **Kiểm tra chéo mọi số liệu tài chính** bằng một query viết theo cách khác. Đây là cách duy nhất bắt được lỗi logic trong query dài.
@@ -388,9 +388,9 @@ ORDER BY tất định            revenue có thể hoà → thêm u.id
 - [Joins & aggregation](02-joins-aggregation.md) — gom trước khi join để tránh fan-out
 - [Window functions](04-window-functions.md) — cách khác cho "top N mỗi nhóm"
 - [Relational thinking](01-relational-thinking.md) — NULL, thứ tự logic
-- [EXPLAIN ANALYZE workflow](../01-postgresql/08-explain-analyze-workflow.md) — đọc plan của CTE
-- [Index & query plan](../01-postgresql/02-index-query-plan.md) — vì sao subquery tương quan cần index
-- [Replication & scaling](../01-postgresql/09-replication-scaling.md) — chạy báo cáo ở đâu
+- [EXPLAIN ANALYZE workflow](../01-postgresql/indexes-query-planning/03-explain-analyze-workflow.md) — đọc plan của CTE
+- [Index & query plan](../01-postgresql/indexes-query-planning/01-index-query-plan.md) — vì sao subquery tương quan cần index
+- [Replication & scaling](../01-postgresql/operations/02-replication-scaling.md) — chạy báo cáo ở đâu
 
 ## Version / Context
 

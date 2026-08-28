@@ -232,7 +232,7 @@ RabbitMQ: consumer_timeout (mặc định 30 phút ở phiên bản mới)
 Kafka:    max.poll.interval.ms (mặc định 5 phút)
 ```
 
-Hai cách xử lý job dài: đặt timeout đủ lớn, hoặc gia hạn định kỳ trong lúc chạy (heartbeat). BullMQ làm cái thứ hai tự động miễn là event loop không bị chặn — nên một job CPU-nặng chặn event loop sẽ **mất lock** và bị chạy lại. Xem [Worker threads & CPU](../../02-backend-api/01-nodejs/04-worker-threads-cpu.md).
+Hai cách xử lý job dài: đặt timeout đủ lớn, hoặc gia hạn định kỳ trong lúc chạy (heartbeat). BullMQ làm cái thứ hai tự động miễn là event loop không bị chặn — nên một job CPU-nặng chặn event loop sẽ **mất lock** và bị chạy lại. Xem [Worker threads & CPU](../../02-backend-api/01-nodejs/runtime-io/02-worker-threads-cpu.md).
 
 ### Thứ tự không được đảm bảo (mặc định)
 
@@ -451,8 +451,8 @@ Bốn lớp bảo vệ, và chúng bổ sung nhau:
 - [Broker comparison](05-broker-comparison.md) — mỗi broker đảm bảo gì
 - [Idempotency & retry](../../06-system-design/03-idempotency-retry.md) — cùng nguyên lý ở tầng hệ thống
 - [HTTP semantics & idempotency](../../02-backend-api/00-http-api/03-http-semantics-idempotency.md) — idempotency ở tầng HTTP
-- [Transaction isolation](../01-postgresql/01-transaction-isolation.md) — nguyên tử với ghi DB
-- [Worker threads & CPU](../../02-backend-api/01-nodejs/04-worker-threads-cpu.md) — vì sao job CPU mất lock
+- [Transaction isolation](../01-postgresql/transactions-concurrency/01-transaction-isolation.md) — nguyên tử với ghi DB
+- [Worker threads & CPU](../../02-backend-api/01-nodejs/runtime-io/02-worker-threads-cpu.md) — vì sao job CPU mất lock
 - [Constraints & invariants](../03-data-modeling/01-constraints-invariants.md) — `UNIQUE` làm phòng tuyến cuối
 
 ## Version / Context

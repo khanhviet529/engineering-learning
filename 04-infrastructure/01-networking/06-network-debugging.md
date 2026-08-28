@@ -6,7 +6,7 @@ prerequisites:
   - 02-tcp-udp.md
 related:
   - ../00-linux/07-debugging-toolbox.md
-  - ../04-kubernetes/10-debugging-k8s.md
+  - ../04-kubernetes/operations/02-debugging-k8s.md
 ---
 
 # Network debugging
@@ -373,7 +373,7 @@ Bước ⑨ là bước biến một lần debug thành kiến thức của cả
 - [Reverse proxy & load balancer](05-reverse-proxy-load-balancer.md) — 502/503/504
 - [Linux debugging toolbox](../00-linux/07-debugging-toolbox.md) — tầng OS
 - [Ports & sockets](../00-linux/05-ports-sockets.md) — `ss`, trạng thái socket
-- [Debugging Kubernetes](../04-kubernetes/10-debugging-k8s.md) — tầng orchestrator
+- [Debugging Kubernetes](../04-kubernetes/operations/02-debugging-k8s.md) — tầng orchestrator
 - [Correlation ID & tracing](../../05-cross-cutting/observability/03-correlation-tracing.md) — biết tầng nào chậm trước khi debug mạng
 
 ## Version / Context

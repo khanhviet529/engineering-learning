@@ -376,7 +376,7 @@ test('người dùng hoàn tất thanh toán và thấy xác nhận', async ({ p
 - [Mocking & test doubles](04-mocking-test-doubles.md) — fake dịch vụ bên thứ ba
 - [Deterministic tests](06-deterministic-tests.md) — nguồn gốc flakiness
 - [Contract testing](07-contract-testing.md) — thay thế E2E giữa các service
-- [Testing NestJS](../../02-backend-api/02-nestjs/09-testing-nestjs.md) — dựng API test
+- [Testing NestJS](../../02-backend-api/02-nestjs/behavior/09-testing-nestjs.md) — dựng API test
 - [Access control](../security/04-access-control.md) — test đường từ chối ở tầng API
 - [Deployment strategies](../../04-infrastructure/03-cicd/03-deployment-strategies.md) — smoke test và rollback
 - [Pipeline](../../04-infrastructure/03-cicd/01-pipeline.md) — ngân sách thời gian CI

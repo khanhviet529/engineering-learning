@@ -34,19 +34,19 @@ Bảng này nói một điều: **quyết định ở một tầng không bảo 
 
 | Vùng | Trả lời câu hỏi | Vào |
 |---|---|---|
-| **Security** | Kẻ tấn công có thể làm gì với hệ thống này? | [security/](security/README.md) |
-| **Testing** | Làm sao biết nó đúng, và đúng lại sau khi sửa? | [testing/](testing/README.md) |
-| **Observability** | Làm sao biết chuyện gì đang xảy ra trong production? | [observability/](observability/README.md) |
-| **Performance** | Thời gian và tài nguyên đi đâu? | [performance/](performance/README.md) |
-| **Reliability** | Khi một phần hỏng, phần còn lại thế nào? | [reliability/](reliability/README.md) |
-| **Concurrency** | Nhiều thứ xảy ra cùng lúc thì sai ở đâu? | [concurrency/](concurrency/README.md) |
+| **Security** | Kẻ tấn công có thể làm gì với hệ thống này? | [security/](./security/README.md) |
+| **Testing** | Làm sao biết nó đúng, và đúng lại sau khi sửa? | [testing/](./testing/README.md) |
+| **Observability** | Làm sao biết chuyện gì đang xảy ra trong production? | [observability/](./observability/README.md) |
+| **Performance** | Thời gian và tài nguyên đi đâu? | [performance/](./performance/README.md) |
+| **Reliability** | Khi một phần hỏng, phần còn lại thế nào? | [reliability/](./reliability/README.md) |
+| **Concurrency** | Nhiều thứ xảy ra cùng lúc thì sai ở đâu? | [concurrency/](./concurrency/README.md) |
 
 Ba concern xuyên tầng khác được đặt ở nơi chúng được implement, nhưng phải đọc với tư duy xuyên tầng:
 
 | Concern | Ở đâu | Vì sao đặt ở đó |
 |---|---|---|
 | Authentication / Authorization | [02-backend-api/03-auth/](../02-backend-api/03-auth/README.md) | Backend là nơi duy nhất quyết định có hiệu lực |
-| Caching | [03-database/02-redis/](../03-database/02-redis/README.md) + [Next.js cache](../01-web-frontend/03-nextjs/03-data-fetching-cache.md) + [browser cache](../01-web-frontend/00-web-foundations/02-http-browser-cache.md) | Mỗi lớp có cơ chế và failure mode riêng |
+| Caching | [03-database/02-redis/](../03-database/02-redis/README.md) + [Next.js cache](../01-web-frontend/03-nextjs/behavior/03-data-fetching-cache.md) + [browser cache](../01-web-frontend/00-web-foundations/02-http-browser-cache.md) | Mỗi lớp có cơ chế và failure mode riêng |
 | Messaging | [03-database/04-message-queues/](../03-database/04-message-queues/README.md) | Queue là stateful infrastructure, cùng họ với DB |
 | Configuration | [02-backend-api/04-architecture/05-configuration.md](../02-backend-api/04-architecture/05-configuration.md) | Bắt đầu từ app, lan ra Docker và K8s |
 | Error handling | [02-backend-api/04-architecture/04-error-handling-strategy.md](../02-backend-api/04-architecture/04-error-handling-strategy.md) | Cần một chiến lược thống nhất, không phải try/catch rải rác |

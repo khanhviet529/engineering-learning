@@ -401,7 +401,7 @@ export function describeOwnedResource(name: string, setup: ResourceSetup) {
 - [Injection](02-injection.md) — lớp lỗi kề bên
 - [Testing pyramid](../testing/01-testing-pyramid-behavior.md) — nơi test authz thuộc về
 - [Cache invalidation](../../03-database/02-redis/01-cache-invalidation.md) — khoá cache và danh tính
-- [Validation & errors](../../02-backend-api/02-nestjs/03-validation-errors.md) — DTO chặn mass assignment
+- [Validation & errors](../../02-backend-api/02-nestjs/behavior/03-validation-errors.md) — DTO chặn mass assignment
 - [Structured logging](../observability/02-structured-logging.md) — log quyết định từ chối
 
 ## Version / Context

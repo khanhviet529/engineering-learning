@@ -14,7 +14,7 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 
 ## Tổng số
 
-**227 note** (không tính README gốc và `templates/`).
+**241 note** (không tính README gốc và `templates/`).
 
 
 ### `00-roadmap`
@@ -26,6 +26,7 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 - [Topic Index](../00-roadmap/04-topic-index.md)
 - [Behavior Index](../00-roadmap/behavior-index.md)
 - [Final Coverage Report](../00-roadmap/final-coverage-report.md)
+- [Knowledge Architecture Audit](../00-roadmap/knowledge-architecture-audit.md)
 - [Knowledge Audit](../00-roadmap/knowledge-audit.md)
 - [Knowledge Map](../00-roadmap/knowledge-map.md)
 - [Project Roadmap](../00-roadmap/project-roadmap.md)
@@ -49,45 +50,75 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 
 ### `01-web-frontend/01-javascript-typescript`
 
-- [Event loop & async](../01-web-frontend/01-javascript-typescript/01-event-loop-async.md)
-- [TypeScript ↔ runtime boundary](../01-web-frontend/01-javascript-typescript/02-typescript-runtime-boundary.md)
-- [Execution context, scope, closure, `this`, prototype](../01-web-frontend/01-javascript-typescript/03-execution-context-closure.md)
-- [Promise & concurrency](../01-web-frontend/01-javascript-typescript/04-promise-concurrency.md)
-- [Memory & garbage collection](../01-web-frontend/01-javascript-typescript/05-memory-gc.md)
-- [Module system & bundling](../01-web-frontend/01-javascript-typescript/06-modules-bundling.md)
-- [TypeScript type system](../01-web-frontend/01-javascript-typescript/07-typescript-type-system.md)
-- [Generics, mapped & conditional types](../01-web-frontend/01-javascript-typescript/08-typescript-advanced-types.md)
-- [Error handling & immutability](../01-web-frontend/01-javascript-typescript/09-error-handling-immutability.md)
 - [JavaScript & TypeScript](../01-web-frontend/01-javascript-typescript/README.md)
+
+### `01-web-frontend/01-javascript-typescript/async-concurrency`
+
+- [Event loop & async](../01-web-frontend/01-javascript-typescript/async-concurrency/01-event-loop-async.md)
+- [Promise & concurrency](../01-web-frontend/01-javascript-typescript/async-concurrency/02-promise-concurrency.md)
+
+### `01-web-frontend/01-javascript-typescript/fundamentals`
+
+- [Execution context, scope, closure, `this`, prototype](../01-web-frontend/01-javascript-typescript/fundamentals/01-execution-context-closure.md)
+- [Module system & bundling](../01-web-frontend/01-javascript-typescript/fundamentals/02-modules-bundling.md)
+- [Error handling & immutability](../01-web-frontend/01-javascript-typescript/fundamentals/03-error-handling-immutability.md)
+
+### `01-web-frontend/01-javascript-typescript/runtime-behavior`
+
+- [Memory & garbage collection](../01-web-frontend/01-javascript-typescript/runtime-behavior/01-memory-gc.md)
+
+### `01-web-frontend/01-javascript-typescript/typescript`
+
+- [TypeScript ↔ runtime boundary](../01-web-frontend/01-javascript-typescript/typescript/01-runtime-boundary.md)
+- [TypeScript type system](../01-web-frontend/01-javascript-typescript/typescript/02-type-system.md)
+- [Generics, mapped & conditional types](../01-web-frontend/01-javascript-typescript/typescript/03-advanced-types.md)
 
 ### `01-web-frontend/02-react`
 
-- [State → render](../01-web-frontend/02-react/01-state-render.md)
-- [Effects & lifecycle](../01-web-frontend/02-react/02-effects-lifecycle.md)
-- [Async race condition trong UI](../01-web-frontend/02-react/03-async-race-condition.md)
-- [Server state & cache](../01-web-frontend/02-react/04-server-state-cache.md)
-- [Reconciliation & keys](../01-web-frontend/02-react/05-reconciliation-keys.md)
-- [Props, composition & state design](../01-web-frontend/02-react/06-props-composition-state-design.md)
-- [Context & memoization](../01-web-frontend/02-react/07-context-memoization.md)
-- [Refs & uncontrolled components](../01-web-frontend/02-react/08-refs-uncontrolled.md)
-- [Error boundaries & Suspense](../01-web-frontend/02-react/09-error-boundaries-suspense.md)
-- [Forms](../01-web-frontend/02-react/10-forms.md)
-- [Custom hooks](../01-web-frontend/02-react/11-custom-hooks.md)
-- [React performance](../01-web-frontend/02-react/12-performance.md)
-- [Testing React](../01-web-frontend/02-react/13-testing-react.md)
 - [React](../01-web-frontend/02-react/README.md)
+
+### `01-web-frontend/02-react/behavior`
+
+- [State → render](../01-web-frontend/02-react/behavior/01-state-render.md)
+- [Effects & lifecycle](../01-web-frontend/02-react/behavior/02-effects-lifecycle.md)
+- [Async race condition trong UI](../01-web-frontend/02-react/behavior/03-async-race-condition.md)
+- [Server state & cache](../01-web-frontend/02-react/behavior/04-server-state-cache.md)
+- [Reconciliation & keys](../01-web-frontend/02-react/behavior/05-reconciliation-keys.md)
+- [Props, composition & state design](../01-web-frontend/02-react/behavior/06-props-composition-state-design.md)
+- [Context & memoization](../01-web-frontend/02-react/behavior/07-context-memoization.md)
+- [Refs & uncontrolled components](../01-web-frontend/02-react/behavior/08-refs-uncontrolled.md)
+- [Error boundaries & Suspense](../01-web-frontend/02-react/behavior/09-error-boundaries-suspense.md)
+- [Forms](../01-web-frontend/02-react/behavior/10-forms.md)
+- [Custom hooks](../01-web-frontend/02-react/behavior/11-custom-hooks.md)
+- [React performance](../01-web-frontend/02-react/behavior/12-performance.md)
+- [Testing React](../01-web-frontend/02-react/behavior/13-testing-react.md)
+- [useReducer & state machine](../01-web-frontend/02-react/behavior/14-usereducer-state-machines.md)
+
+### `01-web-frontend/02-react/fundamentals`
+
+- [React foundations: từ vựng và mô hình render](../01-web-frontend/02-react/fundamentals/01-components-and-rendering-model.md)
+- [Năm hook cốt lõi](../01-web-frontend/02-react/fundamentals/02-hooks-core.md)
+- [Bản đồ hooks: cái nào tồn tại, dùng khi nào](../01-web-frontend/02-react/fundamentals/03-hooks-advanced-map.md)
 
 ### `01-web-frontend/03-nextjs`
 
-- [Server / Client boundary](../01-web-frontend/03-nextjs/01-server-client-boundary.md)
-- [Routing, layout & file conventions](../01-web-frontend/03-nextjs/02-routing-layout-rendering.md)
-- [Data fetching & cache](../01-web-frontend/03-nextjs/03-data-fetching-cache.md)
-- [Rendering strategies: SSR, SSG, ISR, streaming, hydration](../01-web-frontend/03-nextjs/04-rendering-strategies.md)
-- [Route Handlers & Server Actions](../01-web-frontend/03-nextjs/05-route-handlers-server-actions.md)
-- [Middleware & auth patterns](../01-web-frontend/03-nextjs/06-middleware-auth-patterns.md)
-- [Metadata, images & assets](../01-web-frontend/03-nextjs/07-metadata-images-assets.md)
-- [Deployment & production](../01-web-frontend/03-nextjs/08-deployment-production.md)
 - [Next.js](../01-web-frontend/03-nextjs/README.md)
+
+### `01-web-frontend/03-nextjs/behavior`
+
+- [Server / Client boundary](../01-web-frontend/03-nextjs/behavior/01-server-client-boundary.md)
+- [Routing, layout & file conventions](../01-web-frontend/03-nextjs/behavior/02-routing-layout-rendering.md)
+- [Data fetching & cache](../01-web-frontend/03-nextjs/behavior/03-data-fetching-cache.md)
+- [Rendering strategies: SSR, SSG, ISR, streaming, hydration](../01-web-frontend/03-nextjs/behavior/04-rendering-strategies.md)
+- [Route Handlers & Server Actions](../01-web-frontend/03-nextjs/behavior/05-route-handlers-server-actions.md)
+- [Middleware & auth patterns](../01-web-frontend/03-nextjs/behavior/06-middleware-auth-patterns.md)
+- [Metadata, images & assets](../01-web-frontend/03-nextjs/behavior/07-metadata-images-assets.md)
+- [Deployment & production](../01-web-frontend/03-nextjs/behavior/08-deployment-production.md)
+
+### `01-web-frontend/03-nextjs/fundamentals`
+
+- [Next.js foundations: cấu trúc thư mục và từ vựng routing](../01-web-frontend/03-nextjs/fundamentals/01-app-router-structure.md)
+- [Next.js 16: mô hình caching mới và những gì đã đổi](../01-web-frontend/03-nextjs/fundamentals/02-nextjs-16-changes.md)
 
 ### `02-backend-api`
 
@@ -107,26 +138,44 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 
 ### `02-backend-api/01-nodejs`
 
-- [Node runtime & concurrency](../02-backend-api/01-nodejs/01-node-runtime-concurrency.md)
-- [Streams & buffers](../02-backend-api/01-nodejs/02-streams-buffers.md)
-- [Process & memory](../02-backend-api/01-nodejs/03-process-memory.md)
-- [Worker threads & CPU-bound work](../02-backend-api/01-nodejs/04-worker-threads-cpu.md)
-- [Graceful shutdown](../02-backend-api/01-nodejs/05-graceful-shutdown.md)
-- [Module system trong Node](../02-backend-api/01-nodejs/06-module-system-node.md)
 - [Node.js](../02-backend-api/01-nodejs/README.md)
+
+### `02-backend-api/01-nodejs/fundamentals`
+
+- [Node runtime & concurrency](../02-backend-api/01-nodejs/fundamentals/01-runtime-concurrency.md)
+- [Module system trong Node](../02-backend-api/01-nodejs/fundamentals/02-module-system.md)
+- [Bản đồ core API và package.json](../02-backend-api/01-nodejs/fundamentals/03-core-apis-map.md)
+
+### `02-backend-api/01-nodejs/production`
+
+- [Process & memory](../02-backend-api/01-nodejs/production/01-process-memory.md)
+- [Graceful shutdown](../02-backend-api/01-nodejs/production/02-graceful-shutdown.md)
+
+### `02-backend-api/01-nodejs/runtime-io`
+
+- [Streams & buffers](../02-backend-api/01-nodejs/runtime-io/01-streams-buffers.md)
+- [Worker threads & CPU-bound work](../02-backend-api/01-nodejs/runtime-io/02-worker-threads-cpu.md)
 
 ### `02-backend-api/02-nestjs`
 
-- [NestJS request lifecycle](../02-backend-api/02-nestjs/01-request-lifecycle.md)
-- [Modules & Dependency Injection](../02-backend-api/02-nestjs/02-modules-di.md)
-- [Validation & errors](../02-backend-api/02-nestjs/03-validation-errors.md)
-- [Guards & interceptors](../02-backend-api/02-nestjs/04-guards-interceptors.md)
-- [Config & lifecycle](../02-backend-api/02-nestjs/05-config-lifecycle.md)
-- [Database integration & transactions](../02-backend-api/02-nestjs/06-database-integration-transactions.md)
-- [Caching, queues & jobs](../02-backend-api/02-nestjs/07-caching-queues-jobs.md)
-- [WebSocket gateway](../02-backend-api/02-nestjs/08-websocket-gateway.md)
-- [Testing NestJS](../02-backend-api/02-nestjs/09-testing-nestjs.md)
 - [NestJS](../02-backend-api/02-nestjs/README.md)
+
+### `02-backend-api/02-nestjs/behavior`
+
+- [NestJS request lifecycle](../02-backend-api/02-nestjs/behavior/01-request-lifecycle.md)
+- [Modules & Dependency Injection](../02-backend-api/02-nestjs/behavior/02-modules-di.md)
+- [Validation & errors](../02-backend-api/02-nestjs/behavior/03-validation-errors.md)
+- [Guards & interceptors](../02-backend-api/02-nestjs/behavior/04-guards-interceptors.md)
+- [Config & lifecycle](../02-backend-api/02-nestjs/behavior/05-config-lifecycle.md)
+- [Database integration & transactions](../02-backend-api/02-nestjs/behavior/06-database-integration-transactions.md)
+- [Caching, queues & jobs](../02-backend-api/02-nestjs/behavior/07-caching-queues-jobs.md)
+- [WebSocket gateway](../02-backend-api/02-nestjs/behavior/08-websocket-gateway.md)
+- [Testing NestJS](../02-backend-api/02-nestjs/behavior/09-testing-nestjs.md)
+
+### `02-backend-api/02-nestjs/fundamentals`
+
+- [NestJS building blocks: từ `main.ts` tới database](../02-backend-api/02-nestjs/fundamentals/01-building-blocks.md)
+- [Dependency Injection & provider](../02-backend-api/02-nestjs/fundamentals/02-di-providers.md)
 
 ### `02-backend-api/03-auth`
 
@@ -153,6 +202,7 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 
 ### `03-database/00-sql`
 
+- [SQL basics: từ vựng và bốn câu lệnh](../03-database/00-sql/00-sql-basics.md)
 - [Relational thinking](../03-database/00-sql/01-relational-thinking.md)
 - [Joins & aggregation](../03-database/00-sql/02-joins-aggregation.md)
 - [Subqueries & CTE](../03-database/00-sql/03-subqueries-cte.md)
@@ -161,19 +211,33 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 
 ### `03-database/01-postgresql`
 
-- [Transaction isolation](../03-database/01-postgresql/01-transaction-isolation.md)
-- [Index & query plan](../03-database/01-postgresql/02-index-query-plan.md)
-- [Connection pool](../03-database/01-postgresql/03-connection-pool.md)
-- [MVCC & vacuum](../03-database/01-postgresql/04-mvcc-vacuum.md)
-- [Locking & deadlock](../03-database/01-postgresql/05-locking-deadlock.md)
-- [WAL, durability & backup](../03-database/01-postgresql/06-wal-durability-backup.md)
-- [Index types](../03-database/01-postgresql/07-index-types.md)
-- [EXPLAIN ANALYZE workflow](../03-database/01-postgresql/08-explain-analyze-workflow.md)
-- [Replication & scaling](../03-database/01-postgresql/09-replication-scaling.md)
 - [PostgreSQL](../03-database/01-postgresql/README.md)
+
+### `03-database/01-postgresql/fundamentals`
+
+- [Kiến trúc PostgreSQL và ACID](../03-database/01-postgresql/fundamentals/01-architecture-and-acid.md)
+- [Connection pool](../03-database/01-postgresql/fundamentals/02-connection-pool.md)
+
+### `03-database/01-postgresql/indexes-query-planning`
+
+- [Index & query plan](../03-database/01-postgresql/indexes-query-planning/01-index-query-plan.md)
+- [Index types](../03-database/01-postgresql/indexes-query-planning/02-index-types.md)
+- [EXPLAIN ANALYZE workflow](../03-database/01-postgresql/indexes-query-planning/03-explain-analyze-workflow.md)
+
+### `03-database/01-postgresql/operations`
+
+- [WAL, durability & backup](../03-database/01-postgresql/operations/01-wal-durability-backup.md)
+- [Replication & scaling](../03-database/01-postgresql/operations/02-replication-scaling.md)
+
+### `03-database/01-postgresql/transactions-concurrency`
+
+- [Transaction isolation](../03-database/01-postgresql/transactions-concurrency/01-transaction-isolation.md)
+- [MVCC & vacuum](../03-database/01-postgresql/transactions-concurrency/02-mvcc-vacuum.md)
+- [Locking & deadlock](../03-database/01-postgresql/transactions-concurrency/03-locking-deadlock.md)
 
 ### `03-database/02-redis`
 
+- [Redis data model: key, value, và các cấu trúc](../03-database/02-redis/00-redis-data-model.md)
 - [Cache & invalidation](../03-database/02-redis/01-cache-invalidation.md)
 - [Rate limit & locking](../03-database/02-redis/02-rate-limit-locking.md)
 - [Cache patterns](../03-database/02-redis/03-cache-patterns.md)
@@ -246,17 +310,30 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 
 ### `04-infrastructure/04-kubernetes`
 
-- [Pod, Deployment, Service](../04-infrastructure/04-kubernetes/01-pod-deployment-service.md)
-- [Readiness, liveness & startup probe](../04-infrastructure/04-kubernetes/02-health-readiness-liveness.md)
-- [Config, Secret & resources](../04-infrastructure/04-kubernetes/03-config-secrets-resources.md)
-- [Vì sao cần Kubernetes](../04-infrastructure/04-kubernetes/04-why-kubernetes.md)
-- [Scheduling & resources](../04-infrastructure/04-kubernetes/05-scheduling-resources.md)
-- [Ingress & service discovery](../04-infrastructure/04-kubernetes/06-ingress-service-discovery.md)
-- [Rollout & rollback](../04-infrastructure/04-kubernetes/07-rollout-rollback.md)
-- [Storage & StatefulSet](../04-infrastructure/04-kubernetes/08-storage-statefulset.md)
-- [Autoscaling](../04-infrastructure/04-kubernetes/09-autoscaling.md)
-- [Debugging Kubernetes](../04-infrastructure/04-kubernetes/10-debugging-k8s.md)
 - [Kubernetes](../04-infrastructure/04-kubernetes/README.md)
+
+### `04-infrastructure/04-kubernetes/fundamentals`
+
+- [Vì sao cần Kubernetes](../04-infrastructure/04-kubernetes/fundamentals/01-why-kubernetes.md)
+- [Bản đồ đối tượng Kubernetes](../04-infrastructure/04-kubernetes/fundamentals/02-object-map.md)
+
+### `04-infrastructure/04-kubernetes/operations`
+
+- [Config, Secret & resources](../04-infrastructure/04-kubernetes/operations/01-config-secrets-resources.md)
+- [Debugging Kubernetes](../04-infrastructure/04-kubernetes/operations/02-debugging-k8s.md)
+
+### `04-infrastructure/04-kubernetes/scheduling-reliability`
+
+- [Readiness, liveness & startup probe](../04-infrastructure/04-kubernetes/scheduling-reliability/01-health-readiness-liveness.md)
+- [Scheduling & resources](../04-infrastructure/04-kubernetes/scheduling-reliability/02-scheduling-resources.md)
+- [Autoscaling](../04-infrastructure/04-kubernetes/scheduling-reliability/03-autoscaling.md)
+
+### `04-infrastructure/04-kubernetes/workloads-networking`
+
+- [Pod, Deployment, Service](../04-infrastructure/04-kubernetes/workloads-networking/01-pod-deployment-service.md)
+- [Ingress & service discovery](../04-infrastructure/04-kubernetes/workloads-networking/02-ingress-service-discovery.md)
+- [Rollout & rollback](../04-infrastructure/04-kubernetes/workloads-networking/03-rollout-rollback.md)
+- [Storage & StatefulSet](../04-infrastructure/04-kubernetes/workloads-networking/04-storage-statefulset.md)
 
 ### `05-cross-cutting`
 

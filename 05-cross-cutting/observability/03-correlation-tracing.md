@@ -411,8 +411,8 @@ Ba span xếp bậc thang là dấu hiệu trực quan của lời gọi tuần 
 - [Latency & bottleneck](../performance/01-latency-throughput-bottleneck.md) — đọc trace để tìm nút thắt
 - [Database performance](../performance/04-database-performance.md) — N+1 nhìn từ trace
 - [Ordering & partitioning](../../03-database/04-message-queues/04-ordering-partitioning.md) — context qua queue
-- [Connection pool](../../03-database/01-postgresql/03-connection-pool.md) — nguồn của khoảng trống chờ
-- [Modules & DI](../../02-backend-api/02-nestjs/02-modules-di.md) — nơi đặt tracer trong NestJS
+- [Connection pool](../../03-database/01-postgresql/fundamentals/02-connection-pool.md) — nguồn của khoảng trống chờ
+- [Modules & DI](../../02-backend-api/02-nestjs/behavior/02-modules-di.md) — nơi đặt tracer trong NestJS
 
 ## Version / Context
 
