@@ -11,7 +11,7 @@ related:
 
 # HTTP request & response
 
-> HTTP là text trên TCP. Method, status code và header có **ngữ nghĩa** được định nghĩa trong RFC — không phải quy ước tuỳ ý của mỗi team. Tôn trọng ngữ nghĩa đó là cách bạn được cache, retry và proxy hoạt động đúng miễn phí.
+> HTTP/1.1 là text trên TCP — HTTP/2 nhị phân, HTTP/3 chạy trên QUIC/UDP; ngữ nghĩa thì giữ nguyên qua cả ba. Method, status code và header có **ngữ nghĩa** được định nghĩa trong RFC — không phải quy ước tuỳ ý của mỗi team. Tôn trọng ngữ nghĩa đó là cách bạn được cache, retry và proxy hoạt động đúng miễn phí.
 
 > **Chưa biết những từ này?** [Từ vựng API](00-api-vocabulary.md) — endpoint, status code, DTO
 

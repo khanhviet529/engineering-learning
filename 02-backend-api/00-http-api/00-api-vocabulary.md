@@ -97,19 +97,30 @@ Năm lớp đã có ở [Từ vựng Web](../../01-web-frontend/00-web-foundatio
 
 | Mã | Nghĩa | Lưu ý |
 |---|---|---|
-| `301` | chuyển **vĩnh viễn** | browser **cache rất lâu**, có thể cache mãi |
-| `302` | chuyển tạm thời | không cache |
+| `301` | Moved Permanently | **cacheable theo mặc định** — client được phép lưu lâu |
+| `302` | Found (tạm thời) | mặc định **không** cacheable, nhưng có thể cache nếu header cho phép |
 | `304` | Not Modified | "dữ liệu bạn đang cache còn đúng" — body trống |
-| `307` / `308` | như 302 / 301 nhưng **giữ nguyên method** | `301`/`302` có thể bị đổi `POST` thành `GET` |
+| `307` / `308` | như 302 / 301 nhưng **giữ nguyên method** | `301`/`302` có thể bị client đổi `POST` thành `GET` |
 
-`301` là mã nguy hiểm nhất trong toàn bộ HTTP đối với người mới: đặt sai một lần, browser của user sẽ giữ nó kể cả sau khi bạn đã sửa server. Khi chưa chắc, dùng `302`.
+Về caching redirect, cần nói cho đúng:
+
+```text
+❌ "301 cache mãi, 302 không cache"
+✅ "301 là cacheable theo mặc định; 302 thì không.
+    Nhưng caching THỰC TẾ do Cache-Control / Expires quyết định,
+    và hành vi từng browser có khác nhau."
+```
+
+Cụ thể: bạn **có** thể giới hạn một `301` bằng `Cache-Control: max-age=60`, và **có** thể cho cache một `302` bằng header tường minh. Điều khiến `301` nguy hiểm không phải "cache mãi" mà là: nếu bạn không gửi `Cache-Control`, client được phép lưu nó rất lâu, và browser thường lưu rất lâu trong thực tế — nên đặt sai một lần thì user vẫn bị chuyển hướng sai kể cả sau khi bạn đã sửa server.
+
+Nguyên tắc thực dụng: **khi chưa chắc chắn là vĩnh viễn, dùng `302`** (hoặc `307` nếu cần giữ method). Và nếu buộc phải dùng `301`, gửi kèm `Cache-Control` với `max-age` ngắn trong lúc còn đang thử nghiệm.
 
 **4xx — bên gọi sai**
 
 | Mã | Nghĩa chính xác | Ví dụ |
 |---|---|---|
 | `400` | Bad Request — request **không hợp lệ về hình dạng** | JSON hỏng, thiếu field bắt buộc, sai kiểu |
-| `401` | Unauthorized — **chưa biết bạn là ai** | thiếu token, token hết hạn, token sai |
+| `401` | tên trong spec là *Unauthorized*, nhưng nghĩa thực tế là **cần xác thực / xác thực thất bại** | thiếu token, token hết hạn, token sai |
 | `403` | Forbidden — **biết bạn là ai, và bạn không được phép** | user thường gọi endpoint admin |
 | `404` | Not Found — tài nguyên **không tồn tại** | `/orders/999` mà order 999 không có |
 | `405` | Method Not Allowed | `DELETE /orders` khi chỉ hỗ trợ `GET`/`POST` |
@@ -119,6 +130,8 @@ Năm lớp đã có ở [Từ vựng Web](../../01-web-frontend/00-web-foundatio
 | `415` | Unsupported Media Type | gửi XML khi chỉ nhận JSON |
 | `422` | Unprocessable Entity — hình dạng đúng, **nghĩa sai** | `quantity: -5`, `endDate` trước `startDate` |
 | `429` | Too Many Requests | vượt rate limit (kèm `Retry-After`) |
+
+Lưu ý về tên `401`: nó **được đặt tên sai từ đầu trong lịch sử HTTP**. `401 Unauthorized` nói về *authentication*, còn `403 Forbidden` mới là *authorization*. Đây là cái bẫy tên gọi, không phải cái bẫy khái niệm — và nó là lý do rất nhiều người dùng lẫn hai mã này.
 
 Bốn cặp phải phân biệt được, vì nhầm chúng làm client xử lý sai:
 
@@ -151,20 +164,41 @@ Ghi chú bảo mật ở cặp thứ ba: với tài nguyên riêng tư của ng�
 
 `502`/`504` thường **không phải** app bạn trả về — chúng do reverse proxy sinh ra khi app không trả lời được. Nghĩa là log app của bạn có thể trống hoàn toàn trong lúc user nhận `502`. Biết điều này quyết định bạn tìm log ở đâu.
 
-Nguyên tắc phân loại xuyên suốt repo: **`4xx` không đánh thức người trực, `5xx` thì có.** Trả `500` cho dữ liệu người dùng nhập sai làm alert của bạn thành vô nghĩa trong một tuần.
+Quy ước vận hành mặc định trong repo này: **`4xx` không đánh thức người trực, `5xx` thì có.**
+
+> Đây là **operational convention**, không phải quy tắc của HTTP. HTTP không nói gì về alerting.
+
+Và nó có ngoại lệ hai chiều, đều thường gặp:
+
+| Tình huống | Đúng ra nên |
+|---|---|
+| `401`/`403` **tăng vọt** đột ngột | alert — có thể là deploy làm hỏng auth, hoặc đang bị tấn công |
+| `429` tăng vọt | alert — hoặc bị abuse, hoặc rate limit đặt sai làm chặn người dùng thật |
+| `400` tăng vọt sau một lần deploy | alert — thường là client và server lệch contract |
+| `503` trong lúc deploy có kế hoạch | **không** page — đây là kỳ vọng |
+| `504` lẻ tẻ từ một upstream đã có retry | ghi nhận, không page ngay |
+
+Cách phát biểu đúng: **phân loại `4xx`/`5xx` cho bạn biết *lỗi thuộc về ai*; còn *có page hay không* là quyết định dựa trên tỉ lệ, xu hướng và tác động tới người dùng.**
+
+Điều vẫn đúng tuyệt đối: trả `500` cho dữ liệu người dùng nhập sai là **sai phân loại** — nó nói "lỗi của tôi" khi thực ra không phải, và nó làm mọi dashboard 5xx của bạn thành vô nghĩa trong một tuần.
 
 ### REST, RESTful, "REST API"
 
 **REST** (Representational State Transfer) là một *kiểu kiến trúc* với vài ràng buộc: client–server, **stateless**, tài nguyên có định danh, dùng đúng semantics của HTTP method, response nói rõ được cache hay không.
 
-**Điều nên biết thẳng:** phần lớn thứ được gọi là "REST API" trong công việc thật **không** thoả mãn đầy đủ REST (đặc biệt là ràng buộc HATEOAS). Trong thực tế, "REST API" nghĩa là:
+**Điều nên biết thẳng:** phần lớn thứ được gọi là "REST API" trong công việc thật **không** thoả mãn đầy đủ các ràng buộc kiến trúc của REST — thường thiếu HATEOAS (response tự chứa link để client điều hướng), và đôi khi cả cache/uniform-interface.
 
 ```text
-JSON qua HTTP, path theo danh từ tài nguyên, method mang ý nghĩa,
-status code dùng đúng lớp
+Cái mọi người GỌI LÀ "REST API" trong công việc:
+    JSON qua HTTP + path theo danh từ tài nguyên
+    + method mang ý nghĩa + status code dùng đúng lớp
+
+Cái REST THẬT SỰ yêu cầu:
+    thêm stateless, cacheability, uniform interface, layered system,
+    và HATEOAS — phần gần như không ai làm
 ```
 
-Điều đó ổn. Nhưng biết rằng "RESTful" trong hội thoại là một *phong cách*, không phải chuẩn có thể kiểm tra tự động, giúp bạn không tranh luận vô ích về việc một API có "REST thật" hay không.
+Dùng quy ước ở khối trên là **hoàn toàn ổn**, và đó là mặc định của repo này. Điều đáng biết chỉ là: **"REST API" trong hội thoại là tên gọi cho một quy ước, không phải một chuẩn có thể kiểm tra tự động.** Biết vậy để không tranh luận vô ích về việc một API có "REST thật" hay không — câu hỏi đáng hỏi là contract có nhất quán và tài liệu hoá được không.
 
 Các lựa chọn khác — GraphQL, gRPC, tRPC — và khi nào chúng đáng đổi: [08-rpc-graphql-alternatives.md](./08-rpc-graphql-alternatives.md).
 
@@ -278,8 +312,9 @@ Thiết kế đầy đủ và các bẫy: [05-error-model.md](./05-error-model.m
 | `401` và `403` gần như nhau | `401` = chưa biết anh là ai; `403` = biết rồi, không được phép | client cho đăng nhập lại vô ích, hoặc loop redirect |
 | Lỗi validate thì trả `500` | `4xx` là lỗi bên gọi | alert 5xx nhiễu, không ai còn để ý |
 | Dùng `200` kèm `{success:false}` | status code là phần contract mà proxy, CDN, monitoring đều đọc | lỗi không xuất hiện ở bất kỳ dashboard nào |
-| `404` luôn an toàn hơn `403` | đúng — vì `403` xác nhận tài nguyên tồn tại | rò rỉ sự tồn tại của dữ liệu người khác |
-| `301` như `302` | `301` bị browser cache **rất lâu** | sai một lần, user bị dính kể cả sau khi sửa |
+| `403` không tiết lộ gì | `403` xác nhận **tài nguyên tồn tại**; với dữ liệu riêng tư của người khác, `404` kín hơn | rò rỉ sự tồn tại của dữ liệu người khác |
+| `301` cache mãi, `302` không cache | `301` cacheable theo mặc định, `302` thì không — nhưng `Cache-Control` mới quyết định thực tế | đặt `301` sai rồi tưởng không sửa được, hoặc tưởng `302` an toàn tuyệt đối |
+| `4xx` không bao giờ cần alert, `5xx` luôn phải page | đây là quy ước vận hành, không phải quy tắc HTTP | bỏ qua spike `401`/`429`; bị page lúc 3h sáng vì `503` của deploy có kế hoạch |
 | `POST` sau `301`/`302` vẫn là `POST` | có thể bị đổi thành `GET` — cần `307`/`308` | request mất body, lỗi khó hiểu |
 | Dùng entity làm DTO cho tiện | client gửi được field nội bộ | mass assignment — client tự set `status: 'paid'` |
 | `res.json(user)` là đủ | mọi field mới trong DB tự động lộ ra | rò rỉ `passwordHash` mà không ai viết code gây ra |

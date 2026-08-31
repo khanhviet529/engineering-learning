@@ -25,7 +25,7 @@ related:
 Code của bạn
    │
    ├─ Dữ liệu ở đâu?     stack (giá trị nhỏ, cố định)  ·  heap (object, array, function)
-   ├─ Ai đang chạy?       call stack — một luồng duy nhất
+   ├─ Ai đang chạy?       call stack — một việc tại một thời điểm trong mỗi luồng
    ├─ Việc chưa xong?     ra ngoài chờ, rồi quay lại qua queue
    └─ Quay lại lúc nào?   microtask trước, macrotask sau
 ```
@@ -77,7 +77,27 @@ let a = 1;  let b = a;             let x = {n:1};  let y = x;
                                      y ──┘
 ```
 
-Vì vậy so sánh object bằng `===` là so sánh **địa chỉ**, không phải nội dung:
+**Cách nói cho đúng:** JavaScript **luôn** copy value — kể cả với object. Chỉ có điều value của một biến object *chính là một reference* tới object đó, nên copy value = copy reference.
+
+```text
+❌ "JavaScript pass by reference với object"
+✅ "JavaScript luôn pass by value; với object, value đó là một reference"
+```
+
+Phân biệt này không phải chuyện chữ nghĩa — nó dự đoán được hành vi:
+
+```js
+function f(o) { o.n = 2; }        // sửa object mà reference trỏ tới → thấy được bên ngoài
+function g(o) { o = { n: 3 }; }   // GÁN LẠI tham số → KHÔNG thấy được bên ngoài
+
+const x = { n: 1 };
+f(x); console.log(x.n);   // 2
+g(x); console.log(x.n);   // 2 — vẫn 2, không phải 3
+```
+
+Nếu JS thật sự là pass-by-reference, `g` sẽ đổi được `x`. Nó không đổi được.
+
+Vì vậy so sánh object bằng `===` là so sánh **identity** (có phải cùng một object không), không phải nội dung:
 
 ```js
 [1, 2] === [1, 2]            // false — hai array khác nhau, nội dung giống
@@ -108,7 +128,11 @@ const deep = structuredClone(o);   // copy SÂU
 
 ### Stack và heap
 
-Hai vùng bộ nhớ, khác nhau ở việc ai dọn và bao giờ.
+> **Đây là mental model về implementation, không phải quy định của ngôn ngữ.** ECMAScript **không** nói primitive "nằm ở stack" hay object "nằm ở heap" — spec chỉ định nghĩa *ngữ nghĩa*. Engine thật (V8) làm phức tạp hơn nhiều: nó có thể giữ object hoàn toàn trong register, hoặc "escape analysis" rồi cấp phát trên stack, hoặc dùng nhiều generation khác nhau trong heap.
+>
+> Sơ đồ dưới đây vẫn đáng học, vì nó giúp hình dung đúng hai thứ **có** được ngôn ngữ đảm bảo: **identity của object** và **lifetime** (khi nào dữ liệu còn sống). Đừng dùng nó để suy luận về hiệu năng hay layout bộ nhớ thật.
+
+Hai vùng bộ nhớ, khác nhau ở việc ai dọn và bao giờ:
 
 ```text
 STACK                                  HEAP
@@ -120,6 +144,8 @@ primitive + tham chiếu                 object, array, function, closure
 │ x = ref ─────┼──────────────────────▶│                 │
 └──────────────┘                       └─────────────────┘
 ```
+
+Phần **thật sự là behavior của ngôn ngữ** — và là phần đáng thuộc — nằm ở mục trước: primitive có *value semantics*, object có *reference/identity semantics*. Đó là điều không đổi bất kể engine cấp phát ở đâu.
 
 **Call stack** là chồng các lời gọi hàm đang chạy dở:
 
@@ -159,7 +185,9 @@ readFile('a.txt', (err, data) => {    // async: đăng ký "xong thì gọi tôi
 console.log('sau');                   // in TRƯỚC "trong callback"
 ```
 
-Điều phải hiểu đúng: **JavaScript chạy code của bạn trên một luồng duy nhất.** Không có hai dòng code JS của bạn chạy cùng lúc.
+Điều phải hiểu đúng: **trong một luồng JS, code của bạn chạy tuần tự** — không có hai dòng code JS trong cùng luồng chạy cùng lúc.
+
+*Qualifier:* runtime **có** nhiều luồng, và bạn tạo thêm được (Web Worker trong browser, `worker_threads` trong Node). Nhưng mỗi luồng có bộ nhớ JS riêng biệt và chỉ nói chuyện qua message hoặc `SharedArrayBuffer` — không phải shared-memory tuỳ ý như thread trong Java hay Go. Vì vậy trong *một* luồng, mô hình "một việc tại một thời điểm" là đúng, và đó là mô hình chi phối gần như toàn bộ code bạn viết.
 
 Vậy async lấy đâu ra "song song"? Việc chờ được giao cho **bên ngoài** — kernel của OS, hoặc thread pool của runtime. Trong lúc chờ, luồng JS rảnh và chạy việc khác.
 
@@ -168,7 +196,18 @@ Luồng JS:   [code] ─── rảnh, chạy việc khác ─── [callback]
 Bên ngoài:         └─── đọc file / gọi mạng ────┘
 ```
 
-Vì vậy: **async không có nghĩa là nhanh hơn. Nó có nghĩa là không chặn.**
+Từ đó ra hai câu cần phân biệt rõ:
+
+```text
+concurrency (đồng thời)  nhiều việc CÙNG TIẾN TRIỂN, xen kẽ nhau
+                         → một luồng JS làm được
+parallelism (song song)  nhiều việc chạy CÙNG MỘT LÚC trên nhiều core
+                         → cần nhiều luồng/process
+
+async ⇒ concurrency.  async ⇏ parallelism.
+```
+
+Vì vậy: **async không có nghĩa là nhanh hơn. Nó có nghĩa là không chặn.** Bọc một vòng `for` nặng vào `async` không làm nó nhanh hơn một phần nghìn giây — nó vẫn chiếm luồng. Việc CPU cần `worker_threads`, không cần `async`.
 
 **Blocking** là làm ngược lại: chiếm luồng JS bằng công việc CPU. Vòng `for` 10 triệu lần chặn tuyệt đối — không có async nào cứu được, vì nó dùng đúng cái luồng mà mọi thứ khác cần.
 
@@ -207,17 +246,46 @@ console.log(p);       // Promise { <pending> }  ← object, không phải dữ l
 p.then(res => ...);   // "khi fulfilled thì làm cái này"
 ```
 
-Ba điểm hay hiểu sai:
+Điều quan trọng nhất, và cũng là chỗ dễ hiểu sai nhất:
 
-**Promise đã chạy rồi.** Tạo Promise là bắt đầu việc luôn — không phải chờ tới lúc `await`. Đây là khác biệt với `async` của một số ngôn ngữ khác.
+> **Promise không phải một task, một thread, hay một "việc đang chạy".** Nó là một object *đại diện cho* kết quả tương lai của một việc — không phải bản thân việc đó.
+
+Vậy việc bắt đầu từ đâu? Từ **cái tạo ra Promise**, không phải từ Promise:
+
+| Bạn viết | Ai bắt đầu việc, và khi nào |
+|---|---|
+| `new Promise(executor)` | `executor` được gọi **đồng bộ, ngay lập tức** khi `new Promise` chạy |
+| `fetch(url)` | `fetch` gửi request khi **`fetch` được gọi**, rồi trả về một Promise |
+| `p.then(fn)` | đăng ký `fn` để gọi sau; không bắt đầu gì mới |
+| `await p` | **không** bắt đầu `p`; chỉ chờ và mở gói kết quả |
+
+Hệ quả thực tế của bảng trên:
 
 ```js
-const p = fetch('/api/slow');   // request ĐÃ gửi ở đây
+const p = fetch('/api/slow');   // request đã được GỬI ở dòng này,
+                                // vì fetch() đã được gọi — không phải vì Promise tồn tại
 await doSomethingElse();
 const r = await p;              // chỉ chờ kết quả, không gửi lại
 ```
 
-**`await` không chặn luồng.** Nó chỉ tạm dừng *hàm async đang chạy*, và trả luồng lại cho việc khác.
+Và ngược lại — Promise không tự làm gì cả:
+
+```js
+const p = new Promise(() => {});   // executor rỗng: không ai resolve
+await p;                           // treo vĩnh viễn. Promise không "chạy" được gì
+```
+
+Cách nói cho đúng:
+
+```text
+❌ "Promise đã chạy rồi"
+✅ "Operation đã bắt đầu khi hàm tạo ra Promise được gọi.
+    Promise chỉ là tay nắm để lấy kết quả."
+```
+
+Hai điểm còn lại:
+
+**`await` không chặn luồng.** Nó chỉ tạm dừng *hàm async đang chạy* tại điểm đó, và trả luồng lại cho việc khác.
 
 **`async function` luôn trả về Promise**, kể cả khi bạn `return 1`.
 
@@ -245,7 +313,19 @@ Dọn HẾT microtask lại
 lặp
 ```
 
-Quy tắc: **microtask luôn chạy trước macrotask**, và microtask được dọn *sạch* trước khi lấy macrotask tiếp theo.
+Quy tắc, phát biểu cho đúng: **sau khi task hiện tại chạy xong và call stack rỗng, toàn bộ microtask queue được dọn sạch trước khi runtime lấy task tiếp theo.**
+
+Đó không phải "microtask ưu tiên hơn ở mọi thời điểm" — một microtask không cắt ngang code đồng bộ đang chạy. Nó chờ đúng một điểm: khi stack rỗng.
+
+```text
+[ code đồng bộ đang chạy ]  ← microtask KHÔNG chen vào đây
+        ↓ stack rỗng
+[ dọn hết microtask queue ]
+        ↓
+[ một macrotask ]
+```
+
+Chi tiết nữa: cơ chế này do **runtime** định nghĩa (HTML spec cho browser, libuv+V8 cho Node), không phải do ECMAScript. Thứ tự giữa các loại macrotask khác nhau (`setTimeout` vs I/O vs `setImmediate` của Node) **khác nhau giữa Node và browser**, nên đừng dựa vào nó trong code thật.
 
 ```js
 console.log('1');
@@ -275,14 +355,19 @@ Closure là cái *cho phép* callback dùng biến bên ngoài. Nó cũng là c�
 
 | Hiểu sai | Thực tế | Hậu quả |
 |---|---|---|
-| `y = x` copy object | copy tham chiếu | sửa `y` làm `x` đổi theo, bug "dữ liệu tự đổi" |
-| `[1,2] === [1,2]` là `true` | so sánh reference, không phải nội dung | so sánh sai, React re-render sai |
+| `y = x` copy object | copy value, mà value đó là một reference | sửa `y` làm `x` đổi theo, bug "dữ liệu tự đổi" |
+| JS có pass-by-reference | JS luôn pass-by-value; với object, value là reference | tưởng gán lại tham số trong hàm đổi được biến bên ngoài |
+| Object "nằm ở heap" theo spec JS | ECMAScript không quy định điều đó; engine có thể cấp phát khác | suy luận sai về hiệu năng và bộ nhớ |
+| `[1,2] === [1,2]` là `true` | so sánh identity, không phải nội dung | so sánh sai, React re-render sai |
 | `{...o}` copy toàn bộ | chỉ copy một tầng | mutate tầng trong làm hỏng state gốc |
-| async nghĩa là nhanh hơn | nghĩa là không chặn luồng | tưởng bọc `async` là tối ưu xong |
-| JS chạy nhiều luồng | code JS của bạn chạy trên **một** luồng | vòng `for` nặng làm treo cả server |
+| async nghĩa là nhanh hơn | nghĩa là không chặn luồng; async cho concurrency, **không** cho parallelism | tưởng bọc `async` là tối ưu xong |
+| JS không có luồng nào khác | có Web Worker / `worker_threads`, nhưng bộ nhớ tách biệt | việc CPU nặng làm treo server vì không biết có lối ra |
 | `await` chặn thread | chỉ tạm dừng hàm async đó | tưởng `await` trong loop là an toàn về hiệu năng |
-| Promise chỉ chạy khi `await` | tạo là chạy luôn | tưởng đã tuần tự hoá xong, thực ra vẫn song song |
-| `setTimeout(fn, 0)` chạy ngay | vào macrotask, sau mọi microtask | thứ tự log không như dự đoán |
+| Promise là một task đang chạy | Promise là **tay nắm** cho kết quả; việc do hàm tạo ra nó bắt đầu | `new Promise(()=>{})` rồi `await` → treo mãi mà không hiểu vì sao |
+| `await p` khởi động `p` | `await` chỉ chờ và mở gói | tưởng đã tuần tự hoá, thực ra request đã gửi song song từ trước |
+| `setTimeout(fn, 0)` chạy ngay | vào macrotask, sau khi stack rỗng và microtask đã dọn hết | thứ tự log không như dự đoán |
+| microtask cắt ngang được code đồng bộ | nó chờ tới khi call stack rỗng | tưởng `.then` chạy giữa hai dòng đồng bộ |
+| Thứ tự macrotask giống nhau ở Node và browser | khác nhau (`setImmediate`, thứ tự I/O) | code dựa vào thứ tự → chạy khác nhau hai môi trường |
 | `async function` trả về giá trị | luôn trả Promise | `if (f())` luôn truthy, kể cả khi `return false` |
 | GC dọn mọi thứ không dùng | GC dọn cái không còn **tham chiếu** | listener/Map còn giữ ref → leak |
 | `var` và `let` chỉ khác cú pháp | `var` là function-scope, `let` là block-scope | biến trong `for` bị chia sẻ, closure lấy sai giá trị |
@@ -292,9 +377,10 @@ Closure là cái *cho phép* callback dùng biến bên ngoài. Nó cũng là c�
 1. `let a = {n:1}; let b = a; b.n = 2;` — `a.n` bằng bao nhiêu? Vì sao?
 2. `[1,2] === [1,2]` cho gì? Nếu muốn so sánh nội dung thì làm sao?
 3. `{...o}` copy được mấy tầng? Tầng trong thì sao?
-4. JS chạy code của bạn trên mấy luồng? Vậy `await` "song song" bằng cách nào?
+4. Trong một luồng JS, có hai dòng code chạy cùng lúc không? `async` cho bạn concurrency hay parallelism?
 5. Một Promise có mấy trạng thái? Từ `fulfilled` về `pending` được không?
-6. `const p = fetch(url);` — request đã được gửi chưa, hay chờ tới lúc `await`?
+6. `const p = fetch(url);` — request đã được gửi chưa, hay chờ tới lúc `await`? Cái gì gửi nó: `fetch` hay Promise?
+7. `const p = new Promise(() => {}); await p;` — chuyện gì xảy ra? Vì sao?
 7. Thứ tự in của: `log('1'); setTimeout(()=>log('2'),0); Promise.resolve().then(()=>log('3')); log('4');`
 8. `async function f() { return 1 }` — `f()` trả về gì?
 9. Sự khác nhau giữa `Maximum call stack size exceeded` và `heap out of memory`?

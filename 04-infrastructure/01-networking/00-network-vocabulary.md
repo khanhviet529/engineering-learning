@@ -35,6 +35,8 @@ Máy đích
 
 Bốn dòng giữa là bốn lớp độc lập. Lỗi ở mỗi lớp có triệu chứng khác nhau, và nhầm lớp là lý do phần lớn buổi debug network mất hàng giờ.
 
+*Sơ đồ trên là đường đi của HTTP/1.1 và HTTP/2 — cái bạn gặp trong hầu hết công việc. HTTP/3 dùng QUIC trên UDP và gộp TLS vào handshake của nó; xem mục TCP/UDP bên dưới.*
+
 ## Định nghĩa
 
 ### IP address — địa chỉ của một máy
@@ -50,13 +52,34 @@ Hai loại IP cần phân biệt, vì gần như mọi lỗi "chạy ở local, 
 
 | Loại | Dải | Đi ra Internet được? | Gặp ở đâu |
 |---|---|---|---|
-| **Public** | mọi dải còn lại | có | server thật, `203.0.113.10` |
+| **Public** | địa chỉ **định tuyến được công khai** trên Internet | có | server thật, `203.0.113.10` |
 | **Private** | `10.x`, `172.16–31.x`, `192.168.x` | không — chỉ trong mạng nội bộ | LAN nhà bạn, mạng Docker, mạng K8s |
-| **Loopback** | `127.0.0.1` (tên: `localhost`) | không — **không rời khỏi máy** | dev ở máy mình |
+| **Loopback** | `127.0.0.0/8`, thường dùng `127.0.0.1` (tên: `localhost`) | không — không rời khỏi máy | dev ở máy mình |
 
-`127.0.0.1` không phải "địa chỉ của máy tôi". Nó là "**chính process này, trong máy này**". Trong container, `127.0.0.1` là bản thân container — không phải laptop của bạn, không phải container khác. Đây là nguyên nhân của lỗi kinh điển: app bind `127.0.0.1`, container chạy tốt, nhưng bên ngoài không kết nối được. Xem [05-ports-sockets.md](../00-linux/05-ports-sockets.md).
+Lưu ý ở dòng đầu: **public không phải "mọi dải còn lại"**. Ngoài public và private còn có loopback, link-local (`169.254.x`), multicast, dải dành cho tài liệu (`203.0.113.x` trong note này chính là một dải như vậy) và nhiều dải reserved khác. Bạn không cần học hết — chỉ cần đừng suy luận "không phải private ⇒ public".
 
-`0.0.0.0` khi bind nghĩa là "mọi network interface trên máy này" — đó là cái container cần.
+**`127.0.0.1` là gì, chính xác:** nó là địa chỉ của **loopback interface trong network namespace hiện tại**. Không phải "địa chỉ của máy tôi", cũng không phải "chính process này".
+
+Phân biệt này quan trọng vì:
+
+```text
+Cùng một network namespace  →  mọi process trong đó dùng chung 127.0.0.1
+                               (nhiều process nói chuyện với nhau qua loopback được)
+
+Container                   →  có network namespace RIÊNG
+                               127.0.0.1 trong container = loopback CỦA container
+                               ≠ host, ≠ container khác
+```
+
+Đây là nguyên nhân của lỗi kinh điển: app bind `127.0.0.1`, container chạy tốt bên trong, nhưng bên ngoài không kết nối được. Xem [05-ports-sockets.md](../00-linux/05-ports-sockets.md) và [namespaces](../02-docker/04-namespaces-cgroups.md).
+
+**`0.0.0.0` là gì, chính xác:** khi bind, nó là **wildcard address của IPv4** — "nhận trên các địa chỉ IPv4 phù hợp của namespace này", thay vì chỉ một địa chỉ cụ thể. Đó là cái container cần.
+
+```text
+bind 127.0.0.1  → chỉ loopback của namespace này
+bind 0.0.0.0    → wildcard IPv4
+bind ::         → wildcard IPv6 (nhiều hệ thống mặc định nhận cả IPv4 qua đây)
+```
 
 ### Port — cửa nào trên máy đó
 
@@ -84,7 +107,9 @@ Port mặc định đáng nhớ: `80` HTTP · `443` HTTPS · `22` SSH · `5432` 
 
 **Socket** là *một đầu của một kênh liên lạc*, mà app dùng như một file: ghi vào để gửi, đọc ra để nhận.
 
-Trong hệ điều hành, socket là một **file descriptor** — cùng loại tay nắm mà app dùng để mở file. Đó là lý do quá nhiều kết nối gây lỗi `EMFILE: too many open files`, một lỗi thoạt trông không liên quan gì tới network.
+Trên Linux/macOS, process **thao tác socket thông qua một file descriptor** — cùng loại tay nắm mà app dùng để mở file. (Đây là mô hình của họ Unix; Windows có handle riêng cho socket, cơ chế khác nhưng ý tưởng "một tay nắm cho một đầu kết nối" thì giống.)
+
+Chính vì socket chiếm fd mà quá nhiều kết nối gây lỗi `EMFILE: too many open files` — một lỗi thoạt trông không liên quan gì tới network.
 
 Một kết nối TCP đã thiết lập được xác định **duy nhất** bởi bốn giá trị:
 
@@ -133,13 +158,26 @@ Cả hai đều chuyển packet giữa `IP:port` và `IP:port`. Chúng khác nha
 | Packet mất thì sao? | tự gửi lại | mất luôn, im lặng |
 | Thứ tự | đúng thứ tự đã gửi | có thể lệch |
 | Trả giá | chậm hơn, có state | nhanh, không đảm bảo |
-| Dùng cho | HTTP, database, SSH — **gần như mọi thứ bạn viết** | DNS query, video call, game |
+| Dùng cho | HTTP/1.1, HTTP/2, PostgreSQL, Redis, SSH | HTTP/3 (qua QUIC), DNS query, video call, game |
 
 **TCP** = "đảm bảo tới đủ và đúng thứ tự, hoặc báo lỗi". Đổi lại: phải bắt tay trước (thêm một vòng round-trip), và phải giữ state ở cả hai đầu.
 
 **UDP** = "gửi và không hỏi lại". Đúng khi dữ liệu cũ vô giá trị — trong video call, gửi lại một frame 200ms trước còn tệ hơn là bỏ nó.
 
-Mọi note trong repo này nói về HTTP, PostgreSQL, Redis, gRPC đều đang chạy trên TCP. Behavior chi tiết của handshake, `RST`, `TIME_WAIT`: [02-tcp-udp.md](./02-tcp-udp.md).
+**Cái không đúng: "mọi thứ chạy trên TCP".** Đây là chỗ dễ hình thành mental model sai nhất:
+
+| Protocol | Chạy trên |
+|---|---|
+| HTTP/1.1 | TCP |
+| HTTP/2 | TCP |
+| **HTTP/3** | **QUIC, mà QUIC chạy trên UDP** |
+| gRPC (mặc định) | HTTP/2 → TCP |
+| PostgreSQL, MySQL, Redis, SSH | TCP |
+| DNS | thường UDP, nhưng cũng TCP — xem mục DNS bên dưới |
+
+QUIC không phải "UDP thô": nó tự làm lại reliability, ordering và mã hoá ở tầng trên UDP, vì vậy HTTP/3 vẫn có đảm bảo giống HTTP/2 dù nền là UDP. Repo này chưa dạy QUIC sâu — với mục đích debug hằng ngày, biết rằng **HTTP/3 không dùng TCP** là đủ, vì nó thay đổi cái bạn nhìn thấy trong `tcpdump` và trong cấu hình firewall.
+
+Behavior chi tiết của TCP handshake, `RST`, `TIME_WAIT`: [02-tcp-udp.md](./02-tcp-udp.md).
 
 ### DNS — sổ danh bạ từ tên sang IP
 
@@ -163,7 +201,11 @@ Từ vựng tối thiểu:
 
 TTL là từ quan trọng nhất trong bảng trên. Câu trả lời DNS được cache ở nhiều tầng: process của bạn, OS, resolver của ISP. Vì vậy **đổi DNS không có hiệu lực ngay** — traffic tiếp tục đi tới IP cũ cho tới khi TTL hết ở từng tầng cache. Toàn bộ hậu quả vận hành: [01-ip-port-dns.md](./01-ip-port-dns.md).
 
-Quan trọng: DNS chỉ trả về **IP**. Nó không biết port, không biết path, không kiểm tra máy đó còn sống. Phân giải DNS thành công không nói gì về việc server có chạy hay không.
+**DNS không phải "chỉ UDP".** Query nhỏ thường đi bằng UDP vì rẻ hơn (không bắt tay), nhưng khi response quá lớn hoặc bị cắt (`TC` flag), client **chuyển sang TCP** và hỏi lại. Ngoài ra DNS hiện đại có thể chạy mã hoá qua TLS (DoT) hoặc HTTPS (DoH). Bạn không cần đi sâu — chỉ cần đừng chặn TCP/53 trên firewall vì tưởng DNS chỉ dùng UDP.
+
+Quan trọng: bản ghi `A`/`AAAA` chỉ trả về **IP**. Nó không biết port, không biết path, không kiểm tra máy đó còn sống. Phân giải DNS thành công không nói gì về việc server có chạy hay không.
+
+(Ngoại lệ đáng biết nhưng ít gặp trong app web: bản ghi `SRV` *có* chứa port. Hầu hết hệ thống bạn gặp không dùng nó.)
 
 ### TLS và certificate — mã hoá và danh tính
 
@@ -172,13 +214,20 @@ Quan trọng: DNS chỉ trả về **IP**. Nó không biết port, không biết
 1. **Mã hoá** — người đứng giữa thấy byte, không đọc được nội dung.
 2. **Xác thực server** — chứng minh bạn đang nói với `shop.com` thật, không phải kẻ giả mạo.
 
-**HTTPS** chính là HTTP chạy bên trong một kết nối được TLS bảo vệ. Không có protocol nào tên HTTPS ở tầng riêng.
+**HTTPS** không phải một protocol riêng ở tầng riêng — nó là HTTP được truyền trong một kênh mà TLS đã bảo vệ.
 
 ```text
+Với HTTP/1.1 và HTTP/2:
 TCP kết nối         ─────▶  đường ống đã mở
 TLS handshake       ─────▶  thoả thuận mã hoá + kiểm tra certificate
 HTTP request        ─────▶  giờ mới gửi được dữ liệu
+
+Với HTTP/3:
+QUIC (trên UDP) đã TÍCH HỢP TLS 1.3 vào handshake của chính nó
+⇒ không có hai bước TCP-rồi-TLS tách rời như trên
 ```
+
+Sơ đồ ba tầng ở trên là mô hình của HTTP/1.1 và HTTP/2 — đó là cái bạn gặp trong hầu hết công việc, và là cái giải thích được các lỗi certificate bên dưới. Với HTTP/3 thì thứ tự khác, nhưng ba phép kiểm tra certificate vẫn giống.
 
 **Certificate** là một file mà server xuất trình, nói: "tôi là `shop.com`, và đây là public key của tôi". Nó chỉ có giá trị nhờ chữ ký của một **CA** (Certificate Authority) mà máy bạn đã tin sẵn.
 
@@ -208,13 +257,18 @@ Nginx, Cloudflare, ALB đều là reverse proxy — và thường kiêm luôn lo
 
 | Hiểu sai | Thực tế | Hậu quả |
 |---|---|---|
-| `127.0.0.1` = "máy tôi" | = "chính process/container này", không rời khỏi nó | app bind `127.0.0.1` trong container → bên ngoài không kết nối được |
-| Bind `0.0.0.0` giống `127.0.0.1` | `0.0.0.0` = mọi interface; `127.0.0.1` = chỉ loopback | container không nhận traffic, mất hàng giờ debug |
-| DNS phân giải được nghĩa là server sống | DNS chỉ trả IP, không kiểm tra gì | `ping` OK nhưng app vẫn `ECONNREFUSED` |
+| `127.0.0.1` = "máy tôi" | = loopback interface của **network namespace hiện tại** | app bind `127.0.0.1` trong container → bên ngoài không kết nối được |
+| `127.0.0.1` = "chính process này" | mọi process **cùng namespace** đều dùng được nó | tưởng hai process không nói chuyện qua loopback được |
+| Bind `0.0.0.0` = mọi interface, mọi trường hợp | là **wildcard IPv4**; IPv6 là `::` | app "không nghe" trên IPv6, hoặc ngược lại |
+| Public IP = mọi IP không phải private | còn loopback, link-local, multicast, documentation, reserved | suy luận sai về địa chỉ, cấu hình firewall sai |
+| Mọi thứ chạy trên TCP | HTTP/3 chạy trên QUIC/UDP | chặn UDP rồi không hiểu vì sao HTTP/3 không hoạt động |
+| DNS chỉ dùng UDP | response lớn/bị cắt thì dùng TCP; còn DoT/DoH | chặn TCP/53, DNS hỏng với một số truy vấn |
+| DNS phân giải được nghĩa là server sống | bản ghi `A` chỉ trả IP, không kiểm tra gì | `ping` OK nhưng app vẫn `ECONNREFUSED` |
 | Đổi DNS có hiệu lực ngay | bị cache theo TTL ở nhiều tầng | traffic vẫn tới IP cũ hàng giờ sau khi cutover |
 | Server "hết port" khi nhiều client | mỗi kết nối là một bộ bốn khác nhau; server dùng 1 port | tăng port vô ích, không sửa đúng nguyên nhân |
 | DNS record có chứa port | DNS chỉ có IP | tưởng đổi DNS là đổi được port |
-| HTTPS là protocol riêng | HTTPS = HTTP trong ống TLS | không hiểu vì sao lỗi cert xảy ra khi server chưa thấy request |
+| HTTPS là protocol riêng ở tầng riêng | HTTP được truyền trong kênh TLS đã bảo vệ | không hiểu vì sao lỗi cert xảy ra khi server chưa thấy request |
+| TLS luôn là một bước riêng sau TCP | đúng với HTTP/1.1 và HTTP/2; HTTP/3 gộp TLS 1.3 vào handshake QUIC | đọc sai capture của HTTP/3 |
 | Cert hỏng thì server sẽ log lỗi | TLS chết trước HTTP; server không thấy gì | tìm bug trong log app, nơi không thể có dấu vết |
 | TCP đảm bảo tin nhắn "nguyên khối" | TCP là **stream byte**, không có biên tin nhắn | tự viết protocol trên TCP mà không framing → dữ liệu dính nhau |
 | UDP luôn nhanh hơn nên tốt hơn | UDP mất packet trong im lặng | mất dữ liệu không có triệu chứng |
@@ -224,15 +278,19 @@ Dòng "TCP là stream byte" đáng nhắc lại: TCP đảm bảo **thứ tự b
 ## Kiểm tra bản thân
 
 1. `IP` trả lời câu hỏi gì, `port` trả lời câu hỏi gì?
-2. Bind `127.0.0.1` khác bind `0.0.0.0` thế nào? Cái nào đúng trong container?
-3. Bốn giá trị nào xác định duy nhất một kết nối TCP?
-4. Vì sao server ở port 443 phục vụ được 10.000 client mà không hết port?
-5. TCP đảm bảo gì mà UDP không? Đổi lại phải trả giá gì?
-6. Bạn sửa DNS record trỏ sang IP mới. Traffic đi ngay không? Từ nào quyết định?
-7. Certificate hết hạn — server có nhận được HTTP request của bạn không? Log server có gì?
-8. `nslookup api.shop.com` trả về IP đúng nhưng app báo `ECONNREFUSED`. Ba lớp: DNS, TCP, app — lớp nào đã đúng, lớp nào đang sai?
+2. `127.0.0.1` thuộc phạm vi nào — một máy, một process, hay một network namespace?
+3. Bind `127.0.0.1` khác bind `0.0.0.0` thế nào? Cái nào đúng trong container? `0.0.0.0` có bao gồm IPv6 không?
+4. "Không phải private thì là public" — sai ở đâu?
+5. Bốn giá trị nào xác định duy nhất một kết nối TCP?
+6. Vì sao server ở port 443 phục vụ được 10.000 client mà không hết port?
+7. TCP đảm bảo gì mà UDP không? Đổi lại phải trả giá gì?
+8. HTTP/3 chạy trên TCP hay UDP? Điều đó đổi gì khi bạn cấu hình firewall?
+9. DNS có bao giờ dùng TCP không? Khi nào?
+10. Bạn sửa DNS record trỏ sang IP mới. Traffic đi ngay không? Từ nào quyết định?
+11. Certificate hết hạn — server có nhận được HTTP request của bạn không? Log server có gì?
+12. `nslookup api.shop.com` trả về IP đúng nhưng app báo `ECONNREFUSED`. Ba lớp: DNS, TCP, app — lớp nào đã đúng, lớp nào đang sai?
 
-Câu 8 là hình dạng của mọi buổi debug network: xác định **lớp nào đã đúng** trước khi đoán nguyên nhân.
+Câu 12 là hình dạng của mọi buổi debug network: xác định **lớp nào đã đúng** trước khi đoán nguyên nhân.
 
 ## Đọc gì tiếp
 

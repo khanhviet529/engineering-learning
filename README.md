@@ -198,3 +198,4 @@ Trade-off của giải pháp này là gì?
 | [00-roadmap/glossary.md](./00-roadmap/glossary.md) | Muốn tra nghĩa một từ lẻ |
 | [00-roadmap/foundation-gap-audit.md](./00-roadmap/foundation-gap-audit.md) | Muốn biết note nào giả định bạn đã biết gì |
 | [00-roadmap/foundation-coverage-report.md](./00-roadmap/foundation-coverage-report.md) | Muốn biết lớp foundation gồm những gì |
+| [00-roadmap/foundation-accuracy-report.md](./00-roadmap/foundation-accuracy-report.md) | Muốn biết chỗ nào cố tình đơn giản hoá, và đơn giản hoá tới đâu |

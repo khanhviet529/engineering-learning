@@ -24,8 +24,8 @@ Nếu bạn không tra một từ lẻ mà muốn **học từ đầu một vùn
 | ACID | bốn đảm bảo của transaction | [SQL basics](../03-database/00-sql/00-sql-basics.md) |
 | ack | consumer báo "đã xử lý xong", queue mới xoá job | [Delivery semantics](../03-database/04-message-queues/02-delivery-semantics.md) |
 | aggregation pipeline | chuỗi stage biến đổi document trong MongoDB | [Aggregation](../03-database/06-mongodb/05-aggregation-pipeline.md) |
-| async | bắt đầu việc rồi đi tiếp, không chặn luồng | [Từ vựng JS](../01-web-frontend/01-javascript-typescript/fundamentals/00-js-vocabulary.md) |
-| authentication | "anh là ai?" → `401` | [Authn & authz](../02-backend-api/03-auth/01-authentication-authorization.md) |
+| async | bắt đầu việc rồi đi tiếp, không chặn luồng — cho concurrency, **không** phải parallelism | [Từ vựng JS](../01-web-frontend/01-javascript-typescript/fundamentals/00-js-vocabulary.md) |
+| authentication | "anh là ai?" → `401` (tên spec là *Unauthorized*, nhưng nghĩa là *cần xác thực*) | [Authn & authz](../02-backend-api/03-auth/01-authentication-authorization.md) |
 | authorization | "anh được làm gì?" → `403` | [Authn & authz](../02-backend-api/03-auth/01-authentication-authorization.md) |
 | autoscaling | tự tăng giảm số instance theo tải | [Autoscaling](../04-infrastructure/04-kubernetes/scheduling-reliability/03-autoscaling.md) |
 
@@ -61,10 +61,11 @@ Nếu bạn không tra một từ lẻ mà muốn **học từ đầu một vùn
 | component | function trả về mô tả UI | [Components & rendering model](../01-web-frontend/02-react/fundamentals/01-components-and-rendering-model.md) |
 | connection pool | tập kết nối DB dùng lại, có giới hạn | [Connection pool](../03-database/01-postgresql/fundamentals/02-connection-pool.md) |
 | consumer | process lấy job ra khỏi queue và làm | [Vì sao cần queue](../03-database/04-message-queues/01-why-queue.md) |
+| container | process (hoặc nhóm process) chạy với namespace + cgroup riêng — **không** phải máy ảo | [Image & container](../04-infrastructure/02-docker/01-image-container.md) |
 | contract | lời hứa của API: nhận gì, trả gì, lỗi ra sao | [Từ vựng API](../02-backend-api/00-http-api/00-api-vocabulary.md) |
 | context (React) | cách truyền dữ liệu xuống sâu không qua props | [Hooks advanced](../01-web-frontend/02-react/fundamentals/03-hooks-advanced-map.md) |
 | context window | số token mô hình "thấy" trong một lần sinh | [Context engineering](../09-ai-assisted-development/02-context-engineering.md) |
-| cookie | chuỗi browser tự động gắn vào request theo domain | [Cookies & storage](../01-web-frontend/00-web-foundations/05-cookies-storage.md) |
+| cookie | browser tự gắn vào request theo **domain + path** (không tính port), lọc thêm bởi `SameSite`/`Secure` | [Cookies & storage](../01-web-frontend/00-web-foundations/05-cookies-storage.md) |
 | CORS | quy tắc browser dùng để chặn JS đọc response khác origin | [CORS](../01-web-frontend/00-web-foundations/06-cors.md) |
 | correlation ID | id nối các log của cùng một request | [Correlation & tracing](../05-cross-cutting/observability/03-correlation-tracing.md) |
 | CSP | header giới hạn nguồn script browser được chạy | [CSP & browser security](../01-web-frontend/00-web-foundations/07-csp-browser-security.md) |
@@ -81,7 +82,7 @@ Nếu bạn không tra một từ lẻ mà muốn **học từ đầu một vùn
 | desired state | trạng thái bạn khai báo; K8s liên tục kéo về đó | [Vì sao cần Kubernetes](../04-infrastructure/04-kubernetes/fundamentals/01-why-kubernetes.md) |
 | DI | ai đó bên ngoài quyết định dependency là object nào | [DI & provider](../02-backend-api/02-nestjs/fundamentals/02-di-providers.md) |
 | DLQ | nơi chứa job thất bại hết số lần retry | [Retry & DLQ](../03-database/04-message-queues/03-retry-dlq.md) |
-| DNS | dịch tên thành IP | [Từ vựng Network](../04-infrastructure/01-networking/00-network-vocabulary.md) |
+| DNS | tra tên miền ra dữ liệu — `A`/`AAAA` cho IP, và nhiều loại record khác | [Từ vựng Network](../04-infrastructure/01-networking/00-network-vocabulary.md) |
 | document | bản ghi dạng JSON/BSON trong MongoDB | [Document model](../03-database/06-mongodb/01-document-model.md) |
 | DOM | cây object browser tạo từ HTML | [Rendering pipeline](../01-web-frontend/00-web-foundations/04-rendering-pipeline.md) |
 | domain | tên bạn đăng ký, ví dụ `shop.com` | [Từ vựng Web](../01-web-frontend/00-web-foundations/00-web-vocabulary.md) |
@@ -121,11 +122,11 @@ Nếu bạn không tra một từ lẻ mà muốn **học từ đầu một vùn
 | hallucination | AI nói ra thứ nghe đúng nhưng không tồn tại | [Hallucination & verification](../09-ai-assisted-development/04-hallucination-verification.md) |
 | hash | biến đổi một chiều, không đảo được — khác encrypt | [Security basics](../05-cross-cutting/security/01-security-basics.md) |
 | header | metadata của HTTP message, dạng `Tên: giá trị` | [Từ vựng Web](../01-web-frontend/00-web-foundations/00-web-vocabulary.md) |
-| heap | vùng bộ nhớ chứa object, do GC dọn | [Từ vựng JS](../01-web-frontend/01-javascript-typescript/fundamentals/00-js-vocabulary.md) |
+| heap | mental model implementation cho vùng object do GC dọn — không phải quy định của ECMAScript | [Từ vựng JS](../01-web-frontend/01-javascript-typescript/fundamentals/00-js-vocabulary.md) |
 | hit ratio | `hits / (hits + misses)` — cache có tác dụng không | [Cache patterns](../03-database/02-redis/03-cache-patterns.md) |
 | hoisting | khai báo được xử lý trước khi code chạy | [Từ vựng JS](../01-web-frontend/01-javascript-typescript/fundamentals/00-js-vocabulary.md) |
 | host | hostname, kèm port nếu khác mặc định | [Từ vựng Web](../01-web-frontend/00-web-foundations/00-web-vocabulary.md) |
-| HTTP | quy ước về hình dạng câu hỏi và câu trả lời | [Từ vựng Web](../01-web-frontend/00-web-foundations/00-web-vocabulary.md) |
+| HTTP | quy ước về hình dạng câu hỏi và câu trả lời; wire format khác nhau giữa 1.1 / 2 / 3 | [Từ vựng Web](../01-web-frontend/00-web-foundations/00-web-vocabulary.md) |
 | hydration | React gắn event handler vào HTML server đã render | [Server/client boundary](../01-web-frontend/03-nextjs/behavior/01-server-client-boundary.md) |
 
 ## I–J
@@ -140,7 +141,7 @@ Nếu bạn không tra một từ lẻ mà muốn **học từ đầu một vùn
 | jitter | thêm ngẫu nhiên vào backoff để retry không dồn cục | [Timeout, retry, circuit breaker](../05-cross-cutting/reliability/02-timeout-retry-circuit-breaker.md) |
 | job | một đơn vị việc trong queue | [Vì sao cần queue](../03-database/04-message-queues/01-why-queue.md) |
 | JSX | cú pháp mô tả UI, biên dịch thành lời gọi function | [Components & rendering model](../01-web-frontend/02-react/fundamentals/01-components-and-rendering-model.md) |
-| JWT | token tự chứa thông tin, có chữ ký, **không** mã hoá | [Session vs token](../02-backend-api/03-auth/02-session-vs-token.md) |
+| JWT | token tự chứa dữ liệu; dạng phổ biến (JWS) **có chữ ký nhưng không mã hoá** payload | [Session vs token](../02-backend-api/03-auth/02-session-vs-token.md) |
 
 ## K–M
 
@@ -152,10 +153,10 @@ Nếu bạn không tra một từ lẻ mà muốn **học từ đầu một vùn
 | load balancer | chia request cho nhiều instance | [Reverse proxy & LB](../04-infrastructure/01-networking/05-reverse-proxy-load-balancer.md) |
 | localStorage | lưu trữ theo origin, JS đọc được — nên XSS đọc được | [Cookies & storage](../01-web-frontend/00-web-foundations/05-cookies-storage.md) |
 | lock | cơ chế cho một transaction giữ quyền trên dòng | [Locking & deadlock](../03-database/01-postgresql/transactions-concurrency/03-locking-deadlock.md) |
-| macrotask | `setTimeout`, I/O — chạy **sau** mọi microtask | [Từ vựng JS](../01-web-frontend/01-javascript-typescript/fundamentals/00-js-vocabulary.md) |
+| macrotask | `setTimeout`, I/O — runtime chỉ lấy task tiếp theo sau khi microtask queue đã dọn hết | [Từ vựng JS](../01-web-frontend/01-javascript-typescript/fundamentals/00-js-vocabulary.md) |
 | magic bytes | vài byte đầu file — bằng chứng thật về định dạng | [Upload & download](../02-backend-api/00-http-api/09-file-upload-download.md) |
 | metric | số đo tổng hợp theo thời gian | [Logs, metrics, traces](../05-cross-cutting/observability/01-logs-metrics-traces.md) |
-| microtask | `.then`, `await` — chạy **trước** macrotask | [Từ vựng JS](../01-web-frontend/01-javascript-typescript/fundamentals/00-js-vocabulary.md) |
+| microtask | `.then`, `await` — dọn hết khi call stack rỗng, trước macrotask kế tiếp | [Từ vựng JS](../01-web-frontend/01-javascript-typescript/fundamentals/00-js-vocabulary.md) |
 | middleware | code chạy trước handler trên đường đi của request | [Building blocks](../02-backend-api/02-nestjs/fundamentals/01-building-blocks.md) |
 | migration | file mô tả thay đổi schema, chạy theo thứ tự | [Prisma migrations](../03-database/05-data-access/05-prisma-migrations-production.md) |
 | mock / stub / fake / spy | bốn loại test double, không thay được cho nhau | [Mocking & test doubles](../05-cross-cutting/testing/04-mocking-test-doubles.md) |
@@ -170,6 +171,7 @@ Nếu bạn không tra một từ lẻ mà muốn **học từ đầu một vùn
 | N+1 | 1 query lấy danh sách + N query lấy chi tiết | [Prisma relations & N+1](../03-database/05-data-access/03-prisma-relations-and-n-plus-1.md) |
 | namespace (Linux) | kernel cho process thấy một "thế giới" riêng | [Namespaces & cgroups](../04-infrastructure/02-docker/04-namespaces-cgroups.md) |
 | NAT | đổi IP nguồn khi packet ra khỏi mạng nội bộ | [NAT, firewall, routing](../04-infrastructure/01-networking/04-nat-firewall-routing.md) |
+| NoSQL | nhóm tên gọi cho các database không theo mô hình quan hệ — **không** phải "không có schema" | [PostgreSQL vs MongoDB](../03-database/06-mongodb/08-postgresql-vs-mongodb.md) |
 | normalization | tách dữ liệu để không lặp lại | [Normalization](../03-database/03-data-modeling/02-normalization.md) |
 | ObjectId | id 12 byte MongoDB sinh, chứa timestamp | [Document model](../03-database/06-mongodb/01-document-model.md) |
 | observability | trả lời câu hỏi bạn **chưa** biết trước | [Logs, metrics, traces](../05-cross-cutting/observability/01-logs-metrics-traces.md) |
@@ -194,7 +196,7 @@ Nếu bạn không tra một từ lẻ mà muốn **học từ đầu một vùn
 | probe | K8s hỏi container còn sống / sẵn sàng nhận traffic chưa | [Health, readiness, liveness](../04-infrastructure/04-kubernetes/scheduling-reliability/01-health-readiness-liveness.md) |
 | process | một chương trình đang chạy, có PID riêng | [Process, file, env](../04-infrastructure/00-linux/01-process-files-env.md) |
 | producer | code đẩy job vào queue | [Vì sao cần queue](../03-database/04-message-queues/01-why-queue.md) |
-| Promise | object đại diện kết quả chưa có, ba trạng thái | [Từ vựng JS](../01-web-frontend/01-javascript-typescript/fundamentals/00-js-vocabulary.md) |
+| Promise | object đại diện kết quả tương lai, ba trạng thái — **không** phải task/thread đang chạy | [Từ vựng JS](../01-web-frontend/01-javascript-typescript/fundamentals/00-js-vocabulary.md) |
 | props | dữ liệu component nhận từ bên ngoài | [Components & rendering model](../01-web-frontend/02-react/fundamentals/01-components-and-rendering-model.md) |
 | provider (Nest) | thứ DI container biết cách tạo và tiêm | [DI & provider](../02-backend-api/02-nestjs/fundamentals/02-di-providers.md) |
 | proxy | máy đứng giữa, đại diện cho **client** | [Từ vựng Network](../04-infrastructure/01-networking/00-network-vocabulary.md) |
@@ -225,12 +227,12 @@ Nếu bạn không tra một từ lẻ mà muốn **học từ đầu một vùn
 | shard | chia dữ liệu ra nhiều máy theo khoá | [Operations](../03-database/06-mongodb/07-operations-production.md) |
 | signal | thông báo OS gửi cho process: `SIGTERM`, `SIGKILL` | [Signals & lifecycle](../04-infrastructure/00-linux/04-signals-lifecycle.md) |
 | SLO / SLI / SLA | mục tiêu / chỉ số / cam kết về mức phục vụ | [Metrics & SLO](../05-cross-cutting/observability/04-metrics-slo.md) |
-| socket | một đầu của một kết nối; là một file descriptor | [Từ vựng Network](../04-infrastructure/01-networking/00-network-vocabulary.md) |
+| socket | một đầu của một kết nối; trên Unix process thao tác nó qua file descriptor | [Từ vựng Network](../04-infrastructure/01-networking/00-network-vocabulary.md) |
 | soft delete | đánh dấu đã xoá thay vì `DELETE` thật | [Soft delete & audit](../03-database/03-data-modeling/05-soft-delete-audit-patterns.md) |
 | SPF / DKIM / DMARC | ba bản ghi DNS chứng minh bạn được gửi email cho domain | [Gửi email](../02-backend-api/05-integrations/01-sending-email.md) |
 | SQL injection | dữ liệu người dùng biến thành câu lệnh SQL | [Injection](../05-cross-cutting/security/02-injection.md) |
 | SSRF | server bị dụ gọi tới địa chỉ nội bộ | [SSRF & supply chain](../05-cross-cutting/security/05-ssrf-supply-chain.md) |
-| stack (bộ nhớ) | vùng chứa giá trị nhỏ, dọn tự động | [Từ vựng JS](../01-web-frontend/01-javascript-typescript/fundamentals/00-js-vocabulary.md) |
+| stack (bộ nhớ) | mental model implementation cho giá trị nhỏ dọn tự động — không phải quy định của ECMAScript | [Từ vựng JS](../01-web-frontend/01-javascript-typescript/fundamentals/00-js-vocabulary.md) |
 | stateless | server không giữ ký ức về request trước | [Từ vựng API](../02-backend-api/00-http-api/00-api-vocabulary.md) |
 | status code | ba chữ số nói kết quả của request | [Từ vựng API](../02-backend-api/00-http-api/00-api-vocabulary.md) |
 | stream | dữ liệu xử lý dần, không nạp hết vào bộ nhớ | [Streams](../02-backend-api/01-nodejs/runtime-io/01-streams-buffers.md) |
@@ -240,8 +242,9 @@ Nếu bạn không tra một từ lẻ mà muốn **học từ đầu một vùn
 
 | Từ | Nhắc một câu | Định nghĩa ở |
 |---|---|---|
-| TCP | đảm bảo tới đủ và đúng thứ tự, hoặc báo lỗi | [Từ vựng Network](../04-infrastructure/01-networking/00-network-vocabulary.md) |
+| TCP | đảm bảo tới đủ và đúng thứ tự, hoặc báo lỗi (HTTP/1.1 và HTTP/2 dùng nó; HTTP/3 thì không) | [Từ vựng Network](../04-infrastructure/01-networking/00-network-vocabulary.md) |
 | TDZ | khoảng trước dòng `let` — truy cập thì lỗi | [Từ vựng JS](../01-web-frontend/01-javascript-typescript/fundamentals/00-js-vocabulary.md) |
+| thread | luồng thực thi trong một process; trong JS mỗi luồng có bộ nhớ riêng, nói chuyện qua message | [Từ vựng JS](../01-web-frontend/01-javascript-typescript/fundamentals/00-js-vocabulary.md) |
 | throughput | số việc xong trong một đơn vị thời gian | [Latency, throughput, bottleneck](../05-cross-cutting/performance/01-latency-throughput-bottleneck.md) |
 | timeout | giới hạn thời gian chờ trước khi bỏ | [Timeout, retry, circuit breaker](../05-cross-cutting/reliability/02-timeout-retry-circuit-breaker.md) |
 | TLS | mã hoá kết nối + xác thực server | [Từ vựng Network](../04-infrastructure/01-networking/00-network-vocabulary.md) |
@@ -250,12 +253,12 @@ Nếu bạn không tra một từ lẻ mà muốn **học từ đầu một vùn
 | trace / span | đường đi của một request qua nhiều service | [Correlation & tracing](../05-cross-cutting/observability/03-correlation-tracing.md) |
 | transaction | nhóm câu lệnh: cả hai, hoặc không cái nào | [SQL basics](../03-database/00-sql/00-sql-basics.md) |
 | TTL | được cache bao lâu, tính bằng giây | [Từ vựng Network](../04-infrastructure/01-networking/00-network-vocabulary.md) |
-| UDP | gửi và không hỏi lại; mất packet trong im lặng | [Từ vựng Network](../04-infrastructure/01-networking/00-network-vocabulary.md) |
+| UDP | gửi và không hỏi lại; mất packet trong im lặng — nền của QUIC/HTTP3 và của DNS query | [Từ vựng Network](../04-infrastructure/01-networking/00-network-vocabulary.md) |
 | URL | chuỗi nói đủ để tìm ra một tài nguyên | [Từ vựng Web](../01-web-frontend/00-web-foundations/00-web-vocabulary.md) |
 | UUIDv4 / UUIDv7 | id ngẫu nhiên / id ngẫu nhiên **có thứ tự thời gian** | [ID strategy](../03-database/03-data-modeling/06-id-strategy.md) |
 | vacuum | dọn dòng chết MVCC để lấy lại chỗ | [MVCC & vacuum](../03-database/01-postgresql/transactions-concurrency/02-mvcc-vacuum.md) |
 | validation | kiểm tra dữ liệu vào trước khi chạm logic | [Từ vựng API](../02-backend-api/00-http-api/00-api-vocabulary.md) |
-| value vs reference | primitive copy giá trị; object copy địa chỉ | [Từ vựng JS](../01-web-frontend/01-javascript-typescript/fundamentals/00-js-vocabulary.md) |
+| value vs reference | JS luôn copy *value*; với object, value đó **là** một reference | [Từ vựng JS](../01-web-frontend/01-javascript-typescript/fundamentals/00-js-vocabulary.md) |
 | V8 | engine chạy JavaScript trong Chrome và Node | [Node runtime](../02-backend-api/01-nodejs/fundamentals/01-runtime-concurrency.md) |
 | volume | chỗ lưu dữ liệu sống lâu hơn container | [Volumes & state](../04-infrastructure/02-docker/03-volumes-state.md) |
 | WAL | log ghi trước, nền của durability và replication | [WAL, durability, backup](../03-database/01-postgresql/operations/01-wal-durability-backup.md) |

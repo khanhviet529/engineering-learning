@@ -76,6 +76,15 @@ Set-Cookie: session=abc123; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=6048
 
 Điểm quan trọng: **cookie không bị giới hạn bởi CORS.** CORS quản việc JS *đọc response*. Cookie được browser gắn vào request dựa trên domain và `SameSite`, độc lập với CORS. Đây là toàn bộ lý do CSRF tồn tại.
 
+Điểm quan trọng thứ hai, và nó khác với `localStorage` bên dưới: **phạm vi cookie không tính port.**
+
+```text
+localStorage   scheme + host + PORT      → origin-scoped
+cookie         domain + path             → port KHÔNG tính
+```
+
+Nên ở máy dev, `localhost:3000` và `localhost:4000` có `localStorage` tách biệt hoàn toàn nhưng **chia sẻ cookie của `localhost`** — hai app ghi đè session của nhau. `Secure` cũng không phân biệt port. Nếu bạn thấy "đăng nhập app này thì app kia bị đăng xuất" ở local, đây là nguyên nhân, và cách tránh là đặt tên cookie khác nhau hoặc dùng hostname khác nhau (`app.localhost`, `api.localhost`).
+
 ### localStorage / sessionStorage
 
 - API đồng bộ, key–value string, ~5–10MB.

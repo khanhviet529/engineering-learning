@@ -84,14 +84,16 @@ Hai điều đáng nhớ ngay:
             api.shop.com:8080                ← host trong ngữ cảnh URL (có thể kèm port)
 ```
 
-| Từ | Nghĩa chính xác |
+| Từ | Nghĩa dùng trong repo này |
 |---|---|
-| **domain** | tên bạn mua và đăng ký, ví dụ `shop.com` |
-| **subdomain** | nhánh con của domain: `api`, `www`, `staging` trong `api.shop.com` |
-| **hostname** | tên đầy đủ trỏ tới một máy: `api.shop.com` |
+| **domain** | một tên trong hệ thống DNS. Trong công việc hằng ngày, "domain" thường chỉ tên bạn đăng ký, kiểu `shop.com` |
+| **subdomain** | nhánh con của một domain: `api`, `www`, `staging` trong `api.shop.com` |
+| **hostname** | tên trỏ tới một máy/service: `api.shop.com` |
 | **host** | trong URL và trong header `Host`: hostname, **kèm port nếu không phải mặc định** |
 
-Lý do phải phân biệt: cookie gắn theo **domain**, còn origin gắn theo **hostname + port**. Hai quy tắc khác nhau, và đó là nguồn của rất nhiều bug đăng nhập.
+*Qualifier cần thiết:* trong DNS đúng nghĩa, mọi tên đều là domain name ở một cấp nào đó — `shop.com`, `api.shop.com` và cả `com` đều là domain. "Domain là tên bạn mua" là mental model tiện cho người mới, nhưng cái bạn thật sự đăng ký là một tên ở dưới một TLD, và ranh giới "đăng ký được ở cấp nào" phụ thuộc từng TLD. Bạn không cần đi sâu; chỉ cần biết rằng khi đọc tài liệu DNS, chữ "domain" rộng hơn nghĩa thường ngày.
+
+Lý do phải phân biệt bốn từ trên: **cookie và origin dùng hai quy tắc khác nhau** — xem mục Origin ngay dưới. Đó là nguồn của rất nhiều bug đăng nhập.
 
 ### Origin — khái niệm quan trọng nhất trong note này
 
@@ -113,11 +115,33 @@ Hai URL **cùng origin** khi và chỉ khi cả **ba** phần giống nhau:
 
 Dòng cuối là lý do bạn gặp lỗi CORS ngay ở máy mình: Next.js chạy `:3000`, NestJS chạy `:4000` — với browser, đó là **hai website khác nhau**.
 
-Origin là đơn vị bảo mật của browser. Cookie, localStorage, quyền đọc response — tất cả đều tính theo origin. Chi tiết vì sao và cách sửa: [06-cors.md](./06-cors.md).
+Origin là đơn vị bảo mật **chính** của browser: `localStorage`, `sessionStorage`, IndexedDB và quyền đọc response (CORS) đều tính theo origin.
+
+**Nhưng cookie thì không.** Đây là chỗ dễ hiểu sai nhất, và nó gây ra bug đăng nhập thật:
+
+```text
+localStorage   → origin-scoped:  scheme + hostname + PORT đều tính
+cookie         → domain + path,  KHÔNG phân biệt port
+                 và bị điều chỉnh thêm bởi Secure / SameSite / HttpOnly
+```
+
+Hệ quả cụ thể của việc cookie bỏ qua port:
+
+```text
+http://localhost:3000  và  http://localhost:4000
+→ KHÁC origin  (localStorage tách biệt hoàn toàn)
+→ nhưng CHIA SẺ cookie của localhost
+```
+
+Nghĩa là ở máy dev, hai app khác nhau trên hai port có thể **ghi đè cookie của nhau** trong khi `localStorage` vẫn tách biệt. Nếu bạn từng thấy "đăng nhập app này thì app kia bị đăng xuất" ở local, đây là nguyên nhân.
+
+Cookie cũng có thể được đặt cho **domain cha** (`Domain=shop.com` thì `api.shop.com` cũng gửi), điều mà origin không cho phép. Chi tiết quy tắc cookie: [05-cookies-storage.md](./05-cookies-storage.md). Chi tiết CORS: [06-cors.md](./06-cors.md).
 
 ### HTTP request gồm những gì
 
-**HTTP** là bộ quy ước về **hình dạng của một câu hỏi và một câu trả lời** giữa client và server. Một request là văn bản có cấu trúc:
+**HTTP** là bộ quy ước về **hình dạng của một câu hỏi và một câu trả lời** giữa client và server.
+
+Cách dễ nhất để thấy hình dạng đó là đọc **wire format của HTTP/1.1** — nó là văn bản, nên đọc được bằng mắt:
 
 ```text
 POST /v1/orders HTTP/1.1              ← start line: method + path + version
@@ -129,6 +153,10 @@ Content-Length: 41                    ┘
 {"productId":"p_123","quantity":2}    ← body: dữ liệu thật
 ```
 
+> **Đây là wire format của HTTP/1.1, không phải của mọi phiên bản HTTP.** HTTP/2 và HTTP/3 truyền **nhị phân**, header được nén (HPACK/QPACK) và nhiều request đi song song trên cùng một kết nối — bạn sẽ không thấy dòng chữ nào như trên nếu bắt gói tin.
+>
+> Cái **giữ nguyên qua cả ba phiên bản** là *mô hình ngữ nghĩa*: một request luôn có method, target, headers và (tuỳ chọn) body; một response luôn có status code, headers và body. Đó là phần đáng học ở đây, và cũng là phần bạn thấy trong tab Network của DevTools — DevTools hiển thị theo mô hình này bất kể phiên bản thật là gì.
+
 | Thành phần | Là gì |
 |---|---|
 | **method** | *ý định* của bạn với tài nguyên: `GET`, `POST`, `PUT`, `PATCH`, `DELETE` |
@@ -137,6 +165,8 @@ Content-Length: 41                    ┘
 | **body** | dữ liệu bạn gửi kèm. `GET` và `DELETE` thường không có body |
 
 ### HTTP response gồm những gì
+
+Cũng dùng wire format HTTP/1.1 để nhìn cho rõ:
 
 ```text
 HTTP/1.1 201 Created                  ← status line: mã + lý do
@@ -147,6 +177,8 @@ Location: /v1/orders/o_789            ┘
 ```
 
 Cấu trúc đối xứng với request. Khác duy nhất: thay vì method + path, response có **status code**.
+
+(Trong HTTP/2 và HTTP/3, status code trở thành một pseudo-header `:status` trong khối nhị phân — cùng ý nghĩa, khác cách truyền.)
 
 ### Method — ý định, không phải kỹ thuật
 
@@ -205,11 +237,13 @@ Vì vậy request 2 **phải tự mang bằng chứng danh tính** — cookie ho
 |---|---|---|
 | Subdomain thì cùng origin | `shop.com` và `api.shop.com` là **khác** origin | fetch từ frontend bị CORS chặn, không hiểu vì sao |
 | Đổi port không ảnh hưởng gì | port là một phần của origin | `localhost:3000` gọi `localhost:4000` cần CORS |
+| Cookie cũng theo origin như localStorage | cookie theo **domain + path**, **bỏ qua port**; `localStorage` mới là origin-scoped | hai app local trên hai port ghi đè cookie của nhau → "đăng nhập app này, app kia đăng xuất" |
+| Mọi HTTP đều truyền text như ví dụ trên | đó là wire format **HTTP/1.1**; HTTP/2 và HTTP/3 là nhị phân, header nén | đọc sai capture, tưởng DevTools "dịch sai" |
 | Fragment gửi lên server | fragment chỉ tồn tại trong browser | logic backend đọc `#...` không bao giờ chạy |
 | `GET` không đổi dữ liệu vì HTTP bắt buộc | HTTP chỉ *quy ước*; code bạn viết mới quyết định | crawler hoặc prefetch của browser vô tình xoá dữ liệu |
 | Lỗi gì cũng trả `500` | `4xx` là lỗi bên gọi, `5xx` là lỗi bên nhận | client retry vô ích; alert 5xx nhiễu tới mức bị bỏ qua |
 | `PUT` và `PATCH` như nhau | `PUT` thay toàn bộ — field không gửi bị **xoá** | mất dữ liệu khi client gửi thiếu field |
-| HTTPS là "HTTP có ổ khoá màu xanh" | HTTPS là HTTP chạy trong đường ống được TLS mã hoá | không hiểu vì sao lỗi certificate xảy ra trước khi request được gửi |
+| HTTPS là "HTTP có ổ khoá màu xanh" | HTTP được truyền trong kênh đã được TLS mã hoá và xác thực | không hiểu vì sao lỗi certificate xảy ra trước khi request được gửi |
 | Header là tuỳ ý, không quan trọng | `Host`, `Content-Type`, `Cache-Control` thay đổi hành vi thật | body JSON bị parse sai vì thiếu `Content-Type` |
 
 ## Kiểm tra bản thân
@@ -219,6 +253,7 @@ Trả lời không nhìn lại. Nếu tắc ở câu nào, đọc lại đúng m
 1. `https://shop.com` và `https://shop.com:443` — cùng origin hay khác? Vì sao?
 2. `http://localhost:3000` và `http://localhost:4000` — cùng origin hay khác?
 3. Ba phần của origin là gì? Path có nằm trong đó không?
+4. `localStorage` và cookie — cái nào theo origin, cái nào không? Hai app local ở port 3000 và 4000 chia sẻ cái nào?
 4. Phần nào của URL không bao giờ được gửi lên server?
 5. Client gửi dữ liệu sai định dạng — trả `4xx` hay `5xx`? Database sập — trả gì?
 6. Vì sao `GET /my-orders` sau khi `POST /login` mà server vẫn cần cookie hoặc token?

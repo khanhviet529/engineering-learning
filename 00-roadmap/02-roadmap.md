@@ -152,8 +152,8 @@ Behavior 13 không phải một bước mới mà là năng lực tổng hợp: 
 
 **Cần hiểu được:**
 
-- HTTP là text protocol trên TCP; method/status/header có ngữ nghĩa, không phải quy ước tuỳ ý.
-- Node.js xử lý nhiều request đồng thời với một thread như thế nào.
+- HTTP/1.1 là text protocol trên TCP (HTTP/2 nhị phân trên TCP, HTTP/3 trên QUIC/UDP); method/status/header có ngữ nghĩa, không phải quy ước tuỳ ý.
+- Node.js xử lý nhiều request đồng thời trên một thread JS như thế nào.
 - Chỗ nào trong chuỗi có thể block toàn bộ server.
 
 **Note:**
