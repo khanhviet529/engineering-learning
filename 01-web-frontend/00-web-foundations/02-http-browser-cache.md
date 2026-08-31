@@ -2,6 +2,7 @@
 level: foundation
 area: frontend
 prerequisites:
+  - 00-web-vocabulary.md
   - 01-browser-request-render.md
 related:
   - ../03-nextjs/behavior/03-data-fetching-cache.md
@@ -11,6 +12,8 @@ related:
 # HTTP & browser cache
 
 > Lớp cache đầu tiên giữa người dùng và dữ liệu của bạn — và là lớp bạn kiểm soát ít nhất, vì nó nằm trên máy người khác.
+
+> **Chưa biết những từ này?** [Từ vựng Web](00-web-vocabulary.md) — header, status code, `304`
 
 ## Position
 
@@ -213,6 +216,7 @@ Nguyên tắc: **đi từ ngoài vào trong** (browser → CDN → app → Redis
 
 ## Related
 
+- [Từ vựng Web](00-web-vocabulary.md) — foundation: header, status code, `304`
 - [Browser request → render](01-browser-request-render.md) — cache là bước 2 của pipeline
 - [Next.js data cache](../03-nextjs/behavior/03-data-fetching-cache.md) — lớp cache tiếp theo
 - [Cache invalidation](../../03-database/02-redis/01-cache-invalidation.md) — lớp application

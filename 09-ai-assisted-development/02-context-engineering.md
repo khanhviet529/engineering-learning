@@ -37,6 +37,38 @@ Mặc định phổ biến ≠ đúng cho bạn.
 
 ## Mental Model
 
+### Trước đó: context window là gì
+
+Từ "ngữ cảnh" trong note này có một nghĩa kỹ thuật cụ thể, và không biết nó dẫn tới kỳ vọng sai.
+
+> **Context window** là số lượng token tối đa mà mô hình có thể "nhìn thấy" trong **một lần** sinh ra câu trả lời. Nó bao gồm **tất cả**: system prompt, mọi lượt hội thoại trước, file bạn dán vào, kết quả tool, và cả câu trả lời đang được viết ra.
+
+```text
+┌─── context window ────────────────────────────────────┐
+│ system prompt │ lịch sử hội thoại │ code bạn dán │ ... │  ← chỗ trống còn lại
+└───────────────────────────────────────────────────────┘
+```
+
+**Token** là đơn vị mà mô hình đọc — xấp xỉ một từ ngắn hoặc một mẩu từ. Với code, ước lượng thô: 1 token ≈ 3–4 ký tự.
+
+Ba hệ quả trực tiếp, và cả ba đều trái với trực giác:
+
+```text
+① Mô hình KHÔNG có bộ nhớ giữa các lần gọi.
+   Cảm giác "nó nhớ cuộc nói chuyện" là do toàn bộ lịch sử
+   được gửi lại MỖI LẦN. Hết chỗ ⇒ phần đầu bị cắt hoặc tóm tắt.
+   → chi tiết bạn nói ở đầu buổi có thể đã không còn ở đó.
+
+② Nhiều ngữ cảnh không tự động tốt hơn.
+   Dán cả repo vào làm loãng những dòng thật sự quan trọng.
+   → chọn 12 dòng đúng thắng 2000 dòng "cho chắc".
+
+③ Đây là ràng buộc vật lý, không phải giới hạn tạm thời của công cụ.
+   Cửa sổ lớn hơn làm nó ít đau hơn, không làm nó mất đi.
+```
+
+Điểm ① là lý do note này tồn tại: nếu mô hình thật sự nhớ, bạn chỉ cần nói ràng buộc một lần. Vì nó không nhớ, **ngữ cảnh phải được đưa vào một cách có chủ đích và lặp lại** — đó chính là công việc gọi là context engineering.
+
 ### Sáu loại ngữ cảnh, xếp theo giá trị
 
 ```text

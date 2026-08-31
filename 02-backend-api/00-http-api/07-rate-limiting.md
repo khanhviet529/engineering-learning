@@ -2,6 +2,7 @@
 level: intermediate
 area: backend
 prerequisites:
+  - 00-api-vocabulary.md
   - 01-http-request-response.md
 related:
   - ../../03-database/02-redis/02-rate-limit-locking.md
@@ -11,6 +12,8 @@ related:
 # Rate limiting
 
 > Rate limit không phải chỉ để chống abuse. Nó là cách bạn **quyết định trước** ai bị từ chối khi hệ thống quá tải — thay vì để hệ thống tự chọn bằng cách sập cho tất cả mọi người.
+
+> **Chưa biết những từ này?** [Từ vựng API](00-api-vocabulary.md) — `429`, `Retry-After`
 
 ## Position
 
@@ -310,6 +313,7 @@ Người dùng thật (burst rồi nghỉ) không bao giờ chạm giới hạn.
 
 ## Related
 
+- [Từ vựng API](00-api-vocabulary.md) — foundation: `429`, `Retry-After`
 - [Rate limit & locking (Redis)](../../03-database/02-redis/02-rate-limit-locking.md) — implementation chi tiết
 - [HTTP request/response](01-http-request-response.md) — 429, `Retry-After`
 - [Error model](05-error-model.md) — `RATE_LIMITED`

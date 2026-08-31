@@ -2,6 +2,7 @@
 level: foundation
 area: frontend
 prerequisites:
+  - 00-web-vocabulary.md
   - 01-browser-request-render.md
 related:
   - 06-cors.md
@@ -12,6 +13,8 @@ related:
 # Cookies, localStorage, sessionStorage
 
 > "Lưu token ở đâu" là câu hỏi bảo mật, không phải câu hỏi tiện lợi. Note này giải thích vì sao.
+
+> **Chưa biết những từ này?** [Từ vựng Web](00-web-vocabulary.md) — origin, domain, header `Set-Cookie`
 
 ## Position
 
@@ -204,6 +207,7 @@ Luôn bọc `localStorage` trong `try/catch` — nó *throw*, không chỉ trả
 
 ## Related
 
+- [Từ vựng Web](00-web-vocabulary.md) — foundation: origin, domain, header `Set-Cookie`
 - [CORS](06-cors.md) — vì sao credentials cross-origin phức tạp
 - [CSP & browser security](07-csp-browser-security.md) — giảm rủi ro XSS
 - [XSS & CSRF](../../05-cross-cutting/security/03-xss-csrf.md) — hai tấn công tương ứng

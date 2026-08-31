@@ -2,6 +2,7 @@
 level: intermediate
 area: infra
 prerequisites:
+  - 00-network-vocabulary.md
   - 01-ip-port-dns.md
   - 02-tcp-udp.md
 related:
@@ -12,6 +13,8 @@ related:
 # Network debugging
 
 > "Service A không gọi được service B." Đó là toàn bộ thông tin. Có tám tầng có thể hỏng giữa hai process, và mỗi tầng có một cách kiểm tra riêng. Note này là **thứ tự** kiểm tra — vì kiểm tra đúng thứ tự biến tám khả năng thành ba câu lệnh.
+
+> **Chưa biết những từ này?** [Từ vựng Network](00-network-vocabulary.md) — IP, port, socket, DNS, TLS
 
 ## Position
 
@@ -366,6 +369,7 @@ Bước ⑨ là bước biến một lần debug thành kiến thức của cả
 
 ## Related
 
+- [Từ vựng Network](00-network-vocabulary.md) — foundation: IP, port, socket, DNS, TLS
 - [IP, port & DNS](01-ip-port-dns.md) — bước ① và ②
 - [TCP & UDP](02-tcp-udp.md) — bước ③ và ④, MTU, keepalive
 - [TLS](03-tls.md) — bước ⑥

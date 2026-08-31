@@ -2,6 +2,7 @@
 level: intermediate
 area: frontend
 prerequisites:
+  - ../../04-infrastructure/01-networking/00-network-vocabulary.md
   - 01-browser-request-render.md
   - 03-url-dns-tcp-tls.md
 related:
@@ -12,6 +13,8 @@ related:
 # WebSocket & SSE
 
 > Ba cách để server đẩy dữ liệu xuống client. Chọn sai làm bạn phải xây lại reconnect logic mà giao thức đã có sẵn.
+
+> **Chưa biết những từ này?** [Từ vựng Network](../../04-infrastructure/01-networking/00-network-vocabulary.md) — TCP, socket, port
 
 ## Position
 
@@ -246,6 +249,7 @@ Jitter (`Math.random()`) không phải chi tiết nhỏ: không có nó, sau m�
 
 ## Related
 
+- [Từ vựng Network](../../04-infrastructure/01-networking/00-network-vocabulary.md) — foundation: TCP, socket, port
 - [WebSocket gateway (NestJS)](../../02-backend-api/02-nestjs/behavior/08-websocket-gateway.md) — phía server
 - [Pub/Sub & streams](../../03-database/02-redis/06-pubsub-streams.md) — fan-out cho nhiều instance
 - [Reverse proxy & load balancer](../../04-infrastructure/01-networking/05-reverse-proxy-load-balancer.md) — cấu hình cho kết nối dài

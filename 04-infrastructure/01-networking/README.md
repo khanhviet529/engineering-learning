@@ -18,10 +18,26 @@ Hai câu hỏi trả lời được phần lớn sự cố mạng:
 ② Thời gian nằm ở giai đoạn nào?   curl -w: dns / conn / tls / ttfb
 ```
 
+## Vào đây từ đâu
+
+```text
+Chưa chắc IP / port / socket / TCP là gì?
+        └──▶ 00-network-vocabulary.md   ← từ vựng, ~12 phút
+
+Đã có từ vựng, muốn biết chúng hỏng thế nào?
+        └──▶ 01-ip-port-dns.md          ← bắt đầu chuỗi behavior bên dưới
+
+Đang có "không kết nối được" trên tay?
+        └──▶ 06-network-debugging.md    ← chạy lệnh gì, theo thứ tự nào
+```
+
+Nếu bạn đang chuẩn bị học Docker: đọc `00-network-vocabulary.md` rồi [Ports & sockets](../00-linux/05-ports-sockets.md). Không có hai note đó, `-p 3000:3000` và bind `0.0.0.0` sẽ là phép thuật.
+
 ## Thứ tự đọc
 
 | # | Note | Trả lời câu hỏi |
 |---|---|---|
+| 0 | [Từ vựng Network](00-network-vocabulary.md) | IP, port, socket, packet, TCP/UDP, DNS, TLS — **là gì?** |
 | 1 | [IP, port & DNS](01-ip-port-dns.md) | Vì sao 10% traffic vẫn đi tới cluster cũ sau 4 tiếng? |
 | 2 | [TCP & UDP](02-tcp-udp.md) | Vì sao client treo 15 phút khi peer biến mất? |
 | 3 | [TLS](03-tls.md) | Vì sao trình duyệt OK mà `curl` báo lỗi certificate? |

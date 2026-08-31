@@ -1,7 +1,9 @@
 ---
 level: foundation
 area: frontend
-prerequisites: []
+prerequisites:
+  - 00-web-vocabulary.md
+  - ../../04-infrastructure/01-networking/00-network-vocabulary.md
 related:
   - 01-browser-request-render.md
   - ../../04-infrastructure/01-networking/01-ip-port-dns.md
@@ -11,6 +13,8 @@ related:
 # URL → DNS → TCP → TLS
 
 > Trước khi có một byte HTTP nào, ba việc phải xảy ra. Mỗi việc có failure mode và error message riêng — nhận ra chúng giúp bạn debug đúng tầng ngay từ đầu.
+
+> **Chưa biết những từ này?** [Từ vựng Web](00-web-vocabulary.md) — URL, scheme, host, port · [Từ vựng Network](../../04-infrastructure/01-networking/00-network-vocabulary.md) — IP, port, socket, TCP, DNS, TLS
 
 ## Position
 
@@ -216,6 +220,8 @@ Thứ tự cố định, mỗi bước loại trừ một tầng:
 
 ## Related
 
+- [Từ vựng Web](00-web-vocabulary.md) — foundation: URL, scheme, host, port
+- [Từ vựng Network](../../04-infrastructure/01-networking/00-network-vocabulary.md) — foundation: IP, port, socket, TCP, DNS, TLS
 - [Browser request → render](01-browser-request-render.md) — chuỗi này nằm ở đầu pipeline
 - [IP, port, DNS](../../04-infrastructure/01-networking/01-ip-port-dns.md) — góc nhìn infrastructure
 - [TCP & UDP](../../04-infrastructure/01-networking/02-tcp-udp.md) — cơ chế TCP chi tiết

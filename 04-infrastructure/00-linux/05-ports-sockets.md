@@ -2,6 +2,7 @@
 level: foundation
 area: infra
 prerequisites:
+  - ../01-networking/00-network-vocabulary.md
   - 01-process-files-env.md
 related:
   - ../01-networking/01-ip-port-dns.md
@@ -12,6 +13,8 @@ related:
 # Ports & sockets
 
 > Ứng dụng chạy hoàn hảo trong container: `curl localhost:3000` từ bên trong trả về `200`. Từ host, `curl localhost:3000` trả về `connection refused`. Port mapping đúng, không có firewall, không có lỗi trong log. Nguyên nhân là một chuỗi bốn ký tự trong lời gọi `listen()`: `127.0.0.1`.
+
+> **Chưa biết những từ này?** [Từ vựng Network](../01-networking/00-network-vocabulary.md) — IP, port, socket, `127.0.0.1` vs `0.0.0.0`
 
 ## Position
 
@@ -385,6 +388,7 @@ Xem thêm [Network debugging](../01-networking/06-network-debugging.md).
 
 ## Related
 
+- [Từ vựng Network](../01-networking/00-network-vocabulary.md) — foundation: IP, port, socket, `127.0.0.1` vs `0.0.0.0`
 - [Process, file & env](01-process-files-env.md) — socket là fd, `ulimit -n`
 - [Debugging toolbox](07-debugging-toolbox.md) — `ss`, `lsof`, `tcpdump`
 - [IP, port, DNS](../01-networking/01-ip-port-dns.md) — tầng mạng

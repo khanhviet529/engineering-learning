@@ -2,6 +2,7 @@
 level: foundation
 area: frontend
 prerequisites:
+  - ../fundamentals/00-js-vocabulary.md
   - 01-event-loop-async.md
 related:
   - ../fundamentals/03-error-handling-immutability.md
@@ -12,6 +13,8 @@ related:
 # Promise & concurrency
 
 > `await` trong vòng lặp biến 10 request 100ms thành 1 giây. `Promise.all` biến chúng thành 100ms — và có thể làm sập dependency của bạn. Note này về việc chọn đúng mức song song.
+
+> **Chưa biết những từ này?** [Từ vựng JavaScript](../fundamentals/00-js-vocabulary.md) — Promise là gì, ba trạng thái của nó
 
 ## Position
 
@@ -241,6 +244,7 @@ Waterfall không cần thiết là bug hiệu năng phổ biến nhất trong co
 
 ## Related
 
+- [Từ vựng JavaScript](../fundamentals/00-js-vocabulary.md) — foundation: Promise là gì, ba trạng thái của nó
 - [Event loop & async](01-event-loop-async.md) — Promise chạy ở đâu trong vòng lặp
 - [Error handling & immutability](../fundamentals/03-error-handling-immutability.md) — bắt lỗi async đúng cách
 - [Async race condition](../../02-react/behavior/03-async-race-condition.md) — cùng vấn đề trong UI

@@ -2,6 +2,7 @@
 level: foundation
 area: frontend
 prerequisites:
+  - 00-js-vocabulary.md
   - ../async-concurrency/01-event-loop-async.md
 related:
   - ../../02-react/behavior/02-effects-lifecycle.md
@@ -11,6 +12,8 @@ related:
 # Execution context, scope, closure, `this`, prototype
 
 > Vì sao hàm của bạn đọc giá trị cũ. Đây là bug số một của React beginner và nó không phải bug của React.
+
+> **Chưa biết những từ này?** [Từ vựng JavaScript](00-js-vocabulary.md) — scope, stack/heap, value vs reference
 
 ## Position
 
@@ -281,6 +284,7 @@ Câu 8 là cầu nối sang [Memory & GC](../runtime-behavior/01-memory-gc.md): 
 
 ## Related
 
+- [Từ vựng JavaScript](00-js-vocabulary.md) — foundation: scope, stack/heap, value vs reference
 - [Event loop & async](../async-concurrency/01-event-loop-async.md) — callback chạy khi nào
 - [Effects & lifecycle](../../02-react/behavior/02-effects-lifecycle.md) — stale closure trong thực tế
 - [Memory & GC](../runtime-behavior/01-memory-gc.md) — closure và leak

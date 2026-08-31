@@ -38,6 +38,42 @@ Cái giá: bạn phải hiểu "ai đó bên ngoài" hoạt động thế nào.
 Không hiểu ⇒ mọi lỗi DI đều là bí ẩn.
 ```
 
+### Trước đó: "dependency" nghĩa là gì
+
+Từ này xuất hiện trong hơn 100 note của repo, nên đáng định nghĩa một lần cho dứt điểm.
+
+> **Dependency** của một class là **thứ mà class đó cần có sẵn để làm được việc của nó.**
+
+```ts
+class OrdersService {
+  constructor(
+    private repo: OrderRepository,   // ← dependency
+    private mailer: MailerService,   // ← dependency
+  ) {}
+}
+```
+
+`OrdersService` không thể hoạt động nếu thiếu hai thứ đó. Chúng là phụ thuộc của nó.
+
+Ba điều đi kèm định nghĩa:
+
+```text
+① Dependency là QUAN HỆ, không phải loại object.
+   Cùng một MailerService là dependency của OrdersService,
+   và có dependency riêng của nó (HttpClient, Config).
+   → chuỗi phụ thuộc, không phải danh sách phẳng.
+
+② "Injection" chỉ nói ai TẠO ra nó.
+   Tự tạo:      private repo = new OrderRepository(...)   ← không phải injection
+   Nhận từ ngoài: constructor(private repo: OrderRepository)  ← injection
+
+③ Vì vậy DI không thêm khả năng nào cho code của bạn.
+   Nó chỉ chuyển quyền quyết định "repo là object nào"
+   từ trong class ra ngoài class.
+```
+
+Điểm ③ là lý do DI đáng học kỹ: nó **đổi chỗ** một quyết định, và mọi lợi ích (test thay được, một instance dùng chung, đổi implementation không sửa caller) cũng như mọi rắc rối (`(?)` trong lỗi, circular dependency, scope lan ngược ở đầu note) đều bắt nguồn từ việc quyết định đó giờ nằm ở chỗ khác.
+
 ## Mental Model
 
 ### DI container là một `Map<Token, Instance>`

@@ -69,6 +69,26 @@ Producer ──▶ [ QUEUE ] ──▶ Consumer
               └─ RETRY         thất bại không mất việc
 ```
 
+Bốn danh từ trên sơ đồ, mỗi cái một câu:
+
+| Từ | Nghĩa |
+|---|---|
+| **job** (hay *message*, *task*) | một đơn vị việc cần làm — thường là JSON nhỏ: "gửi email cho user 5" |
+| **producer** | code **đẩy job vào** queue. Thường là API request đang phục vụ user |
+| **consumer** (hay *worker*) | **process riêng** lấy job ra và làm. Không nằm trong request nào |
+| **broker** | phần mềm giữ queue: Redis/BullMQ, RabbitMQ, Kafka, SQS |
+
+Điểm quyết định, và cũng là điều người mới hay bỏ qua: **consumer là một process khác.** Nó cần được deploy riêng, scale riêng, có log riêng, và **có thể không chạy** trong khi API của bạn vẫn nhận job bình thường.
+
+```text
+API process        (producer)   ← deploy, chạy, khoẻ
+Worker process     (consumer)   ← nếu bạn quên chạy cái này,
+                                  job vào queue và không ai làm
+                                  API vẫn trả 200, không có lỗi ở đâu
+```
+
+Đó là failure mode đầu tiên và im lặng nhất của queue: mọi thứ trông ổn, việc không bao giờ xong. So sánh các broker: [05-broker-comparison.md](./05-broker-comparison.md).
+
 ### Câu hỏi phân loại
 
 ```text

@@ -2,6 +2,7 @@
 level: intermediate
 area: backend
 prerequisites:
+  - ../00-http-api/00-api-vocabulary.md
   - ../00-http-api/01-http-request-response.md
 related:
   - 02-session-vs-token.md
@@ -12,6 +13,8 @@ related:
 # Authentication vs Authorization
 
 > Hệ thống có JWT, có `@UseGuards(JwtAuthGuard)` trên mọi controller, có refresh token, có MFA. Một người dùng đổi `id` trong URL từ `/invoices/8421` thành `/invoices/8422` và đọc được hoá đơn của công ty khác. Mọi thứ về **authentication** đều đúng. Không có gì về **authorization** tồn tại.
+
+> **Chưa biết những từ này?** [Từ vựng API](../00-http-api/00-api-vocabulary.md) — `401` vs `403`, stateless
 
 ## Position
 
@@ -372,6 +375,7 @@ it.each(getAllRoutes(app).filter(r => !r.isPublic))(
 
 ## Related
 
+- [Từ vựng API](../00-http-api/00-api-vocabulary.md) — foundation: `401` vs `403`, stateless
 - [Session vs token](02-session-vs-token.md) — cơ chế mang danh tính
 - [JWT & refresh token](03-jwt-refresh-token.md) — thu hồi, hết hạn
 - [OAuth 2 & OIDC](04-oauth-oidc.md) — uỷ quyền cho nhà cung cấp

@@ -4,10 +4,25 @@ Web như một **runtime**, không như một tập API. Mọi thứ trong repo 
 
 Đọc folder này trước React và Next.js. Lý do: hydration mismatch, CORS error, stale cache và layout shift đều là behavior của **browser**, không của framework. Nếu học framework trước, bạn sẽ đi tìm nguyên nhân trong tài liệu React cho một vấn đề thuộc HTTP.
 
+## Vào đây từ đâu
+
+```text
+Mới hoàn toàn, chưa chắc URL/origin/header là gì?
+        └──▶ 00-web-vocabulary.md          ← từ vựng, ~10 phút, không có failure mode
+
+Đã có từ vựng, muốn biết nó hoạt động và hỏng thế nào?
+        └──▶ 01-browser-request-render.md  ← bắt đầu chuỗi behavior bên dưới
+
+Đang có một lỗi cụ thể trên tay?
+        └──▶ bảng "Bốn hiểu nhầm đắt nhất" bên dưới, hoặc
+             00-roadmap/behavior-index.md  ← tra theo triệu chứng
+```
+
 ## Thứ tự đọc
 
 | # | Note | Trả lời câu hỏi |
 |---|---|---|
+| 0 | [Từ vựng Web](00-web-vocabulary.md) | URL, origin, header, status code — **những từ này nghĩa là gì?** |
 | 1 | [Browser: từ request tới render](01-browser-request-render.md) | Giữa Enter và pixel có bao nhiêu bước, bước nào chặn bước nào? |
 | 2 | [URL → DNS → TCP → TLS](03-url-dns-tcp-tls.md) | `ECONNREFUSED` khác `ETIMEDOUT` ở đâu? |
 | 3 | [Rendering pipeline](04-rendering-pipeline.md) | Vì sao `transform` mượt mà `left` thì giật? |
@@ -17,7 +32,7 @@ Web như một **runtime**, không như một tập API. Mọi thứ trong repo 
 | 7 | [CSP & browser security](07-csp-browser-security.md) | Khi XSS xảy ra, làm sao giới hạn thiệt hại? |
 | 8 | [WebSocket & SSE](08-websocket-sse.md) | Server đẩy dữ liệu xuống client bằng cách nào? |
 
-Note 1–4 là nền cho hiệu năng. Note 5–7 là nền cho bảo mật. Note 8 đọc khi bạn thật sự cần realtime.
+Note 0 là **từ vựng** — bỏ qua nếu bạn đã biết ba phần của origin. Note 1–4 là nền cho hiệu năng. Note 5–7 là nền cho bảo mật. Note 8 đọc khi bạn thật sự cần realtime.
 
 ## Bốn hiểu nhầm đắt nhất ở tầng này
 

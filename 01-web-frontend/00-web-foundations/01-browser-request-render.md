@@ -1,7 +1,8 @@
 ---
 level: foundation
 area: frontend
-prerequisites: []
+prerequisites:
+  - 00-web-vocabulary.md
 related:
   - 03-url-dns-tcp-tls.md
   - 04-rendering-pipeline.md
@@ -11,6 +12,8 @@ related:
 # Browser: từ request tới render
 
 > Giữa lúc bạn gõ Enter và lúc thấy chữ trên màn hình có khoảng 10 bước. Note này là bản đồ của 10 bước đó.
+
+> **Chưa biết những từ này?** [Từ vựng Web](00-web-vocabulary.md) — URL, request/response, header, status code
 
 ## Position
 
@@ -196,6 +199,7 @@ Nguyên tắc: **xác định TTFB trước**. Nó chia bài toán thành "lỗi
 
 ## Related
 
+- [Từ vựng Web](00-web-vocabulary.md) — foundation: URL, request/response, header, status code
 - [URL → DNS → TCP → TLS](03-url-dns-tcp-tls.md) — chi tiết 3 trạm đầu
 - [Rendering pipeline](04-rendering-pipeline.md) — chi tiết 5 trạm cuối
 - [HTTP & browser cache](02-http-browser-cache.md) — vì sao request không đi ra mạng

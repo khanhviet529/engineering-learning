@@ -2,6 +2,7 @@
 level: foundation
 area: infra
 prerequisites:
+  - 00-network-vocabulary.md
   - ../00-linux/05-ports-sockets.md
 related:
   - 02-tcp-udp.md
@@ -12,6 +13,8 @@ related:
 # IP, port & DNS
 
 > Deploy phiên bản mới, đổi DNS record trỏ sang cluster mới. 90% traffic chuyển ngay. 10% còn lại vẫn đi tới cluster cũ — trong **bốn tiếng**. Không ai làm gì sai. TTL của record là 3600 giây, và một số resolver bỏ qua cả TTL đó.
+
+> **Chưa biết những từ này?** [Từ vựng Network](00-network-vocabulary.md) — IP, port, DNS record, TTL
 
 ## Position
 
@@ -371,6 +374,7 @@ Bước 6 với `-w` là công cụ ít dùng nhưng rất hiệu quả — nó 
 
 ## Related
 
+- [Từ vựng Network](00-network-vocabulary.md) — foundation: IP, port, DNS record, TTL
 - [Ports & sockets](../00-linux/05-ports-sockets.md) — bind, `refused` vs `timeout`
 - [TCP & UDP](02-tcp-udp.md) — cái gì xảy ra sau khi có IP
 - [TLS](03-tls.md) — SNI dùng tên, không dùng IP

@@ -2,6 +2,7 @@
 level: foundation
 area: backend
 prerequisites:
+  - 00-api-vocabulary.md
   - 01-http-request-response.md
 related:
   - 04-pagination-filtering-sorting.md
@@ -11,6 +12,8 @@ related:
 # REST API contract
 
 > API là một **hợp đồng bạn không thể lấy lại** sau khi có client dùng nó. Thiết kế nó như một interface công khai, không như một hàm nội bộ.
+
+> **Chưa biết những từ này?** [Từ vựng API](00-api-vocabulary.md) — resource, endpoint, REST, contract
 
 ## Position
 
@@ -298,6 +301,7 @@ export class TasksController {
 
 ## Related
 
+- [Từ vựng API](00-api-vocabulary.md) — foundation: resource, endpoint, REST, contract
 - [HTTP request/response](01-http-request-response.md) — ngữ nghĩa method và status
 - [HTTP semantics & idempotency](03-http-semantics-idempotency.md)
 - [Pagination, filtering, sorting](04-pagination-filtering-sorting.md)

@@ -2,6 +2,7 @@
 level: intermediate
 area: infra
 prerequisites:
+  - 00-network-vocabulary.md
   - 01-ip-port-dns.md
   - ../00-linux/05-ports-sockets.md
 related:
@@ -13,6 +14,8 @@ related:
 # TCP & UDP
 
 > Service A gọi service B. B chết hoàn toàn — process bị kill, máy vẫn sống. A không nhận lỗi. A **treo 15 phút** rồi mới báo timeout. Trong 15 phút đó, mọi request qua A đều xếp hàng và cả hệ thống dừng. TCP không hỏng; nó đang làm đúng những gì nó được thiết kế: **cố gắng đến cùng**.
+
+> **Chưa biết những từ này?** [Từ vựng Network](00-network-vocabulary.md) — packet, socket, TCP vs UDP
 
 ## Position
 
@@ -385,6 +388,7 @@ const res = await fetch(url, { signal: controller });
 
 ## Related
 
+- [Từ vựng Network](00-network-vocabulary.md) — foundation: packet, socket, TCP vs UDP
 - [IP, port & DNS](01-ip-port-dns.md) — trước khi có kết nối
 - [TLS](03-tls.md) — thêm 1–2 RTT lên trên TCP
 - [NAT, firewall & routing](04-nat-firewall-routing.md) — vì sao gói tin biến mất

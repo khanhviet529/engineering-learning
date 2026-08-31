@@ -5,10 +5,24 @@ Ngôn ngữ như một **runtime có mô hình đồng thời cụ thể** và m
 ## Cấu trúc
 
 ```text
-fundamentals/       execution context, closure, module, error handling
+fundamentals/       TỪ VỰNG, execution context, closure, module, error handling
 async-concurrency/  event loop, promise, race condition
 runtime-behavior/   memory, garbage collection
 typescript/         ranh giới compile-time ↔ runtime, type system
+```
+
+## Vào đây từ đâu
+
+```text
+Biết cú pháp JS, nhưng chưa chắc value vs reference / Promise LÀ GÌ?
+        └──▶ fundamentals/00-js-vocabulary.md   ← từ vựng, ~12 phút
+
+Đã có từ vựng, muốn hiểu vì sao code chạy sai thứ tự?
+        └──▶ async-concurrency/01-event-loop-async.md
+
+Đang có bug "state không đổi" hoặc "effect chạy vô hạn"?
+        └──▶ 00-js-vocabulary.md, mục "Value và reference" — 15 dòng
+             giải thích gần như toàn bộ nhóm bug đó
 ```
 
 ## Thứ tự đọc
@@ -17,6 +31,7 @@ typescript/         ranh giới compile-time ↔ runtime, type system
 
 | # | Note | Trả lời câu hỏi |
 |---|---|---|
+| 0 | [Từ vựng JavaScript](./fundamentals/00-js-vocabulary.md) | value vs reference, stack/heap, sync/async, Promise — **là gì?** |
 | 1 | [Event loop & async](./async-concurrency/01-event-loop-async.md) | Vì sao thứ tự log không như tôi nghĩ? |
 | 2 | [Execution context & closure](./fundamentals/01-execution-context-closure.md) | Vì sao hàm của tôi đọc giá trị cũ? |
 | 3 | [Promise & concurrency](./async-concurrency/02-promise-concurrency.md) | Song song bao nhiêu là đúng? |

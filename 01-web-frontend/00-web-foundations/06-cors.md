@@ -2,6 +2,7 @@
 level: foundation
 area: frontend
 prerequisites:
+  - 00-web-vocabulary.md
   - 01-browser-request-render.md
   - 05-cookies-storage.md
 related:
@@ -12,6 +13,8 @@ related:
 # CORS
 
 > CORS không bảo vệ server của bạn. Nó bảo vệ **người dùng** khỏi việc một site lạ đọc dữ liệu từ site khác bằng credential của họ. Hiểu sai điều này dẫn tới cả cấu hình sai và kỳ vọng sai.
+
+> **Chưa biết những từ này?** [Từ vựng Web](00-web-vocabulary.md) — origin — ba phần của nó là chìa khoá của toàn bộ note này
 
 ## Position
 
@@ -231,6 +234,7 @@ Thí nghiệm cuối là quan trọng nhất: nó là cách "sửa CORS" phổ b
 
 ## Related
 
+- [Từ vựng Web](00-web-vocabulary.md) — foundation: origin — ba phần của nó là chìa khoá của toàn bộ note này
 - [Cookies & storage](05-cookies-storage.md) — vì sao credentials cross-origin cần cấu hình cả hai phía
 - [XSS & CSRF](../../05-cross-cutting/security/03-xss-csrf.md) — CORS không giải quyết CSRF
 - [HTTP request/response](../../02-backend-api/00-http-api/01-http-request-response.md) — header và method

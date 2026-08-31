@@ -2,6 +2,7 @@
 level: intermediate
 area: infra
 prerequisites:
+  - 00-network-vocabulary.md
   - 02-tcp-udp.md
 related:
   - 05-reverse-proxy-load-balancer.md
@@ -11,6 +12,8 @@ related:
 # TLS
 
 > Lúc 02:14 sáng thứ Bảy, mọi request tới API trả về lỗi certificate. Không ai deploy gì. Không ai đổi cấu hình. Certificate hết hạn — và nó hết hạn vào đúng thời điểm đó vì nó được cấp đúng 90 ngày trước, và job tự động gia hạn đã lặng lẽ thất bại từ tuần thứ hai.
+
+> **Chưa biết những từ này?** [Từ vựng Network](00-network-vocabulary.md) — TLS, certificate, CA
 
 ## Position
 
@@ -399,6 +402,7 @@ Bước 5 là bước hay bị bỏ: `openssl` trên máy bạn dùng trust stor
 
 ## Related
 
+- [Từ vựng Network](00-network-vocabulary.md) — foundation: TLS, certificate, CA
 - [TCP & UDP](02-tcp-udp.md) — TLS thêm RTT lên trên bắt tay TCP
 - [IP, port & DNS](01-ip-port-dns.md) — SNI dùng tên
 - [Reverse proxy & load balancer](05-reverse-proxy-load-balancer.md) — terminate, `X-Forwarded-*`

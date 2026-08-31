@@ -2,6 +2,7 @@
 level: intermediate
 area: frontend
 prerequisites:
+  - 00-js-vocabulary.md
   - ../async-concurrency/02-promise-concurrency.md
 related:
   - ../../../02-backend-api/04-architecture/04-error-handling-strategy.md
@@ -11,6 +12,8 @@ related:
 # Error handling & immutability
 
 > Lỗi bị mất im lặng tệ hơn lỗi làm crash. Và state bị mutate tại chỗ là lý do UI không cập nhật dù dữ liệu đã đổi.
+
+> **Chưa biết những từ này?** [Từ vựng JavaScript](00-js-vocabulary.md) — value vs reference, copy nông vs copy sâu
 
 ## Position
 
@@ -288,6 +291,7 @@ Không có `try/catch` nào ở controller. Exception filter là boundary duy nh
 
 ## Related
 
+- [Từ vựng JavaScript](00-js-vocabulary.md) — foundation: value vs reference, copy nông vs copy sâu
 - [Promise & concurrency](../async-concurrency/02-promise-concurrency.md) — unhandled rejection
 - [Error handling strategy](../../../02-backend-api/04-architecture/04-error-handling-strategy.md) — chiến lược ở backend
 - [Error model](../../../02-backend-api/00-http-api/05-error-model.md) — hợp đồng lỗi với client

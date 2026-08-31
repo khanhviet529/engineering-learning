@@ -15,7 +15,7 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 
 ## Tổng số
 
-**287 note** (không tính README gốc và `templates/`).
+**294 note** (không tính README gốc và `templates/`).
 
 
 ### `00-roadmap`
@@ -30,6 +30,9 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 - [Application Engineering Map](../00-roadmap/application-engineering-map.md)
 - [Behavior Index](../00-roadmap/behavior-index.md)
 - [Final Coverage Report](../00-roadmap/final-coverage-report.md)
+- [Foundation Coverage Report](../00-roadmap/foundation-coverage-report.md)
+- [Foundation Gap Audit](../00-roadmap/foundation-gap-audit.md)
+- [Glossary](../00-roadmap/glossary.md)
 - [Knowledge Architecture Audit](../00-roadmap/knowledge-architecture-audit.md)
 - [Knowledge Architecture — Final Report](../00-roadmap/knowledge-architecture-final-report.md)
 - [Knowledge Audit](../00-roadmap/knowledge-audit.md)
@@ -42,6 +45,7 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 
 ### `01-web-frontend/00-web-foundations`
 
+- [Từ vựng Web: URL, HTTP, origin](../01-web-frontend/00-web-foundations/00-web-vocabulary.md)
 - [Browser: từ request tới render](../01-web-frontend/00-web-foundations/01-browser-request-render.md)
 - [HTTP & browser cache](../01-web-frontend/00-web-foundations/02-http-browser-cache.md)
 - [URL → DNS → TCP → TLS](../01-web-frontend/00-web-foundations/03-url-dns-tcp-tls.md)
@@ -63,6 +67,7 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 
 ### `01-web-frontend/01-javascript-typescript/fundamentals`
 
+- [Từ vựng JavaScript: giá trị, bộ nhớ, thứ tự chạy](../01-web-frontend/01-javascript-typescript/fundamentals/00-js-vocabulary.md)
 - [Execution context, scope, closure, `this`, prototype](../01-web-frontend/01-javascript-typescript/fundamentals/01-execution-context-closure.md)
 - [Module system & bundling](../01-web-frontend/01-javascript-typescript/fundamentals/02-modules-bundling.md)
 - [Error handling & immutability](../01-web-frontend/01-javascript-typescript/fundamentals/03-error-handling-immutability.md)
@@ -138,6 +143,7 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 
 ### `02-backend-api/00-http-api`
 
+- [Từ vựng API: endpoint, status code, REST, DTO](../02-backend-api/00-http-api/00-api-vocabulary.md)
 - [HTTP request & response](../02-backend-api/00-http-api/01-http-request-response.md)
 - [REST API contract](../02-backend-api/00-http-api/02-rest-api-contract.md)
 - [HTTP semantics & idempotency](../02-backend-api/00-http-api/03-http-semantics-idempotency.md)
@@ -334,6 +340,7 @@ Mỗi folder có README riêng với **thứ tự đọc** và **bảng chẩn �
 
 ### `04-infrastructure/01-networking`
 
+- [Từ vựng Network: IP, port, socket, TCP, DNS, TLS](../04-infrastructure/01-networking/00-network-vocabulary.md)
 - [IP, port & DNS](../04-infrastructure/01-networking/01-ip-port-dns.md)
 - [TCP & UDP](../04-infrastructure/01-networking/02-tcp-udp.md)
 - [TLS](../04-infrastructure/01-networking/03-tls.md)

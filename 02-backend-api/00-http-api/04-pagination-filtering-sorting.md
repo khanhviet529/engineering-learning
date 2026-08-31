@@ -2,6 +2,7 @@
 level: intermediate
 area: backend
 prerequisites:
+  - 00-api-vocabulary.md
   - 02-rest-api-contract.md
 related:
   - ../../03-database/01-postgresql/indexes-query-planning/01-index-query-plan.md
@@ -11,6 +12,8 @@ related:
 # Pagination, filtering, sorting
 
 > `OFFSET 100000` không "bỏ qua" 100.000 dòng — database vẫn phải đọc và loại bỏ từng dòng một. Đây là lý do trang cuối của một list dài luôn chậm hơn trang đầu.
+
+> **Chưa biết những từ này?** [Từ vựng API](00-api-vocabulary.md) — query, payload, pagination
 
 ## Position
 
@@ -296,6 +299,7 @@ Cursor là **opaque** với client — nó không nên parse hoặc tự tạo c
 
 ## Related
 
+- [Từ vựng API](00-api-vocabulary.md) — foundation: query, payload, pagination
 - [REST API contract](02-rest-api-contract.md) — hình dạng response
 - [Index & query plan](../../03-database/01-postgresql/indexes-query-planning/01-index-query-plan.md) — index cho pagination
 - [Index types](../../03-database/01-postgresql/indexes-query-planning/02-index-types.md) — composite index và chiều sort

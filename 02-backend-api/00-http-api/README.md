@@ -2,10 +2,24 @@
 
 HTTP như một **hợp đồng chung** giữa client, proxy, CDN, load balancer và monitoring — không như một quy ước nội bộ của team bạn. Tôn trọng hợp đồng đó là cách bạn được cache, retry và observability hoạt động đúng mà không viết thêm code.
 
+## Vào đây từ đâu
+
+```text
+Chưa chắc 401 khác 403 ở đâu, 400 khác 422 ở đâu, DTO là gì?
+        └──▶ 00-api-vocabulary.md        ← từ vựng, ~12 phút
+
+Đã có từ vựng, muốn thiết kế API dùng được lâu dài?
+        └──▶ 01-http-request-response.md ← bắt đầu chuỗi bên dưới
+
+Đang phải chọn mã lỗi cho một tình huống cụ thể?
+        └──▶ 00-api-vocabulary.md (bảng 4xx) rồi 05-error-model.md
+```
+
 ## Thứ tự đọc
 
 | # | Note | Trả lời câu hỏi |
 |---|---|---|
+| 0 | [Từ vựng API](00-api-vocabulary.md) | endpoint, status code từng mã, REST, stateless, DTO — **là gì?** |
 | 1 | [HTTP request & response](01-http-request-response.md) | Method và status code có ngữ nghĩa gì, và ai dựa vào chúng? |
 | 2 | [REST API contract](02-rest-api-contract.md) | Thiết kế API mà không phải version lại? |
 | 3 | [HTTP semantics & idempotency](03-http-semantics-idempotency.md) | Vì sao người dùng bị charge hai lần khi không ai bấm hai lần? |

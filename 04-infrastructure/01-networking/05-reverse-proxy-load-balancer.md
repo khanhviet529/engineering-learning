@@ -2,6 +2,7 @@
 level: intermediate
 area: infra
 prerequisites:
+  - 00-network-vocabulary.md
   - 02-tcp-udp.md
   - 03-tls.md
 related:
@@ -13,6 +14,8 @@ related:
 # Reverse proxy & load balancer
 
 > Sau khi thêm load balancer, hệ thống ổn định hơn — trừ mỗi lần deploy. Mỗi lần rollout, biểu đồ lỗi có một cái gai: khoảng 200 lỗi `502 Bad Gateway` trong 3 giây. Ứng dụng có graceful shutdown, được viết cẩn thận, và nó **đang chạy đúng**. Vấn đề là nó đóng listener trước khi load balancer kịp biết là không nên gửi traffic tới nữa nữa.
+
+> **Chưa biết những từ này?** [Từ vựng Network](00-network-vocabulary.md) — IP, port, proxy
 
 ## Position
 
@@ -446,6 +449,7 @@ Bước 6 là bước duy nhất chứng minh vấn đề đã được sửa. "
 
 ## Related
 
+- [Từ vựng Network](00-network-vocabulary.md) — foundation: IP, port, proxy
 - [TCP & UDP](02-tcp-udp.md) — keep-alive, timeout
 - [TLS](03-tls.md) — terminate, `X-Forwarded-Proto`
 - [NAT, firewall & routing](04-nat-firewall-routing.md) — mất IP nguồn, PROXY protocol

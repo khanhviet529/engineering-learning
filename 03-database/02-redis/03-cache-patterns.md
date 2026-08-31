@@ -22,6 +22,18 @@ Application
     └──▶ Database
 ```
 
+### Ba từ dùng suốt note này
+
+| Từ | Nghĩa |
+|---|---|
+| **cache hit** | dữ liệu cần **có** trong cache → trả về ngay, không chạm database |
+| **cache miss** | dữ liệu **không có** trong cache → phải đi lấy từ nguồn thật |
+| **hit ratio** | `hits / (hits + misses)` — tỉ lệ request được cache phục vụ |
+
+Hit ratio là con số duy nhất nói cache của bạn có tác dụng hay không. Cache với hit ratio 20% không phải "cache kém" — nó là **thêm một hop và thêm một chỗ có thể sai** để đổi lấy 20% lợi ích. Đo nó trước khi tối ưu bất cứ thứ gì khác.
+
+Con số cần cảnh giác: hit ratio **giảm dần theo thời gian** thường nghĩa là key space đang phình ra (thêm biến vào key) hoặc eviction đang đá dữ liệu nóng ra ngoài → [04-eviction-memory.md](./04-eviction-memory.md).
+
 ## Problem
 
 "Dùng cache" không phải một quyết định — nó là bốn quyết định:

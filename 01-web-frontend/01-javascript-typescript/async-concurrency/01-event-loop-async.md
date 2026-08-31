@@ -1,7 +1,8 @@
 ---
 level: foundation
 area: frontend
-prerequisites: []
+prerequisites:
+  - ../fundamentals/00-js-vocabulary.md
 related:
   - 02-promise-concurrency.md
   - ../../../02-backend-api/01-nodejs/fundamentals/01-runtime-concurrency.md
@@ -11,6 +12,8 @@ related:
 # Event loop & async
 
 > Một thread, nhiều việc, không có chỗ nào chờ. Đây là mô hình đồng thời của JavaScript ở cả browser và Node.js — và nguồn của mọi bất ngờ về thứ tự thực thi.
+
+> **Chưa biết những từ này?** [Từ vựng JavaScript](../fundamentals/00-js-vocabulary.md) — sync vs async, task vs microtask, Promise là gì
 
 ## Position
 
@@ -229,6 +232,7 @@ Thí nghiệm 2 và 3 cạnh nhau là thí nghiệm quan trọng nhất — nó 
 
 ## Related
 
+- [Từ vựng JavaScript](../fundamentals/00-js-vocabulary.md) — foundation: sync vs async, task vs microtask, Promise là gì
 - [Promise & concurrency](02-promise-concurrency.md) — `Promise.all`, giới hạn concurrency, error handling
 - [Execution context & closure](../fundamentals/01-execution-context-closure.md) — vì sao callback đọc giá trị cũ
 - [Node runtime & concurrency](../../../02-backend-api/01-nodejs/fundamentals/01-runtime-concurrency.md) — phase của libuv

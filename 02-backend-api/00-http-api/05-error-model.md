@@ -2,6 +2,7 @@
 level: intermediate
 area: backend
 prerequisites:
+  - 00-api-vocabulary.md
   - 01-http-request-response.md
 related:
   - ../04-architecture/04-error-handling-strategy.md
@@ -11,6 +12,8 @@ related:
 # Error model
 
 > Client cần biết ba điều khi có lỗi: **có nên retry không**, **có nên hiện gì cho người dùng**, và **field nào sai**. Một `{ "error": "something went wrong" }` không trả lời được câu nào.
+
+> **Chưa biết những từ này?** [Từ vựng API](00-api-vocabulary.md) — ý nghĩa từng status code `4xx`/`5xx`
 
 ## Position
 
@@ -312,6 +315,7 @@ Controller không có `try/catch`. Exception filter là boundary duy nhất. Xem
 
 ## Related
 
+- [Từ vựng API](00-api-vocabulary.md) — foundation: ý nghĩa từng status code `4xx`/`5xx`
 - [HTTP request/response](01-http-request-response.md) — chọn status code
 - [Error handling strategy](../04-architecture/04-error-handling-strategy.md) — chiến lược trong app
 - [Validation & errors (NestJS)](../02-nestjs/behavior/03-validation-errors.md) — implementation

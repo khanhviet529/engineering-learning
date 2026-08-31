@@ -25,6 +25,14 @@ Server Component                 │  Client Component
         └──── serialize props ────→ (chỉ dữ liệu JSON được, không hàm)
 ```
 
+Hai từ, hai câu:
+
+> **Server Component** là component **chỉ chạy trên server**. Code của nó không bao giờ được gửi xuống browser — browser chỉ nhận kết quả đã render.
+>
+> **Client Component** là component có code **được gửi xuống browser** và chạy ở đó, nên nó mới dùng được state và event.
+
+Điều làm ranh giới này khó không phải định nghĩa, mà là **mặc định**: trong App Router mọi component là Server Component cho tới khi có `'use client'` ở đầu file. Ngược với trực giác của người đến từ React thuần, nơi mọi thứ đều chạy ở browser.
+
 ## Problem
 
 Bốn lỗi có cùng một gốc:

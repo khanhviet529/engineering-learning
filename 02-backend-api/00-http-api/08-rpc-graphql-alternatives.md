@@ -2,6 +2,7 @@
 level: intermediate
 area: backend
 prerequisites:
+  - 00-api-vocabulary.md
   - 02-rest-api-contract.md
 related:
   - ../../06-system-design/07-event-driven.md
@@ -10,6 +11,8 @@ related:
 # RPC, GraphQL & alternatives
 
 > REST không phải lựa chọn duy nhất và không phải lựa chọn đúng cho mọi tình huống. Nhưng mỗi lựa chọn khác đổi một tập vấn đề lấy một tập vấn đề khác — và cái bạn mất thường là hạ tầng HTTP miễn phí.
+
+> **Chưa biết những từ này?** [Từ vựng API](00-api-vocabulary.md) — REST, RESTful, endpoint
 
 ## Position
 
@@ -289,6 +292,7 @@ Hàng giữa đáng chú ý: `expand` giải quyết phần lớn vấn đề "q
 
 ## Related
 
+- [Từ vựng API](00-api-vocabulary.md) — foundation: REST, RESTful, endpoint
 - [REST API contract](02-rest-api-contract.md) — `expand`, `fields` giải quyết over-fetching
 - [Pagination](04-pagination-filtering-sorting.md) — cursor pagination là chuẩn của GraphQL Connection
 - [Database performance](../../05-cross-cutting/performance/04-database-performance.md) — N+1

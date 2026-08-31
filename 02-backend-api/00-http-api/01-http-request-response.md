@@ -2,6 +2,7 @@
 level: foundation
 area: backend
 prerequisites:
+  - 00-api-vocabulary.md
   - ../../01-web-frontend/00-web-foundations/03-url-dns-tcp-tls.md
 related:
   - 03-http-semantics-idempotency.md
@@ -11,6 +12,8 @@ related:
 # HTTP request & response
 
 > HTTP là text trên TCP. Method, status code và header có **ngữ nghĩa** được định nghĩa trong RFC — không phải quy ước tuỳ ý của mỗi team. Tôn trọng ngữ nghĩa đó là cách bạn được cache, retry và proxy hoạt động đúng miễn phí.
+
+> **Chưa biết những từ này?** [Từ vựng API](00-api-vocabulary.md) — endpoint, status code, DTO
 
 ## Position
 
@@ -281,6 +284,7 @@ curl -X POST https://api.example.com/tasks \
 
 ## Related
 
+- [Từ vựng API](00-api-vocabulary.md) — foundation: endpoint, status code, DTO
 - [HTTP semantics & idempotency](03-http-semantics-idempotency.md) — chi tiết về idempotency
 - [REST API contract](02-rest-api-contract.md) — thiết kế resource
 - [Error model](05-error-model.md) — hình dạng body lỗi

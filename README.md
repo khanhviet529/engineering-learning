@@ -20,6 +20,31 @@ Vì vậy repo này không có note "Học Redis". Nó có note trả lời: *v�
 
 Nếu bạn chỉ có 30 phút đầu tiên: đọc Learning System, rồi đọc [Browser request → render](./01-web-frontend/00-web-foundations/01-browser-request-render.md) và trả lời phần *Prediction* của nó bằng bút.
 
+## Tôi không biết những từ này nghĩa là gì
+
+Repo này viết theo behavior: mỗi note mở đầu bằng một sự cố thật. Cách đó rất tốt **nếu bạn đã có từ vựng**, và vô dụng nếu chưa. Vì vậy có một lớp **foundation** riêng — nhẹ, không có failure mode, đọc 10–12 phút:
+
+| Bạn chưa chắc | Đọc |
+|---|---|
+| URL, origin, header, status code, request/response | [Từ vựng Web](./01-web-frontend/00-web-foundations/00-web-vocabulary.md) |
+| IP, port, socket, packet, TCP/UDP, DNS, TLS | [Từ vựng Network](./04-infrastructure/01-networking/00-network-vocabulary.md) |
+| value vs reference, stack/heap, sync/async, Promise **là gì** | [Từ vựng JavaScript](./01-web-frontend/01-javascript-typescript/fundamentals/00-js-vocabulary.md) |
+| endpoint, `401` vs `403`, `400` vs `422`, REST, DTO | [Từ vựng API](./02-backend-api/00-http-api/00-api-vocabulary.md) |
+| bảng, dòng, khoá chính, transaction, ACID | [SQL basics](./03-database/00-sql/00-sql-basics.md) |
+| PostgreSQL là gì ở mức process | [Architecture & ACID](./03-database/01-postgresql/fundamentals/01-architecture-and-acid.md) |
+| component, props, state, render | [Components & rendering model](./01-web-frontend/02-react/fundamentals/01-components-and-rendering-model.md) |
+| image vs container | [Image & container](./04-infrastructure/02-docker/01-image-container.md) |
+| authentication vs authorization | [Authentication & authorization](./02-backend-api/03-auth/01-authentication-authorization.md) |
+
+Tra một từ lẻ: [Glossary](./00-roadmap/glossary.md) — index, mỗi từ một dòng và một link.
+
+Hai chế độ đọc, và repo phục vụ cả hai:
+
+```text
+"tôi không biết từ này"      → foundation note  → hiểu NÓ LÀ GÌ
+"nó hoạt động và hỏng sao?"   → behavior note    → failure, debugging, production
+```
+
 ## Tôi đang học X thì đọc gì?
 
 | Bạn đang học | Vào đây |
@@ -170,3 +195,6 @@ Trade-off của giải pháp này là gì?
 | [00-roadmap/project-roadmap.md](./00-roadmap/project-roadmap.md) | Muốn biết phase nào build cái gì |
 | [00-roadmap/knowledge-audit.md](./00-roadmap/knowledge-audit.md) | Muốn biết repo này thiếu gì |
 | [00-roadmap/final-coverage-report.md](./00-roadmap/final-coverage-report.md) | Muốn biết vùng nào cố tình chưa đào sâu |
+| [00-roadmap/glossary.md](./00-roadmap/glossary.md) | Muốn tra nghĩa một từ lẻ |
+| [00-roadmap/foundation-gap-audit.md](./00-roadmap/foundation-gap-audit.md) | Muốn biết note nào giả định bạn đã biết gì |
+| [00-roadmap/foundation-coverage-report.md](./00-roadmap/foundation-coverage-report.md) | Muốn biết lớp foundation gồm những gì |
