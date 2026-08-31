@@ -24,6 +24,22 @@ Và ba hệ quả trực tiếp:
    → "AI viết đoạn đó" không phải một lời giải thích trong postmortem
 ```
 
+## Track này KHÔNG phải track kia
+
+```text
+09-ai-assisted-development (đây)   Developer dùng AI để LÀM VIỆC
+                                   → prompting để code · review code AI ·
+                                     hallucination khi dùng AI · rủi ro dữ liệu
+
+10-ai-engineering                  Engineer xây SẢN PHẨM CÓ AI BÊN TRONG
+                                   → chatbot · LLM API · RAG · agent/tool ·
+                                     streaming · memory · evaluation · cost
+```
+
+Nếu bạn đang build chatbot hoặc RAG, vào [10-ai-engineering/](../10-ai-engineering/README.md).
+
+Riêng mục **"Nhóm ③ — AI trong sản phẩm"** ở [05-ai-security-limits.md](./05-ai-security-limits.md) là mức *nhận thức*; mức *thực thi* nằm ở [10-ai-engineering/06-safety/](../10-ai-engineering/06-safety/README.md).
+
 ## Thứ tự đọc
 
 | # | Note | Trả lời câu hỏi |

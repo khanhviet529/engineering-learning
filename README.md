@@ -72,7 +72,8 @@ Hai chế độ đọc, và repo phục vụ cả hai:
 | Deploy ở đâu (VPS/PaaS/Cloudflare/edge) | [04-infrastructure/05-platforms/](./04-infrastructure/05-platforms/README.md) |
 | Security, testing, observability, performance, reliability, concurrency | [05-cross-cutting/](./05-cross-cutting/README.md) |
 | System design | [06-system-design/](./06-system-design/README.md) |
-| Làm việc với AI | [09-ai-assisted-development/](./09-ai-assisted-development/README.md) |
+| Làm việc với AI (dùng AI để code) | [09-ai-assisted-development/](./09-ai-assisted-development/README.md) |
+| **Xây sản phẩm có AI** (chatbot, RAG, agent) | [10-ai-engineering/](./10-ai-engineering/README.md) |
 
 ## Tôi biết công nghệ rồi — xây application thật thì sao?
 
@@ -160,6 +161,7 @@ Cụ thể: đừng để AI làm hộ *prediction*, *thiết kế experiment*, 
 
 - Dùng AI để **học**: [AI-Assisted Learning](./00-roadmap/03-ai-assisted-learning.md)
 - Dùng AI để **làm việc**: [09-ai-assisted-development/](./09-ai-assisted-development/README.md)
+- **Xây sản phẩm có AI bên trong**: [10-ai-engineering/](./10-ai-engineering/README.md) — chatbot, RAG, agent, evaluation
 
 ## Tiêu chuẩn của repo này
 
@@ -199,3 +201,4 @@ Trade-off của giải pháp này là gì?
 | [00-roadmap/foundation-gap-audit.md](./00-roadmap/foundation-gap-audit.md) | Muốn biết note nào giả định bạn đã biết gì |
 | [00-roadmap/foundation-coverage-report.md](./00-roadmap/foundation-coverage-report.md) | Muốn biết lớp foundation gồm những gì |
 | [00-roadmap/foundation-accuracy-report.md](./00-roadmap/foundation-accuracy-report.md) | Muốn biết chỗ nào cố tình đơn giản hoá, và đơn giản hoá tới đâu |
+| [00-roadmap/ai-engineering-coverage-report.md](./00-roadmap/ai-engineering-coverage-report.md) | Muốn biết track AI Engineering có gì, cố tình thiếu gì |

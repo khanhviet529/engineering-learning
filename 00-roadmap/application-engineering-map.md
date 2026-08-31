@@ -188,6 +188,20 @@ Bốn note đầu là **kiểu dữ liệu dễ làm sai** — chúng ảnh hư�
 3. **Câu hỏi nghiệp vụ đi trước câu hỏi kỹ thuật.** *"Dữ liệu cũ 5 phút có được không?"* rẻ hơn mọi tối ưu query.
 4. **Công cụ không thay thế hiểu biết.** ORM không thay kiến thức index; cache không thay kiến thức về nút thắt; BFF không thay kiến thức về timeout.
 
+## Xây feature có AI bên trong
+
+Đây là một nhóm problem riêng, và nó có track riêng: [10-ai-engineering/](../10-ai-engineering/README.md).
+
+| Câu hỏi | Vào đây |
+|---|---|
+| "Màn hình chat: state ở đâu, stream thế nào, huỷ thế nào?" | [Chatbot architecture](../10-ai-engineering/02-chatbot-web/01-chatbot-architecture.md) · [Chat UX & state](../10-ai-engineering/02-chatbot-web/04-chat-ux-and-state.md) |
+| "Làm sao model trả lời đúng về dữ liệu công ty tôi?" | [RAG pipeline](../10-ai-engineering/03-rag/03-rag-pipeline.md) |
+| "AI trả lời sai — lỗi ở tầng nào?" | [RAG failure modes](../10-ai-engineering/03-rag/04-rag-failure-modes.md) |
+| "Làm sao cho AI *hành động* mà không gây hại?" | [Tool security](../10-ai-engineering/04-agents-tools/02-tool-security.md) |
+| "Hoá đơn AI tăng 30× — tìm ở đâu?" | [Cost & model routing](../10-ai-engineering/07-production/02-cost-and-model-routing.md) |
+| "Làm sao biết AI feature tốt hay tệ?" | [Evaluation](../10-ai-engineering/05-evaluation/01-evaluating-ai-features.md) |
+| "Chatbot chậm — tối ưu cái gì?" | [Latency engineering](../10-ai-engineering/07-production/04-latency-engineering.md) |
+
 ## Related
 
 - [Roadmap](02-roadmap.md) — 12 behavior theo thứ tự học

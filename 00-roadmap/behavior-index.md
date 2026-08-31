@@ -123,6 +123,30 @@ Tra cứu đầy đủ theo problem: [Application Engineering Map](application-e
 | Cần alert đúng thứ | [Alerting & dashboards](../05-cross-cutting/observability/05-alerting-dashboards.md) |
 | Cần một quy trình debug có kỷ luật | [Failure modes](../05-cross-cutting/reliability/01-failure-modes.md) |
 
+## Triệu chứng của AI feature
+
+| Triệu chứng | Tầng | Note |
+|---|---|---|
+| `Unexpected end of JSON input` rải rác khi gọi LLM | output bị cắt (`max_tokens`), không phải lỗi parser | [LLM lifecycle](../10-ai-engineering/00-fundamentals/01-llm-request-lifecycle.md) |
+| `400 context too large` chỉ với một số người dùng | history không có trần | [Context window](../10-ai-engineering/02-chatbot-web/06-context-window-management.md) |
+| Hoá đơn AI tăng nhiều lần, không ai deploy gì | prompt cache bị phá; history phình | [Cost](../10-ai-engineering/07-production/02-cost-and-model-routing.md) |
+| Chatbot chậm, tối ưu ba tuần không cải thiện | tối ưu `total` thay vì `TTFT` | [Latency](../10-ai-engineering/07-production/04-latency-engineering.md) |
+| Stream chạy ở local, "không stream" ở production | proxy buffer response | [Streaming](../10-ai-engineering/02-chatbot-web/03-streaming.md) |
+| F5 mất hội thoại chatbot | state chỉ ở React | [Chat UX & state](../10-ai-engineering/02-chatbot-web/04-chat-ux-and-state.md) |
+| Hai câu trả lời cho một tin nhắn | thiếu idempotency | [Chatbot architecture](../10-ai-engineering/02-chatbot-web/01-chatbot-architecture.md) |
+| Đóng tab = mất câu trả lời đã tốn tiền | không tích luỹ text ở server | như trên |
+| RAG trả lời sai một con số cụ thể | chunk cắt mất tiêu đề bảng | [RAG failure modes](../10-ai-engineering/03-rag/04-rag-failure-modes.md) |
+| RAG bịa khi không có dữ liệu | thiếu đường ra `found: false` | [RAG pipeline](../10-ai-engineering/03-rag/03-rag-pipeline.md) |
+| Không tìm được mã / ID trong RAG | vector yếu với định danh → cần hybrid | [Vector search](../10-ai-engineering/03-rag/02-vector-search.md) |
+| Người dùng thấy tài liệu của tenant khác | lọc **sau** retrieval thay vì trong query | như trên |
+| Agent tốn tiền khổng lồ, log không có lỗi nào | lặp cùng tool cùng args | [Agent loop](../10-ai-engineering/04-agents-tools/03-agent-loop.md) |
+| AI tác động lên dữ liệu của người khác | authz kiểm action, không kiểm object | [Tool security](../10-ai-engineering/04-agents-tools/02-tool-security.md) |
+| AI làm việc mà quy tắc cấm | quy tắc nằm trong prompt, không trong code | như trên |
+| XSS trong câu trả lời chatbot | markdown cho phép HTML thô | [Untrusted output](../10-ai-engineering/06-safety/02-untrusted-model-output.md) |
+| Trợ lý gửi dữ liệu ra ngoài không ai yêu cầu | indirect prompt injection qua nội dung đọc vào | [Prompt injection](../10-ai-engineering/06-safety/01-prompt-injection.md) |
+| Hành vi AI đổi mà không ai deploy | provider cập nhật model | [Versioning](../10-ai-engineering/07-production/06-versioning-and-release.md) |
+| Không biết prompt mới tốt hơn hay tệ hơn | không có baseline / golden dataset | [Evaluation](../10-ai-engineering/05-evaluation/01-evaluating-ai-features.md) |
+
 ## Cùng một vấn đề ở nhiều tầng
 
 Một số họ vấn đề xuất hiện lại ở mọi tầng với tên khác nhau. Nhận ra chúng là dấu hiệu bạn đã hiểu, không chỉ ghi nhớ.

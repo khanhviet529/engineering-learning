@@ -297,6 +297,32 @@ Tổng quan: [05-cross-cutting/README.md](../05-cross-cutting/README.md).
 | Cấu hình apply thành công mà không có tác dụng | [Hallucination & verification](../09-ai-assisted-development/04-hallucination-verification.md) |
 | Đưa tính năng AI vào sản phẩm | [AI security & limits](../09-ai-assisted-development/05-ai-security-limits.md) |
 
+## Tầng AI (chạy song song với các tầng trên)
+
+AI feature không phải một tầng riêng — nó **cắt qua** mọi tầng đã liệt kê ở trên:
+
+```text
+Browser        streaming render · optimistic · cancel     → 10-ai/02-chatbot-web/04
+   │
+Frontend       SSE / fetch stream                          → 10-ai/02-chatbot-web/03
+   │
+HTTP           POST + text/event-stream · idempotency      → 10-ai/02-chatbot-web/01
+   │
+Backend        auth · rate limit (token!) · context build  → 10-ai/01-context-and-output/02
+   │            · model adapter · tool executor            → 10-ai/04-agents-tools/
+   │            · output validate                          → 10-ai/01-context-and-output/03
+   │
+Cache          prompt cache · embedding cache              → 10-ai/07-production/03
+Queue          ingestion · embedding · agent run · batch   → 10-ai/03-rag/03
+   │
+PostgreSQL     conversation · message · usage · vector     → 10-ai/02-chatbot-web/05
+   │            + pgvector cho chunk                        → 10-ai/03-rag/02
+   │
+Observability  trace có span retrieval/model/tool · cost   → 10-ai/07-production/01
+```
+
+Vào track: [10-ai-engineering/](../10-ai-engineering/README.md). Từ vựng trước: [Từ vựng AI](../10-ai-engineering/00-fundamentals/00-ai-vocabulary.md).
+
 ## Học theo thứ tự nào?
 
 Nếu bạn chỉ muốn một câu trả lời: đi theo [Roadmap 12 behavior](02-roadmap.md) từ trên xuống. Đừng nhảy tới Kubernetes trước behavior 11.

@@ -39,6 +39,8 @@ Mặc định phổ biến ≠ đúng cho bạn.
 
 ### Trước đó: context window là gì
 
+*Định nghĩa đầy đủ (token, tokenizer, giới hạn output, chi phí) ở [Từ vựng AI Engineering](../10-ai-engineering/00-fundamentals/00-ai-vocabulary.md) — note đó là canonical owner của khái niệm này. Dưới đây là phần bạn cần cho việc dùng AI để làm việc.*
+
 Từ "ngữ cảnh" trong note này có một nghĩa kỹ thuật cụ thể, và không biết nó dẫn tới kỳ vọng sai.
 
 > **Context window** là số lượng token tối đa mà mô hình có thể "nhìn thấy" trong **một lần** sinh ra câu trả lời. Nó bao gồm **tất cả**: system prompt, mọi lượt hội thoại trước, file bạn dán vào, kết quả tool, và cả câu trả lời đang được viết ra.
