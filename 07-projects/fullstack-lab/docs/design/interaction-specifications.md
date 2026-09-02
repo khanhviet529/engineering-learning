@@ -37,7 +37,7 @@ Request move mang cột đích, vị trí mục tiêu và version task mà clien
 |---|---|---|---|
 | Move task | Di chuyển card lạc quan, nhãn `Đang đồng bộ`, chụp snapshot để hoàn nguyên. | Nhận vị trí/version server. | Hoàn nguyên; Error cho kéo lại, Conflict mở resolution, Forbidden bỏ dữ liệu private khi cần. |
 | Tạo/sửa task | Giữ form mở, nút ở trạng thái saving; không thêm card “đã tạo” giả. | Cập nhật board/drawer bằng task server trả về rồi đóng form. | Giữ giá trị form; Conflict không ghi đè; Forbidden không khẳng định thành công. |
-| Tạo comment | Hiển thị comment tạm có nhãn `Đang gửi` và idempotency key cho lần gửi/retry an toàn. | Thay bằng comment server xác nhận. | Giữ bản nháp để thử lại khi Error; bỏ trạng thái tạm nếu Forbidden/Session expired xác nhận. |
+| Tạo comment | Hiển thị comment tạm có nhãn `Đang gửi` và idempotency key cho lần gửi/retry an toàn: giữ nguyên key khi retry cùng nội dung vì lỗi vận chuyển, xoay key mới khi user đổi nội dung (vòng đời key ở [frontend conventions](../engineering/frontend-conventions.md#vòng-đời-idempotency-key-phía-client)). | Thay bằng comment server xác nhận. | Giữ bản nháp để thử lại khi Error; bỏ trạng thái tạm nếu Forbidden/Session expired xác nhận. |
 | Đổi tên project | Giữ `PRJ-03 Project Settings` ở trạng thái Saving; không đổi header/list theo kiểu lạc quan. | Đồng bộ tên server trả về ở settings và project context. | Giữ form name khi Error; Forbidden bỏ dữ liệu project. Request chỉ là `PATCH /projects/:projectId` với `name`. |
 | Thay đổi cột/thành viên | Hàng đang mutation có spinner và khóa thao tác mâu thuẫn. | Đồng bộ danh sách theo phản hồi server. | Giữ form/hàng có ngữ cảnh lỗi; không tự suy diễn thay đổi đã áp dụng. |
 
@@ -105,7 +105,7 @@ Form là dirty sau khác biệt có ý nghĩa với giá trị đã nạp/giá t
 1. Dừng mutation, gắn state Conflict với task nguồn và giữ bản nháp local ở bộ nhớ tạm của phiên.
 2. Nạp lại bản task hiện tại cùng version mới nếu actor vẫn có quyền đọc. Loading của bước này là state riêng trong SYS-04.
 3. Hiển thị rõ rằng task đã thay đổi ở nơi khác, cùng hai dữ liệu có nhãn `Bản hiện tại` và `Bản nháp của bạn` khi có dữ liệu. Không suy đoán field merge hoặc người thay đổi nếu payload không cung cấp.
-4. Người dùng chọn xem bản hiện tại, sao chép nội dung bản nháp hoặc hủy. Muốn lưu thay đổi phải chủ động quay về form trên version hiện tại và gửi lại qua flow thông thường.
+4. Người dùng chọn xem bản hiện tại, sao chép nội dung bản nháp hoặc hủy. Muốn lưu thay đổi phải chủ động quay về form trên version hiện tại và gửi lại qua flow thông thường. Lần gửi lại này là một **ý định mới**: dùng `expectedVersion` mới và `Idempotency-Key` mới — giữ key cũ sẽ replay outcome `409` đã lưu hoặc nhận `409 IDEMPOTENCY_KEY_REUSED` (vòng đời key ở [frontend conventions](../engineering/frontend-conventions.md#vòng-đời-idempotency-key-phía-client)).
 5. Nếu nạp lại trả Forbidden hoặc Session expired, ưu tiên state đó và không hiển thị dữ liệu conflict đã cache. Nếu Error, giữ message Conflict và cho `Thử tải bản hiện tại`.
 
 Di chuyển task gặp Conflict dùng cùng flow nhưng không cố dựng UI merge vị trí. Sau khi xem lại board hiện tại, người dùng thực hiện một drag-and-drop mới nếu vẫn có quyền.

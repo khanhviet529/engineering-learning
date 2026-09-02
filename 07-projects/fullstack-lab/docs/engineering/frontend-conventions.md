@@ -42,6 +42,17 @@ TanStack Query query key phải biểu đạt resource và input canonical, ch�
 
 Optimistic update chỉ dùng khi client có đủ response/capability để rollback chính xác. Task update/move luôn gửi `expectedVersion`; `409 TASK_VERSION_CONFLICT` hoàn nguyên optimistic state, hiển thị trạng thái conflict/reload-review và không ghi đè im lặng. DnD chỉ tạo command `destinationColumnId`, `targetPosition`, `expectedVersion` cho endpoint move; server trả task committed và là nguồn position/version mới.
 
+### Vòng đời `Idempotency-Key` phía client
+
+Server lưu outcome theo key ([idempotency contract](../api/api-conventions.md#idempotency-key)); phía client, quy tắc sinh/giữ/xoay key quyết định retry có phục hồi được hay không:
+
+- Key được sinh cho **một ý định của user** (một lần bấm lưu, một cú thả DnD, một lần gửi comment) — không phải cho một HTTP attempt.
+- **Giữ nguyên key** khi và chỉ khi gửi lại cùng payload y nguyên vì lỗi vận chuyển: network error, timeout, `5xx`. Đây là toàn bộ lý do key tồn tại — replay trả outcome đã lưu thay vì tạo hiệu ứng thứ hai.
+- **Xoay key mới** khi: user sửa payload; sau khi giải quyết `409 TASK_VERSION_CONFLICT`/`WORK_LOG_VERSION_CONFLICT` và gửi lại với `expectedVersion` mới (bản gửi lại là một ý định mới trên version mới — giữ key cũ sẽ replay đúng outcome `409` đã lưu, hoặc bị `409 IDEMPOTENCY_KEY_REUSED` nếu payload đổi); user hủy rồi mở lại form.
+- `409 IDEMPOTENCY_IN_PROGRESS`: cùng ý định, request gốc đang chạy — chờ theo `Retry-After` rồi gửi lại **cùng key**, không xoay.
+- Không tự retry sau `429` hoặc `409` (API conventions đã cấm); nút thử lại do user bấm là một ý định mới nếu payload đã đổi, và vì vậy dùng key mới.
+- `409 IDEMPOTENCY_KEY_REUSED` là **lỗi lập trình client** (tái dùng key cho payload khác), không phải trạng thái nghiệp vụ user gặp: log/report như bug qua `requestId`, hiển thị Error chung, không thiết kế nhánh UI riêng cho nó.
+
 React Hook Form dùng schema Zod của form/use case có field allowlist. Client hiển thị lỗi field từ `VALIDATION_FAILED` khi `details` đã được server validate; lỗi không có field được hiển thị ở form/page scope. Disabled/hidden action dùng capability do server trả và `can(action, resource)` chung, nhưng mutation vẫn phải xử lý `403`, `404`, `409`, session hết hạn và network failure.
 
 ## Validation, error và chất lượng UI
