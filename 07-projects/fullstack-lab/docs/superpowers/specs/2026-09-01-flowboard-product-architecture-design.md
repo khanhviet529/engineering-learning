@@ -1,6 +1,6 @@
 # Flowboard Product & Architecture Design
 
-**Status:** Proposed baseline v0.1 — reviewed before implementation
+**Status:** Markdown baseline v0.1 — Ready for Pencil. This acceptance confirms the Markdown contracts are ready for UI/UX work in Pencil; it does not claim that UI design or application implementation is complete.
 
 ## 1. Purpose
 
@@ -228,6 +228,8 @@ report_exports(project_id, created_at DESC)
 - Request IDs are propagated through web, API, worker, and logs.
 - Mutations that can be safely retried use an idempotency key.
 
+An account with valid credentials but an unverified email receives `403 EMAIL_VERIFICATION_REQUIRED` in the standard error envelope (`error.code`, safe `error.message`, and `requestId`; no `details`). Sign-in creates no session or cookie for this outcome and returns no private data. The frontend clears the password and takes the user to email verification, where it can offer the separately rate-limited resend flow without placing the email in a URL.
+
 ### 7.2 Endpoint groups
 
 ~~~
@@ -236,6 +238,8 @@ POST /auth/sign-in
 POST /auth/sign-out
 POST /auth/password/forgot
 POST /auth/password/reset
+POST /auth/email/verify
+POST /auth/email/verification/resend
 
 GET  /workspaces
 POST /workspaces
@@ -442,7 +446,7 @@ email/password
 
 Cookie requirements: HttpOnly, Secure outside local development, appropriate SameSite, expiry, server-side revocation, and CSRF protection for state-changing requests. Login and password-reset routes have rate limits.
 
-Password reset and email verification use one-time expiring random tokens whose hashes are stored in the database. Password changes revoke existing sessions.
+Password reset and email verification use one-time expiring random tokens whose hashes are stored in the database. A successful password reset revokes every existing session. An authenticated password-change endpoint is deferred from the MVP until its account-settings product scope and re-authentication policy are defined.
 
 ## 10. Reporting and asynchronous work
 
@@ -510,6 +514,8 @@ AI telemetry stores prompt version, provider/model, token usage, latency, finish
 ## 13. Documentation deliverables
 
 After this baseline is approved, the repository will contain focused documents for product brief/personas/scope/user journeys; information architecture/user flows/screen inventory/design system/Pencil handoff; domain model/table specifications/migrations/query-index policy; API conventions/endpoint contracts/errors/pagination/idempotency; authentication/authorization/permission catalog/test matrix; frontend/backend conventions/repository structure/shared-helper policy; testing/local development/Docker/CI/observability/deployment; reporting/export; AI roadmap/architecture/safety/evaluation; and a user guide.
+
+The documentation index records traceability from every section of this specification to its focused documents and defines the canonical names for product concepts and technical identifiers. Markdown remains authoritative for these contracts; Pencil is authoritative only for the visual UI/UX design that follows this acceptance gate.
 
 ## 14. Baseline acceptance criteria
 

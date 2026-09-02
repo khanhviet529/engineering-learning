@@ -261,7 +261,7 @@ git commit -m "docs: define Flowboard data and query policy"
 
 - [ ] **Step 1: Write authentication**
 
-Describe sign-up, email verification, sign-in, opaque session creation, session cookie attributes, server-side session hashing/revocation, logout, password reset, rate limiting, CSRF defense, and password-change session revocation. State Argon2id is the password hashing algorithm.
+Describe sign-up, email verification, sign-in, opaque session creation, session cookie attributes, server-side session hashing/revocation, logout, password reset with all-session revocation, rate limiting, and CSRF defense. State Argon2id is the password hashing algorithm and defer authenticated password change until account-settings scope and re-authentication policy are defined.
 
 - [ ] **Step 2: Write authorization model**
 
