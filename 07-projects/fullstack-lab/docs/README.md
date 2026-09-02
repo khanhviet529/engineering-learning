@@ -1,6 +1,6 @@
 # Tài liệu Flowboard
 
-Tài liệu này là bản đồ điều hướng cho Flowboard. [Đặc tả baseline đã được phê duyệt](superpowers/specs/2026-09-01-flowboard-product-architecture-design.md) giữ các quyết định gốc; các tài liệu theo chủ đề sẽ diễn giải chúng thành hợp đồng có thể thực hiện.
+Tài liệu này là bản đồ điều hướng cho Flowboard. [Đặc tả baseline đã được phê duyệt](superpowers/specs/2026-09-01-flowboard-product-architecture-design.md) giữ các quyết định gốc; các tài liệu theo chủ đề sẽ diễn giải chúng thành hợp đồng có thể thực hiện. Thư mục `superpowers/` giữ các spec/plan đã phê duyệt — tên thư mục là tên bộ công cụ đã tạo ra chúng; spec là thẩm quyền gốc, plan là trình tự thực hiện tương ứng.
 
 **Markdown baseline v0.1: Ready for Pencil.** Mốc này xác nhận tài liệu Markdown sẵn sàng cho công việc UI/UX trong Pencil, không phải xác nhận thiết kế UI hoặc ứng dụng đã hoàn thành.
 
@@ -20,7 +20,7 @@ Tài liệu này là bản đồ điều hướng cho Flowboard. [Đặc tả ba
 | 10. Reporting and asynchronous work | [Progress export](reporting/progress-export.md), [delivery roadmap](product/delivery-roadmap.md) |
 | 11. Testing, delivery, and observability | [Testing strategy](operations/testing-strategy.md), [local development](operations/local-development.md), [CI/CD](operations/ci-cd.md), [observability](operations/observability.md) |
 | 12. AI design | [AI roadmap](ai/roadmap.md), [AI architecture and safety](ai/architecture-and-safety.md) |
-| 13. Documentation deliverables | This index, [design and documentation plan](design-and-docs-plan.md), [user guide](user-guide/README.md), [ADR process](decisions/README.md) |
+| 13. Documentation deliverables | This index, [design and documentation plan](design-and-docs-plan.md), [user guide](user-guide/README.md), [ADR process](decisions/README.md), [ba lát cắt dọc](how-it-works.md) |
 | 14. Baseline acceptance criteria | This index, [design and documentation plan](design-and-docs-plan.md), [approved baseline](superpowers/specs/2026-09-01-flowboard-product-architecture-design.md) |
 
 ### Baseline bổ sung
@@ -62,6 +62,37 @@ README
 → api/endpoint-contracts
 → engineering and operations
 ```
+
+Đường trên đúng cho người **thiết kế sản phẩm** (product → UX → data). Một engineer mới nên đi đường stack-first để biết app viết bằng gì ngay từ đầu:
+
+```text
+README
+→ engineering/repository-structure (stack + quy tắc quyết định kiến trúc)
+→ decisions/README và ADR-0003..0006 (vì sao stack như vậy)
+→ engineering/backend-conventions (module shape + bản đồ phụ thuộc)
+→ data/database-design → data/query-and-index-policy
+→ security/authorization-model
+→ api/api-conventions → api/endpoint-contracts
+→ how-it-works (ba lát cắt dọc nối các tầng trên)
+→ operations/local-development → operations/testing-strategy
+```
+
+[Ba lát cắt dọc](how-it-works.md) là bản đồ định tuyến xuyên tầng cho ba thao tác tiêu biểu (sign in, move task, log work); nó chỉ trỏ về canonical owner, không định nghĩa lại gì.
+
+### Bài toán khó và cách giải
+
+Bảng định tuyến: mỗi bài toán kỹ thuật trung tâm của Flowboard và các file sở hữu lời giải.
+
+| Bài toán | Đọc ở đâu |
+|---|---|
+| Lost update khi hai người sửa cùng task | [Pagination/concurrency/idempotency](api/pagination-concurrency-idempotency.md) (`expectedVersion` → `409`), [interaction specifications](design/interaction-specifications.md) (§5 Conflict), [ADR-0006](decisions/ADR-0006-fractional-ordering-and-concurrency.md) |
+| Drag-and-drop ordering không rewrite cả bảng | [ADR-0006](decisions/ADR-0006-fractional-ordering-and-concurrency.md), [pagination/concurrency/idempotency](api/pagination-concurrency-idempotency.md) (move/rebalance), [database design](data/database-design.md) |
+| Retry gây double-write | [API conventions](api/api-conventions.md) (idempotency key), [database design](data/database-design.md) (`idempotency_records`), [testing strategy](operations/testing-strategy.md) |
+| IDOR / truy cập chéo project | [Authorization model](security/authorization-model.md) (`404` không lộ existence), [database design](data/database-design.md) (composite FK same-project), [authorization test matrix](security/authorization-test-matrix.md) |
+| Invariant cross-row: tổng ≤ 1.440 phút/ngày | [Query and index policy](data/query-and-index-policy.md) (advisory lock), [ADR-0002](decisions/ADR-0002-project-time-tracking-and-approval.md) |
+| Board của project lớn vẫn nhanh | [Query and index policy](data/query-and-index-policy.md) (per-column cursor, index baseline, explain rule) |
+| Search tiếng Việt gõ không dấu | [Query and index policy](data/query-and-index-policy.md) (unaccent đối xứng, `fb_unaccent`) |
+| Response cũ về muộn ghi đè state mới (client race) | [Interaction specifications](design/interaction-specifications.md) (§2 version guard, §6 cache-key fingerprint) |
 
 Task này chỉ thiết lập bản đồ. Các tài liệu theo chủ đề được liên kết bên dưới là đầu ra của các task tiếp theo; chúng được hoãn có chủ đích, không phải là phần đã hoàn tất của MVP hay của thiết kế UI.
 

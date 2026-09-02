@@ -43,6 +43,10 @@ Tối thiểu phải có các test sau:
 
 Các regression về opaque session, cookie production, CSRF, token one-time/expiry và rate limit được thực hiện theo cùng matrix. Fixture và log assertion không được lưu raw cookie, password, CSRF, reset/verification token hoặc hash của chúng.
 
+### Ma trận phái sinh không được trôi khỏi catalog
+
+Ma trận visibility theo role trong `design/screen-inventory.md` và `design/information-architecture.md` là **phái sinh** của permission catalog ([authorization model](../security/authorization-model.md)); khi lệch, catalog thắng. Để chống trôi âm thầm: dùng lại fixture/cấu trúc của [authorization test matrix](../security/authorization-test-matrix.md), thêm assertion rằng **không affordance nào trong ma trận visibility cấp một action mà catalog Deny** cho role tương ứng (ví dụ Viewer không bao giờ có drag handle vì `task:move` Deny; Workspace Admin chưa là member luôn về Forbidden/404). E2E capability-affordance test hiện có là nơi thực thi; thay đổi permission chưa xong khi hai ma trận phái sinh chưa được re-check.
+
 ## Concurrency, transaction và retry
 
 Integration test phải dùng PostgreSQL và transaction thực; mock repository không đủ để chứng minh atomicity.

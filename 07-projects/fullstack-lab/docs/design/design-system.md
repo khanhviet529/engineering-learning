@@ -64,6 +64,13 @@ Tên token dùng theo ngữ nghĩa, không theo màu vật lý như `blue-500`. 
 
 `FbStatePanel` có thể compose trong các component khác nhưng không thay thế Screen ID. Ví dụ BRD-01 Error vẫn là frame của `BRD-01` với `FbStatePanel state="error"`.
 
+### Task planning và due state
+
+- `FbTaskForm` có title required, description, assignee, category, priority, start/end date và reviewer conditionally visible. Dấu `*` riêng có màu danger; field chỉ dùng border/help danger sau validation failure.
+- `FbPriority` dùng năm giá trị `none|low|medium|high|urgent`. `FbDueState` chỉ render projection server-derived: scheduled neutral, due-soon warning, due-today/overdue danger; terminal task không render overdue.
+- `FbReviewHandoff` chỉ xuất hiện khi destination column `requiresReviewer`; chọn reviewer ProjectMember khác assignee trước mutation.
+- `FbToast` là overlay góc trên phải cho outcome ngắn; form error nằm tại field; destructive action dùng confirm dialog. Không tạo page product riêng cho validation/toast.
+
 ## Quy tắc hình ảnh cho state và role
 
 | Tình huống | Yêu cầu visual và hành vi |
@@ -81,6 +88,8 @@ Tên token dùng theo ngữ nghĩa, không theo màu vật lý như `blue-500`. 
 
 Icon, màu hoặc tooltip không được là kênh duy nhất truyền trạng thái. Mọi control tương tác có nhãn truy cập được, focus visible và target chạm phù hợp token size.
 
+Light/dark dùng semantic token chung. Mỗi route có giao diện Light phải có frame Dark tương ứng với cùng information architecture, CTA, capability và state; Dark thay đổi surface, contrast, border, overlay, focus và semantic color, không chỉ đảo nền.
+
 ## Responsive
 
 - Desktop ưu tiên board đa cột nhìn cùng lúc, cột không co đến mức task card khó đọc.
@@ -88,6 +97,7 @@ Icon, màu hoặc tooltip không được là kênh duy nhất truyền trạng 
 - Compact dùng board ngang native; `fb.size.board-column-min` bảo vệ chiều rộng đọc được. Drawer/modal trở thành sheet toàn chiều cao khi cần.
 - Không tạo UI mobile-only có quy tắc sản phẩm khác desktop. Owner/Editor/Viewer, Loading/Empty/Error/Forbidden/Conflict và keyboard/focus semantics giữ nguyên.
 - Reduced motion giảm hoặc bỏ animation không thiết yếu; pending, target DnD và focus vẫn có dấu hiệu không phụ thuộc chuyển động.
+- `MYT-01` hiển thị task nhiều ngày bằng một bar span từ start đến due; khi màn hình hẹp, chuyển sang danh sách theo ngày, không co bar đến mức không đọc được.
 
 ## Accessibility và nội dung
 
@@ -97,9 +107,7 @@ Icon, màu hoặc tooltip không được là kênh duy nhất truyền trạng 
 - Nội dung action dùng động từ cụ thể: `Tải thêm`, `Thử lại`, `Xem bản hiện tại`, `Tiếp tục chỉnh sửa`, `Bỏ thay đổi`.
 - Text mẫu trong Pencil là placeholder visual trừ khi được đánh dấu là copy sản phẩm đã duyệt. Nó không được sinh thêm field, role hoặc hành vi.
 
-## Task planning, due state and theme addendum
-
-## Accessibility and contrast rule
+### Contrast rule (Light/Dark)
 
 - Normal text, meaningful icons, badges, input values, validation messages and interactive controls must meet a minimum contrast ratio of **4.5:1** against their immediate background in both Light and Dark themes.
 - Large text (at least 24 px regular or 18.66 px bold) may use 3:1 only when it is not the sole carrier of essential information.
@@ -107,16 +115,9 @@ Icon, màu hoặc tooltip không được là kênh duy nhất truyền trạng 
 - A selected calendar day in Dark mode uses a dark selected surface with light/violet text; it must never reuse the white selected surface from Light mode.
 - Every new or changed Pencil page must be checked for contrast on page background, card surface, overlay, form field, alert/banner, table row, calendar selection and focus-visible state before it is marked ready for build.
 
-### Minimum readable scale and approved contrast pairs
+### Minimum readable scale và approved contrast pairs
 
 - Dùng `Inter` qua token `fb.font.family.base`. Cỡ chữ nội dung và metadata có ý nghĩa không nhỏ hơn `11px`; body và control mặc định là `13–14px`; heading screen từ `18px` trở lên.
 - Light: `#182230` trên `#FFFFFF`/`#F6F7FB`, `#344054` trên surface, và `#B42318` trên `#FEF3F2` là các cặp nội dung chính. Dark: `#F9FAFB`/`#E4E7EC` trên `#111827`/`#1F2937`, muted `#98A2B3`, link/info `#84ADFF`, danger `#FDA29B`.
 - Các cặp đã kiểm tra: `#182230/#FFFFFF` 16.03:1, `#344054/#FFFFFF` 10.46:1, `#B42318/#FEF3F2` 6.05:1, `#F9FAFB/#1F2937` 14.05:1, `#E4E7EC/#1F2937` 11.84:1, `#98A2B3/#1F2937` 5.70:1, `#84ADFF/#1E3A5F` 5.15:1 và `#FDA29B/#4A1D1C` 7.29:1.
 - Chữ trắng chỉ dùng trên primary/semantic surface đủ tối; không đổi chữ của CTA sang màu Dark khi chuyển theme. Icon switch theme là icon-only, có accessible label/tooltip, không thêm text hiển thị cạnh icon.
-
-- `FbTaskForm` có title required, description, assignee, category, priority, start/end date và reviewer conditionally visible. Dấu `*` riêng có màu danger; field chỉ dùng border/help danger sau validation failure.
-- `FbPriority` dùng năm giá trị `none|low|medium|high|urgent`. `FbDueState` chỉ render projection server-derived: scheduled neutral, due-soon warning, due-today/overdue danger; terminal task không render overdue.
-- `FbReviewHandoff` chỉ xuất hiện khi destination column `requiresReviewer`; chọn reviewer ProjectMember khác assignee trước mutation.
-- `FbToast` là overlay góc trên phải cho outcome ngắn; form error nằm tại field; destructive action dùng confirm dialog. Không tạo page product riêng cho validation/toast.
-- Light/dark dùng semantic token chung. Mỗi route có giao diện Light phải có frame Dark tương ứng với cùng information architecture, CTA, capability và state; Dark thay đổi surface, contrast, border, overlay, focus và semantic color, không chỉ đảo nền.
-- `MYT-01` hiển thị task nhiều ngày bằng một bar span từ start đến due; khi màn hình hẹp, chuyển sang danh sách theo ngày, không co bar đến mức không đọc được.

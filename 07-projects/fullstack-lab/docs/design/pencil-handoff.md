@@ -140,7 +140,11 @@ Tiến độ dựng canvas theo baseline v0.1 được theo dõi trong [checklis
 
 Khi checklist đạt, frontend triển khai wrapper Flowboard trước rồi dùng Ant Design primitives bên trong wrapper. Nếu implementation phát hiện một state chưa được thiết kế, trạng thái đó quay lại Pencil và tài liệu UX để làm rõ thay vì tự chọn hành vi.
 
-## Canvas v0.2 — trật tự và mapping thực thi
+## Hồ sơ bàn giao theo version
+
+Các mục dưới đây là record bàn giao của từng version canvas theo đúng quy trình versioning ở trên — mỗi version ghi trật tự canvas và mapping thực thi tại thời điểm bàn giao. Version mới thêm mục mới, không ghi đè mục cũ.
+
+### Canvas v0.2 — trật tự và mapping thực thi
 
 Canvas được sắp theo ba hàng để review không bị lẫn theme:
 
@@ -166,7 +170,7 @@ Quy tắc role hiển thị trên frame: `Owner · Chủ sở hữu`, `Editor ·
 
 Time Tracking Phase 1.3 dùng `FbSelect`, `FbAsyncMemberSelect`, `FbDateRangePicker`, `FbSearchInput` và filter chips; không dùng text giả dropdown. Pencil phải có Light/Dark cho `TTS-01`, `WTL-01/02`, `WTA-01`, `WTR-01`; CTA lấy capability server, Owner/assigned Editor review, Viewer read-only.
 
-## Time Tracking Phase 1.3 — Canvas v0.3
+### Canvas v0.3 — Time Tracking Phase 1.3
 
 Time Tracking là section riêng trong Project Settings, không mở rộng form `PRJ-03` core MVP vốn chỉ sửa `name`. Các frame sau là nguồn mapping visual cho Phase 1.3; tên Light/Dark phải luôn đi theo cặp.
 

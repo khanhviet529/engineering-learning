@@ -1,11 +1,5 @@
 # Bắt đầu với Flowboard
 
-## Ghi và duyệt giờ (Phase 1.3)
-
-Khi Owner bật Time Tracking cho project, Owner/Editor có thể mở **Nhật ký giờ của tôi**, chọn task, ngày làm, số giờ và mô tả đã hoàn thành. Nếu log vào task không giao cho mình, nhập thêm lý do hỗ trợ. Ngày ngoài cửa sổ ghi bù không lưu được cho đến khi Owner mở quyền ghi bù cho đúng ngày.
-
-Project ở chế độ **Tự chốt** tính log ngay khi author chốt. Ở chế độ **Cần duyệt**, author gửi log và Owner hoặc Editor được chỉ định duyệt/trả lại; không ai tự duyệt log của chính mình. Báo cáo giờ tháng chỉ tính log cuối cùng đã được chốt/duyệt, đồng thời cho biết phần đang chờ hoặc bị trả lại.
-
 ## Purpose
 
 Hướng dẫn này giúp một người dùng bắt đầu vòng lặp core MVP: đăng nhập, vào workspace và project riêng tư được cấp quyền, hiểu action theo role, tạo hoặc mở task, rồi xem activity history.
@@ -87,6 +81,12 @@ Sau khi hoàn tất, bạn đang ở một project riêng tư mà bạn được
 | Người cần thêm vào project chưa là thành viên workspace | Chặn việc tạo membership project dở dang. | Nhờ Workspace Admin thêm người đó vào workspace trước, sau đó Owner thêm họ vào project. |
 | Lỗi mạng hoặc dữ liệu chưa tải | Hiển thị Loading, Empty hoặc Error rõ ràng; không xác nhận thay đổi chưa được server chấp nhận. | Thử lại khi phù hợp và giữ form/bản nháp khi giao diện còn cho phép. |
 | Task conflict (`409`) | Không ghi đè thay đổi mới hơn; cung cấp đường xem lại bản hiện tại. | Xem lại task, áp dụng lại thay đổi một cách chủ động hoặc hủy bản nháp. |
+
+## Ghi và duyệt giờ (chỉ khi project bật Time Tracking — Phase 1.3)
+
+Khi Owner bật Time Tracking cho project, Owner/Editor có thể mở **Nhật ký giờ của tôi**, chọn task, ngày làm, số giờ và mô tả đã hoàn thành. Nếu log vào task không giao cho mình, nhập thêm lý do hỗ trợ. Ngày ngoài cửa sổ ghi bù không lưu được cho đến khi Owner mở quyền ghi bù cho đúng ngày.
+
+Project ở chế độ **Tự chốt** tính log ngay khi author chốt. Ở chế độ **Cần duyệt**, author gửi log và Owner hoặc Editor được chỉ định duyệt/trả lại; không ai tự duyệt log của chính mình. Báo cáo giờ tháng chỉ tính log cuối cùng đã được chốt/duyệt, đồng thời cho biết phần đang chờ hoặc bị trả lại.
 
 ## Pencil reference
 

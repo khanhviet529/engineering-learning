@@ -54,6 +54,8 @@ The following project permissions are the complete MVP catalog:
 
 Workspace administration is a separate scope: `workspace:read` is available to either workspace role; `workspace:member:manage`, `workspace:settings:update`, and `project:create` require Workspace Admin. Those workspace abilities do not imply any entry in the project catalog.
 
+The role/visibility matrices in [screen inventory](../design/screen-inventory.md) and [information architecture](../design/information-architecture.md) are **derived** from this catalog, never independent sources. When any of them diverges from the catalog, the catalog wins and the derived matrix is the document to fix. A permission change is not complete until those derived matrices are re-checked; [testing strategy](../operations/testing-strategy.md) carries the test that enforces this.
+
 ### Time Tracking conditions (Phase 1.3)
 
 `work-log:review` and Editor `time-report:read` are not role-wide permissions: `AuthorizationService` additionally requires a current `ProjectTimeApprover` record for that exact project. Owner is an implicit approver. A reviewer must differ from `work_log.logged_by_user_id`; direct request self-review is denied even when the actor is Owner. When Time Tracking is disabled, write/review/report use cases deny with `TIME_TRACKING_DISABLED` after scope resolution.

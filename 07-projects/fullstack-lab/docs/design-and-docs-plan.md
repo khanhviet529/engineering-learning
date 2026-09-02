@@ -33,7 +33,7 @@ Checklist này là bản theo dõi rút gọn; chi tiết tiêu chí và review 
 - [x] Hoàn thiện engineering conventions: monorepo, folder structure, shared helpers, testing và code quality.
 - [x] Hoàn thiện operations: local environment, Docker, CI/CD, observability, backup/recovery, security operations.
 - [x] Hoàn thiện reporting và AI roadmap: export 1.1/1.2, AI-1 đến AI-4, guardrails và cost control.
-- [x] Hoàn thiện user guide và ADR: hướng dẫn sử dụng, template quyết định, glossary.
+- [x] Hoàn thiện user guide và ADR: hướng dẫn sử dụng, template quyết định, bảng thuật ngữ chuẩn (mục "Thuật ngữ chuẩn" trong [documentation index](README.md); không có file glossary riêng — đúng quy tắc một canonical owner cho mỗi khái niệm).
 - [x] Review tổng: traceability với baseline, link integrity, terminology, phase boundary và acceptance gate.
 - [ ] Sau khi Markdown docs đã chốt: thiết kế trực quan bằng Pencil theo `design/pencil-handoff.md`.
 - [ ] Sau khi Pencil đã chốt: viết implementation plan/scaffold; chưa coding trước hai cổng này.
