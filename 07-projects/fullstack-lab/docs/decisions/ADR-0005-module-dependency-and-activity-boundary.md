@@ -1,6 +1,6 @@
 # ADR-0005: Bản đồ phụ thuộc module và vị trí của Activity
 
-- Status: Accepted
+- Status: Proposed
 - Date: 2026-09-02
 - Related docs: [repository structure](../engineering/repository-structure.md) (mục Quy tắc quyết định kiến trúc), [backend conventions](../engineering/backend-conventions.md), [query and index policy](../data/query-and-index-policy.md) (transaction boundaries), [authorization model](../security/authorization-model.md)
 
