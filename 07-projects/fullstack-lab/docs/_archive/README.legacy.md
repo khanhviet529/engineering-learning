@@ -1,5 +1,7 @@
 # Flowboard
 
+> **SUPERSEDED.** File này không còn là contract. Nội dung canonical hiện tại: [README của fullstack-lab](../../README.md) và [bản đồ tài liệu](../README.md). Giữ lại để tham chiếu lịch sử.
+
 > A small, reliable workspace for teams to turn ideas into shipped work.
 
 Flowboard là một sản phẩm quản lý công việc cho các team nhỏ. Người dùng tạo project, chia task, trao đổi trong comment và theo dõi lịch sử thay đổi trên một board trực quan.
@@ -74,11 +76,11 @@ Kiến trúc bắt đầu là **modular monolith**. Các module có boundary rõ
 
 ## Documentation map
 
-- [Product brief](docs/product-brief.md) — Flowboard dành cho ai và tại sao tồn tại.
-- [Requirements](docs/requirements.md) — scope, use cases, acceptance criteria và non-goals.
-- [Domain model](docs/domain-model.md) — entity, invariant và permission model.
-- [Architecture](docs/architecture.md) — boundary, request flow và các quyết định kỹ thuật.
-- [Delivery roadmap](docs/roadmap.md) — từng phase, failure experiment và definition of done.
+- [Product brief](product-brief.md) — Flowboard dành cho ai và tại sao tồn tại.
+- [Requirements](requirements.md) — scope, use cases, acceptance criteria và non-goals.
+- [Domain model](domain-model.md) — entity, invariant và permission model.
+- [Architecture](architecture.md) — boundary, request flow và các quyết định kỹ thuật.
+- [Delivery roadmap](roadmap.md) — từng phase, failure experiment và definition of done.
 
 ## Stack
 

@@ -1,5 +1,7 @@
 # Domain Model
 
+> **SUPERSEDED.** File này không còn là contract. Nội dung canonical hiện tại: [mô hình miền](../data/domain-model.md); role hiện hành là Workspace Admin/Member và Project Owner/Editor/Viewer theo [mô hình phân quyền](../security/authorization-model.md), assignee phải là ProjectMember theo [thiết kế database](../data/database-design.md). Giữ lại để tham chiếu lịch sử.
+
 ## Entities
 
 ```text

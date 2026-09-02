@@ -1,5 +1,7 @@
 # Requirements
 
+> **SUPERSEDED.** File này không còn là contract. Nội dung canonical hiện tại: [tầm nhìn và phạm vi](../product/vision-and-scope.md) và [hợp đồng endpoint](../api/endpoint-contracts.md); board column do Owner cấu hình theo [thiết kế database](../data/database-design.md), không có "ba trạng thái mặc định" toàn hệ thống. Giữ lại để tham chiếu lịch sử.
+
 ## Functional requirements
 
 ### Authentication

@@ -1,5 +1,7 @@
 # Product Brief
 
+> **SUPERSEDED.** File này không còn là contract. Nội dung canonical hiện tại: [tầm nhìn và phạm vi](../product/vision-and-scope.md). Giữ lại để tham chiếu lịch sử.
+
 ## Product statement
 
 Flowboard giúp team nhỏ biết **việc gì cần làm, ai đang làm, đang ở trạng thái nào và lịch sử thay đổi ra sao** mà không phải duy trì một hệ thống quản lý dự án phức tạp.

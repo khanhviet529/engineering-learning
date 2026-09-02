@@ -1,5 +1,7 @@
 # Design & Documentation Plan
 
+> **SUPERSEDED.** File này không còn là contract. Nội dung canonical hiện tại: [kế hoạch thiết kế và tài liệu](../design-and-docs-plan.md) và [kế hoạch triển khai baseline](../superpowers/plans/2026-09-01-flowboard-documentation-baseline.md). Giữ lại để tham chiếu lịch sử.
+
 Kế hoạch này chuẩn bị toàn bộ product design và tài liệu trước khi bắt đầu coding Flowboard.
 
 ## Mục tiêu

@@ -104,6 +104,38 @@ Quyền project vẫn là ranh giới không đổi ở mọi phase: Project Own
 
 **Vì sao là phase cuối:** Mutation của AI có mức rủi ro cao nhất. Chỉ triển khai khi quyền, audit, retrieval/context, đánh giá và xác nhận đã chứng minh được hoạt động đúng; không có “autonomous admin” hoặc quyền vượt ranh giới project.
 
+## Failure experiment theo phase
+
+Flowboard là một lab: mỗi phase phải kèm ít nhất một failure experiment được tái hiện, quan sát và giải thích, không chỉ một feature "chạy được". Các experiment dưới đây suy ra trực tiếp từ hợp đồng hiện hành; chúng kiểm chứng behavior đã đặc tả, không thêm behavior mới.
+
+| Phase | Failure experiment | Hợp đồng nguồn |
+|---|---|---|
+| Core MVP | Gửi hai mutation đồng thời cho cùng task với cùng `expectedVersion`: request đến sau nhận `409 TASK_VERSION_CONFLICT` kèm `details.currentVersion`, không có Task hay ActivityLog nào được ghi cho request thua; UI có đường xem lại dữ liệu hiện tại thay vì ghi đè âm thầm. | [Endpoint contracts](../api/endpoint-contracts.md), [pagination/concurrency/idempotency](../api/pagination-concurrency-idempotency.md) |
+| Core MVP | Thành viên project A thay ID resource của một private project khác vào URL: server trả `404`, không xác nhận project kia tồn tại; member thiếu quyền trên project nhìn thấy được mới nhận `403`. | [Authorization model](../security/authorization-model.md) |
+| Core MVP | Kill API process giữa một mutation transaction: sau khi hệ thống chạy lại, không có partial write — ActivityLog chỉ tồn tại cùng transaction với mutation đã commit. | [Query and index policy](../data/query-and-index-policy.md) (transaction matrix), [testing strategy](../operations/testing-strategy.md) |
+| Core MVP | Kéo-thả task dồn liên tục vào cùng một khe cho tới khi fractional position quá dày: server chạy rebalance có kiểm soát trong transaction với row locks, giữ thứ tự deterministic, không tạo duplicate position. | [Pagination/concurrency/idempotency](../api/pagination-concurrency-idempotency.md), [query and index policy](../data/query-and-index-policy.md) |
+| Core MVP | Đổi filter/sort của task list rồi tái dùng cursor cũ: cursor sai fingerprint bị từ chối `400 VALIDATION_FAILED` và client quay về page đầu với canonical filters mới. | [Query and index policy](../data/query-and-index-policy.md), [pagination/concurrency/idempotency](../api/pagination-concurrency-idempotency.md) |
+| Core MVP | Stop rồi start lại container PostgreSQL trong Compose: dữ liệu còn nguyên nhờ named volume; xóa dữ liệu chỉ xảy ra qua lệnh reset tường minh nhắm đúng database/volume. | [Local development](../operations/local-development.md) |
+| Core MVP | Seed representative data distribution rồi chạy `EXPLAIN (ANALYZE, BUFFERS)` trước/sau index cho task list query: chứng minh index policy bằng số liệu, không bằng niềm tin. | [Query and index policy](../data/query-and-index-policy.md) (explain-plan verification rule) |
+| Phase 1.1 | Gửi lại export request với cùng `Idempotency-Key`, cùng actor, cùng canonical payload: nhận lại cùng export record, không có bản thứ hai; cùng key với payload khác bị từ chối. | [Progress export](../reporting/progress-export.md) |
+| Phase 1.2 | Kill worker giữa chừng rồi để BullMQ giao lại job (at-least-once), hoặc enqueue lặp cùng job: status transition compare-and-set/lease và stable job ID bảo đảm generate/gửi mail không lặp side effect; attempt count và audit phản ánh đúng. | [Progress export](../reporting/progress-export.md) |
+| Phase 1.2 | Làm Redis/queue unavailable: API request core vẫn phản hồi (liveness không phụ thuộc dependency outage), export job báo trạng thái lỗi an toàn có error code, không mất intent record trong PostgreSQL. | [Progress export](../reporting/progress-export.md) (queue outage gate), [local development](../operations/local-development.md) |
+| Phase 1.3 | Gửi hai WorkLog request đồng thời cho cùng `(project, user, work_date)` với tổng vượt 1.440 phút: advisory transaction lock buộc tuần tự hóa, một request commit, request còn lại bị reject validation; daily total không bao giờ vượt 1.440. | [Query and index policy](../data/query-and-index-policy.md), [database design](../data/database-design.md) |
+| AI-1 | Ép model trả structured output sai schema hoặc chứa field vượt quyền (`projectId`, role…): output bị reject như untrusted input, không task nào được ghi khi Owner chưa xác nhận tường minh. | Mục AI-1 ở trên, [AI architecture and safety](../ai/architecture-and-safety.md) |
+| AI-2 | Yêu cầu tóm tắt "toàn workspace" hoặc project khác qua prompt: context builder phía server vẫn chỉ nạp đúng một project; phạm vi do model tự nêu bị bỏ qua. | Mục AI-2 ở trên, [AI architecture and safety](../ai/architecture-and-safety.md) |
+| AI-3 | Semantic search nhắm tới dữ liệu project mà actor không có quyền đọc: retrieval đã filter theo project nên không có kết quả cross-project; citations chỉ trỏ tới retrieved IDs hợp lệ. | Mục AI-3 ở trên, [AI architecture and safety](../ai/architecture-and-safety.md) |
+| AI-4 | Cho model đề nghị tool call mutation ngoài allowlist hoặc bỏ qua bước xác nhận: server từ chối theo authorization/confirmation contract và ghi audit; không mutation nào xảy ra chỉ vì model yêu cầu. | Mục AI-4 ở trên, [AI architecture and safety](../ai/architecture-and-safety.md) |
+
+## Definition of done cho mọi phase
+
+Một phase chỉ được coi là hoàn thành khi có đủ:
+
+1. feature chạy được;
+2. test cho behavior chính;
+3. failure experiment có cách tái hiện;
+4. note giải thích nguyên nhân và trade-off;
+5. screenshot hoặc command output đủ để người đọc kiểm chứng.
+
 ## Tiêu chí kiểm soát lộ trình
 
 - Không kéo một capability của phase sau vào core MVP chỉ vì đã có hạ tầng kỹ thuật liên quan.

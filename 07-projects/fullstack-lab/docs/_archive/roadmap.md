@@ -1,5 +1,7 @@
 # Delivery Roadmap
 
+> **SUPERSEDED.** File này không còn là contract. Nội dung canonical hiện tại: [lộ trình phát hành](../product/delivery-roadmap.md) (phase Core MVP / 1.1 / 1.2 / 1.3 / AI-1..AI-4); failure experiment và definition of done của file này đã được gộp vào đó. Giữ lại để tham chiếu lịch sử.
+
 Mỗi phase tạo ra một lát cắt sản phẩm chạy được và một failure experiment tương ứng.
 
 | Phase | Product increment | Engineering focus | Done when |

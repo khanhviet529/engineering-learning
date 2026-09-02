@@ -1,5 +1,7 @@
 # Architecture
 
+> **SUPERSEDED.** File này không còn là contract. Nội dung canonical hiện tại: [cấu trúc repository](../engineering/repository-structure.md) (bao gồm quy tắc quyết định kiến trúc) và [baseline kiến trúc đã phê duyệt](../superpowers/specs/2026-09-01-flowboard-product-architecture-design.md); failure experiments đã gộp vào [lộ trình phát hành](../product/delivery-roadmap.md). Giữ lại để tham chiếu lịch sử.
+
 ## Current target
 
 ```text

@@ -64,3 +64,13 @@ apps/worker (Phase 1.2) ── packages/contracts + packages/config
 Một thay đổi cross-app bắt đầu từ contract/Markdown đã được phê duyệt: use case, input allowlist, response projection, error và authorization giữ theo [API conventions](../api/api-conventions.md), [endpoint contracts](../api/endpoint-contracts.md) và [authorization model](../security/authorization-model.md). Sau đó web và API cùng cập nhật consumer/producer của contract. Không dùng shared type để hợp thức hóa field, endpoint, action hoặc generic CRUD chưa được baseline cho phép.
 
 Khi một quyết định làm thay đổi package boundary, migration ownership, session/auth, ordering/concurrency, worker/queue hoặc deployment, ghi ADR trước khi implementation. Chi tiết chọn shared code nằm tại [shared-helper policy](shared-helper-policy.md).
+
+## Quy tắc quyết định kiến trúc
+
+Các quy tắc nền sau chi phối mọi thay đổi cấu trúc; chúng có trước và đứng trên lựa chọn công nghệ của từng phase:
+
+- Bắt đầu bằng PostgreSQL và modular monolith; chỉ tách deployment khi có yêu cầu và số liệu chứng minh cần thiết.
+- Chỉ thêm Redis khi có cache behavior hoặc rate-limit experiment cụ thể cần quan sát.
+- Chỉ thêm queue/worker khi có công việc bất đồng bộ với retry/idempotency cần quan sát; theo [lộ trình phát hành](../product/delivery-roadmap.md), điều này chỉ xảy ra từ Phase 1.2.
+- Không dùng eventual consistency cho dữ liệu cốt lõi của task nếu chưa nêu rõ UX trade-off.
+- Mỗi quyết định khó đảo ngược phải có ADR với điều kiện xem lại, theo [quy trình ADR](../decisions/README.md).
