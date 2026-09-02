@@ -212,7 +212,7 @@ Migration/table này chỉ được tạo khi Phase 1.1 bắt đầu; nó không
 | `project_id` | `uuid` | No | FK → `projects(id)` | Project scope. |
 | `requested_by_user_id` | `uuid` | No | FK → `users(id)` | Owner actor tại lúc request. |
 | `filter_snapshot` | `jsonb` | No |  | Validated, project-scoped filter snapshot. |
-| `status` | `text` | No | `CHECK (status IN ('requested', 'ready', 'failed', 'expired'))` | Phase 1.1 lifecycle state. |
+| `status` | `text` | No | `CHECK (status IN ('requested', 'ready', 'failed', 'purged'))` | Lifecycle state do server ghi. **Hết hạn logic KHÔNG phải một status**: nó luôn được suy từ `expires_at < now()` để không tồn tại hai nguồn sự thật lệch nhau (row `ready` nhưng đã quá hạn là hợp lệ — file còn tồn tại vật lý nhưng download bị chặn theo `expires_at`). `purged` chỉ được ghi khi physical file đã bị hủy theo retention policy (Phase 1.2 trở đi); nó là sự kiện không đảo ngược, khác với hết hạn logic. |
 | `file_storage_key` | `text` | Yes |  | Server-side storage reference, không phải public URL. |
 | `file_name` | `text` | Yes |  | Download metadata khi ready. |
 | `content_type` | `text` | Yes |  | Expected XLSX content type khi ready. |
@@ -296,9 +296,10 @@ Constraints: `UNIQUE(project_id, user_id, work_date)`. Reopen/update cùng targe
 
 1. Tạo `users`, rồi `auth_sessions`, `idempotency_records` (chỉ FK → `users`), `workspaces`, `workspace_members`, `projects`, `project_members`, `board_columns`, `tasks`, `comments`, `activity_logs` theo thứ tự foreign key.
 2. Tạo unique/composite foreign keys của Task sau `project_members` và `board_columns`; chúng bảo vệ same-project column/assignee ngay tại database.
-3. Không thể chỉ dùng foreign key để biết BoardColumn còn active, WorkspaceMember tương ứng tồn tại, Owner cuối cùng hay column còn task. Các điều kiện đó là use-case transaction rules, không trigger ngầm.
-4. Tạo `report_exports` và index liên quan chỉ với Phase 1.1.
-5. Khi Phase 1.3 bắt đầu, tạo `project_time_tracking_settings`, `project_time_approvers`, `work_logs`, `work_log_access_overrides` sau projects/project_members/tasks; migration additive và settings mặc định disabled.
-6. Không tạo bảng queue, email delivery, AI, labels, attachments hay post-MVP table nào cho core behavior; Phase 1.3 cũng không tạo timer/payroll/billing/time-export tables.
+3. `CREATE EXTENSION IF NOT EXISTS unaccent` và function `fb_unaccent(text)` (`IMMUTABLE`, pin dictionary — xem [query and index policy](query-and-index-policy.md)) phải chạy **trước** migration tạo GIN search index; extension phải có sẵn trong PostgreSQL image local/CI theo [local development](../operations/local-development.md).
+4. Không thể chỉ dùng foreign key để biết BoardColumn còn active, WorkspaceMember tương ứng tồn tại, Owner cuối cùng hay column còn task. Các điều kiện đó là use-case transaction rules, không trigger ngầm.
+5. Tạo `report_exports` và index liên quan chỉ với Phase 1.1.
+6. Khi Phase 1.3 bắt đầu, tạo `project_time_tracking_settings`, `project_time_approvers`, `work_logs`, `work_log_access_overrides` sau projects/project_members/tasks; migration additive và settings mặc định disabled.
+7. Không tạo bảng queue, email delivery, AI, labels, attachments hay post-MVP table nào cho core behavior; Phase 1.3 cũng không tạo timer/payroll/billing/time-export tables.
 
 Index cụ thể và cách query/transaction dùng các bảng này nằm ở [query và index policy](query-and-index-policy.md).

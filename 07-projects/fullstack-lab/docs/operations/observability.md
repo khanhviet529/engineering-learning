@@ -45,6 +45,7 @@ Metrics là phase sau first log/readiness release nhưng instrumentation names/l
 | Latency | request duration histogram theo route template | Compare p50/p95/p99 với SLO/baseline đã được owner phê duyệt. |
 | Database | pool usage/wait, query duration/error, connection failure | Detect saturation/dependency failure trước cascade. |
 | Security | sign-in/reset rate-limit reject, CSRF failure, auth failure/denied action aggregate | Detect abuse/regression mà không enumerate account/resource. |
+| Rate limit | reject count theo route class (auth, search, aggregate, export, bulk review) và tỷ lệ 429/tổng request | Tune giá trị khởi điểm trong [API conventions](../api/api-conventions.md#rate-limit-và-retry-after); phát hiện limiter quá chặt/quá lỏng trước khi user báo. |
 | Delivery | deployment version/digest, startup/readiness transition, migration duration/outcome | Correlate incident với release. |
 | Recovery | last successful backup timestamp, last restore drill result/duration | Enforce RPO/RTO evidence trong [CI/CD](ci-cd.md). |
 | Phase 1.2 queue | queue depth/oldest job, active/retry/failed/completed counts, job duration, duplicate/replay outcome | Operate BullMQ worker only after it exists. |

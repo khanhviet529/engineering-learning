@@ -162,7 +162,7 @@ Chỉ Phase 1.1. Yêu cầu `report:export` (Owner), CSRF và `Idempotency-Key`.
 
 ### GET /reports/:reportId — xem trạng thái export
 
-Chỉ Phase 1.1. Yêu cầu `report:export`; `200` trả report metadata an toàn `{ id, projectId, status, fileName?, contentType?, byteSize?, expiresAt, createdAt, updatedAt }`. Không bao giờ trả `fileStorageKey`, filter snapshot của project khác hay download URL. Hidden project/report trả `404`; expired report được biểu diễn/xử lý mà không lộ usable file.
+Chỉ Phase 1.1. Yêu cầu `report:export`; `200` trả report metadata an toàn `{ id, projectId, status, fileName?, contentType?, byteSize?, expiresAt, createdAt, updatedAt }`. `status` là giá trị server ghi (`requested|ready|failed|purged`); trạng thái "expired" trong UI là **derived từ `expiresAt`**, không phải một status ghi trong database — client so `expiresAt` với thời điểm hiện tại để hiển thị và disable download. Không bao giờ trả `fileStorageKey`, filter snapshot của project khác hay download URL. Hidden project/report trả `404`; report hết hạn được biểu diễn/xử lý mà không lộ usable file.
 
 ### GET /reports/:reportId/download — tải export sẵn sàng
 

@@ -53,6 +53,7 @@ Drizzle Kit migration là artifact versioned và được review cùng thay đ�
 
 - Chỉ một command migration có tên rõ ràng được gọi explicit bởi developer hoặc deploy controller; nó báo database target, migration version/result và fail non-zero.
 - CI tạo PostgreSQL ephemeral, chạy cùng migration path từ zero/current release candidate rồi mới chạy integration/E2E; không dùng schema khác với production.
+- PostgreSQL image local và CI **phải có sẵn extension `unaccent`** (contrib module — official postgres image có sẵn; custom/slim image phải được kiểm chứng), và migration identity phải được phép `CREATE EXTENSION`, vì search index phụ thuộc `unaccent` + `fb_unaccent` theo [query and index policy](../data/query-and-index-policy.md). Thiếu extension làm migration fail — đây là lỗi setup, không được vá bằng cách bỏ index.
 - Production migration được review, backup-gated và execute một lần dưới deploy identity có quyền migration. API runtime identity không có quyền DDL.
 - Migration destructive hoặc long-running cần expand/backfill/contract plan, estimated lock/risk, rollback/forward recovery và ADR trước execution.
 - Seed chỉ dành local/test. Production không chạy seed tự động; bootstrap account/membership cần một use case hoặc operator procedure có audit.

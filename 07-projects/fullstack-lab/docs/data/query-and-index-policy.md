@@ -31,7 +31,11 @@ Repository scope là defense-in-depth, không thay `ProjectPermissionGuard`. API
 
 - Default cho task list không có `columnId` là `created_at DESC, id DESC`. Khi có `columnId` mà không chỉ định sort, board order là `position ASC, id ASC`.
 - `createdAt`/`updatedAt` order bằng timestamp rồi `id`; `dueDate` order dùng `due_date` với `NULLS LAST` rồi `id`; `position` order dùng `position` rồi `id`. Direction của `id` theo direction sort để seek pagination không trùng/mất row.
-- Search dùng PostgreSQL full-text expression fixed `to_tsvector('simple', title || ' ' || description)` và `plainto_tsquery('simple', :search)`; không có fuzzy search, arbitrary `tsquery`, ranking contract hay search toàn tenant ở MVP.
+- Search dùng PostgreSQL full-text expression fixed, **có unaccent đối xứng cả hai phía**: index trên `to_tsvector('simple', fb_unaccent(title || ' ' || description))` và query bằng `websearch_to_tsquery('simple', fb_unaccent(:search))`. Không đối xứng thì `thiet ke` không match `thiết kế` — người Việt gõ không dấu thường xuyên, đây là yêu cầu UX, không phải tối ưu.
+  - **Bẫy bắt buộc biết khi implement:** `unaccent()` là function `STABLE` (dictionary có thể đổi), PostgreSQL từ chối dùng nó trực tiếp trong expression index (yêu cầu `IMMUTABLE`). `fb_unaccent(text)` là wrapper SQL function do migration tạo, khai báo `IMMUTABLE PARALLEL SAFE` và **chỉ định tường minh dictionary** (`unaccent('public.unaccent'::regdictionary, $1)`). Khai IMMUTABLE an toàn vì dictionary được pin làm contract; nếu đổi dictionary phải reindex trong cùng migration.
+  - Chọn `websearch_to_tsquery` thay `plainto_tsquery` vì nó **không bao giờ throw với input lạ** (an toàn cho input người dùng tùy ý), hỗ trợ cụm trong ngoặc kép và `or`/`-`, và degrade tự nhiên; `plainto_tsquery` không có lợi thế nào bù lại việc phải bọc lỗi parse.
+  - `pg_trgm` (prefix/typo tolerance) **không dùng ở MVP** — quyết định có ý thức: GIN trigram trên title+description tốn write amplification và dung lượng đáng kể cho một lợi ích chưa có bằng chứng nhu cầu. Xem lại khi telemetry/user feedback cho thấy search miss vì typo hoặc khi search-as-you-type prefix trở thành yêu cầu sản phẩm.
+  - Không có fuzzy search, arbitrary `tsquery`, ranking contract hay search toàn tenant ở MVP.
 - Task update chỉ allowlist `title`, `description`, `assignee_id`, `reviewer_id`, `category`, `priority`, `start_date` và `due_date`, cùng `expectedVersion`. Nó từ chối `project_id`, `column_id`, `created_by_user_id`, `position`, `version`, `due_state`, timestamps và audit fields. Đổi `column_id` hoặc `position` bắt buộc dùng dedicated Task move use case/transaction.
 - Khi expected version không khớp, Task update hoặc move trả `409 Conflict` có **current version** của Task; transaction rollback và không tạo ActivityLog.
 
@@ -76,12 +80,13 @@ Migrations tạo các index dưới đây cùng constraints ở database design.
 | `board_columns(project_id, position)` | btree | Active board-column order trong project. | Core MVP |
 | `tasks(project_id, column_id, position)` | unique btree | Per-column board seek/order; deterministic position. | Core MVP |
 | `tasks(project_id, created_at DESC, id DESC)` | btree | Default task-list seek/order `created_at DESC, id DESC`. | Core MVP |
-| `tasks(project_id, due_date)` | btree | Due-date filter/range/sort trong project. | Core MVP |
+| `tasks(project_id, due_date, id)` | btree | Due-date filter/range và sort `dueDate` với seek tie-breaker. Hướng `asc` (NULLS LAST mặc định của btree) được seek trọn vẹn; hướng `desc` với NULLS LAST không khớp một btree đơn — chấp nhận planner sort trong phạm vi project (bounded, đo bằng explain-plan rule); chỉ thêm index `DESC NULLS LAST` riêng khi telemetry chứng minh cần. | Core MVP |
 | `tasks(project_id, assignee_id, updated_at DESC)` | btree | Assignee filter và recent task list trong project. | Core MVP |
 | `tasks(project_id, created_by_user_id, updated_at DESC)` | btree | Created-by filter và recent task list trong project. | Core MVP |
+| `tasks(project_id, reviewer_id, updated_at DESC)` | btree | Reviewer filter (review workflow của cột `requires_reviewer`), đối xứng với assignee/created-by. | Core MVP |
 | `tasks(project_id, updated_at DESC, id DESC)` | btree | Allowlisted `updatedAt` sort với seek tie-breaker. | Core MVP |
-| `tasks` full-text expression trên `title`, `description` | GIN | Allowlisted task search trong một project. | Core MVP |
-| `comments(task_id, created_at)` | btree | Comment list theo task. | Core MVP |
+| `tasks` GIN trên `to_tsvector('simple', fb_unaccent(title \|\| ' ' \|\| description))` | GIN expression | Allowlisted task search unaccent-symmetric trong một project. Yêu cầu extension `unaccent` + function `fb_unaccent` tạo trước index. | Core MVP |
+| `comments(task_id, created_at, id)` | btree | Comment list theo task, khớp order/seek `createdAt, id`. | Core MVP |
 | `activity_logs(project_id, created_at DESC)` | btree | Project/task activity history. | Core MVP |
 | `activity_logs(project_id, task_id, created_at DESC, id DESC)` | btree | `GET /tasks/:taskId/activity` sau project scope, theo deterministic seek order `created_at DESC, id DESC`. | Core MVP |
 | `report_exports(project_id, created_at DESC)` | btree | Export status/history list. | Phase 1.1 only |
@@ -91,14 +96,14 @@ Migrations tạo các index dưới đây cùng constraints ở database design.
 | `work_logs(project_id, status, work_date DESC, id DESC)` | btree | Approver queue/cursor. | Phase 1.3 only |
 | `work_log_access_overrides(project_id, user_id, work_date)` | unique btree | Late-date override lookup. | Phase 1.3 only |
 
-`UNIQUE (project_id, column_id, position)` là index Task order ở trên. `UNIQUE (project_id, position)` của BoardColumn đảm bảo deterministic column ordering. Không thêm speculative indexes hay table cho generic reporting, queue, AI, labels, attachments, timer, payroll/billing hoặc full-project task preload.
+`UNIQUE (project_id, column_id, position)` là index Task order ở trên. `UNIQUE (project_id, position)` của BoardColumn đảm bảo deterministic column ordering. `category` và `priority` **cố ý không có index riêng**: enum cardinality thấp, filter luôn chạy sau project scope (và thường sau column/assignee), nên index composite hiện có + filter residual là đủ — explain-plan rule sẽ bắt nếu giả định này sai với dữ liệu thật. Không thêm speculative indexes hay table cho generic reporting, queue, AI, labels, attachments, timer, payroll/billing hoặc full-project task preload.
 
 ## Explain-plan verification rule
 
 Trước khi coi một query/index policy đủ cho production-like data, implementer phải chạy `EXPLAIN (ANALYZE, BUFFERS)` trên PostgreSQL với representative data distribution và đúng project scope/filter/sort/cursor của use case.
 
 - Xác minh plan dùng index phù hợp hoặc document lý do planner chọn cách khác; không chấp nhận index chỉ vì migration tạo thành công.
-- Kiểm tra ít nhất: per-column board page/load-more, default task list, task `updatedAt` sort, task due-date range, assignee + recent sort, task search scoped project, comments, task activity history, Phase 1.1 export history, WorkLog user/date page, approver submitted queue, task WorkLog tab và monthly aggregate Phase 1.3.
+- Kiểm tra ít nhất: per-column board page/load-more, default task list, task `updatedAt` sort, task due-date range và cả sort `dueDate:desc` (hướng không được index seek trọn vẹn — xem index baseline), assignee + recent sort, reviewer filter, task search unaccent scoped project, comments, task activity history, Phase 1.1 export history, WorkLog user/date page, approver submitted queue, task WorkLog tab và monthly aggregate Phase 1.3.
 - Nếu plan scan rộng, sort lớn hoặc join vượt scope không cần thiết, sửa query/index rồi đo lại. Mọi index mới phải gắn với use case cụ thể và được review; không để client thay đổi predicate nhằm ép plan khác.
 
 ## Transaction boundaries và ActivityLog

@@ -77,8 +77,19 @@ Các outcome chuẩn là:
 - `403 FORBIDDEN`: actor đã nhìn thấy project/resource theo scope nhưng không có action yêu cầu. Ví dụ Viewer gọi move task. Không có side effect.
 - `404 NOT_FOUND`: resource không tồn tại **hoặc** nằm ngoài project scope mà actor được phép nhìn thấy. Đây là response cho ID substitution/cross-project access; không xác nhận private resource tồn tại.
 - `409 CONFLICT`: precondition cạnh tranh hoặc invariant trạng thái không thể áp dụng trên bản hiện tại. Task stale phải dùng `TASK_VERSION_CONFLICT` và trả `currentVersion`; chi tiết ở tài liệu concurrency. Không ghi Task hay ActivityLog cho version mismatch. `IDEMPOTENCY_KEY_REUSED` là cùng key với fingerprint khác; `IDEMPOTENCY_IN_PROGRESS` là retry đồng thời khi request gốc cùng key đang chạy — client chờ ngắn rồi gửi lại **cùng key**, không đổi key.
-- `429 RATE_LIMITED`: auth endpoint vượt giới hạn chống abuse; body không tiết lộ account có tồn tại hay không.
+- `429 RATE_LIMITED`: request vượt giới hạn chống abuse; body không tiết lộ account có tồn tại hay không. Response **phải có header `Retry-After`** (số giây nguyên) cho biết khi nào được gửi lại; xem mục Rate limit bên dưới cho phạm vi áp dụng và hành vi client.
 - `5xx INTERNAL_ERROR`: lỗi không mong đợi; message an toàn, requestId dùng để tra log. Không coi đây là thành công mutation.
+
+## Rate limit và `Retry-After`
+
+Rate limit tồn tại ở hai nhóm:
+
+1. **Auth endpoint** (sign-in, sign-up, forgot/reset, resend): giới hạn theo client signal và normalized identifier như [authentication](../security/authentication.md) quy định; mục tiêu là chống abuse/enumeration.
+2. **Endpoint đắt**: task search (có `search`, đánh GIN index), monthly time aggregate (Phase 1.3), export request (Phase 1.1) và bulk review (Phase 1.3). Giới hạn theo **cặp (authenticated actor, route class)**; các route project-scoped tính thêm project để một actor không dồn toàn bộ quota vào một project. Giá trị khởi điểm — được tune bằng telemetry, không phải cam kết SLA: search 30 request/phút, monthly aggregate 20 request/phút, export request 10 request/giờ, bulk review 12 request/phút.
+
+**Cơ chế ở core MVP: in-process limiter per API instance** (token bucket/fixed window trong bộ nhớ của process). Đây là quyết định có ý thức, KHÔNG đưa Redis vào core MVP: topology core chỉ có một API instance (Compose 4 service), nên limiter per-instance chính là limiter toàn cục; thêm Redis chỉ để đếm request vi phạm quy tắc "chỉ thêm hạ tầng khi behavior cần nó". Giới hạn được chấp nhận của cơ chế này: counter reset khi process restart, và nếu sau này chạy nhiều instance thì quota bị nhân theo số instance — khi Phase 1.2 đưa Redis vào (vì queue) hoặc khi API scale ngang, limiter chuyển sang Redis-backed trong cùng change có ADR.
+
+Mọi response `429 RATE_LIMITED` mang `Retry-After` (giây). `409 IDEMPOTENCY_IN_PROGRESS` cũng có thể mang `Retry-After` gợi ý khoảng chờ ngắn. Hành vi client: disable control/submit tương ứng cho tới hết `Retry-After`, hiển thị thông báo an toàn, **không tự retry mutation**; search input tự debounce/throttle để không tạo vòng 429. Chi tiết UI ở [interaction specifications](../design/interaction-specifications.md).
 
 ## Request ID và observability
 

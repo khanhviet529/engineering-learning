@@ -37,14 +37,16 @@ Phase 1.1 không đòi queue. Cơ chế generation phải chỉ dùng capability
 ### Lifecycle tệp và download
 
 ```text
-requested --generation succeeds--> ready --expires_at/purge--> expired
+requested --generation succeeds--> ready
+ready     --expires_at < now()----> (derived: expired — chặn download, không đổi status)
+ready     --purge policy 1.2------> purged (file đã hủy vật lý, không đảo ngược)
      |                                      ^
      '--terminal failure--> failed          | (không resurrect export cũ)
 ```
 
 `GET /reports/:reportId` re-authorize Owner và chỉ trả metadata allowlisted. `GET /reports/:reportId/download` re-authorize lần nữa ngay lúc tải; chỉ `ready` và chưa hết hạn mới stream XLSX với content type/disposition an toàn. `requested` hoặc `failed` trả `409 REPORT_NOT_READY`, export hết hạn trả `410 REPORT_EXPIRED`, resource không scope trả `404`. Không trả `file_storage_key`, public URL lâu dài, filter snapshot của project khác hay blob trong JSON.
 
-`expires_at` là hard access boundary: khi hết hạn, server chặn download trước, đánh dấu `expired`, và physical file được purge theo retention policy được duyệt. Row và non-secret snapshot/audit metadata được giữ để chứng minh lifecycle; không tái sử dụng file hết hạn. Mọi request, ready/failed/expired transition, download và purge outcome phải có audit evidence với `requestId` khi có HTTP request. Owner tự gửi file cho manager; Phase 1.1 không gửi email, không lưu schedule và không delivery tự động.
+`expires_at` là hard access boundary và là **nguồn duy nhất của hết hạn logic**: server chặn download bằng điều kiện `expires_at < now()`, không phụ thuộc một status ghi thêm — hai nguồn cho cùng một điều sẽ lệch nhau. Status `purged` chỉ được ghi khi physical file thực sự bị hủy theo retention policy được duyệt (Phase 1.2 trở đi); "expired" trong UI/DTO là trạng thái derived từ `expiresAt`. Row và non-secret snapshot/audit metadata được giữ để chứng minh lifecycle; không tái sử dụng file hết hạn. Mọi request, ready/failed transition, download bị chặn vì hết hạn, và purge outcome phải có audit evidence với `requestId` khi có HTTP request. Owner tự gửi file cho manager; Phase 1.1 không gửi email, không lưu schedule và không delivery tự động.
 
 ## Phase 1.2 — delivery bất đồng bộ
 
@@ -66,7 +68,7 @@ Status transition dùng compare-and-set/lease do server kiểm soát để worke
 - Retry chỉ dành cho failure tạm thời đã phân loại (ví dụ email provider timeout hoặc Redis/network interruption). Số lần là hữu hạn, backoff có jitter và policy được cấu hình/review; không retry authorization, validation, expired/cancelled input, malformed recipient hay permanent provider error.
 - API request idempotency ngăn tạo duplicate export/delivery intent. Stable BullMQ job ID ngăn enqueue trùng. Worker idempotency và durable transition ngăn generate/upload/send lặp khi BullMQ giao at-least-once; email/provider idempotency reference được dùng nếu provider hỗ trợ.
 - Delivery chỉ dùng recipient/configuration đã được product/security review và snapshot tại lúc tạo. Không có model, queue payload hay arbitrary request field nào được phép mở rộng recipient hoặc project scope. Trước delivery, worker kiểm tra lại export chưa hết hạn, schedule/request còn active và policy hiện hành; revocation/cancellation thắng retry.
-- Hết hạn thì delivery/download bị chặn, job đang chờ bị cancel/skip, file bị purge theo policy và record chuyển `expired` với audit outcome. Retry không được làm sống lại export đã expired; cần Owner request mới.
+- Hết hạn (`expires_at < now()`) thì delivery/download bị chặn và job đang chờ bị cancel/skip theo điều kiện derived; khi purge policy hủy file vật lý, record export chuyển `purged` với audit outcome. Retry không được làm sống lại export đã hết hạn; cần Owner request mới.
 
 ### Authorization, audit và vận hành
 

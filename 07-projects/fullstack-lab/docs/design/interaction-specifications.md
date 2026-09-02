@@ -43,6 +43,8 @@ Request move mang cột đích, vị trí mục tiêu và version task mà clien
 
 Không có optimistic UI cho thay đổi quyền hay archive cột vì dữ liệu xác nhận là quan trọng hơn cảm giác tức thời.
 
+**Giao giữa mutation lạc quan và refetch (version guard):** một refetch có thể trả về state server CŨ HƠN kết quả mutation vừa commit (response list đọc trước khi mutation commit nhưng về sau). Quy tắc: client **không bao giờ thay một task trong cache bằng payload có `version` thấp hơn** version đã được server xác nhận cho task đó; task version là thước so mới/cũ duy nhất phía client. Refetch/invalidate của list bị ảnh hưởng chạy sau khi mutation settle, và kết quả được reconcile theo version guard này — response cũ hơn bị bỏ, không "hoàn nguyên" một mutation đã xác nhận. Guard áp dụng cho resource có `version` (Task, WorkLog, settings); nó không thay thế quy tắc `409` cho mutation.
+
 ## 3. Form, validation và unsaved changes
 
 ### Validation
@@ -113,12 +115,14 @@ Di chuyển task gặp Conflict dùng cùng flow nhưng không cố dựng UI me
 - List endpoint có page mặc định 25 và tối đa 100. Board chỉ nạp số task giới hạn theo từng cột, dùng `items`, `nextCursor`, `hasMore`; không có nút tải toàn bộ project.
 - Nút `Tải thêm` nằm ở chân đúng cột. Khi đang nạp thêm, chỉ nút/cột đó vào Loading; card đã nạp không nhảy vị trí và không bị thay bằng skeleton toàn trang.
 - Một cursor chỉ dùng cho đúng project, cột, filter, sort và search đã tạo nó. Thay một điều kiện xóa cursor và kết quả của query trước rồi nạp trang đầu query mới.
+- **Cơ chế chống stale response** (yêu cầu "kết quả cũ không được ghép vào query mới" của F-DATA-01): cache key của mỗi list request **phải là canonical query fingerprint đầy đủ** — project, column, filters, sort, search, cursor (TanStack Query queryKey theo [frontend conventions](../engineering/frontend-conventions.md)). Response chỉ được ghi vào đúng key đã tạo ra request đó; vì đổi điều kiện tạo key mới, response của điều kiện cũ về muộn **không có chỗ để ghi vào** query hiện tại — key-match là bảo đảm. Khi điều kiện đổi, client đồng thời hủy (abort) các request in-flight của key cũ — abort là tối ưu hóa tài nguyên, không phải cơ chế đúng đắn. Trạng thái "điều kiện hiện tại" sống trong query state của feature (không trong component cục bộ), và phép so khớp xảy ra tại cache layer theo key, không phải so tay trong callback.
 - Khi Error tải thêm, giữ task đã xác nhận, hiển thị Error cục bộ và cho thử lại cùng cursor. Không tăng cursor trước khi thành công, không trùng card khi người dùng bấm nhiều lần.
 - Empty có hai thông điệp khác nhau: cột chưa có task và không có task khớp filter. Viewer không thấy CTA tạo task trong bất kỳ Empty state nào.
 
-## 7. HTTP 404 và 503
+## 7. HTTP 404, 429 và 503
 
 - `404 Not Found`: dùng khi route không tồn tại hoặc resource public-safe không resolve được. Không dùng 404 để thay thế `403 Forbidden` của private project; private project không authorized tiếp tục theo `SYS-01`/API policy không làm lộ dữ liệu. CTA là về Workspace List hoặc route an toàn gần nhất.
+- `429 RATE_LIMITED`: đọc header `Retry-After` (giây) và disable control/submit gây ra request đó cho tới hết thời gian chờ, kèm thông báo an toàn có đếm lùi hoặc thời điểm thử lại. Không tự retry mutation; với search, input debounce/throttle để một người gõ nhanh không tự tạo vòng 429. Dữ liệu server-confirmed đang hiển thị được giữ nguyên.
 - `503 Service Unavailable`: giữ dữ liệu server-confirmed đang hiển thị nếu có, thông báo lỗi dịch vụ tạm thời và có Retry rõ ràng. Mutation không được xác nhận thành công, không tự retry write và không biến thành Empty.
 
 ## 8. Focus, keyboard và lớp phủ
