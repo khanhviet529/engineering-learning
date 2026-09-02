@@ -66,6 +66,8 @@ Migrations tạo các index dưới đây cùng constraints ở database design.
 |---|---|---|---|
 | `users(email)` | unique btree | Sign-in/identity lookup canonical email. | Core MVP |
 | `auth_sessions(session_token_hash)` | unique btree | SessionGuard lookup opaque session hash. | Core MVP |
+| `idempotency_records(user_id, use_case, key_hash)` | unique btree | Idempotency claim/replay lookup; chặn retry đồng thời cùng key. | Core MVP |
+| `idempotency_records(expires_at)` | btree | Purge/overwrite record hết hạn. | Core MVP |
 | `workspace_members(workspace_id, user_id)` | unique btree | Membership check, duplicate prevention. | Core MVP |
 | `workspace_members(user_id, workspace_id)` | btree | Workspace list của actor. | Core MVP |
 | `project_members(project_id, user_id)` | unique btree | Project permission/member lookup, duplicate prevention. | Core MVP |
@@ -111,6 +113,7 @@ Authorization/resource resolution xảy ra trước transaction khi có thể, n
 | Project member change | Lock membership/project state cần thiết; xác nhận target là WorkspaceMember của workspace project, role hợp lệ, còn ít nhất một Owner và resulting assignee invariant; insert/update/delete ProjectMember; insert activity; commit. | Event member add/role change/remove chỉ tồn tại khi membership mutation commit. |
 | Column archive | Lock column và kiểm tra trong transaction rằng không tồn tại Task ở column; set `archived_at`/`updated_at`; insert activity; commit. Không tự move/delete Task. | `board_column.archived` chỉ sau archive hợp lệ. |
 | Activity logging | Không có mutation public độc lập để ghi ActivityLog. Module mutation tạo event allowlisted và sanitized payload trong transaction của nó. | Đây là điều kiện atomic, không phải best-effort side effect. |
+| Idempotency record | Hai transaction theo [database design](database-design.md#idempotency_records): T1 claim `in_progress` commit **trước** mutation (chặn retry đồng thời); T2 mutation + activity + update `completed` atomic. Business failure xác định ghi outcome lỗi bằng transaction nhỏ sau rollback. | Record `completed` và mutation/activity commit cùng nhau; không tồn tại mutation đã commit mà record chưa completed. |
 | Export request (Phase 1.1) | Sau Owner authorization, validate/canonicalize project-scoped filters; insert `report_exports` với immutable `filter_snapshot`, `status = 'requested'`, expiry; insert activity; commit. File generation diễn ra sau commit; update `ready`/`failed` là transaction status riêng, không sửa snapshot. | `report_export.requested` ghi cùng request insert. |
 | Time Tracking settings (Phase 1.3) | Lock/conditional update settings; Owner authorization; validate enabled/mode/backfill and every approver is active Editor; replace approver set atomically; increment version; insert activity. | `time_tracking.settings_changed`, approver add/remove events chỉ sau commit. |
 | WorkLog create/update/submit | Re-check feature/capability/project/task; lock advisory daily key; validate backfill/override, support reason, duration total and expected version; write valid state; insert activity; commit. | `work_log.created`, `updated`, `submitted` hoặc `self_closed` only after commit. |

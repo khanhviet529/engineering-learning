@@ -20,7 +20,7 @@ Các response chỉ trả projection cần cho use case:
 
 `position` chỉ được trả khi rendering board cần thứ tự đã xác nhận. `activity.summary` do server dựng từ event payload allowlisted, không-secret; raw `payload` không bao giờ đến client. Response project detail/board gói `project` cùng `capabilities` do server tính, `columns` active, `members` project có thể làm assignee và task page có giới hạn theo column. Không response nào lộ project private cho Workspace Admin chưa có project membership tường minh.
 
-Mọi protected mutation hoàn tất authentication/resource authorization trước transaction, rồi re-check domain invariant có thể đổi trong transaction. Business mutation thành công ghi ActivityLog event đã nêu trong chính transaction; mutation bị reject/rollback không ghi event nào.
+Mọi protected mutation hoàn tất authentication/resource authorization trước transaction, rồi re-check domain invariant có thể đổi trong transaction. Business mutation thành công ghi ActivityLog event đã nêu trong chính transaction; mutation bị reject/rollback không ghi event nào. Mutation yêu cầu `Idempotency-Key` tuân theo [idempotency contract](api-conventions.md#idempotency-key): retry cùng key/fingerprint replay outcome đã lưu, cùng key khác fingerprint là `409 IDEMPOTENCY_KEY_REUSED`, retry đồng thời khi request gốc đang chạy là `409 IDEMPOTENCY_IN_PROGRESS`.
 
 ## Authentication
 
@@ -178,7 +178,7 @@ Các route Time Tracking chỉ tồn tại khi Phase 1.3 bắt đầu. Chúng d�
 
 ### WorkLog list và mutation
 
-`GET /projects/:projectId/work-logs` yêu cầu `work-log:read`, với query allowlist `userId`, `taskId`, `status`, `dateFrom`, `dateTo`, `sort`, `direction`, `cursor`, `limit`. `status` chỉ `draft|submitted|approved|rejected`; sort chỉ `workDate|updatedAt`; filter change reset cursor. Response `{ items, page }` không trả internal lock/audit payload.
+`GET /projects/:projectId/work-logs` yêu cầu `work-log:read`, với query allowlist `userId`, `taskId`, `status`, `dateFrom`, `dateTo`, `sort`, `direction`, `cursor`, `limit`. `status` chỉ `draft|submitted|approved|rejected`; sort chỉ `workDate|updatedAt`; filter change reset cursor. Response `{ items, page }` không trả internal lock/audit payload. Mỗi WorkLog item mang **`capabilities` per-record do server tính** (subset của `work-log:update:self`, `work-log:submit:self`, `work-log:review` theo [Time Tracking conditions](../security/authorization-model.md#time-tracking-conditions-phase-13)) — quyết định theo status/date window/author của chính record đó; client không tự suy các cờ này từ status hay ngày.
 
 `POST /projects/:projectId/work-logs` yêu cầu `work-log:create:self`, CSRF và `Idempotency-Key`; body `{ taskId, workDate, durationMinutes, description, supportReason? }`. Actor là author do server gán, không nhận `loggedByUserId`. `PATCH /work-logs/:workLogId` yêu cầu `work-log:update:self`, body allowlist cùng `expectedVersion`; chỉ draft/rejected trong backfill/override. Các lỗi nghiệp vụ dùng `TIME_TRACKING_DISABLED`, `WORK_LOG_BACKFILL_CLOSED`, `WORK_LOG_DAILY_LIMIT_EXCEEDED`, `WORK_LOG_TASK_SUPPORT_REASON_REQUIRED` hoặc `WORK_LOG_VERSION_CONFLICT`.
 

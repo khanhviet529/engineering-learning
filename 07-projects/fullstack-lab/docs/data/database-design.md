@@ -168,6 +168,38 @@ Không có `updated_at`, delete marker hoặc revision columns: comment MVP là 
 
 Không có `updated_at`: append-only. Retention: giữ cùng project như audit history; không có public edit/delete hay automatic purge MVP. Mỗi row phải được insert trong transaction của mutation mô tả nó.
 
+### `idempotency_records`
+
+Bảng này hiện thực lời hứa của [idempotency contract](../api/api-conventions.md#idempotency-key): retry cùng `Idempotency-Key` trả lại outcome đã lưu thay vì chạy mutation lần hai. Không có bảng này, header chỉ là trang trí — không có chỗ lưu outcome thì không replay được và không chặn được double-create (task/comment không có natural key).
+
+| Cột | PostgreSQL type | Null | Key / constraint | Ghi chú |
+|---|---|:---:|---|---|
+| `id` | `uuid` | No | PK | Record identifier. |
+| `user_id` | `uuid` | No | FK → `users(id)` | Authenticated actor sở hữu key; key không chia sẻ giữa actor. |
+| `use_case` | `text` | No |  | Định danh route/use case allowlisted (ví dụ `task.create`), do module gán, không client-controlled. |
+| `key_hash` | `text` | No |  | Hash của `Idempotency-Key`; **không lưu key thô** — key là bearer-adjacent secret của client. |
+| `request_fingerprint` | `text` | No |  | Hash của canonical request (path params + body đã chuẩn hóa sau parse). |
+| `status` | `text` | No | `CHECK (status IN ('in_progress', 'completed'))` | `in_progress` chặn retry đồng thời; `completed` giữ outcome. |
+| `response_status` | `smallint` | Yes |  | HTTP status của outcome; non-null khi `completed`. |
+| `response_body` | `jsonb` | Yes |  | Phần `data`/error envelope an toàn của outcome khi `completed`; xem quy tắc nội dung dưới. |
+| `expires_at` | `timestamptz` | No |  | UTC; `created_at + 24h`. Record hết hạn coi như không tồn tại khi lookup. |
+| `created_at` | `timestamptz` | No |  | UTC. |
+| `updated_at` | `timestamptz` | No |  | UTC khi status/outcome đổi. |
+
+Constraints: `UNIQUE (user_id, use_case, key_hash)` — đúng scope "authenticated actor, route/use case" của API conventions; `request_fingerprint` không nằm trong unique key mà dùng để phát hiện reuse (`409 IDEMPOTENCY_KEY_REUSED` khi cùng key nhưng fingerprint khác).
+
+**Giao thức hai transaction** (xử lý retry đồng thời — hai request cùng key không được cùng thực thi mutation):
+
+1. **T1 — claim, commit trước mutation:** sau guard/parse, use case `INSERT` record `in_progress` và **commit ngay** trong transaction riêng. `in_progress` phải được commit trước khi mutation bắt đầu, nếu không request retry đồng thời không nhìn thấy nó. Nếu insert vướng unique: đọc record hiện có — `completed` + cùng fingerprint → replay outcome đã lưu; `completed`/`in_progress` + khác fingerprint → `409 IDEMPOTENCY_KEY_REUSED`; `in_progress` + cùng fingerprint → `409 IDEMPOTENCY_IN_PROGRESS` (request gốc đang chạy, client chờ rồi retry); `in_progress` đã quá **takeover TTL 60 giây** → conditional update (compare-and-set trên `updated_at`) giành lại record rồi thực thi.
+2. **T2 — mutation:** business mutation + ActivityLog + `UPDATE` record thành `completed` với outcome, tất cả **trong cùng transaction**. Vì completed và mutation atomic, không tồn tại trạng thái "mutation đã commit nhưng record chưa completed".
+3. **Business failure xác định** (domain validation, stale version…): T2 rollback; use case ghi outcome lỗi an toàn vào record bằng transaction nhỏ thứ ba → retry cùng key replay đúng lỗi đó; ý định mới của user dùng key mới (fingerprint khác cùng key vẫn là `409 IDEMPOTENCY_KEY_REUSED`).
+
+**Chế độ hỏng còn lại (chấp nhận có ghi nhận):** (a) crash giữa T1 và T2 để lại record `in_progress` — an toàn vì mutation chưa commit; takeover TTL 60s cho phép retry thực thi lại; (b) side effect ngoài database transaction (gửi email của auth flow) không được store bảo vệ — email có thể mất khi crash sau commit; các flow email đã có resend endpoint riêng bù lại; (c) replay trong 24h trả snapshot outcome tại thời điểm commit — actor có thể đã mất quyền đọc resource đó ở hiện tại; chấp nhận vì key scoped theo chính actor tạo mutation và TTL ngắn.
+
+**Quy tắc nội dung `response_body`:** chỉ lưu phần `data` hoặc error envelope an toàn đã trả cho client. Không lưu: cookie/session value, CSRF token, reset/verification token, header nhạy cảm, hay bất kỳ giá trị nào api-conventions cấm trong payload. `requestId` không lưu — replay bọc outcome trong envelope với `requestId` mới của chính request replay. `POST /auth/sign-in` cố ý không nằm trong required-key list (response chứa csrfToken) — giữ nguyên.
+
+Retention: record hết hạn (`expires_at < now()`) bị lookup bỏ qua và có thể bị ghi đè bằng compare-and-set khi cùng key quay lại. Physical purge trong core MVP là lệnh vận hành explicit (cùng chính sách "không cron tự phát" của `auth_sessions`); chuyển thành scheduled job khi Phase 1.2 có worker.
+
 ## Bảng Phase 1.1, không phải core MVP
 
 ### `report_exports`
@@ -262,7 +294,7 @@ Constraints: `UNIQUE(project_id, user_id, work_date)`. Reopen/update cùng targe
 
 ## Migration order và ràng buộc cross-table
 
-1. Tạo `users`, rồi `auth_sessions`, `workspaces`, `workspace_members`, `projects`, `project_members`, `board_columns`, `tasks`, `comments`, `activity_logs` theo thứ tự foreign key.
+1. Tạo `users`, rồi `auth_sessions`, `idempotency_records` (chỉ FK → `users`), `workspaces`, `workspace_members`, `projects`, `project_members`, `board_columns`, `tasks`, `comments`, `activity_logs` theo thứ tự foreign key.
 2. Tạo unique/composite foreign keys của Task sau `project_members` và `board_columns`; chúng bảo vệ same-project column/assignee ngay tại database.
 3. Không thể chỉ dùng foreign key để biết BoardColumn còn active, WorkspaceMember tương ứng tồn tại, Owner cuối cùng hay column còn task. Các điều kiện đó là use-case transaction rules, không trigger ngầm.
 4. Tạo `report_exports` và index liên quan chỉ với Phase 1.1.

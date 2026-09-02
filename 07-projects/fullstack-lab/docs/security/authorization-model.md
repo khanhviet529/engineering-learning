@@ -108,6 +108,8 @@ Project responses include the server-computed capabilities for the authenticated
 
 The frontend exposes one primitive, **`can(action, resource)`**, which reads those capabilities to hide or disable unavailable controls and to prevent optimistic UI from attempting known-denied actions. It does not duplicate role mappings in page components and it does not treat a capability response as authoritative after a server rejection. The API remains the final decision point; capability values are recomputed by the server on each relevant response.
 
+A flat project-level list cannot express permissions that depend on the state of an individual record. `work-log:update:self` and `work-log:submit:self` depend on that WorkLog's status and date window; `work-log:review` depends on that WorkLog's author differing from the actor. For these, the server computes a **per-record `capabilities` list on the resource projection itself** — a WorkLog item carries, for example, `"capabilities": ["work-log:update:self", "work-log:submit:self"]` — evaluated from the same Time Tracking conditions above. Resolution order for `can(action, resource)`: when the resolved resource projection carries its own `capabilities`, that list decides the affordance for record-scoped actions; otherwise the current project-level list decides. The frontend never re-derives these from status, dates, or authorship — that would duplicate policy on the client, which this document forbids.
+
 ## Future implementation primitives
 
 | Primitive | Responsibility |
@@ -118,4 +120,4 @@ The frontend exposes one primitive, **`can(action, resource)`**, which reads tho
 | `ProjectPermissionGuard` | Enforce the declared action against the actor and resolved project resource. |
 | `AuthorizationService` | Provide the shared `can(actor, action, resource)` policy evaluation. |
 | Scoped repository query | Apply the already-authorized project predicate to every project-data read or mutation. |
-| `can(action, resource)` | Frontend capability helper; an affordance layer only, never the server authorization decision. |
+| `can(action, resource)` | Frontend capability helper; an affordance layer only, never the server authorization decision. Reads the resource projection's own `capabilities` when present (record-scoped actions), else the project-level list. |

@@ -76,7 +76,7 @@ Các outcome chuẩn là:
 - `403 EMAIL_VERIFICATION_REQUIRED`: sign-in đã xác thực được email/password nhưng email chưa verified. Body là error envelope chuẩn với `error.code` này, safe `message`, `requestId` và không có `details`; không set session cookie/CSRF token hay trả dữ liệu private. Frontend xóa password, chuyển tới email verification và có thể đề nghị resend theo contract riêng; không retry sign-in.
 - `403 FORBIDDEN`: actor đã nhìn thấy project/resource theo scope nhưng không có action yêu cầu. Ví dụ Viewer gọi move task. Không có side effect.
 - `404 NOT_FOUND`: resource không tồn tại **hoặc** nằm ngoài project scope mà actor được phép nhìn thấy. Đây là response cho ID substitution/cross-project access; không xác nhận private resource tồn tại.
-- `409 CONFLICT`: precondition cạnh tranh hoặc invariant trạng thái không thể áp dụng trên bản hiện tại. Task stale phải dùng `TASK_VERSION_CONFLICT` và trả `currentVersion`; chi tiết ở tài liệu concurrency. Không ghi Task hay ActivityLog cho version mismatch.
+- `409 CONFLICT`: precondition cạnh tranh hoặc invariant trạng thái không thể áp dụng trên bản hiện tại. Task stale phải dùng `TASK_VERSION_CONFLICT` và trả `currentVersion`; chi tiết ở tài liệu concurrency. Không ghi Task hay ActivityLog cho version mismatch. `IDEMPOTENCY_KEY_REUSED` là cùng key với fingerprint khác; `IDEMPOTENCY_IN_PROGRESS` là retry đồng thời khi request gốc cùng key đang chạy — client chờ ngắn rồi gửi lại **cùng key**, không đổi key.
 - `429 RATE_LIMITED`: auth endpoint vượt giới hạn chống abuse; body không tiết lộ account có tồn tại hay không.
 - `5xx INTERNAL_ERROR`: lỗi không mong đợi; message an toàn, requestId dùng để tra log. Không coi đây là thành công mutation.
 
@@ -94,7 +94,9 @@ Thứ tự thực thi bắt buộc là `SessionGuard` → `ResourceProjectResolv
 
 Các mutation được liệt kê trong [pagination-concurrency-idempotency.md](pagination-concurrency-idempotency.md) gửi header `Idempotency-Key`: string opaque, high-entropy, do client tạo, một key cho một logical operation. Key không đi trong body, không mang user/resource ID, và được scope tối thiểu theo authenticated actor, route/use case và canonical request fingerprint.
 
-Lần gọi retry có cùng key và cùng fingerprint trả lại outcome đã lưu (status, headers an toàn và response body) thay vì chạy mutation/activity lần hai. Cùng key nhưng body/fingerprint khác trả `409 IDEMPOTENCY_KEY_REUSED`. Key không thay `expectedVersion`, CSRF, authorization hay validation. Endpoint không yêu cầu key phải từ chối request thiếu key bằng `400 VALIDATION_FAILED` trước use case.
+Lần gọi retry có cùng key và cùng fingerprint trả lại outcome đã lưu (status, headers an toàn và response body; `requestId` là của chính request replay) thay vì chạy mutation/activity lần hai. Cùng key nhưng body/fingerprint khác trả `409 IDEMPOTENCY_KEY_REUSED`. Key không thay `expectedVersion`, CSRF, authorization hay validation. Endpoint không yêu cầu key phải từ chối request thiếu key bằng `400 VALIDATION_FAILED` trước use case.
+
+Outcome được lưu trong bảng [`idempotency_records`](../data/database-design.md#idempotency_records) (hash của key, không lưu key thô) theo giao thức hai transaction: claim `in_progress` commit trước mutation, rồi mutation + activity + `completed` atomic. Hai retry **đồng thời** cùng key vì vậy không cùng thực thi: request đến sau nhận `409 IDEMPOTENCY_IN_PROGRESS` và retry sau khoảng chờ ngắn; nếu request gốc crash, record `in_progress` quá 60 giây được request sau giành lại an toàn (mutation chưa từng commit). Business failure xác định cũng được lưu và replay như outcome.
 
 ## Quy trình OpenAPI contract
 
