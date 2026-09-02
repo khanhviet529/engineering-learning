@@ -69,7 +69,7 @@ Khi một quyết định làm thay đổi package boundary, migration ownership
 
 Các quy tắc nền sau chi phối mọi thay đổi cấu trúc; chúng có trước và đứng trên lựa chọn công nghệ của từng phase:
 
-- Bắt đầu bằng PostgreSQL và modular monolith; chỉ tách deployment khi có yêu cầu và số liệu chứng minh cần thiết.
+- Bắt đầu bằng PostgreSQL và modular monolith; chỉ tách deployment khi có yêu cầu và số liệu chứng minh cần thiết. Ranh giới và phụ thuộc giữa các module trong `apps/api` theo [ADR-0005](../decisions/ADR-0005-module-dependency-and-activity-boundary.md).
 - Chỉ thêm Redis khi có cache behavior hoặc rate-limit experiment cụ thể cần quan sát.
 - Chỉ thêm queue/worker khi có công việc bất đồng bộ với retry/idempotency cần quan sát; theo [lộ trình phát hành](../product/delivery-roadmap.md), điều này chỉ xảy ra từ Phase 1.2.
 - Không dùng eventual consistency cho dữ liệu cốt lõi của task nếu chưa nêu rõ UX trade-off.

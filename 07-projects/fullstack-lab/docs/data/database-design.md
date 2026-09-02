@@ -110,7 +110,7 @@ Constraints: `UNIQUE (project_id, user_id)`. Retention: giữ membership hiện 
 | `created_at` | `timestamptz` | No |  | UTC. |
 | `updated_at` | `timestamptz` | No |  | UTC. |
 
-Constraints: `UNIQUE (project_id, position)` và `UNIQUE (project_id, id)` để Task có thể dùng composite foreign key. Retention: archive giữ row cho lịch sử; không delete; unarchive chưa là core behavior. Application transaction là nơi cấm archive khi còn Task.
+Constraints: `UNIQUE (project_id, position)` khai báo `DEFERRABLE INITIALLY IMMEDIATE` (chỉ rebalance transaction mới `SET CONSTRAINTS ... DEFERRED`; xem [ADR-0006](../decisions/ADR-0006-fractional-ordering-and-concurrency.md)) và `UNIQUE (project_id, id)` để Task có thể dùng composite foreign key. Retention: archive giữ row cho lịch sử; không delete; unarchive chưa là core behavior. Application transaction là nơi cấm archive khi còn Task.
 
 ### `tasks`
 
@@ -133,7 +133,7 @@ Constraints: `UNIQUE (project_id, position)` và `UNIQUE (project_id, id)` để
 | `created_at` | `timestamptz` | No |  | UTC. |
 | `updated_at` | `timestamptz` | No |  | UTC. |
 
-Constraints: direct `FOREIGN KEY (project_id) REFERENCES projects(id)`; `UNIQUE (project_id, id)` cho child composite FK; `FOREIGN KEY (project_id, column_id) REFERENCES board_columns(project_id, id)`; `FOREIGN KEY (project_id, assignee_id) REFERENCES project_members(project_id, user_id)`; `UNIQUE (project_id, column_id, position)`. Với `assignee_id NULL`, composite FK không yêu cầu member. Retention: giữ Task và `version`/timestamp cho lifetime project; core MVP không có task delete/archive. Repository chỉ update content/assignment khi `id`, `project_id` và expected `version` cùng khớp; `column_id` và `position` chỉ được thay đổi bởi dedicated Task move transaction.
+Constraints: direct `FOREIGN KEY (project_id) REFERENCES projects(id)`; `UNIQUE (project_id, id)` cho child composite FK; `FOREIGN KEY (project_id, column_id) REFERENCES board_columns(project_id, id)`; `FOREIGN KEY (project_id, assignee_id) REFERENCES project_members(project_id, user_id)`; `UNIQUE (project_id, column_id, position)` khai báo `DEFERRABLE INITIALLY IMMEDIATE` — bình thường check ngay như unique thường, chỉ rebalance transaction mới defer tới commit; hai unique position constraint không là FK target hay `ON CONFLICT` arbiter nên DEFERRABLE không đổi behavior khác (xem [ADR-0006](../decisions/ADR-0006-fractional-ordering-and-concurrency.md) cho spacing 1024, ngưỡng rebalance 10⁻⁶ và phân tích precision của `numeric(20,10)`). Với `assignee_id NULL`, composite FK không yêu cầu member. Retention: giữ Task và `version`/timestamp cho lifetime project; core MVP không có task delete/archive. Repository chỉ update content/assignment khi `id`, `project_id` và expected `version` cùng khớp; `column_id` và `position` chỉ được thay đổi bởi dedicated Task move transaction.
 
 #### Task date, review and due-state invariants
 

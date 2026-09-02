@@ -49,3 +49,7 @@ Không đưa secret, token, cookie/session ID, dữ liệu project riêng tư, r
 - [Reporting](../reporting/progress-export.md) và [AI architecture and safety](../ai/architecture-and-safety.md) — các quyết định được hoãn đến Phase 1.2 và AI.
 - [ADR-0001: Task planning fields and review workflow](ADR-0001-task-planning-fields-and-review-workflow.md) — category/priority/start–due date, `created_by` và review workflow theo cột của Task ở core MVP.
 - [ADR-0002: Project-level time tracking and approval](ADR-0002-project-time-tracking-and-approval.md) — WorkLog, approval và backfill theo project ở Phase 1.3.
+- [ADR-0003: Opaque server session, cookie và CSRF thay vì JWT](ADR-0003-opaque-session-authentication.md) — lý do chọn opaque session, chi phí lookup và các quyết định phụ (rotate, revoke-all, không cookie khi chưa verify).
+- [ADR-0004: Drizzle ORM và Drizzle Kit cho data access](ADR-0004-drizzle-orm.md) — trục so sánh với Prisma/Kysely/raw SQL và lý do lệch mặc định Prisma của kho kiến thức.
+- [ADR-0005: Bản đồ phụ thuộc module và vị trí của Activity](ADR-0005-module-dependency-and-activity-boundary.md) — Activity là module với recorder port; đồ thị phụ thuộc acyclic của apps/api.
+- [ADR-0006: Fractional ordering, ngưỡng rebalance và optimistic concurrency](ADR-0006-fractional-ordering-and-concurrency.md) — spacing 1024, ngưỡng 10⁻⁶, phân tích precision và unique constraint DEFERRABLE.

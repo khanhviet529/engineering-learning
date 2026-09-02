@@ -30,6 +30,22 @@ controller → application use case → domain rule/port → infrastructure repo
 
 Controller biết HTTP/Nest/OpenAPI nhưng không biết Drizzle table. Use case điều phối authorization result, validation result, transaction và explicit product command. Domain giữ invariant/policy có ý nghĩa nghiệp vụ. Repository port diễn đạt query/mutation hẹp mà use case cần; infrastructure là nơi duy nhất module dùng Drizzle/PostgreSQL. Hạ tầng không import controller, và repository không tự quyết định HTTP response.
 
+### Phụ thuộc giữa các module
+
+Phụ thuộc cross-module chỉ đi qua application port (interface), không import Drizzle table hay repository của module khác, và phải nằm trong đồ thị acyclic sau theo [ADR-0005](../decisions/ADR-0005-module-dependency-and-activity-boundary.md):
+
+```text
+comments ──► tasks ──► board-columns
+   │           │  └──► projects ──► workspaces
+   ▼           ▼             ▼
+activity ◄── mọi module mutation (projects, board-columns, tasks, comments, reports)
+```
+
+- `activity` là leaf: sở hữu `activity_logs` và read use case, export đúng một port ghi `ActivityRecorder.record(tx, event)` nhận transaction handle của mutation. Không module nào insert `activity_logs` trực tiếp; tên event/payload allowlist vẫn thuộc module mutation.
+- Cycle tasks ↔ board-columns bị cấm: use case archive của `board-columns` định nghĩa port `ColumnEmptinessCheck` trong domain của nó, module `tasks` implement adapter và composition root nối lại — chiều import chỉ còn `tasks → board-columns`.
+- `auth` không phụ thuộc module sản phẩm; `shared/authorization` là kernel đọc read-only membership/role (ngoại lệ có chủ đích, ghi ở ADR-0005) và không import module nào.
+- Import cross-module ngoài đồ thị này là vi phạm review; cần sửa ranh giới hoặc mở ADR, không dùng `forwardRef` để che cycle.
+
 ## HTTP, Nest và Fastify boundary
 
 Nest chạy trên Fastify adapter; plugin/bootstrap, request lifecycle và response integration tuân theo Fastify thay vì thêm Express-only middleware. `main.ts` chỉ bootstrap adapter, global HTTP policy, document publication và graceful lifecycle; nó không chứa route/business logic.
