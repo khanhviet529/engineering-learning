@@ -23,6 +23,14 @@ Tài liệu này là bản đồ điều hướng cho Flowboard. [Đặc tả ba
 | 13. Documentation deliverables | This index, [design and documentation plan](design-and-docs-plan.md), [user guide](user-guide/README.md), [ADR process](decisions/README.md) |
 | 14. Baseline acceptance criteria | This index, [design and documentation plan](design-and-docs-plan.md), [approved baseline](superpowers/specs/2026-09-01-flowboard-product-architecture-design.md) |
 
+### Baseline bổ sung
+
+Các baseline sau được phê duyệt sau master specification 2026-09-01. Chúng không phải một section của spec cũ; mỗi baseline có spec và kế hoạch triển khai riêng, và các quyết định đã được diễn giải vào focused documentation tương ứng.
+
+| Baseline | Spec | Kế hoạch triển khai | Focused documentation đã cập nhật |
+|---|---|---|---|
+| Phase 1.3 — Time Tracking (2026-09-02) | [Time Tracking design](superpowers/specs/2026-09-02-flowboard-time-tracking-design.md) | [Time Tracking documentation and design plan](superpowers/plans/2026-09-02-flowboard-time-tracking-documentation-and-design.md) | [ADR-0002](decisions/ADR-0002-project-time-tracking-and-approval.md), [delivery roadmap](product/delivery-roadmap.md), [database design](data/database-design.md), [query and index policy](data/query-and-index-policy.md), [authorization model](security/authorization-model.md), [endpoint contracts](api/endpoint-contracts.md), [pagination/concurrency/idempotency](api/pagination-concurrency-idempotency.md), [Pencil handoff](design/pencil-handoff.md) |
+
 ## Thuật ngữ chuẩn (Canonical terminology)
 
 Những tên dưới đây là tên sản phẩm/chính sách chuẩn trong toàn bộ tài liệu. Tên database, DTO hoặc API để trong code font (ví dụ `board_columns`, `due_date`, `expectedVersion`, `requestId`) là định danh kỹ thuật, không phải tên thay thế cho khái niệm sản phẩm.
@@ -90,3 +98,7 @@ Task này chỉ thiết lập bản đồ. Các tài liệu theo chủ đề đ�
 ## Hồ sơ quyết định (Decision records)
 
 `decisions/README.md` lưu các quyết định khó đảo ngược sau baseline này, như lựa chọn session, ORM, chiến lược ordering/concurrency, thay đổi permission, queue, nhà cung cấp AI và deployment.
+
+## Lưu trữ (Archive)
+
+[`_archive/`](_archive/README.md) giữ các tài liệu đã bị thay thế. Chúng không còn là contract; khi grep thấy nội dung ở `_archive/` lệch với tài liệu đang sống, tài liệu đang sống luôn đúng.

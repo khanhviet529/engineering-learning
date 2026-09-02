@@ -54,6 +54,7 @@ Flowboard là workspace quản lý công việc riêng tư theo project dành ch
 ### Approved baseline
 
 - [Flowboard Product & Architecture Design](docs/superpowers/specs/2026-09-01-flowboard-product-architecture-design.md)
+- [Flowboard Time Tracking Design — Phase 1.3](docs/superpowers/specs/2026-09-02-flowboard-time-tracking-design.md) (baseline bổ sung; xem [kế hoạch triển khai](docs/superpowers/plans/2026-09-02-flowboard-time-tracking-documentation-and-design.md))
 
 ## Milestones
 

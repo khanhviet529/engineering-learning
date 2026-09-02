@@ -47,4 +47,5 @@ Không đưa secret, token, cookie/session ID, dữ liệu project riêng tư, r
 - [Chính sách query, index và transaction](../data/query-and-index-policy.md) — ordering/concurrency và thay đổi dữ liệu.
 - [Local development](../operations/local-development.md), [CI/CD](../operations/ci-cd.md) và [observability](../operations/observability.md) — queue/deploy/recovery implications.
 - [Reporting](../reporting/progress-export.md) và [AI architecture and safety](../ai/architecture-and-safety.md) — các quyết định được hoãn đến Phase 1.2 và AI.
+- [ADR-0001: Task planning fields and review workflow](ADR-0001-task-planning-fields-and-review-workflow.md) — category/priority/start–due date, `created_by` và review workflow theo cột của Task ở core MVP.
 - [ADR-0002: Project-level time tracking and approval](ADR-0002-project-time-tracking-and-approval.md) — WorkLog, approval và backfill theo project ở Phase 1.3.

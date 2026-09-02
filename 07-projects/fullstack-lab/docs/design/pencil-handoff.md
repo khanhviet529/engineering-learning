@@ -123,6 +123,8 @@ Frame màn hình phải nói rõ dữ liệu nào là ví dụ visual và dữ l
 4. Khi thay đổi visual không đổi hành vi, tăng bản vá: `v0.1.1`. Khi thêm/đổi variant hay screen trong phạm vi đã phê duyệt, tăng minor: `v0.2`. Thay đổi role outcome, data field, route context, flow, DnD, Error/Conflict/permission behavior phải có quyết định Markdown/baseline trước khi Pencil tăng version.
 5. Mỗi bàn giao ghi version, ngày, owner thiết kế, Screen ID/component bị tác động và thay đổi có thể thấy. Frame cũ chuyển `99 Archive`, không ghi đè lịch sử.
 
+Tiến độ dựng canvas theo baseline v0.1 được theo dõi trong [checklist thực thi Pencil](pencil-execution-checklist.md); các đợt refactor control và screen mới theo Phase 1.3 dùng [checklist refactor UI/UX](pencil-refactor-checklist.md).
+
 ## Checklist trước khi frontend nhận bàn giao
 
 - [ ] Mỗi frame có Screen ID, viewport, role/capability outcome và state.
