@@ -91,6 +91,28 @@ BRD-01 · Mobile Light — Bảng công việc · editor · content
 | `Fb / State Panel` | `FbStatePanel` | Result, Alert, Empty, Skeleton | Loading, Empty, Error, Forbidden, Session expired; action copy. |
 | `Fb / Discard Changes` | `FbConfirmDiscardDialog` | Modal | dirty confirmation and focus default. |
 | `Fb / Conflict Resolution` | `FbConflictPanel` | Modal/Drawer, Alert, Button | Loading current version, current + draft, Error, Forbidden; no force overwrite. |
+| `FbTopbar` | `FbAppShell` (topbar) | Layout.Header, Dropdown | breadcrumb + tiêu đề, icon button (search/bell/theme), khối User là entry point `USR-01`. |
+| `FbSidebar` | `FbAppShell` (sidebar 264px) | Layout.Sider, Menu | 7 nav item theo IA, slot nhóm `CHẤM CÔNG`, footer chỉ có control thu gọn. |
+| `FbBrandMark` | `FbBrandMark` | — | dấu thương hiệu + tên workspace; dùng lại ở auth và sidebar. |
+| `FbButtonPrimary` | `FbButtonPrimary` | Button type=primary | default, hover, focus-visible, disabled, loading (spinner ẩn mặc định). |
+| `FbButtonSecondary` | `FbButtonSecondary` | Button | default, hover, focus-visible, disabled. |
+| `FbLink` | `FbLink` | Typography.Link | default, hover (gạch chân), focus-visible, disabled. |
+| `FbTextField` | `FbTextField` | Form.Item, Input | label + dấu `*` là element riêng, helper, error; hover/focus/disabled. |
+| `FbPasswordField` | `FbPasswordField` | Input.Password | toggle hiện mật khẩu; checklist đi kèm chỉ hai tiêu chí client kiểm được. |
+| `FbChecklistRow` | `FbChecklistRow` | — | chỉ báo trạng thái do client tính; **không** nhận focus/hover, không dùng cho kết quả blocklist. |
+| `FbAlert` | `FbAlert` | Alert | intent danger/warning/info/success; dùng cho validation summary và rollback. |
+| `FbSelect` | `FbSelect` | Select | value từ allowlist, hover, focus-visible, disabled, error. |
+| `FbDateField` | `FbDateField` | DatePicker | ngày không có giờ; validation `startDate <= dueDate` hiển thị tại field. |
+| `FbModal` | `FbModal` | Modal | header (title + subtitle + close), body slot, footer; focus trap, `Escape` đóng, trả focus về control mở nó. |
+| `FbDrawer` | `FbDrawer` | Drawer | panel full-height, close, body slot, focus return; dùng cho `TSK-02`. |
+| `FbActivityItem` | `FbActivityItem` | Timeline/List.Item | icon theo action; nhãn `Mở lại` cho `task.reopened`; read-only, không sửa/xoá. |
+| `FbAccountMenu` | `FbAccountMenu` | Dropdown/Menu | entry point **duy nhất** của `USR-01`; `Escape` đóng và trả focus về khối User trên topbar. |
+| `FbToast` | `FbToast` | message/notification | outcome mutation; không cướp focus, không thay lỗi field. |
+| `FbListRow` | `FbListRow` | List.Item | hàng bấm được: hover, focus-visible, disabled. |
+| `FbBadge` | `FbBadge` | Tag | nhãn role/ưu tiên/cột; không mang nghĩa chỉ bằng màu. |
+| `FbMobileHeader` | `FbMobileHeader` | — | header mobile thay topbar; back/close + tiêu đề. |
+| `FbNavGroupTimeTracking` | `FbNavGroup` | Menu.ItemGroup | chỉ chèn vào slot sidebar ở project đã bật time tracking. |
+| `FbSidebarCollapsed` | `FbAppShell` (trạng thái thu gọn) | Layout.Sider collapsed | icon-only + tooltip + accessible name; footer giữ đúng control thu gọn/mở rộng. |
 
 Một component Pencil không có mapping frontend là tài sản minh họa và phải ghi rõ `visual-only`. Một wrapper Flowboard không được bị thay bằng primitive Ant Design trong feature chỉ vì frame hiện tại trông giống primitive đó.
 
@@ -169,7 +191,7 @@ Các frame mới cần được frontend dùng làm mapping trực tiếp:
 | System | `SYS-01…04`, `SYS-05/06` | 403 an toàn không render project data; session hết hạn không replay mutation; network error giữ form chưa gửi; conflict không force overwrite. |
 | Responsive | `02.1 Navigation — Responsive Rules` | Desktop/sidebar, tablet collapsed, mobile overlay menu; Board mobile cuộn ngang và có fallback List/Calendar. |
 | Reporting | `RPT-01` trong `PRJ-04 Dashboard` | Nút `Xuất tiến độ` chỉ hiện với capability `report:export` của Owner trong Phase 1.1; panel tuân theo request/pending/ready/failed/expired, không gửi email hay schedule. |
-| Tài khoản | `USR-01` | Footer sidebar mở Hồ sơ & tùy chọn. Theme `light|dark|system` là preference local; display name/email và workspace timezone chỉ đọc; đổi mật khẩu đi qua `AUTH-03`. |
+| Tài khoản | `USR-01` | **Khối người dùng trên topbar (tên + avatar) là entry point duy nhất**: bấm mở menu tài khoản → `Hồ sơ và tùy chọn` (`/account/settings`); `Escape` đóng menu và trả focus về chính khối đó. Footer sidebar chỉ còn control thu gọn/mở rộng, không chứa danh tính và không mở `USR-01`. Theme `light|dark|system` là preference local; display name/email và workspace timezone chỉ đọc; đổi mật khẩu đi qua `AUTH-03`. |
 
 Quy tắc role hiển thị trên frame: `Owner · Chủ sở hữu`, `Editor · Có thể chỉnh sửa`, `Viewer · Chỉ xem`. UI chọn route/CTA từ capability server; backend vẫn bắt buộc kiểm tra authorization ở mọi request.
 

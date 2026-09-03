@@ -60,6 +60,31 @@ Ngoài mười nhóm ở bảng trên, các token sau là bắt buộc vì mang 
 
 **Tương phản (bắt buộc).** Mọi cặp chữ/nền đạt tối thiểu 4.5:1, hoặc 3:1 cho chữ từ 24px hoặc từ 19px bold — ở **cả hai** theme, tính trên nền tổ tiên gần nhất có fill đục.
 
+### Component đã thay thế và token trạng thái
+
+Chín component dựng trước theo lối cũ đã chuyển vào frame `99 Archive` — không xoá, chỉ thêm tiền tố `Archived · ` và bỏ cờ reusable — vì chúng trùng vai với component `Fb*`; giữ lại tên gốc để tra được lịch sử, còn đổi tên thì chỉ khiến người đọc sau này nhầm thêm:
+
+| Component archive | Thay bằng |
+|---|---|
+| Board Column Component | `FbBoardColumn` |
+| Empty State Component | `FbStatePanel` (state empty) |
+| Conflict State Component | `FbStatePanel` (state conflict) |
+| Permission Banner Component | `FbStatePanel` (state forbidden) |
+| App Shell Preview | composition `FbSidebar` + `FbTopbar` |
+| Priority Scale Component | badge ưu tiên trong `FbTaskCard` |
+| FbTextField Error Variant | `FbTextField` state `error` |
+| FbToast Success Variant | `FbToast` state `success` |
+| FbDivider | không dùng trong MVP |
+
+**State không được tách thành component riêng.** Mỗi trạng thái (`hover`, `focus-visible`, `disabled`, `loading`, `error`) là override trên đúng một component; bảng đối chiếu nằm ở frame `REF-15 · Light|Dark — Bảng trạng thái tương tác`. Màu của trạng thái dùng token, không dùng hex:
+
+- `fb.color.brand.surface-hover`, `fb.color.brand.text-hover`, `fb.color.surface.raised-hover`, `fb.color.surface.subtle-hover`, `fb.color.border.strong-hover`
+- `fb.color.state.disabled-surface`, `fb.color.state.disabled-text`, `fb.color.state.disabled-border`
+- `fb.color.state.focus-ring`, `fb.color.state.focus-offset`
+- `fb.color.state.drop-target-surface`, `fb.color.state.loading-track`
+
+`focus-visible` là ring 2px `fb.color.state.focus-ring` cách control một offset 3px `fb.color.state.focus-offset`; hai cặp cần tương phản là ring↔offset và ring↔nền trang, đều ≥3:1. Chữ ở trạng thái `disabled` vẫn giữ ≥4.5:1 và không dùng `opacity` để làm mờ.
+
 ## Quy tắc đặt tên component và variant
 
 - Component product bắt đầu `Fb`: `FbTaskCard`, `FbBoardColumn`, `FbStatePanel`.
@@ -72,20 +97,20 @@ Ngoài mười nhóm ở bảng trên, các token sau là bắt buộc vì mang 
 
 | Flowboard component | Primitive Ant Design có thể dùng | Variant và state bắt buộc | Sở hữu bền vững của Flowboard |
 |---|---|---|---|
-| `FbAppShell` | Layout, Menu, Dropdown | authenticated, compact | context workspace, header responsive, điểm điều hướng. |
-| `FbWorkspaceSwitcher` | Select, Dropdown | loading, empty, error | chỉ hiện workspace API trả; không suy ra project access. |
-| `FbProjectList` | List, Card, Empty, Skeleton | loading, empty, error, forbidden | CTA tạo project theo capability server. |
-| `FbBoard` | Layout, Spin, Empty | loading, empty, error, forbidden, compact-horizontal | query state, per-column paging, capability UI, DnD integration. |
-| `FbBoardColumn` | Card, Button, Skeleton | loading, empty, loading-more, error-more, drop-target | title, task count đã nạp, `Tải thêm`, target DnD. |
-| `FbTaskCard` | Card, Tag, Avatar, Button | default, syncing, lifted, conflict, readonly | metadata được phép, open detail, drag handle theo role. |
-| `FbTaskForm` | Form, Input, Select, DatePicker, Button | create, edit, invalid, saving, error, conflict, dirty | schema presentation, assignee scope, unsaved changes, version handling. |
+| `FbAppShell` | Layout, Menu, Dropdown | authenticated, compact | Context workspace, header responsive, các điểm điều hướng. |
+| `FbWorkspaceSwitcher` | Select, Dropdown | loading, empty, error | Chỉ hiển thị workspace mà API trả về; không tự suy ra quyền truy cập project. |
+| `FbProjectList` | List, Card, Empty, Skeleton | loading, empty, error, forbidden | Nút tạo project hiện theo capability do server trả. |
+| `FbBoard` | Layout, Spin, Empty | loading, empty, error, forbidden, compact-horizontal | Quản trị query state, phân trang theo từng cột, hiển thị theo capability, tích hợp DnD. |
+| `FbBoardColumn` | Card, Button, Skeleton | loading, empty, loading-more, error-more, drop-target | Tiêu đề cột, số task đã nạp, nút `Tải thêm`, vùng nhận DnD. |
+| `FbTaskCard` | Card, Tag, Avatar, Button | default, syncing, lifted, conflict, readonly | Metadata được phép hiển thị, mở detail, drag handle tuỳ theo role. |
+| `FbTaskForm` | Form, Input, Select, DatePicker, Button | create, edit, invalid, saving, error, conflict, dirty | Trình bày schema, giới hạn phạm vi người được giao, cảnh báo thay đổi chưa lưu, xử lý version. |
 | `FbProjectSettings` | Form, Input, Button | loading, default, invalid, saving, error, forbidden, dirty | Mapping cho `PRJ-03`; form Owner-only có duy nhất `name`, gửi `PATCH /projects/:projectId` với `name`, đồng bộ tên server xác nhận; không có description, visibility hay destructive project action. |
-| `FbTaskDrawer` | Drawer, Tabs | loading, content, error, forbidden, compact-sheet | giữ board context, focus return, comment/activity zones. |
-| `FbCommentComposer` | Form, Input, Button | readonly, dirty, sending, error | immutable comment flow, idempotent retry presentation. |
-| `FbActivityList` | Timeline, List, Empty, Skeleton | loading, empty, error, readonly | append-only activity presentation. |
-| `FbColumnEditor` | Drawer/Modal, Form, List, Button | loading, empty, dirty, saving, error, archive-blocked | Owner-only column management and unsaved behavior. |
-| `FbMemberManager` | Drawer/Modal, Table/List, Select, Button | loading, empty, pending, error, blocked-workspace-member | role selector, project scope, condition chặn membership workspace. |
-| `FbStatePanel` | Result, Empty, Alert, Skeleton | Loading, Empty, Error, Forbidden, Session expired, Conflict | text/action semantics không để primitive tự quyết định. |
+| `FbTaskDrawer` | Drawer, Tabs | loading, content, error, forbidden, compact-sheet | Giữ context của board, trả focus khi đóng, vùng comment và activity. |
+| `FbCommentComposer` | Form, Input, Button | readonly, dirty, sending, error | Luồng comment bất biến, thể hiện retry idempotent. |
+| `FbActivityList` | Timeline, List, Empty, Skeleton | loading, empty, error, readonly | Trình bày activity chỉ ghi thêm. |
+| `FbColumnEditor` | Drawer/Modal, Form, List, Button | loading, empty, dirty, saving, error, archive-blocked | Quản lý cột chỉ dành cho Owner, và hành vi khi có thay đổi chưa lưu. |
+| `FbMemberManager` | Drawer/Modal, Table/List, Select, Button | loading, empty, pending, error, blocked-workspace-member | Bộ chọn role, phạm vi project, điều kiện chặn khi chưa là thành viên workspace. |
+| `FbStatePanel` | Result, Empty, Alert, Skeleton | Loading, Empty, Error, Forbidden, Session expired, Conflict | Ngữ nghĩa của text và action, không để primitive tự quyết. |
 | `FbConfirmDiscardDialog` | Modal | default, confirm-pending | form dirty protection, focus mặc định an toàn. |
 | `FbConflictPanel` | Modal/Drawer, Alert, Button | loading-current, current-ready, error, forbidden | xem bản hiện tại/bản nháp, không force overwrite. |
 
@@ -147,13 +172,13 @@ Light/dark dùng semantic token chung. Mỗi route có giao diện Light phải 
 - Nội dung action dùng động từ cụ thể: `Tải thêm`, `Thử lại`, `Xem bản hiện tại`, `Tiếp tục chỉnh sửa`, `Bỏ thay đổi`.
 - Text mẫu trong Pencil là placeholder visual trừ khi được đánh dấu là copy sản phẩm đã duyệt. Nó không được sinh thêm field, role hoặc hành vi.
 
-### Contrast rule (Light/Dark)
+### Quy tắc tương phản (Light và Dark)
 
-- Normal text, meaningful icons, badges, input values, validation messages and interactive controls must meet a minimum contrast ratio of **4.5:1** against their immediate background in both Light and Dark themes.
-- Large text (at least 24 px regular or 18.66 px bold) may use 3:1 only when it is not the sole carrier of essential information.
-- Disabled and purely decorative content may use lower contrast, but must not communicate status, validation, permission or a required action on its own.
-- A selected calendar day in Dark mode uses a dark selected surface with light/violet text; it must never reuse the white selected surface from Light mode.
-- Every new or changed Pencil page must be checked for contrast on page background, card surface, overlay, form field, alert/banner, table row, calendar selection and focus-visible state before it is marked ready for build.
+- Chữ thường, icon mang nghĩa, badge, giá trị trong input, thông báo validate và mọi control tương tác phải đạt tỉ lệ tương phản tối thiểu **4.5:1** so với nền ngay sau nó, ở **cả hai** theme.
+- Chữ lớn — từ 24 px regular hoặc từ 18.66 px bold — được dùng 3:1, nhưng chỉ khi nó không phải chỗ duy nhất mang thông tin thiết yếu.
+- Nội dung disabled và nội dung thuần trang trí được phép tương phản thấp hơn, nhưng khi đó nó **không được** một mình truyền đạt trạng thái, kết quả validate, quyền hạn hay hành động cần làm.
+- Ngày được chọn trong lịch ở theme Dark dùng surface tối kèm chữ sáng hoặc tím sáng; tuyệt đối không tái dùng surface trắng của theme Light.
+- Mỗi frame Pencil mới hoặc vừa sửa đều phải được kiểm tương phản ở: nền trang, surface của card, lớp phủ, field trong form, alert/banner, dòng bảng, ô ngày được chọn trong lịch, và trạng thái focus-visible — kiểm xong mới được đánh dấu ready for build.
 
 ### Minimum readable scale và approved contrast pairs
 
