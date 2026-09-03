@@ -110,6 +110,8 @@ Constraints: `UNIQUE (project_id, user_id)`. Retention: giữ membership hiện 
 | `created_at` | `timestamptz` | No |  | UTC. |
 | `updated_at` | `timestamptz` | No |  | UTC. |
 
+Chưa có cột nào biểu diễn **terminal state** của column, trong khi quy tắc `due_state` bên dưới và [ADR-0001](../decisions/ADR-0001-task-planning-fields-and-review-workflow.md) (Accepted) đều dựa vào nó; [ADR-0008](../decisions/ADR-0008-terminal-column-and-task-reopen.md) (**Proposed**) đề xuất `is_terminal boolean NOT NULL DEFAULT false` để đóng gap này — chưa được duyệt nên chưa phải schema hiện hành.
+
 Constraints: `UNIQUE (project_id, position)` khai báo `DEFERRABLE INITIALLY IMMEDIATE` (chỉ rebalance transaction mới `SET CONSTRAINTS ... DEFERRED`; xem [ADR-0006](../decisions/ADR-0006-fractional-ordering-and-concurrency.md)) và `UNIQUE (project_id, id)` để Task có thể dùng composite foreign key. Rebalance column position chỉ ghi `position`, không chạm `updated_at` (ADR-0006 mục 5). Retention: archive giữ row cho lịch sử; không delete; unarchive chưa là core behavior. Application transaction là nơi cấm archive khi còn Task.
 
 ### `tasks`
@@ -139,7 +141,7 @@ Constraints: direct `FOREIGN KEY (project_id) REFERENCES projects(id)`; `UNIQUE 
 
 - `start_date` và `due_date` là `DATE NULL` theo timezone workspace. Khi cùng có giá trị, application validation và database check bắt buộc `start_date <= due_date`.
 - `reviewer_id`, nếu có, phải là ProjectMember cùng project và khác `assignee_id`. Task vào cột `requires_reviewer = true` không được commit nếu thiếu reviewer hợp lệ.
-- `due_state` không có cột DB. Server suy ra `none`, `scheduled`, `due_soon`, `due_today`, `overdue` từ workspace-local date, `due_date` và terminal state; task terminal không bao giờ overdue.
+- `due_state` không có cột DB. Server suy ra `none`, `scheduled`, `due_soon`, `due_today`, `overdue` từ workspace-local date, `due_date` và terminal state; task terminal không bao giờ overdue. Terminal state hiện **chưa có biểu diễn trong schema**; xem [ADR-0008](../decisions/ADR-0008-terminal-column-and-task-reopen.md) (Proposed). Cho tới khi ADR đó được duyệt, phần suppress overdue của quy tắc này không implement được.
 - Task query/mutation projection luôn có `createdBy`; đây là người tạo record, không là lịch sử người giao việc. Activity Log là nguồn lịch sử assignment.
 
 ### `comments`
