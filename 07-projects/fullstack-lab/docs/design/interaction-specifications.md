@@ -91,7 +91,7 @@ Form là dirty sau khác biệt có ý nghĩa với giá trị đã nạp/giá t
 
 ### USR-01 — Hồ sơ và tùy chọn
 
-- Footer của `FbAppShell` mở route `/account/settings`. Tên hiển thị và email lấy từ actor session, chỉ đọc trong MVP.
+- **Khối người dùng trên topbar là entry point duy nhất của `USR-01`**: bấm avatar/tên mở menu tài khoản rồi vào route `/account/settings`. Footer sidebar **không** mở route này. Tên hiển thị và email lấy từ actor session, chỉ đọc trong MVP. Menu tài khoản đặt ngay dưới khối người dùng, đóng bằng `Escape` và trả focus về chính khối đó.
 - Theme `light|dark|system` là preference cục bộ; thay đổi áp dụng ngay, không tạo mutation API. UI thông báo ngắn khi lưu preference thất bại ở local storage và vẫn cho actor chọn lại.
 - Múi giờ là dữ liệu của workspace, chỉ đọc. Không cho mỗi cá nhân đổi timezone vì due state/overdue phải nhất quán cho toàn project.
 - `Đổi mật khẩu` điều hướng sang `AUTH-03`; không thiết kế quản lý phiên, thiết bị hay khóa API trong MVP.
@@ -99,7 +99,7 @@ Form là dirty sau khác biệt có ý nghĩa với giá trị đã nạp/giá t
 ### Sidebar dùng chung
 
 - Mỗi item của `FbAppShell` luôn có icon, nhãn, active indicator và accessible name. Sidebar desktop có thể thu gọn còn icon; hover/focus hiển thị tooltip, keyboard focus vẫn nhìn rõ và active state không mất.
-- **Footer sidebar là bắt buộc ở cả hai trạng thái** (mở rộng và thu gọn) và chứa đúng hai thứ: entry point `USR-01` (hồ sơ và tùy chọn) và **control thu gọn/mở rộng**. Control thu gọn thuộc sidebar vì nó tác động lên chính sidebar; nó không được đặt ở topbar, và nó phải có mặt ở trạng thái mở rộng — nếu chỉ trạng thái thu gọn có control mở lại thì không có đường vào trạng thái thu gọn. Cùng một control, hai icon đối xứng theo trạng thái, cùng vị trí.
+- **Footer sidebar là bắt buộc ở cả hai trạng thái** (mở rộng và thu gọn) và chứa **đúng một thứ: control thu gọn/mở rộng**. Control này thuộc sidebar vì nó tác động lên chính sidebar; nó không được đặt ở topbar, và phải có mặt ở trạng thái mở rộng — nếu chỉ trạng thái thu gọn có control mở lại thì không có đường vào trạng thái thu gọn. Cùng một control, hai icon đối xứng theo trạng thái, cùng vị trí. Danh tính người dùng **không** nằm ở footer: `USR-01` chỉ có một entry point và nó ở topbar (xem mục `USR-01` bên dưới), vì hai đường vào cùng một route là cùng loại lỗi với việc nhân đôi control theme.
 - **Theme chỉ có một nguồn control ở chrome**: quick toggle trên topbar, đổi qua lại giữa `light` và `dark`. Sidebar **không** có control theme — đặt thêm ở đó là control thứ hai cho cùng một preference. Giá trị `system` chỉ chọn được ở `USR-01`, vì một toggle hai trạng thái không biểu diễn được ba giá trị; topbar quick toggle vì vậy là lối tắt, còn `USR-01` là nơi sở hữu preference `light|dark|system`.
 - Permission không chỉ là ẩn route: navigation/CTA lấy từ capability, route trực tiếp vẫn có thể thành `SYS-01` và API vẫn là lớp kiểm tra cuối cùng.
 
