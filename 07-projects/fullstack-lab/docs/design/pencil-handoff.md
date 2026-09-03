@@ -185,37 +185,66 @@ Time Tracking là section riêng trong Project Settings, không mở rộng form
 
 Responsive reference `WTA-01 Mobile Dark — Bộ lọc` minh hoạ filter drawer; finite filter phải có label/value/icon (`chevron`, `calendar` hoặc search) và trạng thái active chip. Khi thay filter, frontend reset cursor theo API contract. Tất cả text/icon meaningful của các frame này dùng tối thiểu 11 px và color pairing đạt contrast 4.5:1.
 
-### Canvas v0.4 — Component hoá, token hoá, auth/mobile hoàn chỉnh
+### Canvas v0.4 — ĐẶC TẢ CHƯA THỰC HIỆN (artifact không tồn tại)
 
-> **Chờ kiểm chứng artifact (03/09/2026).** Số liệu và trạng thái canvas trong mục này chưa kiểm chứng được: `docs/design/flowboard-v0.1.pen` trong repository vẫn đúng bằng bản của commit `aa23e17` (blob `7ff13e6a`, ghi lần cuối 2026-09-02 22:23:20), còn mục này được viết 2026-09-03 00:39–00:41 — file canvas không được ghi lại sau đó. Xem [báo cáo Canvas v0.4](../design-and-docs-plan.md). Quy tắc, quy ước tên và bẫy kỹ thuật ở đây vẫn dùng được; các con số không được coi là đã đạt.
+> **Trạng thái: chưa build.** Đợt design 03/09 báo cáo hoàn thành component hoá, token hoá, 10 trang auth và 18 màn mobile. Báo cáo đó **sai**: MCP của pen.dev chỉ tác động lên document đang mở trong editor, không ghi vào file. Toàn bộ thay đổi nằm trong bộ nhớ editor và đã mất khi editor đóng. Bằng chứng: `git hash-object docs/design/flowboard-v0.1.pen` = `7ff13e6a26354aafdc608d2b4dd6194308369a9b` = `git rev-parse aa23e17:<path>`; mtime file `2026-09-02 22:23:20`, trước mọi thay đổi; `git log -- <path>` chỉ có một commit. Mục này vì vậy là **đặc tả cho lần dựng lại**, không phải hồ sơ bàn giao. Không đánh dấu `Ready for build` và không tick checklist dựa trên mục này.
 
-Version này đổi cấu trúc file từ copy-paste sang component-instance và chuẩn hoá lại toàn bộ canvas. Số liệu kiểm chứng tại thời điểm bàn giao: **113 root frame, 9 reusable component, ~350 instance, 150 biến token (0 hex ghi cứng), 0 lỗi layout, 1.742 text node đạt WCAG AA**.
+#### Điều kiện chấp nhận (bắt buộc, kiểm được bằng máy)
 
-#### Trật tự canvas (pitch 1560 × 1500)
+Một claim về trạng thái canvas chỉ hợp lệ khi kèm đủ ba thứ:
+
+1. `git hash-object docs/design/flowboard-v0.1.pen` **khác** `7ff13e6a26354aafdc608d2b4dd6194308369a9b`.
+2. `git status --porcelain` thấy file ở trạng thái `M`.
+3. Output thô của script đo chạy **sau** khi file đã được ghi: số root frame, số reusable, số instance, số biến token, số hex ghi cứng, số text node dưới 4.5:1, số node tràn.
+
+Không có ba thứ đó thì mọi số đo chỉ là trạng thái bộ nhớ editor, không phải artifact.
+
+#### Trật tự canvas mục tiêu (pitch 1560 × 1500)
 
 | Hàng (y) | Nội dung |
 |---|---|
-| `-4000…-420` | Dải **FB COMPONENTS**: các reusable (`FbSidebar`, `FbSidebarCollapsed`, `FbTopbar`, `FbHeaderAccountControls`, `FbBoardColumnHeader`, `FbTaskCard`, `FbStatePanel`, `FbTextField`, `FbMobileHeader`). Chỉ sửa ở đây; mọi màn nhận thay đổi qua instance. |
-| `0` | Tham chiếu: `REF-01…08` + `SYS-05/06 · Light/Dark — Trang lỗi` (light/dark đứng cạnh nhau). |
-| `1500` / `3000` | Hàng Light / hàng Dark của màn desktop chính — **cùng x là một cặp Light/Dark**. |
-| `4500` / `6000` | Phase 1.3 Light / Dark (`TTS-01`, `WTL-01/02`, `WTA-01`, `WTR-01`, `TSK-02 (Giờ)`, `WTA-01 (Trả lại)`). |
-| `7500` / `9000` | `AUTH-01…05` Light / Dark — trang đầy đủ (panel brand trái + form phải), không còn dạng card nổi. |
-| `10500` / `11700` | Bộ **mobile 390×844** Light / Dark: `AUTH-01`, `PRJ-01`, `BRD-01` (board ngang + cột peek), `TSK-01` (sheet), `TSK-02` (sheet), `MYT-01`, `PRJ-04`, `WTL-02`, `WTA-01`. |
+| trên cùng, y âm | Dải **FB COMPONENTS**: các reusable dùng chung. Chỉ sửa ở đây; mọi screen nhận thay đổi qua instance. |
+| `0` | Tham chiếu `REF-NN` + `SYS-05/06 · Light/Dark — Trang lỗi`, light/dark cạnh nhau. |
+| `1500` / `3000` | Hàng Light / Dark của screen desktop chính — **cùng x là một cặp Light/Dark**. |
+| `4500` / `6000` | Phase 1.3 Light / Dark: `TTS-01`, `WTL-01/02`, `WTA-01`, `WTR-01`, `TSK-02`. |
+| `7500` / `9000` | `AUTH-01…05` Light / Dark — trang đầy đủ, không phải card nổi giữa canvas trống. |
+| `10500` / `11700` | Mobile 390×844 Light / Dark. |
 
-Quy ước đặt tên frame màn hình (một hệ duy nhất): `<Screen ID> · <Light|Dark|Mobile Light|Mobile Dark> — <Tên tiếng Việt>`; tham chiếu dùng `REF-NN`. Không còn hậu tố `Copy`, không còn node không tên, dấu `×` của chip/nút đóng là element icon riêng (gắn handler được), 5 màn tham chiếu tràn chủ đích đã bật `clip`.
+Quy ước tên screen (một hệ duy nhất): `<Screen ID> · <Light|Dark|Mobile Light|Mobile Dark> — <Tên tiếng Việt>`; tham chiếu dùng `REF-NN`. Không hậu tố `Copy`, không node vô danh, dấu `×` của chip và nút đóng là element icon riêng để gắn được handler.
 
-#### Những gì frontend có thể tin
+#### Ba chỗ đặc tả cũ lệch contract — phải dựng theo bản dưới đây
 
-- Header/topbar mọi màn là **một** `FbTopbar` (breadcrumb + spacer + account controls, tự co 1112/1304/1376); sidebar mọi màn là **một** `FbSidebar` 264px (3 nhóm nav; nhóm `CHẤM CÔNG` chỉ bật ở màn Phase 1.3 và shell tham chiếu vì `project_time_tracking_settings` mặc định disabled) hoặc `FbSidebarCollapsed` 72px.
-- Badge số lượng ở header cột board = **số task đã nạp** (đúng câu chữ design-system), không phải tổng server.
-- Due-state trên `FbTaskCard` chỉ dùng vocabulary `FbDueState`: neutral (scheduled/chưa đặt hạn), warning (hôm nay/ngày mai), danger (quá hạn), success (hoàn thành) — không còn màu brand cho hạn.
-- Sơ đồ trong `PRJ-04`, `RPT-01`, `WTR-01`, `PRJ-04 Mobile` là stacked-bar + legend chữ (không truyền nghĩa chỉ bằng màu); không dùng line/sparkline vì Pencil không vẽ cung/đường tin cậy.
-- `AUTH-02/04` render checklist mật khẩu dạng composition (≥8 ký tự, hoa, thường, số, ký tự đặc biệt) — **không còn khớp contract**: [ADR-0007](../decisions/ADR-0007-password-policy.md) đã đổi policy sang 12–200 ký tự, không yêu cầu composition, cộng blocklist do server quyết định. Checklist phải dựng lại thành độ dài cộng quy tắc không-chứa-email/tên, và trạng thái blocklist là field error sau submit; `AUTH-03` ghi rõ thông báo không tiết lộ email tồn tại; `AUTH-04` cảnh báo revoke mọi phiên; `AUTH-05` là **trang đích của liên kết** xác minh (không phải màn nhập mã) kèm biến thể liên kết hết hạn.
+**1. Checklist mật khẩu `AUTH-02` / `AUTH-04`** — theo [ADR-0007](../decisions/ADR-0007-password-policy.md) (Proposed). Policy composition (≥8 + hoa + thường + số + ký tự đặc biệt) **đã bị bác**; lý do nằm ở mục Alternatives của ADR đó. Bản đúng:
 
-#### Bẫy kỹ thuật Pencil (bắt buộc biết khi sửa file)
+- Checklist live chỉ **hai** dòng, vì đó là tất cả những gì client kiểm được: `Tối thiểu 12 ký tự` và `Không chứa email hoặc tên của bạn`.
+- Blocklist là **server-decided**: hiển thị dạng **field error sau submit**, không phải ô tick live. Không nhúng danh sách mật khẩu đã lộ vào client.
+- Không vẽ ô tick cho hoa/thường/số/ký tự đặc biệt. Không hiển thị giới hạn 200 ký tự như một ô tick (nó là chặn nhập, không phải tiêu chí đạt).
+- `AUTH-04` giữ cảnh báo: đặt lại mật khẩu revoke mọi phiên đang mở.
 
-1. **Biến number không resolve trong `width`/`height`** — component sẽ collapse về 0×0. Biến number chỉ dùng an toàn cho `gap`; `padding` bằng biến cũng từng làm collapse. Ghi số literal cho hình học, biến cho màu.
-2. `theme` chỉ có tác dụng ở **root frame**; đặt trên frame lồng sẽ bị bỏ qua im lặng.
-3. Screenshot bản định nghĩa `reusable` có thể trắng — luôn chụp **instance** đặt trong ngữ cảnh thật.
-4. `ctx.problems` tính trong cùng lượt `execute` với mutation cho false-positive; kiểm lại ở lượt kế tiếp trước khi tin.
-5. Token phẳng (ramp) làm nền/chữ trong màn có theme là bug tiềm ẩn — xem quy tắc ramp trong `design-system.md`.
+**2. Pill "hoàn thành" trên `FbTaskCard`** — theo [ADR-0008](../decisions/ADR-0008-terminal-column-and-task-reopen.md) (Proposed). Bản design cũ vẽ `success (hoàn thành)` như giá trị `dueState` thứ sáu. Sai: `dueState` chỉ có `none|scheduled|due_soon|due_today|overdue`, là **filter value có index** trong allowlist, không phải palette trạng thái. Bản đúng:
+
+- `FbDueState` giữ đúng năm giá trị server-derived: neutral (`none`/`scheduled`), warning (`due_soon`/`due_today`), danger (`overdue`).
+- Affordance hoàn thành lấy từ `column.isTerminal`, là biểu diễn **của cột**, không phải due state. Trong khi ADR-0008 còn `Proposed`: **không render pill hoàn thành như dueState**.
+- Khi ADR-0008 được duyệt, cần bổ sung: toggle `isTerminal` trong `BRD-02` Column Editor, và nhãn `Mở lại` trong activity feed cho action `task.reopened`.
+
+**3. Evidence link và định dạng comment** — theo [ADR-0009](../decisions/ADR-0009-task-evidence-and-comment-formatting.md) (Proposed). Giữ nhãn "đang chờ hợp đồng" cho tới khi ADR được duyệt. Bản đúng:
+
+- `evidenceUrl`: **một** URL `https` duy nhất, tối đa 2048 ký tự. Server **không bao giờ fetch** nó, nên UI **không có** link preview, thumbnail hay favicon fetch — mọi hành vi fetch biến field người dùng nhập thành SSRF vector. Hiển thị **host dạng text** để người đọc thấy đích trước khi bấm; link mang `rel="noopener noreferrer"`.
+- Evidence là **optional**, kể cả khi move vào cột `requiresReviewer`. Đề xuất cũ (bắt buộc ở cột review) đã bị ADR-0009 bác; đường đúng nếu cần cưỡng chế là cờ `board_columns.requires_evidence` bằng ADR riêng.
+- Comment: `body` vẫn **plain text immutable**. Toolbar chỉ chèn cú pháp Markdown thuộc subset đóng: bold, italic, inline code, code block, unordered list, ordered list, link. **Không** image, table, heading, blockquote, embed, HTML thô, mention hay `@`.
+
+#### Những gì lần dựng lại phải đạt
+
+- Header/topbar mọi screen là **một** reusable topbar tự co theo bề rộng còn lại; sidebar mọi screen là **một** reusable 264px hoặc bản thu gọn 72px. Nhóm nav `CHẤM CÔNG` chỉ bật ở screen Phase 1.3 và shell tham chiếu, vì `project_time_tracking_settings` mặc định disabled.
+- Badge số lượng ở header cột board là **số task đã nạp**, đúng câu chữ catalog, không phải tổng của server.
+- Sơ đồ ở `PRJ-04`, `RPT-01`, `WTR-01` là stacked-bar kèm legend chữ; nghĩa không được truyền chỉ bằng màu. Không dùng line/sparkline: Pencil không vẽ đường/cung tin cậy được.
+- `AUTH-03` giữ thông báo không tiết lộ email có tồn tại. `AUTH-05` là **trang đích của liên kết xác minh**, không phải màn nhập mã OTP — contract dùng token một lần trong liên kết; kèm biến thể liên kết hết hạn và hành động gửi lại.
+
+#### Bẫy kỹ thuật Pencil (bắt buộc biết trước khi sửa file)
+
+1. **MCP không ghi file.** `execute` tác động lên document đang mở trong editor pen.dev; file `.pen` trên disk chỉ đổi khi editor lưu. Mọi `Get`/`Print` đọc lại **cùng** state bộ nhớ đó, nên số đo luôn tự nhất quán kể cả khi file chưa từng được ghi — đây chính là cách báo cáo Canvas v0.4 sai mà vẫn nội bộ khớp nhau. Kiểm bằng `git hash-object`, không bằng `Print`.
+2. **Biến number không resolve trong `width`/`height`** — component collapse về 0×0. Biến number an toàn cho `gap`; dùng cho `padding` cũng từng gây collapse. Dùng số literal cho hình học, biến cho màu.
+3. `theme` chỉ có tác dụng ở **root frame**; đặt trên frame lồng bị bỏ qua im lặng.
+4. Screenshot bản định nghĩa `reusable` có thể ra ảnh trắng — luôn chụp **instance** đặt trong ngữ cảnh thật.
+5. `ctx.problems` đọc trong cùng lượt `execute` với mutation cho false-positive; kiểm lại ở lượt sau trước khi tin.
+6. Filter theo tên khi thay node hàng loạt phải khớp **chính xác**; một regex quá rộng đã từng thay oan năm header không thuộc board và làm mất nội dung gốc không phục hồi được.

@@ -33,21 +33,20 @@ Pencil tạo token theo các nhóm và tên semantic sau. Giá trị cụ thể 
 
 Tên token dùng theo ngữ nghĩa, không theo màu vật lý như `blue-500`. Một component không tự tạo hex, khoảng cách hay shadow mới nếu token tương đương đã có.
 
-### Token đã hiện thực trong Pencil (Canvas v0.4)
+### Token bắt buộc bổ sung và quy tắc ramp
 
-> **Chờ kiểm chứng artifact (03/09/2026).** Số liệu và trạng thái canvas trong mục này chưa kiểm chứng được: `docs/design/flowboard-v0.1.pen` trong repository vẫn đúng bằng bản của commit `aa23e17` (blob `7ff13e6a`, ghi lần cuối 2026-09-02 22:23:20), còn mục này được viết 2026-09-03 00:39–00:41 — file canvas không được ghi lại sau đó. Xem [báo cáo Canvas v0.4](../design-and-docs-plan.md). Quy tắc, quy ước tên và bẫy kỹ thuật ở đây vẫn dùng được; các con số không được coi là đã đạt.
+> Mục này là **quy tắc và tên token bắt buộc**, không phải mô tả trạng thái canvas. Trạng thái artifact nằm ở [pencil-handoff.md](pencil-handoff.md) mục Canvas v0.4.
 
-`flowboard-v0.1.pen` hiện có **150 biến, 100% tiền tố `fb.` dot-notation, 0 hex ghi cứng ngoài biến**, đủ 10 nhóm ở bảng trên: `fb.color` 79 · `fb.font` 17 · `fb.space` 12 · `fb.size` 14 · `fb.radius` 4 · `fb.border` 2 · `fb.shadow` 9 · `fb.motion` 5 · `fb.z` 5 · `fb.breakpoint` 3. Theme axis là `mode: light | dark`; mọi màu surface/text/border/intent là **theme-aware** (một biến, hai giá trị).
+Ngoài mười nhóm ở bảng trên, các token sau là bắt buộc vì mang ngữ nghĩa riêng mà nhóm chung không diễn đạt được:
 
-Các nhóm được bổ sung so với bảng mẫu, đều mang ngữ nghĩa:
+- `fb.color.nav.active.surface` / `fb.color.nav.active.text` — trạng thái active của điều hướng; phải theme-aware.
+- `fb.color.brand.surface`, `fb.color.brand.on-surface` — brand khi dùng làm nền hoặc chữ theo theme.
+- `fb.color.category.{feature,bug,design,research,operations,other}` — khớp đúng sáu category của Task.
+- `fb.size.sidebar.expanded`, `fb.size.sidebar.collapsed` — hai bề rộng sidebar của `FbAppShell`.
 
-- `fb.color.nav.active.surface` / `fb.color.nav.active.text` — trạng thái active của điều hướng, theme-aware.
-- `fb.color.brand.surface`, `fb.color.brand.on-surface`, `fb.color.brand.on-brand-muted` — brand dùng như surface/text theo theme; ramp `fb.color.brand.50–900` chỉ là giá trị nguồn.
-- `fb.color.category.{feature,bug,design,research,operations,other}` — khớp 6 category của Task.
-- `fb.color.neutral.50–900` — ramp nguồn; **không dùng trực tiếp làm nền hay chữ trong screen có theme** (xem quy tắc dưới).
-- `fb.size.sidebar.expanded` = 264, `fb.size.sidebar.collapsed` = 72, `fb.size.control.header` = 36, `fb.size.icon.header` = 20.
+**Quy tắc ramp và theme (bắt buộc).** Biến màu *phẳng* — một giá trị duy nhất, không theo theme, ví dụ `fb.color.neutral.50` hay `fb.color.intent.warning.100` — là giá trị *nguồn* của ramp và **không được dùng làm fill nền hoặc màu chữ/icon** trong frame thuộc screen có `theme`. Lý do cụ thể: một nền `neutral.50` (`#F9FAFB`) trong screen dark vẫn sáng, trong khi `text.primary` ở dark cũng là `#F9FAFB` — chữ trắng trên nền trắng, không đọc được. Nền dùng `surface.*` hoặc `*.surface`; chữ và icon dùng `text.*`, `*.text` hoặc `brand.on-*`.
 
-**Quy tắc ramp và theme:** biến phẳng (một giá trị, ví dụ `neutral.50`, `intent.warning.100`) không được dùng làm fill nền hoặc màu chữ trong frame thuộc screen có `theme` — chúng không đổi theo theme và từng gây chữ trắng trên nền trắng ở dark. Nền dùng `surface.*`/`*.surface`; chữ dùng `text.*`/`*.text`/`brand.on-*`. Toàn bộ text hiện hành đã được kiểm tương phản WCAG: **1.742 text node, 0 node dưới 4.5:1** (3:1 cho chữ lớn).
+**Tương phản (bắt buộc).** Mọi cặp chữ/nền đạt tối thiểu 4.5:1, hoặc 3:1 cho chữ từ 24px hoặc từ 19px bold — ở **cả hai** theme, tính trên nền tổ tiên gần nhất có fill đục.
 
 ## Quy tắc đặt tên component và variant
 
@@ -80,32 +79,23 @@ Các nhóm được bổ sung so với bảng mẫu, đều mang ngữ nghĩa:
 
 `FbStatePanel` có thể compose trong các component khác nhưng không thay thế Screen ID. Ví dụ BRD-01 Error vẫn là frame của `BRD-01` với `FbStatePanel state="error"`.
 
-### Trạng thái hiện thực trong Pencil (Canvas v0.4)
+### Phân rã component trong Pencil
 
-> **Chờ kiểm chứng artifact (03/09/2026).** Số liệu và trạng thái canvas trong mục này chưa kiểm chứng được: `docs/design/flowboard-v0.1.pen` trong repository vẫn đúng bằng bản của commit `aa23e17` (blob `7ff13e6a`, ghi lần cuối 2026-09-02 22:23:20), còn mục này được viết 2026-09-03 00:39–00:41 — file canvas không được ghi lại sau đó. Xem [báo cáo Canvas v0.4](../design-and-docs-plan.md). Quy tắc, quy ước tên và bẫy kỹ thuật ở đây vẫn dùng được; các con số không được coi là đã đạt.
+> Mục này là **yêu cầu phân rã**, không phải mô tả trạng thái canvas.
 
-Pencil hiện có **9 reusable component, ~350 instance**; mọi bản copy trước đây đã được thay bằng instance nên sửa component là mọi màn theo:
+Pencil không cần một reusable cho mỗi dòng trong catalog trên. Yêu cầu là: mọi phần **lặp lại trên nhiều screen** phải là một reusable và mọi chỗ dùng phải là instance của nó — không copy-paste, vì bản copy trôi độc lập và là nguyên nhân cơ học của việc hai screen có header khác nhau.
 
-| Reusable trong Pencil | Instance | Phủ cho component catalog |
-|---|---:|---|
-| `FbSidebar` (264, 3 nhóm nav: không gian / dự án / chấm công — nhóm chấm công tắt được per-instance) | 60 | `FbAppShell` (phần sidebar), `FbWorkspaceSwitcher` (khối brand + tên không gian) |
-| `FbSidebarCollapsed` (72, icon-only) | 2 | `FbAppShell` variant `compact` |
-| `FbTopbar` (h60: breadcrumb + spacer + account controls, tự co theo mọi bề rộng) | 62 | `FbAppShell` (phần header) |
-| `FbHeaderAccountControls` (theme switch + chuông + hồ sơ) | trong `FbTopbar` | — |
-| `FbBoardColumnHeader` (dot trạng thái + tiêu đề + badge **số task đã nạp**) | 60 | `FbBoardColumn` (phần header) |
-| `FbTaskCard` (title, badge ưu tiên/category tắt-bật được, avatar + assignee, due-state pill đúng vocabulary `FbDueState`) | 107 | `FbTaskCard` |
-| `FbStatePanel` (icon tile + code tuỳ chọn + label + mô tả + ghi chú + 2 action) | 16 | `FbStatePanel` — đủ Loading/Empty/Error/Forbidden/Session/404/503 |
-| `FbTextField` (label + `*` danger riêng, icon dẫn/đuôi, help/error tắt-bật) | 34 | input của `FbTaskForm`, auth form |
-| `FbMobileHeader` (menu + brand + chuông + avatar) | 8 | `FbAppShell` mobile |
+Các phần sau bắt buộc là reusable dùng chung: shell (sidebar mở rộng, sidebar thu gọn, topbar, khối account controls, header mobile), header cột board (gồm badge số task đã nạp), task card, state panel và text field (gồm dấu `*` là element danger riêng).
 
-Các mục còn lại của catalog (`FbBoard`, `FbTaskForm`, `FbTaskDrawer`, `FbProjectList`, `FbProjectSettings`, `FbColumnEditor`, `FbMemberManager`, `FbCommentComposer`, `FbActivityList`, `FbConfirmDiscardDialog`, `FbConflictPanel`) tồn tại trên canvas dưới dạng **composition theo Screen ID** (mỗi cái 1–2 nơi dùng, compose từ các reusable trên); chúng vẫn là component ở frontend theo bảng trên, chỉ không đáng tách reusable trong Pencil khi chưa có nơi dùng thứ ba.
+Các mục còn lại của catalog chỉ dùng ở một hoặc hai screen; chúng là **composition theo Screen ID** compose từ các reusable trên, và vẫn là component ở frontend theo bảng catalog.
 
 **Đang chờ hợp đồng (render trước trong Pencil, chưa phải contract):** trường `Liên kết bằng chứng` ở Task Form/Task Detail và toolbar định dạng cơ bản của comment composer đã được đưa vào [ADR-0009](../decisions/ADR-0009-task-evidence-and-comment-formatting.md) (**Proposed**). Khi ADR được duyệt: `evidenceUrl` là một URL `https` duy nhất và server không bao giờ fetch nó; comment vẫn là plain text immutable, toolbar chỉ chèn cú pháp Markdown thuộc subset allowlist mà client render, không có HTML thô. Trước khi ADR được duyệt, frontend không coi hai mục này là hành vi thật.
 
 ### Task planning và due state
 
 - `FbTaskForm` có title required, description, assignee, category, priority, start/end date và reviewer conditionally visible. Dấu `*` riêng có màu danger; field chỉ dùng border/help danger sau validation failure.
-- `FbPriority` dùng năm giá trị `none|low|medium|high|urgent`. `FbDueState` chỉ render projection server-derived: scheduled neutral, due-soon warning, due-today/overdue danger; terminal task không render overdue.
+- `FbPriority` dùng năm giá trị `none|low|medium|high|urgent`. `FbDueState` chỉ render đúng năm giá trị server-derived của `dueState`: scheduled neutral, due-soon warning, due-today/overdue danger, và `none` thì không render pill. Task ở cột `isTerminal = true` luôn có `dueState = none` nên không bao giờ render overdue.
+- Affordance hoàn thành là biểu diễn của **cột**, lấy từ `column.isTerminal` trong projection, **không** phải một giá trị `dueState` thứ sáu. `FbDueState` không được thêm variant `success`; dấu hiệu hoàn thành trên card là element/token riêng gắn với cột.
 - `FbReviewHandoff` chỉ xuất hiện khi destination column `requiresReviewer`; chọn reviewer ProjectMember khác assignee trước mutation.
 - `FbToast` là overlay góc trên phải cho outcome ngắn; form error nằm tại field; destructive action dùng confirm dialog. Không tạo page product riêng cho validation/toast.
 

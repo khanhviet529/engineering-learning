@@ -21,6 +21,7 @@
 | Error | Khôi phục snapshot cột/vị trí nguồn đã chụp trước kéo, giữ focus ở card và hiển thị Error có thể thử lại bằng một lần kéo mới. Không giữ card ở cả hai cột. |
 | Forbidden hoặc Session expired | Khôi phục snapshot. Nếu request đọc tiếp theo xác nhận không còn quyền project, xóa dữ liệu private của project và chuyển SYS-01 hoặc SYS-02. |
 | 409 Conflict | Khôi phục snapshot, nạp lại bản task/board khi vẫn được phép và mở SYS-04 Conflict Resolution. Không tự phát lại move hay đưa ra nút force move. |
+| Mở lại task | Kéo task từ cột `isTerminal = true` sang cột không terminal dùng đúng flow move: không dialog xác nhận riêng, không yêu cầu lý do. Activity feed hiển thị nhãn `Mở lại` cho action `task.reopened`; dấu hiệu hoàn thành biến mất theo cột mới. Nếu cột đích có `requiresReviewer`, luồng chọn reviewer áp dụng như move thường. |
 
 Request move mang cột đích, vị trí mục tiêu và version task mà client đang có theo hợp đồng mutation. Frontend không tự tính lại ordering server; nó chỉ dùng thứ tự phản hồi để đồng bộ UI.
 
@@ -50,7 +51,7 @@ Không có optimistic UI cho thay đổi quyền hay archive cột vì dữ li�
 ### Validation
 
 - Task form kiểm tra title bắt buộc; description, assignee, category, priority, start date, due date và reviewer điều kiện là các trường được baseline cho phép. Priority chỉ `none|low|medium|high|urgent`; category chỉ fixed allowlist. Start/due date là ngày tùy chọn, không có giờ, recurrence hay notification trong MVP; khi cùng có thì `startDate <= dueDate`.
-- `dueState` do server suy ra theo workspace timezone: task terminal không overdue, task quá hạn/hạn hôm nay/sắp hạn chỉ dùng semantic visual token và filter; user không chọn nó như workflow column. Reviewer chỉ required khi cột đích `requiresReviewer`; phải là member project khác assignee.
+- `dueState` do server suy ra theo workspace timezone từ ngày và `column.isTerminal`: task ở cột terminal luôn nhận `none` nên không overdue, task quá hạn/hạn hôm nay/sắp hạn chỉ dùng semantic visual token và filter; user không chọn nó như workflow column. Reviewer chỉ required khi cột đích `requiresReviewer`; phải là member project khác assignee.
 - Assignee chỉ chọn từ thành viên project do server trả về. Cột đích phải là cột active trong project đang mở.
 - `PRJ-03 Project Settings` có đúng một trường editable là `name`; name bắt buộc sau khi bỏ khoảng trắng đầu/cuối. Client không tự đặt giới hạn độ dài/ký tự chưa được hợp đồng. Submit chỉ gửi `{ name }` qua `PATCH /projects/:projectId`, không có description, visibility hay project action khác.
 - Form tạo/sửa project, cột, membership và authentication hiển thị lỗi theo trường trước, rồi lỗi tổng quát khi lỗi không gắn trường nào.

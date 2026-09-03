@@ -105,12 +105,13 @@ Constraints: `UNIQUE (project_id, user_id)`. Retention: giữ membership hiện 
 | `project_id` | `uuid` | No | FK → `projects(id)` | Project scope. |
 | `name` | `text` | No |  | Column name. |
 | `requires_reviewer` | `boolean` | No | `DEFAULT false` | Nếu true, move/create task vào cột này yêu cầu reviewer hợp lệ. |
+| `is_terminal` | `boolean` | No | `DEFAULT false` | Owner đánh dấu cột là điểm kết thúc công việc. Một project có 0..n cột terminal (ví dụ cả `Xong` và `Huỷ`); không suy từ `position`. Dùng để suy `due_state` và để nhận biết move ra khỏi terminal là mở lại task ([ADR-0008](../decisions/ADR-0008-terminal-column-and-task-reopen.md)). |
 | `position` | `numeric(20,10)` | No | part of unique ordering | Gap/fractional order. |
 | `archived_at` | `timestamptz` | Yes |  | `NULL` nghĩa active; UTC archive time. |
 | `created_at` | `timestamptz` | No |  | UTC. |
 | `updated_at` | `timestamptz` | No |  | UTC. |
 
-Chưa có cột nào biểu diễn **terminal state** của column, trong khi quy tắc `due_state` bên dưới và [ADR-0001](../decisions/ADR-0001-task-planning-fields-and-review-workflow.md) (Accepted) đều dựa vào nó; [ADR-0008](../decisions/ADR-0008-terminal-column-and-task-reopen.md) (**Proposed**) đề xuất `is_terminal boolean NOT NULL DEFAULT false` để đóng gap này — chưa được duyệt nên chưa phải schema hiện hành.
+`is_terminal` là biểu diễn schema của **terminal state** mà quy tắc `due_state` và [ADR-0001](../decisions/ADR-0001-task-planning-fields-and-review-workflow.md) dựa vào. Migration additive với `DEFAULT false`: project hiện có không có cột nào là terminal, và không backfill suy đoán cột cuối. Không cần index riêng — bảng column của một project rất ít row và luôn được đọc cùng project đã scope.
 
 Constraints: `UNIQUE (project_id, position)` khai báo `DEFERRABLE INITIALLY IMMEDIATE` (chỉ rebalance transaction mới `SET CONSTRAINTS ... DEFERRED`; xem [ADR-0006](../decisions/ADR-0006-fractional-ordering-and-concurrency.md)) và `UNIQUE (project_id, id)` để Task có thể dùng composite foreign key. Rebalance column position chỉ ghi `position`, không chạm `updated_at` (ADR-0006 mục 5). Retention: archive giữ row cho lịch sử; không delete; unarchive chưa là core behavior. Application transaction là nơi cấm archive khi còn Task.
 
@@ -141,7 +142,7 @@ Constraints: direct `FOREIGN KEY (project_id) REFERENCES projects(id)`; `UNIQUE 
 
 - `start_date` và `due_date` là `DATE NULL` theo timezone workspace. Khi cùng có giá trị, application validation và database check bắt buộc `start_date <= due_date`.
 - `reviewer_id`, nếu có, phải là ProjectMember cùng project và khác `assignee_id`. Task vào cột `requires_reviewer = true` không được commit nếu thiếu reviewer hợp lệ.
-- `due_state` không có cột DB. Server suy ra `none`, `scheduled`, `due_soon`, `due_today`, `overdue` từ workspace-local date, `due_date` và terminal state; task terminal không bao giờ overdue. Terminal state hiện **chưa có biểu diễn trong schema**; xem [ADR-0008](../decisions/ADR-0008-terminal-column-and-task-reopen.md) (Proposed). Cho tới khi ADR đó được duyệt, phần suppress overdue của quy tắc này không implement được.
+- `due_state` không có cột DB. Server suy ra `none`, `scheduled`, `due_soon`, `due_today`, `overdue` từ workspace-local date, `due_date` và `board_columns.is_terminal` của cột chứa task. Task ở cột `is_terminal = true` luôn có `due_state = none` bất kể `start_date`/`due_date`, nên terminal không bao giờ overdue; `none` mang nghĩa không có tín hiệu due-state, bao trùm cả trường hợp không có ngày. Enum và filter allowlist của `dueState` không đổi; affordance hoàn thành của UI lấy từ `is_terminal`, không phải từ một giá trị `dueState` thứ sáu.
 - Task query/mutation projection luôn có `createdBy`; đây là người tạo record, không là lịch sử người giao việc. Activity Log là nguồn lịch sử assignment.
 
 ### `comments`

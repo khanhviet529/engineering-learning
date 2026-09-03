@@ -4,8 +4,8 @@
 
 - [x] Opened and actively designed in `docs/design/flowboard-v0.1.pen`.
 - [x] Foundations, core components, Board, Task Detail, Project Members, Task Form, Project Dashboard, and My Tasks calendar are represented on canvas.
-- [ ] Vietnamese copy review, responsive variants (desktop + bộ mobile Light/Dark 390×844), authentication pages, system-state flows — báo cáo hoàn tất ở Canvas v0.4, **chờ kiểm chứng artifact**.
-- [ ] Tuyên bố `Ready for build` (chờ chốt hai đề xuất đang chờ hợp đồng: evidence link, comment formatting — xem design-system.md).
+- [ ] Vietnamese copy review, responsive variants (desktop + bộ mobile Light/Dark 390×844), authentication pages, system-state flows — **chưa có trong artifact**; báo cáo Canvas v0.4 đã bị rút lại (xem [pencil-handoff.md](pencil-handoff.md)).
+- [ ] Tuyên bố `Ready for build` — chặn bởi hai việc: dựng lại artifact theo đặc tả Canvas v0.4, và ADR-0007/0008/0009 được duyệt.
 
 ## Mục đích và cổng bắt đầu
 

@@ -10,7 +10,7 @@ Các response chỉ trả projection cần cho use case:
 {
   "workspace": { "id": "uuid", "name": "Engineering", "role": "workspace_admin", "capabilities": ["workspace:read", "project:create"] },
   "project": { "id": "uuid", "workspaceId": "uuid", "name": "Launch", "createdAt": "2026-09-01T08:30:00Z", "updatedAt": "2026-09-01T08:30:00Z" },
-  "column": { "id": "uuid", "projectId": "uuid", "name": "In progress", "requiresReviewer": false, "position": "100.0000000000", "archivedAt": null },
+  "column": { "id": "uuid", "projectId": "uuid", "name": "In progress", "requiresReviewer": false, "isTerminal": false, "position": "100.0000000000", "archivedAt": null },
   "task": { "id": "uuid", "projectId": "uuid", "columnId": "uuid", "createdBy": { "id": "uuid", "displayName": "Mai" }, "assigneeId": null, "reviewerId": null, "title": "Prepare launch", "description": "", "category": "feature", "priority": "medium", "startDate": null, "dueDate": null, "dueState": "none", "position": "100.0000000000", "version": 1, "createdAt": "2026-09-01T08:30:00Z", "updatedAt": "2026-09-01T08:30:00Z" },
   "member": { "userId": "uuid", "displayName": "Mai", "email": "mai@example.test", "role": "editor" },
   "comment": { "id": "uuid", "taskId": "uuid", "author": { "id": "uuid", "displayName": "Mai" }, "body": "I will take this.", "createdAt": "2026-09-01T08:30:00Z" },
@@ -18,7 +18,7 @@ Các response chỉ trả projection cần cho use case:
 }
 ```
 
-`position` chỉ được trả khi rendering board cần thứ tự đã xác nhận. `requiresReviewer` luôn có trong column projection: client cần biết cột đích có yêu cầu reviewer để hiện field reviewer ở `TSK-01` và để gửi `reviewerId` trong move — nó là điều kiện UI đã có trong hợp đồng, không phải cờ do client tự suy. `activity.summary` do server dựng từ event payload allowlisted, không-secret; raw `payload` không bao giờ đến client. Response project detail/board gói `project` cùng `capabilities` do server tính, `columns` active, `members` project có thể làm assignee và task page có giới hạn theo column. Không response nào lộ project private cho Workspace Admin chưa có project membership tường minh.
+`position` chỉ được trả khi rendering board cần thứ tự đã xác nhận. `requiresReviewer` và `isTerminal` luôn có trong column projection: client cần `requiresReviewer` để hiện field reviewer ở `TSK-01` và gửi `reviewerId` trong move, và cần `isTerminal` để render affordance hoàn thành cùng ngữ cảnh mở lại task. Cả hai là điều kiện UI đã có trong hợp đồng, không phải cờ do client tự suy; riêng `isTerminal` **không** được biểu diễn như một giá trị `dueState`. `activity.summary` do server dựng từ event payload allowlisted, không-secret; raw `payload` không bao giờ đến client. Response project detail/board gói `project` cùng `capabilities` do server tính, `columns` active, `members` project có thể làm assignee và task page có giới hạn theo column. Không response nào lộ project private cho Workspace Admin chưa có project membership tường minh.
 
 Mọi protected mutation hoàn tất authentication/resource authorization trước transaction, rồi re-check domain invariant có thể đổi trong transaction. Business mutation thành công ghi ActivityLog event đã nêu trong chính transaction; mutation bị reject/rollback không ghi event nào. Mutation yêu cầu `Idempotency-Key` tuân theo [idempotency contract](api-conventions.md#idempotency-key): retry cùng key/fingerprint replay outcome đã lưu, cùng key khác fingerprint là `409 IDEMPOTENCY_KEY_REUSED`, retry đồng thời khi request gốc đang chạy là `409 IDEMPOTENCY_IN_PROGRESS`.
 
@@ -108,11 +108,11 @@ Yêu cầu `project:member:manage`, CSRF và `Idempotency-Key`; không body. `20
 
 ### POST /projects/:projectId/columns — thêm column active
 
-Yêu cầu `board-column:manage` (Owner), CSRF và `Idempotency-Key`. Body đúng shape `{ "name", "afterColumnId" }`; `afterColumnId` nullable và khi có phải active/cùng project; server tính fractional position. `201` trả column projection và ghi activity `board_column.created`. Client không thể gửi projectId, position, archivedAt hay timestamp.
+Yêu cầu `board-column:manage` (Owner), CSRF và `Idempotency-Key`. Body đúng shape `{ "name", "afterColumnId", "isTerminal" }`; `afterColumnId` nullable và khi có phải active/cùng project; `isTerminal` optional, default `false`; server tính fractional position. `201` trả column projection và ghi activity `board_column.created`. Client không thể gửi projectId, position, archivedAt hay timestamp.
 
 ### PATCH /columns/:columnId — đổi tên hoặc archive column
 
-Yêu cầu `board-column:manage`, CSRF và `Idempotency-Key`. Body là đúng một explicit command: `{ "name" }` để rename **hoặc** `{ "archive": true }` để archive; field mixed/unknown invalid. Rename trả `200` cùng column và ghi `board_column.renamed`. Archive trả `200` với `archivedAt`, và chỉ ghi `board_column.archived` khi column không còn task. Archive column còn task trả `409 COLUMN_NOT_EMPTY`; MVP không move/delete task hay unarchive.
+Yêu cầu `board-column:manage`, CSRF và `Idempotency-Key`. Body là đúng một explicit command: `{ "name" }` để rename, `{ "isTerminal": boolean }` để đổi terminal flag, **hoặc** `{ "archive": true }` để archive; field mixed/unknown invalid. Rename trả `200` cùng column và ghi `board_column.renamed`. Đổi terminal flag trả `200` cùng column và ghi `board_column.terminal_changed`; nó chỉ đổi cách suy `due_state` từ thời điểm đó, không viết lại activity cũ, không đổi `position`/`archived_at` và không di chuyển task nào. Archive trả `200` với `archivedAt`, và chỉ ghi `board_column.archived` khi column không còn task. Archive column còn task trả `409 COLUMN_NOT_EMPTY`; MVP không move/delete task hay unarchive.
 
 ### POST /columns/reorder — sắp lại column của một project
 
@@ -138,7 +138,7 @@ Yêu cầu `task:update` và khi đổi `assigneeId` thì `task:assign`, CSRF v�
 
 ### POST /tasks/:taskId/move — di chuyển task có concurrency check
 
-Yêu cầu `task:move`, CSRF và `Idempotency-Key`. Body đúng shape `{ "destinationColumnId", "targetPosition", "expectedVersion", "reviewerId?" }`; `reviewerId` chỉ được gửi/khi cần nếu destination column có `requiresReviewer`; nếu cột này yêu cầu reviewer, server bắt buộc ProjectMember reviewer khác assignee. `200` trả committed task với destination/position/version/dueState mới. Transaction validate active same-project destination, chỉ lock order range cần thiết, rebalance khi cần và ghi đúng một `task.moved` activity. Version stale là `409` đã định nghĩa; không có force move.
+Yêu cầu `task:move`, CSRF và `Idempotency-Key`. Body đúng shape `{ "destinationColumnId", "targetPosition", "expectedVersion", "reviewerId?" }`; `reviewerId` chỉ được gửi/khi cần nếu destination column có `requiresReviewer`; nếu cột này yêu cầu reviewer, server bắt buộc ProjectMember reviewer khác assignee. `200` trả committed task với destination/position/version/dueState mới. Transaction validate active same-project destination, chỉ lock order range cần thiết, rebalance khi cần và ghi đúng một `task.moved` activity. Version stale là `409` đã định nghĩa; không có force move. Khi cột nguồn có `isTerminal = true` và cột đích có `isTerminal = false`, move này là **mở lại task**: transaction ghi đúng một activity `task.reopened` thay cho `task.moved` (vẫn đúng một activity cho một move commit), không cần permission, endpoint hay body field nào khác, và mọi validation reviewer/version/idempotency áp dụng như move thường.
 
 ## Comments và activity
 

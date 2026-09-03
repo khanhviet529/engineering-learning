@@ -75,15 +75,15 @@
 - [x] Chụp/kiểm tra từng frame trọng yếu trong Pencil; không còn warning, node lỗi, layout vỡ hoặc nội dung mâu thuẫn.
 - [x] Cập nhật `pencil-handoff.md` với mapping component/page/theme/permission cuối cùng; đánh dấu Ready for build khi toàn bộ mục trên hoàn tất.
 
-## Kiểm chứng Canvas v0.4 (02–03/09/2026)
+## Canvas v0.4 — báo cáo bị rút lại (03/09/2026)
 
-> **Chờ kiểm chứng artifact (03/09/2026).** Số liệu và trạng thái canvas trong mục này chưa kiểm chứng được: `docs/design/flowboard-v0.1.pen` trong repository vẫn đúng bằng bản của commit `aa23e17` (blob `7ff13e6a`, ghi lần cuối 2026-09-02 22:23:20), còn mục này được viết 2026-09-03 00:39–00:41 — file canvas không được ghi lại sau đó. Xem [báo cáo Canvas v0.4](../design-and-docs-plan.md). Quy tắc, quy ước tên và bẫy kỹ thuật ở đây vẫn dùng được; các con số không được coi là đã đạt.
+> **Các ô `[x]` phía trên KHÔNG được coi là đã kiểm chứng.** Đợt 02–03/09 báo cáo đã kiểm chứng lại toàn bộ bằng script "trên file `.pen` thật". Câu đó sai: script chạy trên document đang mở trong bộ nhớ editor pen.dev, không phải trên file trong repository. File `docs/design/flowboard-v0.1.pen` chưa từng được ghi lại — `git hash-object` của nó vẫn bằng blob `7ff13e6a` của commit `aa23e17`, mtime `2026-09-02 22:23:20`, và `git log` của file chỉ có một commit duy nhất.
 
-Các mục `[x]` phía trên được kiểm chứng lại bằng script trên file `.pen` thật — trước v0.4 một số mục đánh dấu xong nhưng chưa đạt; hiện trạng đo được:
+Hệ quả: các con số từng nêu (9 reusable, ~350 instance, 150 biến token, 1.742 text node đạt AA, 0 node tràn) đều là số đo trạng thái bộ nhớ editor, không phải artifact. Chúng bị rút lại toàn bộ.
 
-- Component hoá: 9 reusable, ~350 instance, **0 bản copy trôi** (trước đó: 8 reusable, 0 instance, 100% copy-paste).
-- Token: 150 biến `fb.*`, **0 hex ghi cứng** (trước đó 68 giá trị hex / 4.362 lần dùng).
-- Tương phản: 1.742 text node đạt WCAG AA (trước đó 37 node dưới chuẩn, gồm 11 node chữ trắng trên nền trắng ở dark Phase 1.3).
-- Layout: 0 node tràn/clip ngoài chủ đích; 5 màn tham chiếu bật `clip` có chủ đích.
-- Dấu `*` bắt buộc: element riêng màu danger ở 100% form (19 label từng nhét `*` vào chuỗi).
-- Canvas: một hệ tên `<Screen ID> · <Theme> — <Tên>`, cặp Light/Dark cùng cột x, pitch 1560×1500; bộ mobile 9 màn × 2 theme.
+Mục tiêu và điều kiện chấp nhận cho lần dựng lại nằm ở [pencil-handoff.md](pencil-handoff.md) mục `Canvas v0.4 — ĐẶC TẢ CHƯA THỰC HIỆN`. Controller tick các ô trên sau khi kiểm chứng độc lập trên file đã ghi.
+
+Hai quy tắc rút ra từ đợt đó vẫn có giá trị và đã được đưa vào [design-system.md](design-system.md) như contract, độc lập với artifact:
+
+- Biến màu phẳng (ramp) không được dùng làm nền hoặc chữ trong screen có `theme`.
+- Dấu `*` bắt buộc là element riêng màu danger, không nhét vào chuỗi label.
