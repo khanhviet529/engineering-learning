@@ -137,6 +137,18 @@ Một phase chỉ được coi là hoàn thành khi có đủ:
 4. note giải thích nguyên nhân và trade-off;
 5. screenshot hoặc command output đủ để người đọc kiểm chứng.
 
+## Đề xuất phase chờ phê duyệt
+
+Các phase dưới đây **chưa thuộc lộ trình đã cam kết**: mỗi mục là một ADR ở trạng thái `Proposed`, chưa được duyệt, và các tài liệu contract (schema, endpoint, permission, index) **chưa** được cập nhật theo chúng. Chúng nằm ở đây để ranh giới phase được thấy rõ, không phải để suy diễn thành yêu cầu triển khai.
+
+| Đề xuất | Nội dung | Trạng thái |
+|---|---|---|
+| Phase 1.4 — Sprint | Sprint bật theo từng project; `planned → active → closed`; `sprint_id` nullable nên backlog vẫn tồn tại; đúng một sprint active mỗi project. Không estimate, không burndown, không capacity. | [ADR-0010](../decisions/ADR-0010-sprint-iteration.md) `Proposed` |
+| Phase 1.5 — Quan hệ Task | Subtask sâu đúng một cấp (`parent_task_id`) và phụ thuộc blocking (`task_dependencies`) có chống cycle; phụ thuộc xuyên project bất khả thi ở tầng database; không cưỡng chế move. | [ADR-0011](../decisions/ADR-0011-task-relations-subtask-and-dependency.md) `Proposed` |
+| Gap core MVP — terminal column | `board_columns.is_terminal` để `due_state` implement được đúng đặc tả, và mở lại task là move ghi `task.reopened`. Không phải phase mới: đây là lỗ hổng của contract hiện hành. | [ADR-0008](../decisions/ADR-0008-terminal-column-and-task-reopen.md) `Proposed` |
+
+Phase 1.4 và 1.5 phụ thuộc ADR-0008: "task chưa hoàn thành" khi đóng sprint và tiến độ của task cha đều được định nghĩa bằng `is_terminal`.
+
 ## Tiêu chí kiểm soát lộ trình
 
 - Không kéo một capability của phase sau vào core MVP chỉ vì đã có hạ tầng kỹ thuật liên quan.

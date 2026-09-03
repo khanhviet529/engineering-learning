@@ -53,3 +53,8 @@ Không đưa secret, token, cookie/session ID, dữ liệu project riêng tư, r
 - [ADR-0004: Drizzle ORM và Drizzle Kit cho data access](ADR-0004-drizzle-orm.md) — trục so sánh với Prisma/Kysely/raw SQL và lý do lệch mặc định Prisma của kho kiến thức.
 - [ADR-0005: Bản đồ phụ thuộc module và vị trí của Activity](ADR-0005-module-dependency-and-activity-boundary.md) — Activity là module với recorder port; đồ thị phụ thuộc acyclic của apps/api.
 - [ADR-0006: Fractional ordering, ngưỡng rebalance và optimistic concurrency](ADR-0006-fractional-ordering-and-concurrency.md) — spacing 1024, ngưỡng 10⁻⁶, phân tích precision và unique constraint DEFERRABLE.
+- [ADR-0007: Password policy](ADR-0007-password-policy.md) — độ dài 12–200 cộng blocklist thay cho composition rules; NFKC, không truncate, không rotation định kỳ.
+- [ADR-0008: Terminal board column và ngữ nghĩa mở lại task](ADR-0008-terminal-column-and-task-reopen.md) — `is_terminal` đóng gap `due_state`; mở lại là move ghi `task.reopened`, không thêm status.
+- [ADR-0009: Liên kết bằng chứng của Task và định dạng comment](ADR-0009-task-evidence-and-comment-formatting.md) — `evidence_url` https-only server không fetch; comment giữ plain text, Markdown subset chỉ ở tầng render.
+- [ADR-0010: Sprint theo project như một phase tuỳ chọn](ADR-0010-sprint-iteration.md) — Phase 1.4, bật theo project, `sprint_id` nullable để giữ backlog, một active sprint cưỡng chế bằng partial unique index.
+- [ADR-0011: Quan hệ giữa Task — subtask một cấp và phụ thuộc blocking](ADR-0011-task-relations-subtask-and-dependency.md) — Phase 1.5, cha–con sâu một cấp cycle-free theo cấu trúc, đồ thị phụ thuộc chống cycle bằng advisory lock.
