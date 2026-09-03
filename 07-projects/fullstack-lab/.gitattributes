@@ -1,0 +1,3 @@
+# .pen la JSON thuan, khong phai binary: giu LF o moi noi de blob va working file
+# khong lech nhau vi line ending, va de diff doc duoc.
+*.pen text eol=lf
