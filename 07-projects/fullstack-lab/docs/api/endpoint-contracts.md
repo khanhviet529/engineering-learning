@@ -22,6 +22,40 @@ Các response chỉ trả projection cần cho use case:
 
 Mọi protected mutation hoàn tất authentication/resource authorization trước transaction, rồi re-check domain invariant có thể đổi trong transaction. Business mutation thành công ghi ActivityLog event đã nêu trong chính transaction; mutation bị reject/rollback không ghi event nào. Mutation yêu cầu `Idempotency-Key` tuân theo [idempotency contract](api-conventions.md#idempotency-key): retry cùng key/fingerprint replay outcome đã lưu, cùng key khác fingerprint là `409 IDEMPOTENCY_KEY_REUSED`, retry đồng thời khi request gốc đang chạy là `409 IDEMPOTENCY_IN_PROGRESS`.
 
+
+## Danh mục error code
+
+Bảng này là **danh mục đầy đủ** các `error.code` đã công bố, đặt tại đây vì endpoint contract là owner của code nghiệp vụ. [API conventions](api-conventions.md) chốt hành vi chung của envelope và **không** nhân bản danh sách này; khi thêm code mới thì thêm vào đúng một chỗ: bảng dưới đây.
+
+| `error.code` | Status | Có `details`? | Ai phát ra | Client phải làm gì |
+|---|:---:|:---:|---|---|
+| `VALIDATION_FAILED` | 400 | field-error array | Mọi endpoint | Render lỗi theo từng field; sửa input rồi gửi lại. |
+| `UNAUTHENTICATED` | 401 | Không | Mọi endpoint cần session | Về sign-in; không tự phát lại mutation cũ. |
+| `EMAIL_VERIFICATION_REQUIRED` | 403 | Không | `POST /auth/sign-in` | Xóa password, sang `AUTH-05`; không retry sign-in. |
+| `FORBIDDEN` | 403 | Không | Mọi endpoint project-data | Bỏ affordance; không thử lại cùng request. |
+| `NOT_FOUND` | 404 | Không | Mọi endpoint project-data | Về route an toàn; **không** suy ra resource có tồn tại. |
+| `TASK_VERSION_CONFLICT` | 409 | `{ currentVersion }` | `PATCH /tasks/:taskId`, `POST /tasks/:taskId/move` | Hoàn nguyên optimistic, tải bản hiện tại, gửi lại bằng ý định mới (`expectedVersion` mới + key mới). |
+| `IDEMPOTENCY_KEY_REUSED` | 409 | Không | Mọi mutation có `Idempotency-Key` | Đây là **bug client**: đã dùng lại key cho payload khác. Không hiện nhánh UI riêng. |
+| `IDEMPOTENCY_IN_PROGRESS` | 409 | Không | Mọi mutation có `Idempotency-Key` | Chờ theo `Retry-After` rồi gửi lại **cùng key**. |
+| `COLUMN_NOT_EMPTY` | 409 | Không | `PATCH /columns/:columnId` (archive) | Yêu cầu di chuyển hết task trước; không tự move task. |
+| `RATE_LIMITED` | 429 | Không | Auth endpoint và endpoint đắt | Disable control tới hết `Retry-After`; không tự retry mutation. |
+| `INTERNAL_ERROR` | 5xx | Không | Mọi endpoint | Thông báo an toàn kèm `requestId`; **không** coi mutation là đã thành công. |
+| `REPORT_NOT_READY` | 409 | Không | `GET /reports/:reportId/download` — Phase 1.1 | Chờ trạng thái `ready`; không retry vòng lặp. |
+| `REPORT_EXPIRED` | 410 | Không | `GET /reports/:reportId/download` — Phase 1.1 | Tạo request export mới. |
+| `TIME_TRACKING_DISABLED` | 403 | Không | Mọi route Time Tracking — Phase 1.3 | Ẩn bề mặt Time Tracking; deny xảy ra **sau** scope resolution nên non-member vẫn nhận `404`. |
+| `WORK_LOG_BACKFILL_CLOSED` | 400 | Không | WorkLog create/update — Phase 1.3 | Giữ giá trị form; cần Owner mở override cho đúng ngày. |
+| `WORK_LOG_DAILY_LIMIT_EXCEEDED` | 400 | Không | WorkLog create/update/submit — Phase 1.3 | Giữ form và giảm số phút; tổng ngày không vượt 1.440. |
+| `WORK_LOG_TASK_SUPPORT_REASON_REQUIRED` | 400 | Không | WorkLog create/update — Phase 1.3 | Hiện field lý do hỗ trợ; task không giao cho actor cần lý do. |
+| `WORK_LOG_SELF_REVIEW_FORBIDDEN` | 403 | Không | `POST /work-logs/:id/review` — Phase 1.3 | Không hiện CTA duyệt cho author, kể cả Owner. |
+| `WORK_LOG_VERSION_CONFLICT` | 409 | Không | WorkLog update/submit/review — Phase 1.3 | Tải lại log; gửi lại bằng ý định mới. |
+| `SPRINT_DISABLED` | 403 | Không | Mọi route Sprint — Phase 1.4 | Ẩn bề mặt Sprint; deny sau scope resolution như Time Tracking. |
+| `SPRINT_ALREADY_ACTIVE` | 409 | Không | `POST /sprints/:sprintId/activate` — Phase 1.4 | Đóng sprint đang active trước; không retry. |
+| `SPRINT_CLOSED` | 409 | Không | Sprint update và task update có `sprintId` — Phase 1.4 | Chọn sprint khác hoặc tạo sprint mới; sprint đã đóng là bất biến. |
+| `SPRINT_VERSION_CONFLICT` | 409 | Không | Sprint/sprint-settings update — Phase 1.4 | Tải lại sprint/settings rồi gửi lại. |
+| `TASK_DEPENDENCY_CYCLE` | 409 | Không | `POST /tasks/:taskId/dependencies` — Phase 1.5 | Bỏ cạnh gây chu trình; không retry cùng cặp task. |
+
+Code của một phase chưa mở vẫn nằm trong bảng: kết quả của nó được chốt từ bây giờ để client và test không phải đoán khi phase đó khởi động. Không có code nào ngoài bảng này được phép xuất hiện trong response.
+
 ## Authentication
 
 ### POST /auth/sign-up — tạo account chưa xác minh

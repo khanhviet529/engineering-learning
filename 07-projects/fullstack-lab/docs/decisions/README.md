@@ -30,6 +30,8 @@ ADR cũng bắt buộc cho API contract breaking change, package boundary/migrat
 
 Không đưa secret, token, cookie/session ID, dữ liệu project riêng tư, raw prompt hoặc thông tin vận hành nhạy cảm vào ADR.
 
+**Nợ đã biết:** [ADR-0001](ADR-0001-task-planning-fields-and-review-workflow.md) được viết trước khi template hiện hành được áp dụng, nên nó thiếu `Alternatives` và `Revisit When`. Nó **không** được sửa: quy trình cấm thay đổi một ADR đã `Accepted`, và trên thực tế nó vẫn đang được xem lại đúng cơ chế được phép — [ADR-0008](ADR-0008-terminal-column-and-task-reopen.md) đóng phần terminal column mà nó phụ thuộc, [ADR-0009](ADR-0009-task-evidence-and-comment-formatting.md) mở rộng tập field của Task. Mọi ADR từ 0002 trở đi đủ năm mục.
+
 ## Trạng thái
 
 | Status | Ý nghĩa |

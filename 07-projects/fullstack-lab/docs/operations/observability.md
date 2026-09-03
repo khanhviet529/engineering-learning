@@ -49,6 +49,7 @@ Metrics là phase sau first log/readiness release nhưng instrumentation names/l
 | Delivery | deployment version/digest, startup/readiness transition, migration duration/outcome | Correlate incident với release. |
 | Recovery | last successful backup timestamp, last restore drill result/duration | Enforce RPO/RTO evidence trong [CI/CD](ci-cd.md). |
 | Phase 1.2 queue | queue depth/oldest job, active/retry/failed/completed counts, job duration, duplicate/replay outcome | Operate BullMQ worker only after it exists. |
+| Invariant guard | rebalance count theo project/column, WorkLog daily-limit reject (1.3), sprint activate conflict (1.4), dependency cycle reject và edge-count-limit reject (1.5) | Đây là các **revisit trigger đã ghi trong ADR**, nên chúng phải đo được: [ADR-0006](../decisions/ADR-0006-fractional-ordering-and-concurrency.md) xem lại spacing/ngưỡng khi rebalance xảy ra thường xuyên; [ADR-0011](../decisions/ADR-0011-task-relations-subtask-and-dependency.md) xem lại giới hạn 50 cạnh theo tần suất reject. Label chỉ dùng route template/module/phase, không dùng project/task ID. |
 
 Dashboard đầu tiên nhóm theo service/environment/release và links từ a failed request/alert về sanitized logs by `requestId`. Distributed trace và Kubernetes resource/pod/container metrics chỉ được thêm sau khi provider/runtime đã được selected; trace context phải giữ redaction và không thay `requestId` response contract.
 
@@ -80,5 +81,7 @@ Every alert opens or links an incident timeline containing environment, release 
 The authoritative step-by-step restore and security-incident procedures, including 24-hour RPO and four-hour RTO targets, are in [CI/CD, deployment and recovery](ci-cd.md). Authorization diagnosis must preserve deny-by-default and `404` non-disclosure rules from the [authorization model](../security/authorization-model.md); support operators do not use logs or metrics to reveal another private project's existence.
 
 ## Staged telemetry boundary
+
+Các metric của một phase chỉ **phát** khi phase đó tồn tại; tên và label được định nghĩa trước để tránh telemetry ad-hoc, đúng nguyên tắc ở bảng trên. Riêng nhóm Invariant guard là ngoại lệ có lý do: rebalance count thuộc core MVP (ordering có từ đầu), nên nó phát ngay khi có runtime, còn các dòng 1.3/1.4/1.5 phát cùng phase của chúng.
 
 Core MVP does not emit BullMQ worker metrics, trace spans or Kubernetes monitoring because it has no worker, Redis or Kubernetes runtime. The later phase must add those signals, dashboards, alerts, failure experiments, backup/recovery classification and runbooks in the same reviewed change that introduces its dependency. It must preserve `requestId`, job idempotency, Project Owner authorization, project-scoped data access and safe redaction.
