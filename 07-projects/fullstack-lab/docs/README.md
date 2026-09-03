@@ -4,32 +4,34 @@ Tài liệu này là bản đồ điều hướng cho Flowboard. [Đặc tả ba
 
 **Markdown baseline v0.1: Ready for Pencil.** Mốc này xác nhận tài liệu Markdown sẵn sàng cho công việc UI/UX trong Pencil, không phải xác nhận thiết kế UI hoặc ứng dụng đã hoàn thành.
 
-## Traceability với master specification
+## Đối chiếu với master specification
 
-| Master-spec section | Focused documentation |
+Số thứ tự ở cột đầu là số section trong [master specification](superpowers/specs/2026-09-01-flowboard-product-architecture-design.md) — snapshot đó viết bằng tiếng Anh và không được sửa, nên số giữ nguyên để tra cứu 1:1; phần chữ ở đây là tiếng Việt.
+
+| Section trong master spec | Tài liệu chi tiết tương ứng |
 |---|---|
-| 1. Purpose | [Product vision and scope](product/vision-and-scope.md), [delivery roadmap](product/delivery-roadmap.md) |
-| 2. Problem and target users | [Personas and jobs](product/personas-and-jobs.md), [user journeys](product/user-journeys.md) |
-| 3. Product scope | [Product vision and scope](product/vision-and-scope.md), [delivery roadmap](product/delivery-roadmap.md) |
-| 4. Information architecture and UX rules | [Information architecture](design/information-architecture.md), [user flows](design/user-flows.md), [screen inventory](design/screen-inventory.md), [Pencil handoff](design/pencil-handoff.md) |
-| 5. Authorization model | [Authentication](security/authentication.md), [authorization model](security/authorization-model.md), [authorization test matrix](security/authorization-test-matrix.md) |
-| 6. Domain and data model | [Domain model](data/domain-model.md), [database design](data/database-design.md), [query and index policy](data/query-and-index-policy.md) |
-| 7. API design | [API conventions](api/api-conventions.md), [endpoint contracts](api/endpoint-contracts.md) |
-| 8. Pagination, ordering, and concurrency | [Pagination, concurrency, and idempotency](api/pagination-concurrency-idempotency.md), [query and index policy](data/query-and-index-policy.md) |
-| 9. Technical baseline | [Repository structure](engineering/repository-structure.md), [frontend conventions](engineering/frontend-conventions.md), [backend conventions](engineering/backend-conventions.md), [shared-helper policy](engineering/shared-helper-policy.md) |
-| 10. Reporting and asynchronous work | [Progress export](reporting/progress-export.md), [delivery roadmap](product/delivery-roadmap.md) |
-| 11. Testing, delivery, and observability | [Testing strategy](operations/testing-strategy.md), [local development](operations/local-development.md), [CI/CD](operations/ci-cd.md), [observability](operations/observability.md) |
-| 12. AI design | [AI roadmap](ai/roadmap.md), [AI architecture and safety](ai/architecture-and-safety.md) |
-| 13. Documentation deliverables | This index, [design and documentation plan](design-and-docs-plan.md), [user guide](user-guide/README.md), [ADR process](decisions/README.md), [ba lát cắt dọc](how-it-works.md) |
-| 14. Baseline acceptance criteria | This index, [design and documentation plan](design-and-docs-plan.md), [approved baseline](superpowers/specs/2026-09-01-flowboard-product-architecture-design.md) |
+| 1. Mục đích | [Tầm nhìn và phạm vi sản phẩm](product/vision-and-scope.md), [lộ trình phát hành](product/delivery-roadmap.md) |
+| 2. Vấn đề và người dùng mục tiêu | [Chân dung người dùng và công việc của họ](product/personas-and-jobs.md), [hành trình người dùng](product/user-journeys.md) |
+| 3. Phạm vi sản phẩm | [Tầm nhìn và phạm vi sản phẩm](product/vision-and-scope.md), [lộ trình phát hành](product/delivery-roadmap.md) |
+| 4. Kiến trúc thông tin và quy tắc UX | [Kiến trúc thông tin](design/information-architecture.md), [luồng người dùng](design/user-flows.md), [danh mục màn hình](design/screen-inventory.md), [bàn giao Pencil](design/pencil-handoff.md) |
+| 5. Mô hình phân quyền | [Xác thực](security/authentication.md), [mô hình phân quyền](security/authorization-model.md), [ma trận test phân quyền](security/authorization-test-matrix.md) |
+| 6. Mô hình miền và dữ liệu | [Mô hình miền](data/domain-model.md), [thiết kế database](data/database-design.md), [chính sách query và index](data/query-and-index-policy.md) |
+| 7. Thiết kế API | [Quy ước API](api/api-conventions.md), [hợp đồng endpoint](api/endpoint-contracts.md) |
+| 8. Phân trang, thứ tự và concurrency | [Phân trang, concurrency và idempotency](api/pagination-concurrency-idempotency.md), [chính sách query và index](data/query-and-index-policy.md) |
+| 9. Baseline kỹ thuật | [Cấu trúc repository](engineering/repository-structure.md), [quy ước frontend](engineering/frontend-conventions.md), [quy ước backend](engineering/backend-conventions.md), [chính sách shared helper](engineering/shared-helper-policy.md) |
+| 10. Báo cáo và công việc bất đồng bộ | [Export tiến độ](reporting/progress-export.md), [lộ trình phát hành](product/delivery-roadmap.md) |
+| 11. Test, phát hành và observability | [Chiến lược test](operations/testing-strategy.md), [phát triển cục bộ](operations/local-development.md), [CI/CD](operations/ci-cd.md), [observability](operations/observability.md) |
+| 12. Thiết kế AI | [Lộ trình AI](ai/roadmap.md), [kiến trúc và an toàn AI](ai/architecture-and-safety.md) |
+| 13. Sản phẩm tài liệu phải giao | Chính trang chỉ mục này, [kế hoạch thiết kế và tài liệu](design-and-docs-plan.md), [hướng dẫn người dùng](user-guide/README.md), [quy trình ADR](decisions/README.md), [ba lát cắt dọc](how-it-works.md) |
+| 14. Tiêu chí nghiệm thu baseline | Chính trang chỉ mục này, [kế hoạch thiết kế và tài liệu](design-and-docs-plan.md), [baseline đã phê duyệt](superpowers/specs/2026-09-01-flowboard-product-architecture-design.md) |
 
 ### Baseline bổ sung
 
-Các baseline sau được phê duyệt sau master specification 2026-09-01. Chúng không phải một section của spec cũ; mỗi baseline có spec và kế hoạch triển khai riêng, và các quyết định đã được diễn giải vào focused documentation tương ứng.
+Các baseline sau được phê duyệt sau master specification 2026-09-01. Chúng không phải một section của spec cũ; mỗi baseline có spec và kế hoạch triển khai riêng, và các quyết định đã được diễn giải vào tài liệu chi tiết tương ứng.
 
-| Baseline | Spec | Kế hoạch triển khai | Focused documentation đã cập nhật |
+| Baseline | Spec | Kế hoạch triển khai | Tài liệu chi tiết đã cập nhật |
 |---|---|---|---|
-| Phase 1.3 — Time Tracking (2026-09-02) | [Time Tracking design](superpowers/specs/2026-09-02-flowboard-time-tracking-design.md) | [Time Tracking documentation and design plan](superpowers/plans/2026-09-02-flowboard-time-tracking-documentation-and-design.md) | [ADR-0002](decisions/ADR-0002-project-time-tracking-and-approval.md), [delivery roadmap](product/delivery-roadmap.md), [database design](data/database-design.md), [query and index policy](data/query-and-index-policy.md), [authorization model](security/authorization-model.md), [endpoint contracts](api/endpoint-contracts.md), [pagination/concurrency/idempotency](api/pagination-concurrency-idempotency.md), [Pencil handoff](design/pencil-handoff.md) |
+| Phase 1.3 — Time Tracking (2026-09-02) | [Time Tracking design](superpowers/specs/2026-09-02-flowboard-time-tracking-design.md) | [Time Tracking documentation and design plan](superpowers/plans/2026-09-02-flowboard-time-tracking-documentation-and-design.md) | [ADR-0002](decisions/ADR-0002-project-time-tracking-and-approval.md), [lộ trình phát hành](product/delivery-roadmap.md), [thiết kế database](data/database-design.md), [chính sách query và index](data/query-and-index-policy.md), [mô hình phân quyền](security/authorization-model.md), [hợp đồng endpoint](api/endpoint-contracts.md), [phân trang, concurrency và idempotency](api/pagination-concurrency-idempotency.md), [bàn giao Pencil](design/pencil-handoff.md) |
 
 ## Ngôn ngữ tài liệu
 

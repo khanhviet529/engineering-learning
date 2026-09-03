@@ -26,7 +26,7 @@ Redaction phải chặn password, cookie/session ID, CSRF secret, reset/verifica
 
 ## Health, liveness và readiness
 
-API exposes two safe endpoints with stable semantics:
+API mở đúng hai endpoint an toàn với ngữ nghĩa cố định:
 
 | Endpoint | Câu hỏi trả lời | Dependency policy | Response |
 |---|---|---|---|
@@ -47,41 +47,41 @@ Metrics là phase sau first log/readiness release nhưng instrumentation names/l
 | Security | sign-in/reset rate-limit reject, CSRF failure, auth failure/denied action aggregate | Detect abuse/regression mà không enumerate account/resource. |
 | Rate limit | reject count theo route class (auth, search, aggregate, export, bulk review) và tỷ lệ 429/tổng request | Tune giá trị khởi điểm trong [API conventions](../api/api-conventions.md#rate-limit-và-retry-after); phát hiện limiter quá chặt/quá lỏng trước khi user báo. |
 | Delivery | deployment version/digest, startup/readiness transition, migration duration/outcome | Correlate incident với release. |
-| Recovery | last successful backup timestamp, last restore drill result/duration | Enforce RPO/RTO evidence trong [CI/CD](ci-cd.md). |
-| Phase 1.2 queue | queue depth/oldest job, active/retry/failed/completed counts, job duration, duplicate/replay outcome | Operate BullMQ worker only after it exists. |
+| Recovery | thời điểm backup thành công gần nhất, kết quả và thời lượng lần diễn tập restore gần nhất | Bắt buộc có bằng chứng RPO/RTO theo [CI/CD](ci-cd.md). |
+| Phase 1.2 queue | độ sâu queue và job cũ nhất, số job active/retry/failed/completed, thời lượng job, kết quả duplicate/replay | Chỉ vận hành BullMQ worker sau khi nó thực sự tồn tại. |
 | Invariant guard | rebalance count theo project/column, WorkLog daily-limit reject (1.3), sprint activate conflict (1.4), dependency cycle reject và edge-count-limit reject (1.5) | Đây là các **revisit trigger đã ghi trong ADR**, nên chúng phải đo được: [ADR-0006](../decisions/ADR-0006-fractional-ordering-and-concurrency.md) xem lại spacing/ngưỡng khi rebalance xảy ra thường xuyên; [ADR-0011](../decisions/ADR-0011-task-relations-subtask-and-dependency.md) xem lại giới hạn 50 cạnh theo tần suất reject. Label chỉ dùng route template/module/phase, không dùng project/task ID. |
 
-Dashboard đầu tiên nhóm theo service/environment/release và links từ a failed request/alert về sanitized logs by `requestId`. Distributed trace và Kubernetes resource/pod/container metrics chỉ được thêm sau khi provider/runtime đã được selected; trace context phải giữ redaction và không thay `requestId` response contract.
+Dashboard đầu tiên nhóm theo service, environment và release, và từ một request lỗi hoặc một alert phải dẫn được về log đã sanitize theo `requestId`. Distributed trace và metric resource/pod/container của Kubernetes chỉ được thêm sau khi đã chọn provider và runtime; trace context phải giữ redaction và không thay `requestId` response contract.
 
 ## Alert policy và operator runbooks
 
-Alert chỉ page khi có action rõ ràng, có owner và link runbook; warning/ticket signal dùng cho capacity/trend. Threshold được calibrated từ SLO/baseline thực tế trước production, nhưng các condition sau là mandatory:
+Alert chỉ page khi có action rõ ràng, có owner và link runbook; warning/ticket signal dùng cho capacity/trend. Threshold phải được hiệu chỉnh theo SLO và baseline thực tế trước khi lên production, nhưng các điều kiện sau là bắt buộc:
 
-| Signal | Severity intent | First operator action |
+| Tín hiệu | Mức độ dự kiến | Hành động đầu tiên của operator |
 |---|---|---|
-| API readiness unavailable hoặc sustained liveness restart | Page | Check release/dependency status, use safe logs and rollback/incident procedure. |
-| Sustained 5xx/error-rate or latency regression | Page when user impact confirmed | Correlate request IDs, release digest, database signal; stop rollout or rollback application digest. |
-| PostgreSQL connection/pool saturation or query failure | Page | Protect write path, inspect database/provider health, avoid unscoped diagnostic queries. |
-| Backup older than RPO or restore drill overdue/failed | Page/ticket according to RPO breach | Start backup/recovery owner procedure; block risky migration until evidence is restored. |
-| Sign-in/reset rate-limit spike, unexpected CSRF/auth denial anomaly | Security alert | Preserve sanitized evidence, contain identity/secret issue following security runbook. |
-| Phase 1.2 queue oldest job/retry/failure threshold | Page | Pause/retry/replay only through idempotent job runbook; do not manually duplicate delivery. |
+| API readiness không khả dụng, hoặc liveness restart liên tục | Page | Kiểm tra trạng thái release và dependency, đọc log an toàn, chạy quy trình rollback hoặc incident. |
+| Tỷ lệ 5xx hoặc error rate cao kéo dài, hoặc latency xấu đi | Page khi đã xác nhận có ảnh hưởng tới người dùng | Đối chiếu `requestId`, release digest và tín hiệu database; dừng rollout hoặc rollback về digest cũ. |
+| Connection hoặc pool PostgreSQL bị bão hoà, hoặc query lỗi | Page | Bảo vệ write path, kiểm tra sức khoẻ database và provider, tuyệt đối không chạy query chẩn đoán không giới hạn scope. |
+| Backup cũ hơn RPO, hoặc diễn tập restore quá hạn hay thất bại | Page hoặc ticket tuỳ mức vi phạm RPO | Khởi động quy trình của owner backup/recovery; chặn mọi migration rủi ro cho tới khi có lại bằng chứng. |
+| Rate limit sign-in hoặc reset tăng vọt, hoặc CSRF và auth bị từ chối bất thường | Security alert | Giữ lại bằng chứng đã sanitize, khoanh vùng sự cố identity hoặc secret theo security runbook. |
+| Job cũ nhất, số lần retry hoặc số job lỗi trong queue vượt ngưỡng (Phase 1.2) | Page | Chỉ pause, retry hoặc replay qua runbook job idempotent; không tự tay gửi trùng delivery. |
 
-Every alert opens or links an incident timeline containing environment, release digest, observed start/end, relevant request/job correlation IDs, customer impact, owner and decisions. It must not include secret values or private resource payloads.
+Mỗi alert phải mở hoặc liên kết tới một incident timeline ghi đủ: environment, release digest, thời điểm bắt đầu và kết thúc quan sát được, các correlation ID của request và job liên quan, ảnh hưởng tới khách hàng, người chịu trách nhiệm và các quyết định đã ra. Timeline không được chứa giá trị secret hay payload của tài nguyên riêng tư.
 
-### Generic service incident runbook
+### Runbook sự cố dịch vụ dùng chung
 
-1. Acknowledge, classify impact and record time/environment/release digest/request IDs.
-2. Verify liveness/readiness and recent deployment/migration state; inspect sanitized structured logs and bounded metrics.
-3. Contain user impact: stop rollout, rollback approved application digest, or take dependency-specific action. Do not execute schema push, ad-hoc destructive query or unreviewed secret change.
-4. Verify recovery with readiness, minimal authorized smoke checks and sustained telemetry; compare backup/recovery result with RPO/RTO when data integrity is involved.
-5. Close only after documenting root cause, impact, timeline, data window, remediation and any ADR requirement.
+1. Xác nhận đã tiếp nhận, phân loại mức ảnh hưởng, ghi lại thời điểm, environment, release digest và các `requestId`.
+2. Kiểm tra liveness/readiness và trạng thái deployment/migration gần nhất; đọc structured log đã sanitize cùng các metric có label giới hạn.
+3. Khoanh vùng ảnh hưởng tới người dùng: dừng rollout, rollback về application digest đã được phê duyệt, hoặc xử lý riêng theo dependency. Không được push schema, không chạy query destructive tuỳ hứng, không đổi secret khi chưa qua review.
+4. Xác nhận đã hồi phục bằng readiness, một lượng nhỏ smoke check có thẩm quyền và telemetry ổn định trong một khoảng thời gian; khi có liên quan tới toàn vẹn dữ liệu thì đối chiếu kết quả backup/recovery với RPO/RTO.
+5. Chỉ đóng sự cố sau khi đã ghi lại nguyên nhân gốc, mức ảnh hưởng, timeline, khoảng dữ liệu bị tác động, cách khắc phục và ADR cần mở nếu có.
 
-### Data recovery and security references
+### Tham chiếu phục hồi dữ liệu và bảo mật
 
-The authoritative step-by-step restore and security-incident procedures, including 24-hour RPO and four-hour RTO targets, are in [CI/CD, deployment and recovery](ci-cd.md). Authorization diagnosis must preserve deny-by-default and `404` non-disclosure rules from the [authorization model](../security/authorization-model.md); support operators do not use logs or metrics to reveal another private project's existence.
+Quy trình restore và xử lý sự cố bảo mật theo từng bước — bao gồm mục tiêu RPO 24 giờ và RTO 4 giờ — nằm ở [CI/CD, triển khai và phục hồi](ci-cd.md); đó là bản có thẩm quyền, tài liệu này không nhân bản lại. Khi chẩn đoán vấn đề phân quyền vẫn phải giữ nguyên deny-by-default và quy tắc không tiết lộ qua `404` của [mô hình phân quyền](../security/authorization-model.md): người vận hành hỗ trợ không được dùng log hay metric để tiết lộ sự tồn tại của một project riêng tư của người khác.
 
-## Staged telemetry boundary
+## Ranh giới telemetry theo phase
 
 Các metric của một phase chỉ **phát** khi phase đó tồn tại; tên và label được định nghĩa trước để tránh telemetry ad-hoc, đúng nguyên tắc ở bảng trên. Riêng nhóm Invariant guard là ngoại lệ có lý do: rebalance count thuộc core MVP (ordering có từ đầu), nên nó phát ngay khi có runtime, còn các dòng 1.3/1.4/1.5 phát cùng phase của chúng.
 
-Core MVP does not emit BullMQ worker metrics, trace spans or Kubernetes monitoring because it has no worker, Redis or Kubernetes runtime. The later phase must add those signals, dashboards, alerts, failure experiments, backup/recovery classification and runbooks in the same reviewed change that introduces its dependency. It must preserve `requestId`, job idempotency, Project Owner authorization, project-scoped data access and safe redaction.
+Core MVP không phát metric của BullMQ worker, không phát trace span và không có monitoring Kubernetes, đơn giản vì nó chưa có worker, chưa có Redis và chưa chạy trên Kubernetes. Phase nào mang dependency đó vào thì phải thêm luôn tín hiệu, dashboard, alert, failure experiment, phân loại backup/recovery và runbook **trong cùng một change đã qua review** — không để nợ sang sau. Phase đó vẫn phải giữ nguyên `requestId`, tính idempotent của job, thẩm quyền Project Owner, phạm vi dữ liệu theo project và quy tắc redaction an toàn.

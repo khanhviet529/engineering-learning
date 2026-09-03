@@ -62,29 +62,29 @@ project + active columns
 
 Không có board query nào fetch toàn bộ Task của project lớn. `nextCursor` của column A không hợp lệ ở column B. Load-more chỉ nạp thêm Task cho chính column đó, giữ Task đã xác nhận ở các column khác. Filter/search/sort thay đổi reset cursor của các column bị ảnh hưởng.
 
-## Required index baseline
+## Baseline index bắt buộc
 
 Migrations tạo các index dưới đây cùng constraints ở database design. Tên migration có thể khác, nhưng cột, thứ tự và predicate phải giữ ý nghĩa này.
 
-| Table / index keys | Loại | Query phục vụ | Phase |
+| Bảng / khoá index | Loại | Query được phục vụ | Phase |
 |---|---|---|---|
-| `users(email)` | unique btree | Sign-in/identity lookup canonical email. | Core MVP |
-| `auth_sessions(session_token_hash)` | unique btree | SessionGuard lookup opaque session hash. | Core MVP |
-| `idempotency_records(user_id, use_case, key_hash)` | unique btree | Idempotency claim/replay lookup; chặn retry đồng thời cùng key. | Core MVP |
-| `idempotency_records(expires_at)` | btree | Purge/overwrite record hết hạn. | Core MVP |
-| `workspace_members(workspace_id, user_id)` | unique btree | Membership check, duplicate prevention. | Core MVP |
-| `workspace_members(user_id, workspace_id)` | btree | Workspace list của actor. | Core MVP |
-| `project_members(project_id, user_id)` | unique btree | Project permission/member lookup, duplicate prevention. | Core MVP |
+| `users(email)` | unique btree | Tra cứu định danh khi sign-in theo email dạng canonical. | Core MVP |
+| `auth_sessions(session_token_hash)` | unique btree | `SessionGuard` tra cứu theo hash của opaque session. | Core MVP |
+| `idempotency_records(user_id, use_case, key_hash)` | unique btree | Tra cứu khi claim và khi replay idempotency; chặn hai retry đồng thời dùng cùng key. | Core MVP |
+| `idempotency_records(expires_at)` | btree | Dọn hoặc ghi đè record đã hết hạn. | Core MVP |
+| `workspace_members(workspace_id, user_id)` | unique btree | Kiểm tra thành viên và chặn trùng. | Core MVP |
+| `workspace_members(user_id, workspace_id)` | btree | Danh sách workspace của actor. | Core MVP |
+| `project_members(project_id, user_id)` | unique btree | Tra cứu quyền và thành viên project, chặn trùng. | Core MVP |
 | `project_members(user_id, project_id)` | btree | Danh sách project accessible của actor. | Core MVP |
-| `projects(workspace_id, created_at DESC)` | btree | Workspace project list sau access scope. | Core MVP |
-| `board_columns(project_id, position)` | btree | Active board-column order trong project. | Core MVP |
-| `tasks(project_id, column_id, position)` | unique btree | Per-column board seek/order; deterministic position. | Core MVP |
-| `tasks(project_id, created_at DESC, id DESC)` | btree | Default task-list seek/order `created_at DESC, id DESC`. | Core MVP |
+| `projects(workspace_id, created_at DESC)` | btree | Danh sách project trong workspace, sau khi đã giới hạn access scope. | Core MVP |
+| `board_columns(project_id, position)` | btree | Thứ tự các board column đang active trong project. | Core MVP |
+| `tasks(project_id, column_id, position)` | unique btree | Seek và sắp thứ tự board theo từng cột; position tất định. | Core MVP |
+| `tasks(project_id, created_at DESC, id DESC)` | btree | Seek và thứ tự mặc định của danh sách task: `created_at DESC, id DESC`. | Core MVP |
 | `tasks(project_id, due_date, id)` | btree | Due-date filter/range và sort `dueDate` với seek tie-breaker. Hướng `asc` (NULLS LAST mặc định của btree) được seek trọn vẹn; hướng `desc` với NULLS LAST không khớp một btree đơn — chấp nhận planner sort trong phạm vi project (bounded, đo bằng explain-plan rule); chỉ thêm index `DESC NULLS LAST` riêng khi telemetry chứng minh cần. | Core MVP |
-| `tasks(project_id, assignee_id, updated_at DESC)` | btree | Assignee filter và recent task list trong project. | Core MVP |
-| `tasks(project_id, created_by_user_id, updated_at DESC)` | btree | Created-by filter và recent task list trong project. | Core MVP |
+| `tasks(project_id, assignee_id, updated_at DESC)` | btree | Lọc theo người được giao và danh sách task gần đây trong project. | Core MVP |
+| `tasks(project_id, created_by_user_id, updated_at DESC)` | btree | Lọc theo người tạo và danh sách task gần đây trong project. | Core MVP |
 | `tasks(project_id, reviewer_id, updated_at DESC)` | btree | Reviewer filter (review workflow của cột `requires_reviewer`), đối xứng với assignee/created-by. | Core MVP |
-| `tasks(project_id, updated_at DESC, id DESC)` | btree | Allowlisted `updatedAt` sort với seek tie-breaker. | Core MVP |
+| `tasks(project_id, updated_at DESC, id DESC)` | btree | Sort theo `updatedAt` (nằm trong allowlist), kèm tie-breaker cho seek. | Core MVP |
 | `tasks(project_id, sprint_id, column_id, position)` | btree | Sprint board seek theo từng cột khi filter `sprintId`; cũng phục vụ backlog qua `sprint_id IS NULL`. | Phase 1.4 only |
 | `tasks(project_id, parent_task_id)` | btree | Liệt kê subtask của một task và đếm tiến độ cha (số con ở column terminal). | Phase 1.5 only |
 | `task_dependencies(project_id, blocked_task_id)` | btree | Danh sách blocker của một task và bước duyệt recursive khi chống cycle. | Phase 1.5 only |
@@ -92,22 +92,22 @@ Migrations tạo các index dưới đây cùng constraints ở database design.
 | `task_dependencies(project_id, blocking_task_id, blocked_task_id)` | unique btree | Chặn cạnh trùng. | Phase 1.5 only |
 | `sprints(project_id, status, starts_on DESC)` | btree | Danh sách sprint theo trạng thái trong project. | Phase 1.4 only |
 | `sprints(project_id) WHERE status = 'active'` | unique btree, partial | Cưỡng chế đúng một sprint active mỗi project. | Phase 1.4 only |
-| `tasks` GIN trên `to_tsvector('simple', fb_unaccent(title \|\| ' ' \|\| description))` | GIN expression | Allowlisted task search unaccent-symmetric trong một project. Yêu cầu extension `unaccent` + function `fb_unaccent` tạo trước index. | Core MVP |
-| `comments(task_id, created_at, id)` | btree | Comment list theo task, khớp order/seek `createdAt, id`. | Core MVP |
-| `activity_logs(project_id, created_at DESC)` | btree | Project/task activity history. | Core MVP |
-| `activity_logs(project_id, task_id, created_at DESC, id DESC)` | btree | `GET /tasks/:taskId/activity` sau project scope, theo deterministic seek order `created_at DESC, id DESC`. | Core MVP |
-| `report_exports(project_id, created_at DESC)` | btree | Export status/history list. | Phase 1.1 only |
-| `project_time_approvers(project_id, user_id)` | unique btree | Approver membership/duplicate prevention. | Phase 1.3 only |
-| `work_logs(project_id, logged_by_user_id, work_date DESC, id DESC)` | btree | User/day list and monthly aggregate scope. | Phase 1.3 only |
-| `work_logs(project_id, task_id, work_date DESC, id DESC)` | btree | Task Detail time-log tab. | Phase 1.3 only |
-| `work_logs(project_id, status, work_date DESC, id DESC)` | btree | Approver queue/cursor. | Phase 1.3 only |
-| `work_log_access_overrides(project_id, user_id, work_date)` | unique btree | Late-date override lookup. | Phase 1.3 only |
+| `tasks` GIN trên `to_tsvector('simple', fb_unaccent(title \|\| ' ' \|\| description))` | GIN expression | Tìm kiếm task trong một project, nằm trong allowlist và đối xứng dấu. Cần extension `unaccent` và function `fb_unaccent` được tạo **trước** index. | Core MVP |
+| `comments(task_id, created_at, id)` | btree | Danh sách comment theo task, khớp thứ tự và seek `createdAt, id`. | Core MVP |
+| `activity_logs(project_id, created_at DESC)` | btree | Lịch sử hoạt động của project và task. | Core MVP |
+| `activity_logs(project_id, task_id, created_at DESC, id DESC)` | btree | `GET /tasks/:taskId/activity` sau khi giới hạn project scope, theo thứ tự seek tất định `created_at DESC, id DESC`. | Core MVP |
+| `report_exports(project_id, created_at DESC)` | btree | Danh sách trạng thái và lịch sử export. | Phase 1.1 only |
+| `project_time_approvers(project_id, user_id)` | unique btree | Kiểm tra tư cách approver và chặn trùng. | Phase 1.3 only |
+| `work_logs(project_id, logged_by_user_id, work_date DESC, id DESC)` | btree | Danh sách theo người và theo ngày, cùng phạm vi tổng hợp theo tháng. | Phase 1.3 only |
+| `work_logs(project_id, task_id, work_date DESC, id DESC)` | btree | Tab nhật ký giờ trong Task Detail. | Phase 1.3 only |
+| `work_logs(project_id, status, work_date DESC, id DESC)` | btree | Hàng chờ của approver và con trỏ phân trang. | Phase 1.3 only |
+| `work_log_access_overrides(project_id, user_id, work_date)` | unique btree | Tra cứu override cho ngày đã quá hạn ghi. | Phase 1.3 only |
 
 `UNIQUE (project_id, column_id, position)` là index Task order ở trên. `UNIQUE (project_id, position)` của BoardColumn đảm bảo deterministic column ordering. `category` và `priority` **cố ý không có index riêng**: enum cardinality thấp, filter luôn chạy sau project scope (và thường sau column/assignee), nên index composite hiện có + filter residual là đủ — explain-plan rule sẽ bắt nếu giả định này sai với dữ liệu thật. Không thêm speculative indexes hay table cho generic reporting, queue, AI, labels, attachments, timer, payroll/billing hoặc full-project task preload.
 
-## Explain-plan verification rule
+## Quy tắc kiểm chứng bằng explain plan
 
-Trước khi coi một query/index policy đủ cho production-like data, implementer phải chạy `EXPLAIN (ANALYZE, BUFFERS)` trên PostgreSQL với representative data distribution và đúng project scope/filter/sort/cursor của use case.
+Trước khi coi một chính sách query hoặc index là đủ cho dữ liệu gần production, người triển khai phải chạy `EXPLAIN (ANALYZE, BUFFERS)` trên PostgreSQL với phân bố dữ liệu đại diện, và đúng project scope, filter, sort, cursor của use case đó.
 
 - Xác minh plan dùng index phù hợp hoặc document lý do planner chọn cách khác; không chấp nhận index chỉ vì migration tạo thành công.
 - Kiểm tra ít nhất: per-column board page/load-more, default task list, task `updatedAt` sort, task due-date range và cả sort `dueDate:desc` (hướng không được index seek trọn vẹn — xem index baseline), assignee + recent sort, reviewer filter, task search unaccent scoped project, comments, task activity history, Phase 1.1 export history, WorkLog user/date page, approver submitted queue, task WorkLog tab và monthly aggregate Phase 1.3.
@@ -136,7 +136,7 @@ Authorization/resource resolution xảy ra trước transaction khi có thể, n
 | Sprint close (Phase 1.4) | Conditional update `status` sang `closed` cùng `closed_at`; đọc tập task chưa hoàn thành (task ở column `is_terminal = false`) trong cùng transaction rồi áp dụng đúng lựa chọn `unfinishedTasks` của Owner (`backlog` hoặc `move_to_sprint` với sprint đích `planned` cùng project); insert activity; commit. Không carry-over ngầm. | `sprint.closed` một lần, kèm event chuyển task theo contract của task update. |
 | Time Tracking settings (Phase 1.3) | Lock/conditional update settings; Owner authorization; validate enabled/mode/backfill and every approver is active Editor; replace approver set atomically; increment version; insert activity. | `time_tracking.settings_changed`, approver add/remove events chỉ sau commit. |
 | WorkLog create/update/submit | Re-check feature/capability/project/task; lock advisory daily key; validate backfill/override, support reason, duration total and expected version; write valid state; insert activity; commit. | `work_log.created`, `updated`, `submitted` hoặc `self_closed` only after commit. |
-| WorkLog review/bulk review | Re-check approver current membership and author mismatch; lock/conditional update each submitted WorkLog; approved/rejected decision and required rejection note; write per-record activity; commit each safe result. | One approved/rejected activity per successful log; a conflict/denial has no false activity. |
-| Backfill override | Owner authorization; validate member/date/expiry/reason; upsert one project/member/date row under lock; insert activity; commit. | `work_log.backfill_opened` only after override commit. |
+| Review WorkLog, kể cả review theo lô | Kiểm tra lại tư cách approver **tại thời điểm review** và điều kiện không tự review bản ghi của mình; khoá rồi cập nhật có điều kiện từng WorkLog đã submit; ghi quyết định approved/rejected cùng ghi chú bắt buộc khi rejected; ghi activity cho từng bản ghi; commit từng kết quả an toàn. | Mỗi log thành công sinh đúng một activity approved/rejected; trường hợp conflict hoặc bị từ chối không sinh activity giả. |
+| Mở backfill (override) | Cần thẩm quyền Owner; validate thành viên, ngày, thời hạn và lý do; upsert đúng một hàng theo project/thành viên/ngày dưới khoá; insert activity; commit. | `work_log.backfill_opened` chỉ phát sau khi override đã commit. |
 
 Task move và rebalance dùng row locks đủ hẹp để không tạo duplicate position hoặc lost update. Rebalance **chỉ ghi `position`** của các row bị ghi lại — không tăng `version`, không chạm `updated_at` (ADR-0006 mục 5) — nên nó không tạo `409` giả cho client đang mở các task đó và không xáo seek pagination của index `tasks(project_id, updated_at DESC, id DESC)`. Unique violation phát sinh **tại commit** của rebalance transaction (constraint deferred) được error mapper chuyển về envelope `5xx INTERNAL_ERROR` chuẩn kèm `requestId`: đây là dấu hiệu bug server (rebalance đáng lẽ đã loại trùng), không phải input user — không có nhánh UI riêng. Không giữ transaction mở khi render XLSX, gửi email, gọi network hoặc thực hiện work queue; các hành vi queue/delivery chỉ thuộc Phase 1.2.

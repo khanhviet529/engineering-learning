@@ -15,15 +15,15 @@ format -> lint -> typecheck -> unit -> integration -> build -> E2E -> container 
 | Format | Formatter kiểm tra source, config và docs thay đổi | Block merge. |
 | Lint | Linter không có error | Block merge. |
 | Typecheck | Tất cả workspace typecheck thành công | Block merge. |
-| Unit | Domain/schema/mapper/policy/shared-contract suite | Block merge. |
-| Integration | PostgreSQL ephemeral, migrations explicit, repository/guard/transaction/idempotency suite | Block merge. |
+| Unit | Bộ test cho domain, schema, mapper, policy và shared contract | Block merge. |
+| Integration | PostgreSQL ephemeral, migration chạy tường minh, bộ test repository, guard, transaction và idempotency | Block merge. |
 | Build | Web, API và contract/OpenAPI artifact build thành công | Block merge. |
-| E2E | Next.js + API journey, including role/conflict critical paths | Block merge. |
-| Container image | Image reproducibly builds from reviewed commit; digest is recorded | **Block merge.** Every pull request must build the container image successfully before merge. |
+| E2E | Hành trình Next.js đi cùng API, gồm cả các đường then chốt về role và conflict | Block merge. |
+| Container image | Image build lại được từ commit đã review và cho kết quả như nhau; digest được ghi lại | **Block merge.** Mọi pull request phải build image thành công trước khi merge. |
 
-API changes additionally block merge when OpenAPI lint, published path/schema/status/error envelope checks, breaking-change detection, or required authorization/concurrency tests fail. A green browser UI does not waive direct HTTP authorization coverage. CI injects only ephemeral test values; logs/artifacts must redact secret values, cookies, CSRF material, reset/verification tokens and raw request bodies.
+Thay đổi trên API còn bị chặn merge thêm khi một trong các việc sau thất bại: OpenAPI lint, kiểm tra path/schema/status/error envelope đã publish, phát hiện breaking change, hoặc các test phân quyền và concurrency bắt buộc. UI trong browser chạy xanh **không** miễn được yêu cầu phủ test phân quyền ở mức HTTP trực tiếp. CI chỉ nạp giá trị test dùng một lần; log và artifact phải redact giá trị secret, cookie, vật liệu CSRF, token reset/verification và body request thô.
 
-### Controller ruling: container image is a PR gate
+### Phán quyết của controller: container image là cổng của pull request
 
 Container-image build là required pull-request merge gate, không phải optional validation hay chỉ là release-promotion gate. Ruling này bắt lỗi Dockerfile, build context và image-build trước release; đội chấp nhận CI chậm hơn để có feedback đó trước khi thay đổi được merge. Các deployment checks của release promotion ở phần tiếp theo là gate riêng, bổ sung cho — không thay thế — container-image PR gate.
 
@@ -41,7 +41,7 @@ Deployment chạy staged (development -> staging -> production khi các environm
 
 Rollback application bằng image digest trước; không chạy rollback schema tùy tiện. Nếu migration đã thay đổi dữ liệu, dùng forward fix hoặc restore procedure đã review thay vì automatic down migration. Release không được dùng `schema push`, ORM auto-sync hay API boot hook để thay đổi production schema.
 
-## Controlled migration procedure
+## Quy trình migration có kiểm soát
 
 Mỗi migration có owner, review, dependency, loại thay đổi (additive/backfill/contract/destructive), lock/runtimes estimate, validation query và recovery plan. Expand/backfill/contract chia release nếu client cũ có thể còn dùng schema cũ. Migration chỉ chạy một lần qua command/controller explicit, idempotent ở mức migration ledger và có audit log.
 
@@ -56,7 +56,7 @@ Trước migration production:
 
 PostgreSQL là system of record cho MVP. Named volume local, container image, Mailpit inbox, cache và future queue không thay thế backup database. Production dùng encrypted, access-controlled backup ngoài failure domain của primary database; retention và provider cụ thể là decision deployment nhưng phải đáp ứng baseline sau.
 
-| Objective | MVP production baseline | Evidence |
+| Mục tiêu | Baseline production của MVP | Bằng chứng |
 |---|---|---|
 | RPO | Tối đa 24 giờ dữ liệu đã commit | Backup thành công hằng ngày; alert khi backup mới nhất vượt 24 giờ. |
 | RTO | Khôi phục service trong tối đa 4 giờ từ khi incident được tuyên bố | Timed restore drill trong isolated environment, sau đó API readiness và smoke check. |
@@ -79,9 +79,9 @@ Environment secret chỉ đến từ approved secret manager/injection; không n
 
 Rotation bao gồm database credential, session/CSRF cryptographic material và SMTP/provider credential. Rotation plan phải xác định owner, dual-validity/cutover khi cần, session impact, rollback và verification. Password reset/security revocation có thể revoke server session theo [authentication contract](../security/authentication.md); operator không sửa session/token trực tiếp như workaround.
 
-### Security incident runbook
+### Runbook sự cố bảo mật
 
-1. Preserve safe evidence: incident time, affected environment/release, sanitized logs, request IDs and audit events. Không copy secret, cookie, raw token, password/hash hay private project data vào ticket/chat.
+1. Giữ lại bằng chứng an toàn: thời điểm sự cố, environment và release bị ảnh hưởng, log đã sanitize, các `requestId` và audit event. Không copy secret, cookie, raw token, password/hash hay private project data vào ticket/chat.
 2. Contain: revoke/rotate credential hoặc session material bị nghi ngờ, disable compromised deploy identity, and stop unsafe rollout. Đánh giá blast radius theo project scope; không dùng query không scope để "tìm nhanh" dữ liệu.
 3. Eradicate và recover: deploy approved digest/fix, run readiness/authorization smoke checks, then monitor login/reset rate limit, error rate và denied-access anomalies.
 4. Notify theo incident policy của tổ chức, document impact/decisions, and create remediation work. Bất kỳ thay đổi khó đảo ngược về secret, deployment, migration hoặc queue cần ADR.

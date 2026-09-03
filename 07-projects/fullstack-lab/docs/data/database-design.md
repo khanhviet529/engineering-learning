@@ -23,9 +23,9 @@ Tài liệu này là hợp đồng PostgreSQL cho các migration và repository 
 | `display_name` | `text` | No |  | Tên hiển thị. |
 | `password_hash` | `text` | No |  | Argon2id hash, không plaintext. |
 | `email_verified_at` | `timestamptz` | Yes |  | UTC khi xác minh. |
-| `password_reset_token_hash` | `text` | Yes |  | One-time reset token hash. |
+| `password_reset_token_hash` | `text` | Yes |  | Hash của token reset, dùng một lần. |
 | `password_reset_expires_at` | `timestamptz` | Yes |  | UTC expiry của reset token hiện hành. |
-| `email_verification_token_hash` | `text` | Yes |  | One-time verification token hash. |
+| `email_verification_token_hash` | `text` | Yes |  | Hash của token xác minh email, dùng một lần. |
 | `email_verification_expires_at` | `timestamptz` | Yes |  | UTC expiry của verification token hiện hành. |
 | `created_at` | `timestamptz` | No |  | UTC. |
 | `updated_at` | `timestamptz` | No |  | UTC. |
@@ -36,11 +36,11 @@ Retention: giữ trong lifetime của account; core MVP không có account delet
 
 | Cột | PostgreSQL type | Null | Key / constraint | Ghi chú |
 |---|---|:---:|---|---|
-| `id` | `uuid` | No | PK | UUID session record. |
+| `id` | `uuid` | No | PK | UUID của bản ghi session. |
 | `user_id` | `uuid` | No | FK → `users(id)` | Session owner. |
 | `session_token_hash` | `text` | No | `UNIQUE` | Hash của opaque cookie/session ID. |
 | `expires_at` | `timestamptz` | No |  | UTC expiry. |
-| `revoked_at` | `timestamptz` | Yes |  | UTC server-side revocation time. |
+| `revoked_at` | `timestamptz` | Yes |  | Thời điểm revoke, do server ghi, theo UTC. |
 | `revocation_reason` | `text` | Yes |  | Logout, password reset hoặc server revocation metadata. |
 | `created_at` | `timestamptz` | No |  | UTC. |
 | `updated_at` | `timestamptz` | No |  | UTC khi revoke/metadata đổi. |
@@ -65,7 +65,7 @@ Retention: workspace và dependent records được giữ; core MVP không có w
 | `id` | `uuid` | No | PK | UUID membership. |
 | `workspace_id` | `uuid` | No | FK → `workspaces(id)` | Workspace scope. |
 | `user_id` | `uuid` | No | FK → `users(id)` | Member. |
-| `role` | `text` | No | `CHECK (role IN ('workspace_admin', 'workspace_member'))` | Fixed workspace role. |
+| `role` | `text` | No | `CHECK (role IN ('workspace_admin', 'workspace_member'))` | Vai trò workspace, cố định. |
 | `created_at` | `timestamptz` | No |  | UTC. |
 | `updated_at` | `timestamptz` | No |  | UTC khi role đổi. |
 
@@ -91,7 +91,7 @@ Không có `description`, `visibility`, `archived_at` hay delete marker: tất c
 | `id` | `uuid` | No | PK | UUID membership. |
 | `project_id` | `uuid` | No | FK → `projects(id)` | Project scope. |
 | `user_id` | `uuid` | No | FK → `users(id)` | Member. |
-| `role` | `text` | No | `CHECK (role IN ('owner', 'editor', 'viewer'))` | Fixed project role. |
+| `role` | `text` | No | `CHECK (role IN ('owner', 'editor', 'viewer'))` | Vai trò project, cố định. |
 | `created_at` | `timestamptz` | No |  | UTC. |
 | `updated_at` | `timestamptz` | No |  | UTC khi role đổi. |
 
@@ -106,7 +106,7 @@ Constraints: `UNIQUE (project_id, user_id)`. Retention: giữ membership hiện 
 | `name` | `text` | No |  | Column name. |
 | `requires_reviewer` | `boolean` | No | `DEFAULT false` | Nếu true, move/create task vào cột này yêu cầu reviewer hợp lệ. |
 | `is_terminal` | `boolean` | No | `DEFAULT false` | Owner đánh dấu cột là điểm kết thúc công việc. Một project có 0..n cột terminal (ví dụ cả `Xong` và `Huỷ`); không suy từ `position`. Dùng để suy `due_state` và để nhận biết move ra khỏi terminal là mở lại task ([ADR-0008](../decisions/ADR-0008-terminal-column-and-task-reopen.md)). |
-| `position` | `numeric(20,10)` | No | part of unique ordering | Gap/fractional order. |
+| `position` | `numeric(20,10)` | No | part of unique ordering | Thứ tự dạng fractional. |
 | `archived_at` | `timestamptz` | Yes |  | `NULL` nghĩa active; UTC archive time. |
 | `created_at` | `timestamptz` | No |  | UTC. |
 | `updated_at` | `timestamptz` | No |  | UTC. |
@@ -120,17 +120,17 @@ Constraints: `UNIQUE (project_id, position)` khai báo `DEFERRABLE INITIALLY IMM
 | Cột | PostgreSQL type | Null | Key / constraint | Ghi chú |
 |---|---|:---:|---|---|
 | `id` | `uuid` | No | PK | Task identifier. |
-| `project_id` | `uuid` | No | FK → `projects(id)` | Mandatory project scope. |
+| `project_id` | `uuid` | No | FK → `projects(id)` | Phạm vi project, bắt buộc. |
 | `column_id` | `uuid` | No | with `project_id`: FK → `board_columns(project_id, id)` | Bắt buộc cùng project; active state do use case kiểm tra. |
 | `created_by_user_id` | `uuid` | No | FK → `users(id)` | Actor tạo task; projection gọi là `createdBy`, không suy diễn là người giao việc hiện tại. |
 | `assignee_id` | `uuid` | Yes | with `project_id`: FK → `project_members(project_id, user_id)` | Optional assignee, phải là ProjectMember khi có giá trị. |
 | `reviewer_id` | `uuid` | Yes | with `project_id`: FK → `project_members(project_id, user_id)` | Chỉ required khi cột đích có `requires_reviewer = true`; phải khác assignee. |
-| `title` | `text` | No |  | Required task title. |
+| `title` | `text` | No |  | Tiêu đề task, bắt buộc. |
 | `description` | `text` | No | `DEFAULT ''` | Không có content nghĩa empty text, không phải `NULL`. |
 | `category` | `text` | Yes | `CHECK (category IN ('feature','bug','design','research','operations','other'))` | Optional fixed category; không là custom label. |
 | `priority` | `text` | No | `CHECK (priority IN ('none','low','medium','high','urgent'))` | Default `none`; mức tương đối, không phải workflow state. |
-| `position` | `numeric(20,10)` | No | unique ordering | Gap/fractional order trong column. |
-| `version` | `integer` | No | `DEFAULT 1`, `CHECK (version > 0)` | Optimistic concurrency version. |
+| `position` | `numeric(20,10)` | No | unique ordering | Thứ tự dạng fractional trong cột. |
+| `version` | `integer` | No | `DEFAULT 1`, `CHECK (version > 0)` | Version cho optimistic concurrency. |
 | `start_date` | `date` | Yes |  | Optional calendar start date, không time-of-day. |
 | `due_date` | `date` | Yes |  | Optional calendar end/due date, không time-of-day. |
 | `parent_task_id` | `uuid` | Yes | with `project_id`: FK → `tasks(project_id, id)`, `CHECK (parent_task_id IS NULL OR parent_task_id <> id)` | Task cha, chỉ Phase 1.5. **Sâu đúng một cấp**: task đã có cha không được làm cha của task khác — quy tắc use-case làm đồ thị cha–con cycle-free theo cấu trúc, FK không diễn đạt được ([ADR-0011](../decisions/ADR-0011-task-relations-subtask-and-dependency.md)). |
@@ -141,7 +141,7 @@ Constraints: `UNIQUE (project_id, position)` khai báo `DEFERRABLE INITIALLY IMM
 
 Constraints: direct `FOREIGN KEY (project_id) REFERENCES projects(id)`; `UNIQUE (project_id, id)` cho child composite FK; `FOREIGN KEY (project_id, column_id) REFERENCES board_columns(project_id, id)`; `FOREIGN KEY (project_id, assignee_id) REFERENCES project_members(project_id, user_id)`; `UNIQUE (project_id, column_id, position)` khai báo `DEFERRABLE INITIALLY IMMEDIATE` — bình thường check ngay như unique thường, chỉ rebalance transaction mới defer tới commit; hai unique position constraint không là FK target hay `ON CONFLICT` arbiter nên DEFERRABLE không đổi behavior khác (xem [ADR-0006](../decisions/ADR-0006-fractional-ordering-and-concurrency.md) cho spacing 1024, ngưỡng rebalance 10⁻⁶ và phân tích precision của `numeric(20,10)`). Rebalance **chỉ ghi `position`** của các row bị ghi lại: không tăng `version`, không chạm `updated_at` — `version` chỉ bảo vệ nội dung client sửa được và move tường minh; `updated_at` chỉ phản ánh thay đổi do user (ADR-0006 mục 5). Với `assignee_id NULL`, composite FK không yêu cầu member. Retention: giữ Task và `version`/timestamp cho lifetime project; core MVP không có task delete/archive. Repository chỉ update content/assignment khi `id`, `project_id` và expected `version` cùng khớp; `column_id` và `position` chỉ được thay đổi bởi dedicated Task move transaction.
 
-#### Task date, review and due-state invariants
+#### Bất biến về ngày, review và due state của Task
 
 - `start_date` và `due_date` là `DATE NULL` theo timezone workspace. Khi cùng có giá trị, application validation và database check bắt buộc `start_date <= due_date`.
 - `reviewer_id`, nếu có, phải là ProjectMember cùng project và khác `assignee_id`. Task vào cột `requires_reviewer = true` không được commit nếu thiếu reviewer hợp lệ.
@@ -171,7 +171,7 @@ Không có `updated_at`, delete marker hoặc revision columns: comment MVP là 
 | `actor_user_id` | `uuid` | No | FK → `users(id)` | User gây ra mutation. |
 | `action` | `text` | No |  | Event name do module allowlist, ví dụ `task.created`, không client-controlled. |
 | `payload` | `jsonb` | No | `DEFAULT '{}'::jsonb` | Structured, non-secret context của event. |
-| `created_at` | `timestamptz` | No |  | UTC append time. |
+| `created_at` | `timestamptz` | No |  | Thời điểm ghi thêm, theo UTC. |
 
 Không có `updated_at`: append-only. Retention: giữ cùng project như audit history; không có public edit/delete hay automatic purge MVP. Mỗi row phải được insert trong transaction của mutation mô tả nó.
 
@@ -215,15 +215,15 @@ Migration/table này chỉ được tạo khi Phase 1.1 bắt đầu; nó không
 
 | Cột | PostgreSQL type | Null | Key / constraint | Ghi chú |
 |---|---|:---:|---|---|
-| `id` | `uuid` | No | PK | Report/export identifier. |
+| `id` | `uuid` | No | PK | Định danh của bản báo cáo hoặc export. |
 | `project_id` | `uuid` | No | FK → `projects(id)` | Project scope. |
 | `requested_by_user_id` | `uuid` | No | FK → `users(id)` | Owner actor tại lúc request. |
-| `filter_snapshot` | `jsonb` | No |  | Validated, project-scoped filter snapshot. |
+| `filter_snapshot` | `jsonb` | No |  | Snapshot filter đã validate, giới hạn trong project. |
 | `status` | `text` | No | `CHECK (status IN ('requested', 'ready', 'failed', 'purged'))` | Lifecycle state do server ghi. **Hết hạn logic KHÔNG phải một status**: nó luôn được suy từ `expires_at < now()` để không tồn tại hai nguồn sự thật lệch nhau (row `ready` nhưng đã quá hạn là hợp lệ — file còn tồn tại vật lý nhưng download bị chặn theo `expires_at`). `purged` chỉ được ghi khi physical file đã bị hủy theo retention policy (Phase 1.2 trở đi); nó là sự kiện không đảo ngược, khác với hết hạn logic. |
 | `file_storage_key` | `text` | Yes |  | Server-side storage reference, không phải public URL. |
-| `file_name` | `text` | Yes |  | Download metadata khi ready. |
-| `content_type` | `text` | Yes |  | Expected XLSX content type khi ready. |
-| `byte_size` | `bigint` | Yes | `CHECK (byte_size >= 0)` | File metadata khi ready. |
+| `file_name` | `text` | Yes |  | Metadata tải về, có khi trạng thái là ready. |
+| `content_type` | `text` | Yes |  | Content type XLSX mong đợi, có khi trạng thái là ready. |
+| `byte_size` | `bigint` | Yes | `CHECK (byte_size >= 0)` | Metadata kích thước file, có khi trạng thái là ready. |
 | `expires_at` | `timestamptz` | No |  | UTC; download bị từ chối khi đã hết hạn. |
 | `created_at` | `timestamptz` | No |  | UTC. |
 | `updated_at` | `timestamptz` | No |  | UTC khi status/file metadata đổi. |
@@ -262,7 +262,7 @@ Migration Phase 1.4 là additive và tạo feature disabled cho các project hi�
 | `project_id` | `uuid` | No | PK, FK → `projects(id)` | Một settings row tối đa cho một project. |
 | `enabled` | `boolean` | No | `DEFAULT false` | Owner bật theo project; khi tắt thì không route, không CTA, không field sprint trong projection. |
 | `default_duration_days` | `smallint` | No | `CHECK (default_duration_days BETWEEN 7 AND 28)` | Default `14`; chỉ là giá trị gợi ý cho form tạo sprint. |
-| `version` | `integer` | No | `DEFAULT 1`, `CHECK (version > 0)` | Optimistic concurrency cho settings. |
+| `version` | `integer` | No | `DEFAULT 1`, `CHECK (version > 0)` | Optimistic concurrency cho bảng settings. |
 | `created_at` | `timestamptz` | No |  | UTC. |
 | `updated_at` | `timestamptz` | No |  | UTC. |
 
@@ -296,7 +296,7 @@ Migration Phase 1.3 là additive và tạo feature disabled cho các project hi�
 | `enabled` | `boolean` | No | `DEFAULT false` | Owner bật theo project. |
 | `approval_mode` | `text` | No | `CHECK (approval_mode IN ('self_close', 'requires_approval'))` | Default `self_close`. |
 | `backfill_days` | `smallint` | No | `CHECK (backfill_days BETWEEN 0 AND 31)` | Default `7`; today + số ngày lịch trước đó. |
-| `version` | `integer` | No | `DEFAULT 1`, `CHECK (version > 0)` | Optimistic concurrency cho settings. |
+| `version` | `integer` | No | `DEFAULT 1`, `CHECK (version > 0)` | Optimistic concurrency cho bảng settings. |
 | `created_at` | `timestamptz` | No |  | UTC. |
 | `updated_at` | `timestamptz` | No |  | UTC. |
 
@@ -318,24 +318,24 @@ Constraints: `UNIQUE(project_id, user_id)`. Database FK bảo vệ scope; transa
 | Cột | PostgreSQL type | Null | Key / constraint | Ghi chú |
 |---|---|:---:|---|---|
 | `id` | `uuid` | No | PK | WorkLog identifier. |
-| `project_id` | `uuid` | No | FK → `projects(id)` | Mandatory project scope. |
+| `project_id` | `uuid` | No | FK → `projects(id)` | Phạm vi project, bắt buộc. |
 | `task_id` | `uuid` | No | with `project_id`: FK → `tasks(project_id, id)` | Task cùng project. |
 | `logged_by_user_id` | `uuid` | No | with `project_id`: FK → `project_members(project_id, user_id)` | Author; Owner/Editor validation ở use case. |
-| `work_date` | `date` | No |  | Workspace-local calendar date. |
+| `work_date` | `date` | No |  | Ngày theo lịch ở múi giờ của workspace. |
 | `duration_minutes` | `integer` | No | `CHECK (duration_minutes BETWEEN 1 AND 1440)` | Aggregate của author cho task/ngày. |
 | `description` | `text` | No |  | Báo cáo đã làm gì; application validation authoritative. |
 | `support_reason` | `text` | Yes |  | Required application-side khi task assignee khác author. |
 | `status` | `text` | No | `CHECK (status IN ('draft', 'submitted', 'approved', 'rejected'))` | Lifecycle do use case điều khiển. |
 | `approval_kind` | `text` | Yes | `CHECK (approval_kind IN ('self', 'reviewed'))` | Non-null chỉ khi approved. |
 | `submitted_at` | `timestamptz` | Yes |  | UTC. |
-| `reviewed_at` | `timestamptz` | Yes |  | UTC; approved/rejected review. |
-| `reviewed_by_user_id` | `uuid` | Yes | FK → `users(id)` | Never same author when approval mode requires review. |
-| `review_note` | `text` | Yes |  | Required application-side cho rejected. |
-| `version` | `integer` | No | `DEFAULT 1`, `CHECK (version > 0)` | Conditional update/review. |
+| `reviewed_at` | `timestamptz` | Yes |  | Theo UTC; thời điểm review approved hoặc rejected. |
+| `reviewed_by_user_id` | `uuid` | Yes | FK → `users(id)` | Không bao giờ trùng tác giả khi approval mode yêu cầu review. |
+| `review_note` | `text` | Yes |  | Phía ứng dụng bắt buộc điền khi rejected. |
+| `version` | `integer` | No | `DEFAULT 1`, `CHECK (version > 0)` | Dùng cho cập nhật có điều kiện khi review. |
 | `created_at` | `timestamptz` | No |  | UTC. |
 | `updated_at` | `timestamptz` | No |  | UTC. |
 
-Constraints: `UNIQUE(project_id, task_id, logged_by_user_id, work_date)`; composite FKs require `UNIQUE(project_id, id)` on `tasks` and `UNIQUE(project_id, user_id)` on `project_members`. Cross-row daily total, backfill window, approver role/current membership, no self-review and status transition remain use-case transaction rules, not trigger magic.
+Constraint: `UNIQUE(project_id, task_id, logged_by_user_id, work_date)`. Các FK composite đòi hỏi `UNIQUE(project_id, id)` trên `tasks` và `UNIQUE(project_id, user_id)` trên `project_members`. Còn lại — tổng giờ mỗi ngày tính trên nhiều hàng, cửa sổ backfill, vai trò approver và tư cách thành viên tại thời điểm review, điều kiện không tự review, và các bước chuyển status — vẫn là quy tắc trong transaction của use case, **không** đẩy xuống trigger.
 
 ### `work_log_access_overrides`
 

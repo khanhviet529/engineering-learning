@@ -64,12 +64,12 @@ Checklist này là bản theo dõi rút gọn; chi tiết tiêu chí và review 
 - **Implementation order:** README nay bắt đầu bằng authentication/authorization và các vertical slice project-scoped, thay cho chuỗi CRUD-before-auth.
 - **Verification required before acceptance:** Chạy relative-link resolution, whitespace/diff check và cross-document scan cho `EMAIL_VERIFICATION_REQUIRED`, password-change endpoint và CRUD-before-auth sequence trong commit final-fix.
 
-### Final-fix verification record
+### Biên bản kiểm chứng của commit sửa cuối
 
-- **Contract alignment:** `403 EMAIL_VERIFICATION_REQUIRED` is the only documented outcome for valid unverified sign-in: the standard error envelope contains `error.code`, a safe `error.message`, and `requestId`, with no `details`; it creates no session/cookie or CSRF token and returns no private data. The UI clears the password, retains email only in temporary form state, routes to `AUTH-05`, offers separately rate-limited resend, and never retries sign-in automatically.
-- **Password boundary:** `POST /auth/password/change` and authenticated account-settings password change are deferred from the MVP. The token-based reset flow remains the only password replacement path and revokes every active session in the same transaction.
-- **Delivery order:** The Flowboard README is organized around authentication, project-scoped authorization, and vertical product slices before board/task behaviors or asynchronous infrastructure.
-- **Evidence:** This commit runs relative-link resolution, `git diff --check`, and focused cross-document searches for the unverified-sign-in contract, authenticated password-change route, and deprecated CRUD-first milestone ordering.
+- **Khớp hợp đồng:** `403 EMAIL_VERIFICATION_REQUIRED` là kết quả duy nhất được đặc tả cho trường hợp sign-in đúng mật khẩu nhưng chưa xác minh email. Error envelope chuẩn chứa `error.code`, một `error.message` an toàn và `requestId`, không có `details`; nó không tạo session, không tạo cookie hay CSRF token, và không trả về dữ liệu riêng tư. UI xoá mật khẩu, chỉ giữ email trong form state tạm, chuyển tới `AUTH-05`, cho phép gửi lại với rate limit riêng, và không bao giờ tự động retry sign-in.
+- **Ranh giới mật khẩu:** `POST /auth/password/change` và việc đổi mật khẩu trong account settings khi đã đăng nhập đều được hoãn khỏi MVP. Luồng reset bằng token là con đường thay mật khẩu duy nhất, và nó revoke mọi session đang hoạt động trong cùng một transaction.
+- **Thứ tự triển khai:** README của Flowboard được sắp theo authentication, rồi authorization theo phạm vi project, rồi các vertical slice sản phẩm — tất cả đứng trước hành vi board/task và trước hạ tầng bất đồng bộ.
+- **Bằng chứng:** Commit này chạy phép giải relative link, `git diff --check`, và tìm chéo giữa các tài liệu đúng ba điểm: hợp đồng sign-in chưa xác minh, route đổi mật khẩu khi đã đăng nhập, và thứ tự milestone kiểu CRUD-first đã bị loại bỏ.
 
 ## Báo cáo Canvas v0.4 — chờ kiểm chứng artifact
 
