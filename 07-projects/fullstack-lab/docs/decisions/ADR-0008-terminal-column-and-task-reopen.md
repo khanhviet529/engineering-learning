@@ -1,7 +1,8 @@
 # ADR-0008: Terminal board column và ngữ nghĩa mở lại task
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-09-03
+- Accepted: 2026-09-03
 - Related docs: [ADR-0001](ADR-0001-task-planning-fields-and-review-workflow.md), [database design](../data/database-design.md), [query and index policy](../data/query-and-index-policy.md), [endpoint contracts](../api/endpoint-contracts.md), [design system](../design/design-system.md), [interaction specifications](../design/interaction-specifications.md)
 
 ## Context

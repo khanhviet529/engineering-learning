@@ -1,7 +1,8 @@
 # ADR-0011: Quan hệ giữa Task — subtask một cấp và phụ thuộc blocking (Phase 1.5)
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-09-03
+- Accepted: 2026-09-03
 - Related docs: [ADR-0001](ADR-0001-task-planning-fields-and-review-workflow.md), [ADR-0008](ADR-0008-terminal-column-and-task-reopen.md), [ADR-0010](ADR-0010-sprint-iteration.md), [database design](../data/database-design.md), [query and index policy](../data/query-and-index-policy.md), [authorization model](../security/authorization-model.md), [endpoint contracts](../api/endpoint-contracts.md), [vision and scope](../product/vision-and-scope.md)
 
 ## Context
@@ -51,7 +52,7 @@ Cả hai thuộc **Phase 1.5**, sau Phase 1.4. Không thuộc core MVP. Chúng �
 
 ## Consequences
 
-- Khi được duyệt, phải sửa cùng lượt: `product/vision-and-scope.md` và baseline §3.2 (đưa dependencies/subtasks khỏi danh sách non-goal, ghi rõ chúng thuộc Phase 1.5), `product/delivery-roadmap.md` (Phase 1.5), `data/database-design.md` (một cột, một bảng, migration order sau `tasks`), `data/query-and-index-policy.md` (filter/fingerprint/index/transaction/advisory-lock key mới), `api/endpoint-contracts.md` (routes, allowlist, projection, error code mới), `api/api-conventions.md` (`TASK_DEPENDENCY_CYCLE` vào danh sách outcome `409`), `design/screen-inventory.md` cùng Pencil (mục subtask và mục phụ thuộc ở `TSK-02`, cảnh báo blocker).
+- Khi được duyệt, phải sửa cùng lượt: `product/vision-and-scope.md` (đưa dependencies/subtasks khỏi danh sách non-goal, ghi rõ chúng thuộc Phase 1.5). Baseline `2026-09-01` **không** được sửa: nó là snapshot có ngày, và theo `decisions/README.md` thì ADR ghi quyết định mới hơn chứ không viết lại baseline đã phê duyệt; `product/delivery-roadmap.md` (Phase 1.5), `data/database-design.md` (một cột, một bảng, migration order sau `tasks`), `data/query-and-index-policy.md` (filter/fingerprint/index/transaction/advisory-lock key mới), `api/endpoint-contracts.md` (routes, allowlist, projection, error code mới), `api/api-conventions.md` (`TASK_DEPENDENCY_CYCLE` vào danh sách outcome `409`), `design/screen-inventory.md` cùng Pencil (mục subtask và mục phụ thuộc ở `TSK-02`, cảnh báo blocker).
 - ADR-0001 **không bị supersede**: nó nói subtasks/dependencies "remain outside MVP", và ADR này giữ đúng điều đó bằng cách đặt chúng ở Phase 1.5.
 - Test bắt buộc: gán cha cho một task đã có cha bị từ chối (giới hạn một cấp); tạo cạnh A→B rồi B→A nhận `409 TASK_DEPENDENCY_CYCLE`; **hai request đồng thời** tạo hai cạnh cùng đóng một chu trình chỉ một cái thành công (advisory lock); cạnh xuyên project bị composite FK chặn; cạnh thứ 51 bị `400`; xoá cạnh ghi `task_dependency.removed` và không xoá activity cũ.
 - Failure experiment (lab): dựng chuỗi A→B→C→…→N rồi gửi đồng thời hai request tạo cạnh N→A và N→A từ hai client — đúng một cái vào được vòng kiểm tra, cả hai không thể cùng tạo cycle; đo chi phí recursive CTE ở N = 50 để chứng minh giới hạn 50 là đủ chặt.

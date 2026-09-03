@@ -1,7 +1,8 @@
 # ADR-0007: Password policy — độ dài và blocklist thay cho composition rules
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-09-03
+- Accepted: 2026-09-03
 - Related docs: [authentication](../security/authentication.md), [endpoint contracts](../api/endpoint-contracts.md) (`/auth/sign-up`, `/auth/password/reset`), [interaction specifications](../design/interaction-specifications.md), [design system](../design/design-system.md) (`AUTH-02`/`AUTH-04`)
 
 ## Context

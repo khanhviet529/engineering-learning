@@ -1,7 +1,8 @@
 # ADR-0009: Liên kết bằng chứng của Task và định dạng comment
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-09-03
+- Accepted: 2026-09-03
 - Related docs: [database design](../data/database-design.md), [endpoint contracts](../api/endpoint-contracts.md), [API conventions](../api/api-conventions.md), [query and index policy](../data/query-and-index-policy.md), [design system](../design/design-system.md), [vision and scope](../product/vision-and-scope.md)
 
 ## Context

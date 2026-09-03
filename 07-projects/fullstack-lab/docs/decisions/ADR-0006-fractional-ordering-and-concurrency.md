@@ -1,7 +1,8 @@
 # ADR-0006: Fractional ordering, ngưỡng rebalance và optimistic concurrency
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-09-02
+- Accepted: 2026-09-03
 - Related docs: [database design](../data/database-design.md) (bảng `tasks`/`board_columns`), [pagination, concurrency và idempotency](../api/pagination-concurrency-idempotency.md), [query and index policy](../data/query-and-index-policy.md), [interaction specifications](../design/interaction-specifications.md) (mục DnD/Conflict)
 
 ## Context

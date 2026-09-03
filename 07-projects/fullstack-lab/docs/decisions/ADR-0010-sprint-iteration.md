@@ -1,7 +1,8 @@
 # ADR-0010: Sprint theo project như một phase tuỳ chọn (Phase 1.4)
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-09-03
+- Accepted: 2026-09-03
 - Related docs: [ADR-0008](ADR-0008-terminal-column-and-task-reopen.md), [ADR-0002](ADR-0002-project-time-tracking-and-approval.md), [delivery roadmap](../product/delivery-roadmap.md), [vision and scope](../product/vision-and-scope.md), [database design](../data/database-design.md), [query and index policy](../data/query-and-index-policy.md), [authorization model](../security/authorization-model.md), [endpoint contracts](../api/endpoint-contracts.md)
 
 ## Context
