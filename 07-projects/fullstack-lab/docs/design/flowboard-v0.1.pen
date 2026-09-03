@@ -4068,6 +4068,16 @@
               "fill": "$fb.color.text.secondary",
               "fontWeight": "500"
             },
+            "eiGns": {
+              "fill": "$fb.color.nav.active.surface"
+            },
+            "l9VTGi": {
+              "fill": "$fb.color.nav.active.text"
+            },
+            "nDfCf": {
+              "fill": "$fb.color.nav.active.text",
+              "fontWeight": "600"
+            },
             "WAVQm": {
               "fill": "$fb.color.overlay.none"
             },
@@ -24880,6 +24890,16 @@
               "fill": "$fb.color.text.secondary",
               "fontWeight": "500"
             },
+            "eiGns": {
+              "fill": "$fb.color.nav.active.surface"
+            },
+            "l9VTGi": {
+              "fill": "$fb.color.nav.active.text"
+            },
+            "nDfCf": {
+              "fill": "$fb.color.nav.active.text",
+              "fontWeight": "600"
+            },
             "WAVQm": {
               "fill": "$fb.color.overlay.none"
             },
@@ -44646,6 +44666,16 @@
                   "fill": "$fb.color.text.secondary",
                   "fontWeight": "500"
                 },
+                "eiGns": {
+                  "fill": "$fb.color.nav.active.surface"
+                },
+                "l9VTGi": {
+                  "fill": "$fb.color.nav.active.text"
+                },
+                "nDfCf": {
+                  "fill": "$fb.color.nav.active.text",
+                  "fontWeight": "600"
+                },
                 "WAVQm": {
                   "fill": "$fb.color.overlay.none"
                 },
@@ -45915,6 +45945,16 @@
                 "G1yLq": {
                   "fill": "$fb.color.text.secondary",
                   "fontWeight": "500"
+                },
+                "eiGns": {
+                  "fill": "$fb.color.nav.active.surface"
+                },
+                "l9VTGi": {
+                  "fill": "$fb.color.nav.active.text"
+                },
+                "nDfCf": {
+                  "fill": "$fb.color.nav.active.text",
+                  "fontWeight": "600"
                 },
                 "WAVQm": {
                   "fill": "$fb.color.overlay.none"
@@ -61067,6 +61107,42 @@
             },
             {
               "type": "frame",
+              "id": "eiGns",
+              "name": "Nav Tổng quan",
+              "width": "fill_container",
+              "fill": "$fb.color.overlay.none",
+              "cornerRadius": 8,
+              "gap": 10,
+              "padding": [
+                10,
+                12
+              ],
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "l9VTGi",
+                  "name": "Icon",
+                  "width": 18,
+                  "height": 18,
+                  "icon": "gauge",
+                  "library": "lucide",
+                  "fill": "$fb.color.text.muted"
+                },
+                {
+                  "type": "text",
+                  "id": "nDfCf",
+                  "name": "Label",
+                  "fill": "$fb.color.text.secondary",
+                  "content": "Tổng quan",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "500"
+                }
+              ]
+            },
+            {
+              "type": "frame",
               "id": "WAVQm",
               "name": "Nav Bảng công việc",
               "width": "fill_container",
@@ -61457,6 +61533,29 @@
                   "width": 18,
                   "height": 18,
                   "icon": "folders",
+                  "library": "lucide",
+                  "fill": "$fb.color.text.muted"
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "mbmHg",
+              "name": "Nav Tổng quan",
+              "width": 40,
+              "height": 40,
+              "fill": "$fb.color.overlay.none",
+              "cornerRadius": 8,
+              "justifyContent": "center",
+              "alignItems": "center",
+              "children": [
+                {
+                  "type": "icon",
+                  "id": "A8WvG",
+                  "name": "Icon",
+                  "width": 18,
+                  "height": 18,
+                  "icon": "gauge",
                   "library": "lucide",
                   "fill": "$fb.color.text.muted"
                 }
@@ -79533,6 +79632,16 @@
               "fill": "$fb.color.text.secondary",
               "fontWeight": "500"
             },
+            "eiGns": {
+              "fill": "$fb.color.nav.active.surface"
+            },
+            "l9VTGi": {
+              "fill": "$fb.color.nav.active.text"
+            },
+            "nDfCf": {
+              "fill": "$fb.color.nav.active.text",
+              "fontWeight": "600"
+            },
             "WAVQm": {
               "fill": "$fb.color.overlay.none"
             },
@@ -80613,6 +80722,16 @@
             "G1yLq": {
               "fill": "$fb.color.text.secondary",
               "fontWeight": "500"
+            },
+            "eiGns": {
+              "fill": "$fb.color.nav.active.surface"
+            },
+            "l9VTGi": {
+              "fill": "$fb.color.nav.active.text"
+            },
+            "nDfCf": {
+              "fill": "$fb.color.nav.active.text",
+              "fontWeight": "600"
             },
             "WAVQm": {
               "fill": "$fb.color.overlay.none"
@@ -83359,6 +83478,4692 @@
                   "content": "Gửi lại email · Đổi địa chỉ email",
                   "fontFamily": "$font-sans",
                   "fontSize": 12,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "IX5Ro",
+      "x": 9912,
+      "y": -1700,
+      "name": "FbSelect",
+      "reusable": true,
+      "width": 340,
+      "layout": "vertical",
+      "gap": 6,
+      "children": [
+        {
+          "type": "frame",
+          "id": "oNr1x",
+          "name": "Label Row",
+          "width": "fill_container",
+          "gap": 4,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "bx0t5",
+              "name": "Label",
+              "fill": "$fb.color.text.strong",
+              "content": "Danh mục",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "500"
+            },
+            {
+              "type": "text",
+              "id": "Sr7qW",
+              "name": "Required Mark",
+              "fill": "$fb.color.intent.danger.text",
+              "content": "*",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "500"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "guGlU",
+          "name": "Control",
+          "width": "fill_container",
+          "height": 40,
+          "fill": "$fb.color.surface.raised",
+          "cornerRadius": 8,
+          "stroke": "$fb.color.border.strong",
+          "strokeWidth": 1,
+          "padding": [
+            10,
+            12
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "kY88o",
+              "name": "Value",
+              "fill": "$fb.color.text.primary",
+              "content": "Tính năng",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "icon",
+              "id": "Xl2lE",
+              "name": "Affordance",
+              "width": 16,
+              "height": 16,
+              "icon": "chevron-down",
+              "library": "lucide",
+              "fill": "$fb.color.text.muted"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "k0VuYj",
+          "name": "Helper",
+          "fill": "$fb.color.text.muted",
+          "textGrowth": "fixed-width",
+          "width": "fill_container",
+          "content": "Chọn từ danh sách cho phép.",
+          "fontFamily": "Inter",
+          "fontSize": 12,
+          "fontWeight": "normal"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "eZ7gG",
+      "x": 10332,
+      "y": -1700,
+      "name": "FbDateField",
+      "reusable": true,
+      "width": 340,
+      "layout": "vertical",
+      "gap": 6,
+      "children": [
+        {
+          "type": "frame",
+          "id": "a61abb",
+          "name": "Label Row",
+          "width": "fill_container",
+          "gap": 4,
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "iXmsF",
+              "name": "Label",
+              "fill": "$fb.color.text.strong",
+              "content": "Ngày kết thúc",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "500"
+            },
+            {
+              "type": "text",
+              "id": "pV9Gc",
+              "name": "Required Mark",
+              "fill": "$fb.color.intent.danger.text",
+              "content": "*",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "500"
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "l56Uph",
+          "name": "Control",
+          "width": "fill_container",
+          "height": 40,
+          "fill": "$fb.color.surface.raised",
+          "cornerRadius": 8,
+          "stroke": "$fb.color.border.strong",
+          "strokeWidth": 1,
+          "padding": [
+            10,
+            12
+          ],
+          "justifyContent": "space_between",
+          "alignItems": "center",
+          "children": [
+            {
+              "type": "text",
+              "id": "ds1Z7",
+              "name": "Value",
+              "fill": "$fb.color.text.primary",
+              "content": "03/09/2026",
+              "fontFamily": "Inter",
+              "fontSize": 14,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "icon",
+              "id": "W7ArUp",
+              "name": "Affordance",
+              "width": 16,
+              "height": 16,
+              "icon": "calendar-days",
+              "library": "lucide",
+              "fill": "$fb.color.text.muted"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "yPpQ3",
+          "name": "Helper",
+          "fill": "$fb.color.text.muted",
+          "textGrowth": "fixed-width",
+          "width": "fill_container",
+          "content": "Ngày, không có giờ.",
+          "fontFamily": "Inter",
+          "fontSize": 12,
+          "fontWeight": "normal"
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "DLszJ",
+      "x": 4700,
+      "y": 11500,
+      "name": "TSK-01 · Mobile Light — Biểu mẫu công việc · editor · validation",
+      "theme": {
+        "mode": "light"
+      },
+      "clip": true,
+      "width": 390,
+      "height": 844,
+      "fill": "$fb.color.surface.canvas",
+      "layout": "vertical",
+      "children": [
+        {
+          "id": "MaBQ9",
+          "type": "ref",
+          "ref": "q52dF",
+          "name": "Sheet Header",
+          "width": "fill_container",
+          "descendants": {
+            "B8Z2bt": {
+              "icon": "chevron-left"
+            },
+            "BuGUE": {
+              "content": "Công việc mới"
+            },
+            "V1AIti": {
+              "icon": "x"
+            }
+          }
+        },
+        {
+          "type": "frame",
+          "id": "zEN4o",
+          "name": "Sheet Body",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 12,
+          "padding": 16,
+          "children": [
+            {
+              "id": "Cyijs",
+              "type": "ref",
+              "ref": "YmT4f",
+              "name": "Field Tiêu đề",
+              "width": "fill_container",
+              "descendants": {
+                "d4Gsd": {
+                  "content": "Tiêu đề"
+                },
+                "oKO7H": {
+                  "content": "Chuẩn hoá hợp đồng lỗi cho API",
+                  "fill": "$fb.color.text.primary"
+                },
+                "pdsnZ": {
+                  "enabled": false
+                }
+              }
+            },
+            {
+              "type": "frame",
+              "id": "P6zc0",
+              "name": "Row Danh mục / Ưu tiên",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "id": "jd7gS",
+                  "type": "ref",
+                  "ref": "IX5Ro",
+                  "name": "Select Danh mục",
+                  "width": "fill_container",
+                  "descendants": {
+                    "bx0t5": {
+                      "content": "Danh mục"
+                    },
+                    "Sr7qW": {
+                      "enabled": false
+                    },
+                    "kY88o": {
+                      "content": "Tính năng"
+                    },
+                    "k0VuYj": {
+                      "enabled": false
+                    }
+                  }
+                },
+                {
+                  "id": "ng5nQ",
+                  "type": "ref",
+                  "ref": "IX5Ro",
+                  "name": "Select Ưu tiên",
+                  "width": "fill_container",
+                  "descendants": {
+                    "bx0t5": {
+                      "content": "Ưu tiên"
+                    },
+                    "Sr7qW": {
+                      "enabled": false
+                    },
+                    "kY88o": {
+                      "content": "Cao"
+                    },
+                    "k0VuYj": {
+                      "enabled": false
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "UJAfr",
+              "name": "Row Ngày",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "id": "eWV7G",
+                  "type": "ref",
+                  "ref": "eZ7gG",
+                  "name": "Date Bắt đầu",
+                  "width": "fill_container",
+                  "descendants": {
+                    "iXmsF": {
+                      "content": "Ngày bắt đầu"
+                    },
+                    "pV9Gc": {
+                      "enabled": false
+                    },
+                    "ds1Z7": {
+                      "content": "05/09/2026"
+                    },
+                    "yPpQ3": {
+                      "enabled": false
+                    }
+                  }
+                },
+                {
+                  "id": "exlum",
+                  "type": "ref",
+                  "ref": "eZ7gG",
+                  "name": "Date Kết thúc",
+                  "width": "fill_container",
+                  "descendants": {
+                    "iXmsF": {
+                      "content": "Ngày kết thúc"
+                    },
+                    "pV9Gc": {
+                      "enabled": false
+                    },
+                    "l56Uph": {
+                      "stroke": "$fb.color.intent.danger.text"
+                    },
+                    "ds1Z7": {
+                      "content": "03/09/2026"
+                    },
+                    "yPpQ3": {
+                      "enabled": false
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "id": "kejYp",
+              "type": "ref",
+              "ref": "CczKB",
+              "name": "Alert validation",
+              "width": "fill_container",
+              "descendants": {
+                "eCSlK": {
+                  "content": "Ngày bắt đầu phải trước hoặc bằng ngày kết thúc."
+                }
+              }
+            },
+            {
+              "id": "Pkva5",
+              "type": "ref",
+              "ref": "IX5Ro",
+              "name": "Select Người rà soát",
+              "width": "fill_container",
+              "descendants": {
+                "bx0t5": {
+                  "content": "Người rà soát"
+                },
+                "kY88o": {
+                  "content": "Trần Linh"
+                },
+                "k0VuYj": {
+                  "content": "Bắt buộc vì cột đích có requiresReviewer; phải khác người thực hiện."
+                }
+              }
+            },
+            {
+              "id": "Sa9ky",
+              "type": "ref",
+              "ref": "YmT4f",
+              "name": "Field Liên kết bằng chứng",
+              "width": "fill_container",
+              "descendants": {
+                "d4Gsd": {
+                  "content": "Liên kết bằng chứng"
+                },
+                "GT68x": {
+                  "enabled": false
+                },
+                "oKO7H": {
+                  "content": "https://drive.google.com/…",
+                  "fill": "$fb.color.text.primary"
+                },
+                "pdsnZ": {
+                  "content": "Tuỳ chọn. Chỉ https, tối đa 2048 ký tự; hiển thị host dạng chữ, không tải preview."
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "RL461",
+          "name": "Sheet Footer",
+          "width": "fill_container",
+          "fill": "$fb.color.surface.raised",
+          "stroke": "$fb.color.border.default",
+          "strokeWidth": {
+            "top": 1
+          },
+          "gap": 10,
+          "padding": 16,
+          "children": [
+            {
+              "id": "DtSkT",
+              "type": "ref",
+              "ref": "bmQYf",
+              "name": "Secondary Hủy",
+              "width": "fill_container",
+              "descendants": {
+                "d9bGWx": {
+                  "content": "Hủy"
+                }
+              }
+            },
+            {
+              "id": "bacrA",
+              "type": "ref",
+              "ref": "axWhl",
+              "name": "Primary Lưu",
+              "width": "fill_container",
+              "descendants": {
+                "vt1v3": {
+                  "content": "Lưu công việc"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "aIxdY",
+      "x": 5170,
+      "y": 11500,
+      "name": "TSK-01 · Mobile Light — Biểu mẫu công việc · editor · unsaved",
+      "theme": {
+        "mode": "light"
+      },
+      "clip": true,
+      "width": 390,
+      "height": 844,
+      "fill": "$fb.color.surface.canvas",
+      "layout": "vertical",
+      "children": [
+        {
+          "id": "iHMMn",
+          "type": "ref",
+          "ref": "q52dF",
+          "name": "Sheet Header",
+          "width": "fill_container",
+          "descendants": {
+            "B8Z2bt": {
+              "icon": "chevron-left"
+            },
+            "BuGUE": {
+              "content": "Công việc mới"
+            },
+            "V1AIti": {
+              "icon": "x"
+            }
+          }
+        },
+        {
+          "type": "frame",
+          "id": "KP1bK",
+          "name": "Sheet Body",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 12,
+          "padding": 16,
+          "children": [
+            {
+              "id": "Emxmb",
+              "type": "ref",
+              "ref": "YmT4f",
+              "name": "Field Tiêu đề",
+              "width": "fill_container",
+              "descendants": {
+                "d4Gsd": {
+                  "content": "Tiêu đề"
+                },
+                "oKO7H": {
+                  "content": "Chuẩn hoá hợp đồng lỗi cho API",
+                  "fill": "$fb.color.text.primary"
+                },
+                "pdsnZ": {
+                  "enabled": false
+                }
+              }
+            },
+            {
+              "type": "frame",
+              "id": "cl7Cb",
+              "name": "Row Danh mục / Ưu tiên",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "id": "x3U5SE",
+                  "type": "ref",
+                  "ref": "IX5Ro",
+                  "name": "Select Danh mục",
+                  "width": "fill_container",
+                  "descendants": {
+                    "bx0t5": {
+                      "content": "Danh mục"
+                    },
+                    "Sr7qW": {
+                      "enabled": false
+                    },
+                    "kY88o": {
+                      "content": "Tính năng"
+                    },
+                    "k0VuYj": {
+                      "enabled": false
+                    }
+                  }
+                },
+                {
+                  "id": "lmwsd",
+                  "type": "ref",
+                  "ref": "IX5Ro",
+                  "name": "Select Ưu tiên",
+                  "width": "fill_container",
+                  "descendants": {
+                    "bx0t5": {
+                      "content": "Ưu tiên"
+                    },
+                    "Sr7qW": {
+                      "enabled": false
+                    },
+                    "kY88o": {
+                      "content": "Cao"
+                    },
+                    "k0VuYj": {
+                      "enabled": false
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "i8lCM",
+              "name": "Row Ngày",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "id": "QuI5O",
+                  "type": "ref",
+                  "ref": "eZ7gG",
+                  "name": "Date Bắt đầu",
+                  "width": "fill_container",
+                  "descendants": {
+                    "iXmsF": {
+                      "content": "Ngày bắt đầu"
+                    },
+                    "pV9Gc": {
+                      "enabled": false
+                    },
+                    "ds1Z7": {
+                      "content": "05/09/2026"
+                    },
+                    "yPpQ3": {
+                      "enabled": false
+                    }
+                  }
+                },
+                {
+                  "id": "n9zEf2",
+                  "type": "ref",
+                  "ref": "eZ7gG",
+                  "name": "Date Kết thúc",
+                  "width": "fill_container",
+                  "descendants": {
+                    "iXmsF": {
+                      "content": "Ngày kết thúc"
+                    },
+                    "pV9Gc": {
+                      "enabled": false
+                    },
+                    "l56Uph": {
+                      "stroke": "$fb.color.intent.danger.text"
+                    },
+                    "ds1Z7": {
+                      "content": "03/09/2026"
+                    },
+                    "yPpQ3": {
+                      "enabled": false
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "id": "OVMIe",
+              "type": "ref",
+              "ref": "CczKB",
+              "name": "Alert validation",
+              "width": "fill_container",
+              "descendants": {
+                "eCSlK": {
+                  "content": "Ngày bắt đầu phải trước hoặc bằng ngày kết thúc."
+                }
+              }
+            },
+            {
+              "id": "Vo0mi",
+              "type": "ref",
+              "ref": "IX5Ro",
+              "name": "Select Người rà soát",
+              "width": "fill_container",
+              "descendants": {
+                "bx0t5": {
+                  "content": "Người rà soát"
+                },
+                "kY88o": {
+                  "content": "Trần Linh"
+                },
+                "k0VuYj": {
+                  "content": "Bắt buộc vì cột đích có requiresReviewer; phải khác người thực hiện."
+                }
+              }
+            },
+            {
+              "id": "wxkEF",
+              "type": "ref",
+              "ref": "YmT4f",
+              "name": "Field Liên kết bằng chứng",
+              "width": "fill_container",
+              "descendants": {
+                "d4Gsd": {
+                  "content": "Liên kết bằng chứng"
+                },
+                "GT68x": {
+                  "enabled": false
+                },
+                "oKO7H": {
+                  "content": "https://drive.google.com/…",
+                  "fill": "$fb.color.text.primary"
+                },
+                "pdsnZ": {
+                  "content": "Tuỳ chọn. Chỉ https, tối đa 2048 ký tự; hiển thị host dạng chữ, không tải preview."
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "n5GQy2",
+          "name": "Sheet Footer",
+          "width": "fill_container",
+          "fill": "$fb.color.surface.raised",
+          "stroke": "$fb.color.border.default",
+          "strokeWidth": {
+            "top": 1
+          },
+          "gap": 10,
+          "padding": 16,
+          "children": [
+            {
+              "id": "mQ3Xf",
+              "type": "ref",
+              "ref": "bmQYf",
+              "name": "Secondary Hủy",
+              "width": "fill_container",
+              "descendants": {
+                "d9bGWx": {
+                  "content": "Hủy"
+                }
+              }
+            },
+            {
+              "id": "CssOt",
+              "type": "ref",
+              "ref": "axWhl",
+              "name": "Primary Lưu",
+              "width": "fill_container",
+              "descendants": {
+                "vt1v3": {
+                  "content": "Lưu công việc"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "N0RU1t",
+          "layoutPosition": "absolute",
+          "x": 0,
+          "y": 0,
+          "name": "Discard backdrop",
+          "width": 390,
+          "height": 844,
+          "fill": "$fb.color.overlay.scrim"
+        },
+        {
+          "type": "frame",
+          "id": "hi4b5",
+          "layoutPosition": "absolute",
+          "x": 27,
+          "y": 300,
+          "name": "Discard dialog",
+          "width": 336,
+          "fill": "$fb.color.surface.raised",
+          "cornerRadius": 16,
+          "stroke": "$fb.color.border.default",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "gap": 14,
+          "padding": 20,
+          "children": [
+            {
+              "type": "text",
+              "id": "YYumz",
+              "name": "Dialog title",
+              "fill": "$fb.color.text.primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Bỏ thay đổi chưa lưu?",
+              "fontFamily": "Inter",
+              "fontSize": 17,
+              "fontWeight": "700"
+            },
+            {
+              "type": "text",
+              "id": "hiCUq",
+              "name": "Dialog body",
+              "fill": "$fb.color.text.muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Biểu mẫu đang có thay đổi chưa gửi. Tiếp tục chỉnh sửa để giữ nội dung, hoặc bỏ thay đổi và đóng.",
+              "lineHeight": 1.5,
+              "fontFamily": "Inter",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "tOMjt",
+              "name": "Dialog actions",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "id": "GfzZb",
+                  "type": "ref",
+                  "ref": "axWhl",
+                  "name": "Primary Tiếp tục chỉnh sửa",
+                  "width": "fill_container",
+                  "descendants": {
+                    "vt1v3": {
+                      "content": "Tiếp tục chỉnh sửa"
+                    }
+                  }
+                },
+                {
+                  "id": "podnP",
+                  "type": "ref",
+                  "ref": "bmQYf",
+                  "name": "Secondary Bỏ thay đổi",
+                  "width": "fill_container",
+                  "descendants": {
+                    "d9bGWx": {
+                      "content": "Bỏ thay đổi",
+                      "fill": "$fb.color.intent.danger.text"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "T5OGNN",
+      "x": 4700,
+      "y": 12600,
+      "name": "TSK-01 · Mobile Dark — Biểu mẫu công việc · editor · validation",
+      "theme": {
+        "mode": "dark"
+      },
+      "clip": true,
+      "width": 390,
+      "height": 844,
+      "fill": "$fb.color.surface.canvas",
+      "layout": "vertical",
+      "children": [
+        {
+          "id": "dMxmq",
+          "type": "ref",
+          "ref": "q52dF",
+          "name": "Sheet Header",
+          "width": "fill_container",
+          "descendants": {
+            "B8Z2bt": {
+              "icon": "chevron-left"
+            },
+            "BuGUE": {
+              "content": "Công việc mới"
+            },
+            "V1AIti": {
+              "icon": "x"
+            }
+          }
+        },
+        {
+          "type": "frame",
+          "id": "G8QfJ",
+          "name": "Sheet Body",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 12,
+          "padding": 16,
+          "children": [
+            {
+              "id": "heFPt",
+              "type": "ref",
+              "ref": "YmT4f",
+              "name": "Field Tiêu đề",
+              "width": "fill_container",
+              "descendants": {
+                "d4Gsd": {
+                  "content": "Tiêu đề"
+                },
+                "oKO7H": {
+                  "content": "Chuẩn hoá hợp đồng lỗi cho API",
+                  "fill": "$fb.color.text.primary"
+                },
+                "pdsnZ": {
+                  "enabled": false
+                }
+              }
+            },
+            {
+              "type": "frame",
+              "id": "A3syym",
+              "name": "Row Danh mục / Ưu tiên",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "id": "LIQZG",
+                  "type": "ref",
+                  "ref": "IX5Ro",
+                  "name": "Select Danh mục",
+                  "width": "fill_container",
+                  "descendants": {
+                    "bx0t5": {
+                      "content": "Danh mục"
+                    },
+                    "Sr7qW": {
+                      "enabled": false
+                    },
+                    "kY88o": {
+                      "content": "Tính năng"
+                    },
+                    "k0VuYj": {
+                      "enabled": false
+                    }
+                  }
+                },
+                {
+                  "id": "S9eVnn",
+                  "type": "ref",
+                  "ref": "IX5Ro",
+                  "name": "Select Ưu tiên",
+                  "width": "fill_container",
+                  "descendants": {
+                    "bx0t5": {
+                      "content": "Ưu tiên"
+                    },
+                    "Sr7qW": {
+                      "enabled": false
+                    },
+                    "kY88o": {
+                      "content": "Cao"
+                    },
+                    "k0VuYj": {
+                      "enabled": false
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "YGmPJ",
+              "name": "Row Ngày",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "id": "zuzE5",
+                  "type": "ref",
+                  "ref": "eZ7gG",
+                  "name": "Date Bắt đầu",
+                  "width": "fill_container",
+                  "descendants": {
+                    "iXmsF": {
+                      "content": "Ngày bắt đầu"
+                    },
+                    "pV9Gc": {
+                      "enabled": false
+                    },
+                    "ds1Z7": {
+                      "content": "05/09/2026"
+                    },
+                    "yPpQ3": {
+                      "enabled": false
+                    }
+                  }
+                },
+                {
+                  "id": "Dr5zo",
+                  "type": "ref",
+                  "ref": "eZ7gG",
+                  "name": "Date Kết thúc",
+                  "width": "fill_container",
+                  "descendants": {
+                    "iXmsF": {
+                      "content": "Ngày kết thúc"
+                    },
+                    "pV9Gc": {
+                      "enabled": false
+                    },
+                    "l56Uph": {
+                      "stroke": "$fb.color.intent.danger.text"
+                    },
+                    "ds1Z7": {
+                      "content": "03/09/2026"
+                    },
+                    "yPpQ3": {
+                      "enabled": false
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "id": "KfHiL",
+              "type": "ref",
+              "ref": "CczKB",
+              "name": "Alert validation",
+              "width": "fill_container",
+              "descendants": {
+                "eCSlK": {
+                  "content": "Ngày bắt đầu phải trước hoặc bằng ngày kết thúc."
+                }
+              }
+            },
+            {
+              "id": "fgRfU",
+              "type": "ref",
+              "ref": "IX5Ro",
+              "name": "Select Người rà soát",
+              "width": "fill_container",
+              "descendants": {
+                "bx0t5": {
+                  "content": "Người rà soát"
+                },
+                "kY88o": {
+                  "content": "Trần Linh"
+                },
+                "k0VuYj": {
+                  "content": "Bắt buộc vì cột đích có requiresReviewer; phải khác người thực hiện."
+                }
+              }
+            },
+            {
+              "id": "T1h7L",
+              "type": "ref",
+              "ref": "YmT4f",
+              "name": "Field Liên kết bằng chứng",
+              "width": "fill_container",
+              "descendants": {
+                "d4Gsd": {
+                  "content": "Liên kết bằng chứng"
+                },
+                "GT68x": {
+                  "enabled": false
+                },
+                "oKO7H": {
+                  "content": "https://drive.google.com/…",
+                  "fill": "$fb.color.text.primary"
+                },
+                "pdsnZ": {
+                  "content": "Tuỳ chọn. Chỉ https, tối đa 2048 ký tự; hiển thị host dạng chữ, không tải preview."
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "ebeh1",
+          "name": "Sheet Footer",
+          "width": "fill_container",
+          "fill": "$fb.color.surface.raised",
+          "stroke": "$fb.color.border.default",
+          "strokeWidth": {
+            "top": 1
+          },
+          "gap": 10,
+          "padding": 16,
+          "children": [
+            {
+              "id": "Va9Cr",
+              "type": "ref",
+              "ref": "bmQYf",
+              "name": "Secondary Hủy",
+              "width": "fill_container",
+              "descendants": {
+                "d9bGWx": {
+                  "content": "Hủy"
+                }
+              }
+            },
+            {
+              "id": "X5iMf",
+              "type": "ref",
+              "ref": "axWhl",
+              "name": "Primary Lưu",
+              "width": "fill_container",
+              "descendants": {
+                "vt1v3": {
+                  "content": "Lưu công việc"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "hwxT1",
+      "x": 5170,
+      "y": 12600,
+      "name": "TSK-01 · Mobile Dark — Biểu mẫu công việc · editor · unsaved",
+      "theme": {
+        "mode": "dark"
+      },
+      "clip": true,
+      "width": 390,
+      "height": 844,
+      "fill": "$fb.color.surface.canvas",
+      "layout": "vertical",
+      "children": [
+        {
+          "id": "q4C7x",
+          "type": "ref",
+          "ref": "q52dF",
+          "name": "Sheet Header",
+          "width": "fill_container",
+          "descendants": {
+            "B8Z2bt": {
+              "icon": "chevron-left"
+            },
+            "BuGUE": {
+              "content": "Công việc mới"
+            },
+            "V1AIti": {
+              "icon": "x"
+            }
+          }
+        },
+        {
+          "type": "frame",
+          "id": "f6uSr",
+          "name": "Sheet Body",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 12,
+          "padding": 16,
+          "children": [
+            {
+              "id": "aBsmd",
+              "type": "ref",
+              "ref": "YmT4f",
+              "name": "Field Tiêu đề",
+              "width": "fill_container",
+              "descendants": {
+                "d4Gsd": {
+                  "content": "Tiêu đề"
+                },
+                "oKO7H": {
+                  "content": "Chuẩn hoá hợp đồng lỗi cho API",
+                  "fill": "$fb.color.text.primary"
+                },
+                "pdsnZ": {
+                  "enabled": false
+                }
+              }
+            },
+            {
+              "type": "frame",
+              "id": "I4BhX",
+              "name": "Row Danh mục / Ưu tiên",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "id": "hlJb5",
+                  "type": "ref",
+                  "ref": "IX5Ro",
+                  "name": "Select Danh mục",
+                  "width": "fill_container",
+                  "descendants": {
+                    "bx0t5": {
+                      "content": "Danh mục"
+                    },
+                    "Sr7qW": {
+                      "enabled": false
+                    },
+                    "kY88o": {
+                      "content": "Tính năng"
+                    },
+                    "k0VuYj": {
+                      "enabled": false
+                    }
+                  }
+                },
+                {
+                  "id": "Qt7Gw",
+                  "type": "ref",
+                  "ref": "IX5Ro",
+                  "name": "Select Ưu tiên",
+                  "width": "fill_container",
+                  "descendants": {
+                    "bx0t5": {
+                      "content": "Ưu tiên"
+                    },
+                    "Sr7qW": {
+                      "enabled": false
+                    },
+                    "kY88o": {
+                      "content": "Cao"
+                    },
+                    "k0VuYj": {
+                      "enabled": false
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "OU4Lu",
+              "name": "Row Ngày",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "id": "oabUN",
+                  "type": "ref",
+                  "ref": "eZ7gG",
+                  "name": "Date Bắt đầu",
+                  "width": "fill_container",
+                  "descendants": {
+                    "iXmsF": {
+                      "content": "Ngày bắt đầu"
+                    },
+                    "pV9Gc": {
+                      "enabled": false
+                    },
+                    "ds1Z7": {
+                      "content": "05/09/2026"
+                    },
+                    "yPpQ3": {
+                      "enabled": false
+                    }
+                  }
+                },
+                {
+                  "id": "n3w75",
+                  "type": "ref",
+                  "ref": "eZ7gG",
+                  "name": "Date Kết thúc",
+                  "width": "fill_container",
+                  "descendants": {
+                    "iXmsF": {
+                      "content": "Ngày kết thúc"
+                    },
+                    "pV9Gc": {
+                      "enabled": false
+                    },
+                    "l56Uph": {
+                      "stroke": "$fb.color.intent.danger.text"
+                    },
+                    "ds1Z7": {
+                      "content": "03/09/2026"
+                    },
+                    "yPpQ3": {
+                      "enabled": false
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "id": "R0KLo",
+              "type": "ref",
+              "ref": "CczKB",
+              "name": "Alert validation",
+              "width": "fill_container",
+              "descendants": {
+                "eCSlK": {
+                  "content": "Ngày bắt đầu phải trước hoặc bằng ngày kết thúc."
+                }
+              }
+            },
+            {
+              "id": "WdRxA",
+              "type": "ref",
+              "ref": "IX5Ro",
+              "name": "Select Người rà soát",
+              "width": "fill_container",
+              "descendants": {
+                "bx0t5": {
+                  "content": "Người rà soát"
+                },
+                "kY88o": {
+                  "content": "Trần Linh"
+                },
+                "k0VuYj": {
+                  "content": "Bắt buộc vì cột đích có requiresReviewer; phải khác người thực hiện."
+                }
+              }
+            },
+            {
+              "id": "Ev4OA",
+              "type": "ref",
+              "ref": "YmT4f",
+              "name": "Field Liên kết bằng chứng",
+              "width": "fill_container",
+              "descendants": {
+                "d4Gsd": {
+                  "content": "Liên kết bằng chứng"
+                },
+                "GT68x": {
+                  "enabled": false
+                },
+                "oKO7H": {
+                  "content": "https://drive.google.com/…",
+                  "fill": "$fb.color.text.primary"
+                },
+                "pdsnZ": {
+                  "content": "Tuỳ chọn. Chỉ https, tối đa 2048 ký tự; hiển thị host dạng chữ, không tải preview."
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "YSjtp",
+          "name": "Sheet Footer",
+          "width": "fill_container",
+          "fill": "$fb.color.surface.raised",
+          "stroke": "$fb.color.border.default",
+          "strokeWidth": {
+            "top": 1
+          },
+          "gap": 10,
+          "padding": 16,
+          "children": [
+            {
+              "id": "D5YIV",
+              "type": "ref",
+              "ref": "bmQYf",
+              "name": "Secondary Hủy",
+              "width": "fill_container",
+              "descendants": {
+                "d9bGWx": {
+                  "content": "Hủy"
+                }
+              }
+            },
+            {
+              "id": "IGXOB",
+              "type": "ref",
+              "ref": "axWhl",
+              "name": "Primary Lưu",
+              "width": "fill_container",
+              "descendants": {
+                "vt1v3": {
+                  "content": "Lưu công việc"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "type": "frame",
+          "id": "rrHsm",
+          "layoutPosition": "absolute",
+          "x": 0,
+          "y": 0,
+          "name": "Discard backdrop",
+          "width": 390,
+          "height": 844,
+          "fill": "$fb.color.overlay.scrim"
+        },
+        {
+          "type": "frame",
+          "id": "JMzHQ",
+          "layoutPosition": "absolute",
+          "x": 27,
+          "y": 300,
+          "name": "Discard dialog",
+          "width": 336,
+          "fill": "$fb.color.surface.raised",
+          "cornerRadius": 16,
+          "stroke": "$fb.color.border.default",
+          "strokeWidth": 1,
+          "layout": "vertical",
+          "gap": 14,
+          "padding": 20,
+          "children": [
+            {
+              "type": "text",
+              "id": "t3PQj",
+              "name": "Dialog title",
+              "fill": "$fb.color.text.primary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Bỏ thay đổi chưa lưu?",
+              "fontFamily": "Inter",
+              "fontSize": 17,
+              "fontWeight": "700"
+            },
+            {
+              "type": "text",
+              "id": "lsR88",
+              "name": "Dialog body",
+              "fill": "$fb.color.text.muted",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "Biểu mẫu đang có thay đổi chưa gửi. Tiếp tục chỉnh sửa để giữ nội dung, hoặc bỏ thay đổi và đóng.",
+              "lineHeight": 1.5,
+              "fontFamily": "Inter",
+              "fontSize": 13,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "frame",
+              "id": "f5Ixdm",
+              "name": "Dialog actions",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 8,
+              "children": [
+                {
+                  "id": "T3yJgB",
+                  "type": "ref",
+                  "ref": "axWhl",
+                  "name": "Primary Tiếp tục chỉnh sửa",
+                  "width": "fill_container",
+                  "descendants": {
+                    "vt1v3": {
+                      "content": "Tiếp tục chỉnh sửa"
+                    }
+                  }
+                },
+                {
+                  "id": "mAJzl",
+                  "type": "ref",
+                  "ref": "bmQYf",
+                  "name": "Secondary Bỏ thay đổi",
+                  "width": "fill_container",
+                  "descendants": {
+                    "d9bGWx": {
+                      "content": "Bỏ thay đổi",
+                      "fill": "$fb.color.intent.danger.text"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "FRMEy",
+      "x": 5640,
+      "y": 11500,
+      "name": "PRJ-04 · Mobile Light — Tổng quan dự án · owner · content",
+      "theme": {
+        "mode": "light"
+      },
+      "clip": true,
+      "width": 390,
+      "height": 844,
+      "fill": "$fb.color.surface.canvas",
+      "layout": "vertical",
+      "children": [
+        {
+          "id": "HuIbg",
+          "type": "ref",
+          "ref": "q52dF",
+          "name": "Header",
+          "width": "fill_container",
+          "descendants": {
+            "B8Z2bt": {
+              "icon": "chevron-left"
+            },
+            "BuGUE": {
+              "content": "Tổng quan"
+            },
+            "V1AIti": {
+              "icon": "circle-user-round"
+            }
+          }
+        },
+        {
+          "type": "frame",
+          "id": "FdsTY",
+          "name": "Content",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 14,
+          "padding": 16,
+          "children": [
+            {
+              "type": "frame",
+              "id": "e1QQ0",
+              "name": "Stat row 1",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "ZPvEQ",
+                  "name": "Stat Tổng công việc",
+                  "width": "fill_container",
+                  "fill": "$fb.color.surface.raised",
+                  "cornerRadius": 12,
+                  "stroke": "$fb.color.border.default",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "NpVDC",
+                      "name": "Label",
+                      "fill": "$fb.color.text.muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Tổng công việc",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "H8lzw",
+                      "name": "Value",
+                      "fill": "$fb.color.text.primary",
+                      "content": "24",
+                      "fontFamily": "Inter",
+                      "fontSize": 20,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ny9SM",
+                  "name": "Stat Hoàn thành",
+                  "width": "fill_container",
+                  "fill": "$fb.color.surface.raised",
+                  "cornerRadius": 12,
+                  "stroke": "$fb.color.border.default",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "HPOp2",
+                      "name": "Label",
+                      "fill": "$fb.color.text.muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Hoàn thành",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "wlpZk",
+                      "name": "Value",
+                      "fill": "$fb.color.intent.success.text",
+                      "content": "58%",
+                      "fontFamily": "Inter",
+                      "fontSize": 20,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "h0Bol",
+              "name": "Stat row 2",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "honYo",
+                  "name": "Stat Quá hạn",
+                  "width": "fill_container",
+                  "fill": "$fb.color.surface.raised",
+                  "cornerRadius": 12,
+                  "stroke": "$fb.color.border.default",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "CDvnT",
+                      "name": "Label",
+                      "fill": "$fb.color.text.muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Quá hạn",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "u1mj7x",
+                      "name": "Value",
+                      "fill": "$fb.color.intent.danger.text",
+                      "content": "2",
+                      "fontFamily": "Inter",
+                      "fontSize": 20,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "B3kUb",
+                  "name": "Stat Đang rà soát",
+                  "width": "fill_container",
+                  "fill": "$fb.color.surface.raised",
+                  "cornerRadius": 12,
+                  "stroke": "$fb.color.border.default",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "joYSs",
+                      "name": "Label",
+                      "fill": "$fb.color.text.muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Đang rà soát",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "leNAQ",
+                      "name": "Value",
+                      "fill": "$fb.color.intent.warning.text",
+                      "content": "1",
+                      "fontFamily": "Inter",
+                      "fontSize": 20,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "FXwom",
+              "name": "Tiến độ theo cột",
+              "width": "fill_container",
+              "fill": "$fb.color.surface.raised",
+              "cornerRadius": 12,
+              "stroke": "$fb.color.border.default",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 10,
+              "padding": 14,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "Hncr4",
+                  "name": "Section title",
+                  "fill": "$fb.color.text.primary",
+                  "content": "Tiến độ theo cột",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "I7C2Al",
+                  "name": "Bar Cần thực hiện",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "gJV1c",
+                      "name": "Row",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "g1P2m1",
+                          "name": "Name",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Cần thực hiện",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "KHMhp",
+                          "name": "Legend",
+                          "fill": "$fb.color.text.muted",
+                          "content": "3 / 8 công việc",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "j3Txl",
+                      "name": "Track",
+                      "width": "fill_container",
+                      "height": 8,
+                      "fill": "$fb.color.surface.muted",
+                      "cornerRadius": 999,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "eKKYp",
+                          "name": "Fill",
+                          "width": 60,
+                          "height": 8,
+                          "fill": "$fb.color.brand.surface",
+                          "cornerRadius": 999
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "U07hWO",
+                  "name": "Bar Đang thực hiện",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "qCo4q",
+                      "name": "Row",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "t6xQGC",
+                          "name": "Name",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Đang thực hiện",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "BQQ49",
+                          "name": "Legend",
+                          "fill": "$fb.color.text.muted",
+                          "content": "5 / 9 công việc",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "R6xA5T",
+                      "name": "Track",
+                      "width": "fill_container",
+                      "height": 8,
+                      "fill": "$fb.color.surface.muted",
+                      "cornerRadius": 999,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "FBReU",
+                          "name": "Fill",
+                          "width": 100,
+                          "height": 8,
+                          "fill": "$fb.color.brand.surface",
+                          "cornerRadius": 999
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "cwcQn",
+                  "name": "Bar Chờ duyệt",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "H1AAK",
+                      "name": "Row",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "euZn2",
+                          "name": "Name",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Chờ duyệt",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "g2ht0h",
+                          "name": "Legend",
+                          "fill": "$fb.color.text.muted",
+                          "content": "2 / 4 công việc",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "PAb4t",
+                      "name": "Track",
+                      "width": "fill_container",
+                      "height": 8,
+                      "fill": "$fb.color.surface.muted",
+                      "cornerRadius": 999,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "bvxak",
+                          "name": "Fill",
+                          "width": 45,
+                          "height": 8,
+                          "fill": "$fb.color.brand.surface",
+                          "cornerRadius": 999
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "jq0l7",
+                  "name": "Bar Hoàn thành",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "ZNrBI",
+                      "name": "Row",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "J2BqY",
+                          "name": "Name",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Hoàn thành",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "UWvz6",
+                          "name": "Legend",
+                          "fill": "$fb.color.text.muted",
+                          "content": "6 / 6 công việc",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "T3KyH4",
+                      "name": "Track",
+                      "width": "fill_container",
+                      "height": 8,
+                      "fill": "$fb.color.surface.muted",
+                      "cornerRadius": 999,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "rLgOb",
+                          "name": "Fill",
+                          "width": 140,
+                          "height": 8,
+                          "fill": "$fb.color.brand.surface",
+                          "cornerRadius": 999
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "vy0Zj",
+              "name": "Tải công việc",
+              "width": "fill_container",
+              "fill": "$fb.color.surface.raised",
+              "cornerRadius": 12,
+              "stroke": "$fb.color.border.default",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 10,
+              "padding": 14,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "jFDrD",
+                  "name": "Section title",
+                  "fill": "$fb.color.text.primary",
+                  "content": "Tải công việc theo thành viên",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "WxNZC",
+                  "name": "Member Nguyễn Khánh",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "UyNhB",
+                      "name": "Avatar",
+                      "width": 26,
+                      "height": 26,
+                      "fill": "$fb.color.brand.subtle",
+                      "cornerRadius": 999,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "nTAGF",
+                          "name": "Initials",
+                          "fill": "$fb.color.brand.text",
+                          "content": "NK",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "qKx3D",
+                      "name": "Bars",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "E2P13X",
+                          "name": "Row",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "U70WLM",
+                              "name": "Name",
+                              "fill": "$fb.color.text.secondary",
+                              "content": "Nguyễn Khánh",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "VRDol",
+                              "name": "Legend",
+                              "fill": "$fb.color.text.muted",
+                              "content": "9 công việc",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "FHXP8",
+                          "name": "Track",
+                          "width": "fill_container",
+                          "height": 6,
+                          "fill": "$fb.color.surface.muted",
+                          "cornerRadius": 999,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "w57cQ8",
+                              "name": "Fill",
+                              "width": 120,
+                              "height": 6,
+                              "fill": "$fb.color.brand.surface-soft",
+                              "cornerRadius": 999
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Jtckc",
+                  "name": "Member Trần Linh",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "A9HR9",
+                      "name": "Avatar",
+                      "width": 26,
+                      "height": 26,
+                      "fill": "$fb.color.brand.subtle",
+                      "cornerRadius": 999,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "OO9u9",
+                          "name": "Initials",
+                          "fill": "$fb.color.brand.text",
+                          "content": "TL",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "wV3oS",
+                      "name": "Bars",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "zGRyU",
+                          "name": "Row",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "FmRZQ",
+                              "name": "Name",
+                              "fill": "$fb.color.text.secondary",
+                              "content": "Trần Linh",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "XuJkB",
+                              "name": "Legend",
+                              "fill": "$fb.color.text.muted",
+                              "content": "7 công việc",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "qFauc",
+                          "name": "Track",
+                          "width": "fill_container",
+                          "height": 6,
+                          "fill": "$fb.color.surface.muted",
+                          "cornerRadius": 999,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "aF7uf",
+                              "name": "Fill",
+                              "width": 95,
+                              "height": 6,
+                              "fill": "$fb.color.brand.surface-soft",
+                              "cornerRadius": 999
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "Xpqqx",
+                  "name": "Member An Trần",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "gxAIz",
+                      "name": "Avatar",
+                      "width": 26,
+                      "height": 26,
+                      "fill": "$fb.color.brand.subtle",
+                      "cornerRadius": 999,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "F7jJSN",
+                          "name": "Initials",
+                          "fill": "$fb.color.brand.text",
+                          "content": "AT",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "lImVz",
+                      "name": "Bars",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "xByTg",
+                          "name": "Row",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "F3zfAG",
+                              "name": "Name",
+                              "fill": "$fb.color.text.secondary",
+                              "content": "An Trần",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "VqP1U",
+                              "name": "Legend",
+                              "fill": "$fb.color.text.muted",
+                              "content": "4 công việc",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "BVdHE",
+                          "name": "Track",
+                          "width": "fill_container",
+                          "height": 6,
+                          "fill": "$fb.color.surface.muted",
+                          "cornerRadius": 999,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "pPa9X",
+                              "name": "Fill",
+                              "width": 55,
+                              "height": 6,
+                              "fill": "$fb.color.brand.surface-soft",
+                              "cornerRadius": 999
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "hDZs2",
+              "name": "Export CTA",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 6,
+              "children": [
+                {
+                  "id": "r3YMOF",
+                  "type": "ref",
+                  "ref": "axWhl",
+                  "name": "Primary Xuất tiến độ",
+                  "width": "fill_container",
+                  "descendants": {
+                    "vt1v3": {
+                      "content": "Xuất tiến độ"
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "id": "DcmSh",
+                  "name": "Capability note",
+                  "fill": "$fb.color.text.muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Chỉ hiện khi server trả capability report:export (Owner, Phase 1.1).",
+                  "lineHeight": 1.5,
+                  "fontFamily": "Inter",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "yJQYf",
+      "x": 6110,
+      "y": 11500,
+      "name": "PRJ-04 · Mobile Light — Tổng quan dự án · viewer · read-only",
+      "theme": {
+        "mode": "light"
+      },
+      "clip": true,
+      "width": 390,
+      "height": 844,
+      "fill": "$fb.color.surface.canvas",
+      "layout": "vertical",
+      "children": [
+        {
+          "id": "ubukc",
+          "type": "ref",
+          "ref": "q52dF",
+          "name": "Header",
+          "width": "fill_container",
+          "descendants": {
+            "B8Z2bt": {
+              "icon": "chevron-left"
+            },
+            "BuGUE": {
+              "content": "Tổng quan"
+            },
+            "V1AIti": {
+              "icon": "circle-user-round"
+            }
+          }
+        },
+        {
+          "type": "frame",
+          "id": "OS7Au",
+          "name": "Content",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 14,
+          "padding": 16,
+          "children": [
+            {
+              "id": "e4NNO",
+              "type": "ref",
+              "ref": "e3Lk99",
+              "name": "Role Badge",
+              "fill": "$fb.color.surface.muted",
+              "descendants": {
+                "Oq5tC": {
+                  "content": "Chỉ xem · Viewer",
+                  "fill": "$fb.color.text.secondary"
+                }
+              }
+            },
+            {
+              "type": "frame",
+              "id": "SBac5",
+              "name": "Stat row 1",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "asWI1",
+                  "name": "Stat Tổng công việc",
+                  "width": "fill_container",
+                  "fill": "$fb.color.surface.raised",
+                  "cornerRadius": 12,
+                  "stroke": "$fb.color.border.default",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "xjqIc",
+                      "name": "Label",
+                      "fill": "$fb.color.text.muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Tổng công việc",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "zpsQU",
+                      "name": "Value",
+                      "fill": "$fb.color.text.primary",
+                      "content": "24",
+                      "fontFamily": "Inter",
+                      "fontSize": 20,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "awmao",
+                  "name": "Stat Hoàn thành",
+                  "width": "fill_container",
+                  "fill": "$fb.color.surface.raised",
+                  "cornerRadius": 12,
+                  "stroke": "$fb.color.border.default",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "aBUcT",
+                      "name": "Label",
+                      "fill": "$fb.color.text.muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Hoàn thành",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "YkGle",
+                      "name": "Value",
+                      "fill": "$fb.color.intent.success.text",
+                      "content": "58%",
+                      "fontFamily": "Inter",
+                      "fontSize": 20,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "tyU2t",
+              "name": "Stat row 2",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "a10xw",
+                  "name": "Stat Quá hạn",
+                  "width": "fill_container",
+                  "fill": "$fb.color.surface.raised",
+                  "cornerRadius": 12,
+                  "stroke": "$fb.color.border.default",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "WaOVQ",
+                      "name": "Label",
+                      "fill": "$fb.color.text.muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Quá hạn",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "oOvar",
+                      "name": "Value",
+                      "fill": "$fb.color.intent.danger.text",
+                      "content": "2",
+                      "fontFamily": "Inter",
+                      "fontSize": 20,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "E5pUF",
+                  "name": "Stat Đang rà soát",
+                  "width": "fill_container",
+                  "fill": "$fb.color.surface.raised",
+                  "cornerRadius": 12,
+                  "stroke": "$fb.color.border.default",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "tniVc",
+                      "name": "Label",
+                      "fill": "$fb.color.text.muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Đang rà soát",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "arT6D",
+                      "name": "Value",
+                      "fill": "$fb.color.intent.warning.text",
+                      "content": "1",
+                      "fontFamily": "Inter",
+                      "fontSize": 20,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "y7JRmg",
+              "name": "Tiến độ theo cột",
+              "width": "fill_container",
+              "fill": "$fb.color.surface.raised",
+              "cornerRadius": 12,
+              "stroke": "$fb.color.border.default",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 10,
+              "padding": 14,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "UvYE8",
+                  "name": "Section title",
+                  "fill": "$fb.color.text.primary",
+                  "content": "Tiến độ theo cột",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "hWDuE",
+                  "name": "Bar Cần thực hiện",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "U4CzhM",
+                      "name": "Row",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "sdrs6",
+                          "name": "Name",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Cần thực hiện",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "hHLVS",
+                          "name": "Legend",
+                          "fill": "$fb.color.text.muted",
+                          "content": "3 / 8 công việc",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mKYXr",
+                      "name": "Track",
+                      "width": "fill_container",
+                      "height": 8,
+                      "fill": "$fb.color.surface.muted",
+                      "cornerRadius": 999,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "sqLiV",
+                          "name": "Fill",
+                          "width": 60,
+                          "height": 8,
+                          "fill": "$fb.color.brand.surface",
+                          "cornerRadius": 999
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "X6SvAH",
+                  "name": "Bar Đang thực hiện",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "KjnNy",
+                      "name": "Row",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Qr3vG",
+                          "name": "Name",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Đang thực hiện",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "s0a9a",
+                          "name": "Legend",
+                          "fill": "$fb.color.text.muted",
+                          "content": "5 / 9 công việc",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "o1KZxU",
+                      "name": "Track",
+                      "width": "fill_container",
+                      "height": 8,
+                      "fill": "$fb.color.surface.muted",
+                      "cornerRadius": 999,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "p98Jk6",
+                          "name": "Fill",
+                          "width": 100,
+                          "height": 8,
+                          "fill": "$fb.color.brand.surface",
+                          "cornerRadius": 999
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "xGVyp",
+                  "name": "Bar Chờ duyệt",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "GyMyw",
+                      "name": "Row",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "rzDL5",
+                          "name": "Name",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Chờ duyệt",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "QbvXB",
+                          "name": "Legend",
+                          "fill": "$fb.color.text.muted",
+                          "content": "2 / 4 công việc",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mFkaw",
+                      "name": "Track",
+                      "width": "fill_container",
+                      "height": 8,
+                      "fill": "$fb.color.surface.muted",
+                      "cornerRadius": 999,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "CBZPD",
+                          "name": "Fill",
+                          "width": 45,
+                          "height": 8,
+                          "fill": "$fb.color.brand.surface",
+                          "cornerRadius": 999
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "u1mAAC",
+                  "name": "Bar Hoàn thành",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "IaKHm",
+                      "name": "Row",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "D9sIJK",
+                          "name": "Name",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Hoàn thành",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "M4KMmN",
+                          "name": "Legend",
+                          "fill": "$fb.color.text.muted",
+                          "content": "6 / 6 công việc",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "TILqQ",
+                      "name": "Track",
+                      "width": "fill_container",
+                      "height": 8,
+                      "fill": "$fb.color.surface.muted",
+                      "cornerRadius": 999,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "kcOjD",
+                          "name": "Fill",
+                          "width": 140,
+                          "height": 8,
+                          "fill": "$fb.color.brand.surface",
+                          "cornerRadius": 999
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "MiYbt",
+              "name": "Tải công việc",
+              "width": "fill_container",
+              "fill": "$fb.color.surface.raised",
+              "cornerRadius": 12,
+              "stroke": "$fb.color.border.default",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 10,
+              "padding": 14,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "zvkFR",
+                  "name": "Section title",
+                  "fill": "$fb.color.text.primary",
+                  "content": "Tải công việc theo thành viên",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "oje0j",
+                  "name": "Member Nguyễn Khánh",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "nclJo",
+                      "name": "Avatar",
+                      "width": 26,
+                      "height": 26,
+                      "fill": "$fb.color.brand.subtle",
+                      "cornerRadius": 999,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Vb7d9",
+                          "name": "Initials",
+                          "fill": "$fb.color.brand.text",
+                          "content": "NK",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "DvVwr",
+                      "name": "Bars",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "bGTm7",
+                          "name": "Row",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "yjNy6",
+                              "name": "Name",
+                              "fill": "$fb.color.text.secondary",
+                              "content": "Nguyễn Khánh",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "LRu7t",
+                              "name": "Legend",
+                              "fill": "$fb.color.text.muted",
+                              "content": "9 công việc",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "cIuV1",
+                          "name": "Track",
+                          "width": "fill_container",
+                          "height": 6,
+                          "fill": "$fb.color.surface.muted",
+                          "cornerRadius": 999,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "GytqE",
+                              "name": "Fill",
+                              "width": 120,
+                              "height": 6,
+                              "fill": "$fb.color.brand.surface-soft",
+                              "cornerRadius": 999
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "t8c8zB",
+                  "name": "Member Trần Linh",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "a0vZIG",
+                      "name": "Avatar",
+                      "width": 26,
+                      "height": 26,
+                      "fill": "$fb.color.brand.subtle",
+                      "cornerRadius": 999,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "l8GAvy",
+                          "name": "Initials",
+                          "fill": "$fb.color.brand.text",
+                          "content": "TL",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "fOEOy",
+                      "name": "Bars",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "x13sXC",
+                          "name": "Row",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "WZN8v",
+                              "name": "Name",
+                              "fill": "$fb.color.text.secondary",
+                              "content": "Trần Linh",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "O4TGK",
+                              "name": "Legend",
+                              "fill": "$fb.color.text.muted",
+                              "content": "7 công việc",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "dCcF7",
+                          "name": "Track",
+                          "width": "fill_container",
+                          "height": 6,
+                          "fill": "$fb.color.surface.muted",
+                          "cornerRadius": 999,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "kXd4m",
+                              "name": "Fill",
+                              "width": 95,
+                              "height": 6,
+                              "fill": "$fb.color.brand.surface-soft",
+                              "cornerRadius": 999
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "ZuZO2",
+                  "name": "Member An Trần",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "pcDtE",
+                      "name": "Avatar",
+                      "width": 26,
+                      "height": 26,
+                      "fill": "$fb.color.brand.subtle",
+                      "cornerRadius": 999,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "KMnrN",
+                          "name": "Initials",
+                          "fill": "$fb.color.brand.text",
+                          "content": "AT",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "e7gra",
+                      "name": "Bars",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "zmMuA",
+                          "name": "Row",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "Go945",
+                              "name": "Name",
+                              "fill": "$fb.color.text.secondary",
+                              "content": "An Trần",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "CNx97",
+                              "name": "Legend",
+                              "fill": "$fb.color.text.muted",
+                              "content": "4 công việc",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "KERUT",
+                          "name": "Track",
+                          "width": "fill_container",
+                          "height": 6,
+                          "fill": "$fb.color.surface.muted",
+                          "cornerRadius": 999,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "jlG8X",
+                              "name": "Fill",
+                              "width": 55,
+                              "height": 6,
+                              "fill": "$fb.color.brand.surface-soft",
+                              "cornerRadius": 999
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "SlYTo",
+              "x": 16,
+              "y": 548,
+              "name": "Export CTA",
+              "enabled": false,
+              "width": "fill_container(358)",
+              "layout": "vertical",
+              "gap": 6,
+              "children": [
+                {
+                  "id": "EyhDS",
+                  "type": "ref",
+                  "ref": "axWhl",
+                  "name": "Primary Xuất tiến độ",
+                  "width": "fill_container",
+                  "descendants": {
+                    "vt1v3": {
+                      "content": "Xuất tiến độ"
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "id": "J2oNqF",
+                  "name": "Capability note",
+                  "fill": "$fb.color.text.muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Chỉ hiện khi server trả capability report:export (Owner, Phase 1.1).",
+                  "lineHeight": 1.5,
+                  "fontFamily": "Inter",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "FEhkH",
+      "x": 5640,
+      "y": 12600,
+      "name": "PRJ-04 · Mobile Dark — Tổng quan dự án · owner · content",
+      "theme": {
+        "mode": "dark"
+      },
+      "clip": true,
+      "width": 390,
+      "height": 844,
+      "fill": "$fb.color.surface.canvas",
+      "layout": "vertical",
+      "children": [
+        {
+          "id": "pb7n7",
+          "type": "ref",
+          "ref": "q52dF",
+          "name": "Header",
+          "width": "fill_container",
+          "descendants": {
+            "B8Z2bt": {
+              "icon": "chevron-left"
+            },
+            "BuGUE": {
+              "content": "Tổng quan"
+            },
+            "V1AIti": {
+              "icon": "circle-user-round"
+            }
+          }
+        },
+        {
+          "type": "frame",
+          "id": "xEGOs",
+          "name": "Content",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 14,
+          "padding": 16,
+          "children": [
+            {
+              "type": "frame",
+              "id": "U6P90o",
+              "name": "Stat row 1",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "tMIM6",
+                  "name": "Stat Tổng công việc",
+                  "width": "fill_container",
+                  "fill": "$fb.color.surface.raised",
+                  "cornerRadius": 12,
+                  "stroke": "$fb.color.border.default",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "vGfEv",
+                      "name": "Label",
+                      "fill": "$fb.color.text.muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Tổng công việc",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "m08Z9",
+                      "name": "Value",
+                      "fill": "$fb.color.text.primary",
+                      "content": "24",
+                      "fontFamily": "Inter",
+                      "fontSize": 20,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "XoThl",
+                  "name": "Stat Hoàn thành",
+                  "width": "fill_container",
+                  "fill": "$fb.color.surface.raised",
+                  "cornerRadius": 12,
+                  "stroke": "$fb.color.border.default",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "BhieP",
+                      "name": "Label",
+                      "fill": "$fb.color.text.muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Hoàn thành",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "a1wLRz",
+                      "name": "Value",
+                      "fill": "$fb.color.intent.success.text",
+                      "content": "58%",
+                      "fontFamily": "Inter",
+                      "fontSize": 20,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "pP5I2",
+              "name": "Stat row 2",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "kqzTS",
+                  "name": "Stat Quá hạn",
+                  "width": "fill_container",
+                  "fill": "$fb.color.surface.raised",
+                  "cornerRadius": 12,
+                  "stroke": "$fb.color.border.default",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "Z0uUZ",
+                      "name": "Label",
+                      "fill": "$fb.color.text.muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Quá hạn",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "mAKIR",
+                      "name": "Value",
+                      "fill": "$fb.color.intent.danger.text",
+                      "content": "2",
+                      "fontFamily": "Inter",
+                      "fontSize": 20,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "HVhvp",
+                  "name": "Stat Đang rà soát",
+                  "width": "fill_container",
+                  "fill": "$fb.color.surface.raised",
+                  "cornerRadius": 12,
+                  "stroke": "$fb.color.border.default",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "ktIrm",
+                      "name": "Label",
+                      "fill": "$fb.color.text.muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Đang rà soát",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "A1L3D",
+                      "name": "Value",
+                      "fill": "$fb.color.intent.warning.text",
+                      "content": "1",
+                      "fontFamily": "Inter",
+                      "fontSize": 20,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "dYIvu",
+              "name": "Tiến độ theo cột",
+              "width": "fill_container",
+              "fill": "$fb.color.surface.raised",
+              "cornerRadius": 12,
+              "stroke": "$fb.color.border.default",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 10,
+              "padding": 14,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "L6MfdI",
+                  "name": "Section title",
+                  "fill": "$fb.color.text.primary",
+                  "content": "Tiến độ theo cột",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "L0bBil",
+                  "name": "Bar Cần thực hiện",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Fnvel",
+                      "name": "Row",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "VCp48",
+                          "name": "Name",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Cần thực hiện",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "b6hfz",
+                          "name": "Legend",
+                          "fill": "$fb.color.text.muted",
+                          "content": "3 / 8 công việc",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Yp16w",
+                      "name": "Track",
+                      "width": "fill_container",
+                      "height": 8,
+                      "fill": "$fb.color.surface.muted",
+                      "cornerRadius": 999,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "SBqYh",
+                          "name": "Fill",
+                          "width": 60,
+                          "height": 8,
+                          "fill": "$fb.color.brand.surface",
+                          "cornerRadius": 999
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "e11Stx",
+                  "name": "Bar Đang thực hiện",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Jaob3",
+                      "name": "Row",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "TZi2Z",
+                          "name": "Name",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Đang thực hiện",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "q0MvR",
+                          "name": "Legend",
+                          "fill": "$fb.color.text.muted",
+                          "content": "5 / 9 công việc",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "sEsP9",
+                      "name": "Track",
+                      "width": "fill_container",
+                      "height": 8,
+                      "fill": "$fb.color.surface.muted",
+                      "cornerRadius": 999,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "bY7M9",
+                          "name": "Fill",
+                          "width": 100,
+                          "height": 8,
+                          "fill": "$fb.color.brand.surface",
+                          "cornerRadius": 999
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "NTNpt",
+                  "name": "Bar Chờ duyệt",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "NiW0A",
+                      "name": "Row",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "nm53l",
+                          "name": "Name",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Chờ duyệt",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "K4ATC5",
+                          "name": "Legend",
+                          "fill": "$fb.color.text.muted",
+                          "content": "2 / 4 công việc",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "xu1fE",
+                      "name": "Track",
+                      "width": "fill_container",
+                      "height": 8,
+                      "fill": "$fb.color.surface.muted",
+                      "cornerRadius": 999,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "uaTz5",
+                          "name": "Fill",
+                          "width": 45,
+                          "height": 8,
+                          "fill": "$fb.color.brand.surface",
+                          "cornerRadius": 999
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "focmc",
+                  "name": "Bar Hoàn thành",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "q3syjv",
+                      "name": "Row",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "YpNfR",
+                          "name": "Name",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Hoàn thành",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "bI2if",
+                          "name": "Legend",
+                          "fill": "$fb.color.text.muted",
+                          "content": "6 / 6 công việc",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "CMVZk",
+                      "name": "Track",
+                      "width": "fill_container",
+                      "height": 8,
+                      "fill": "$fb.color.surface.muted",
+                      "cornerRadius": 999,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "Pn8XZ",
+                          "name": "Fill",
+                          "width": 140,
+                          "height": 8,
+                          "fill": "$fb.color.brand.surface",
+                          "cornerRadius": 999
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "CLZQp",
+              "name": "Tải công việc",
+              "width": "fill_container",
+              "fill": "$fb.color.surface.raised",
+              "cornerRadius": 12,
+              "stroke": "$fb.color.border.default",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 10,
+              "padding": 14,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "c4mait",
+                  "name": "Section title",
+                  "fill": "$fb.color.text.primary",
+                  "content": "Tải công việc theo thành viên",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "kfRY0",
+                  "name": "Member Nguyễn Khánh",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "jlxhW",
+                      "name": "Avatar",
+                      "width": 26,
+                      "height": 26,
+                      "fill": "$fb.color.brand.subtle",
+                      "cornerRadius": 999,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "CIlki",
+                          "name": "Initials",
+                          "fill": "$fb.color.brand.text",
+                          "content": "NK",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "gmAVs",
+                      "name": "Bars",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "r2tBr",
+                          "name": "Row",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "qlijZ",
+                              "name": "Name",
+                              "fill": "$fb.color.text.secondary",
+                              "content": "Nguyễn Khánh",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "i8bSO",
+                              "name": "Legend",
+                              "fill": "$fb.color.text.muted",
+                              "content": "9 công việc",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "WBXIf",
+                          "name": "Track",
+                          "width": "fill_container",
+                          "height": 6,
+                          "fill": "$fb.color.surface.muted",
+                          "cornerRadius": 999,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "eYDoS",
+                              "name": "Fill",
+                              "width": 120,
+                              "height": 6,
+                              "fill": "$fb.color.brand.surface-soft",
+                              "cornerRadius": 999
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "rC9EE",
+                  "name": "Member Trần Linh",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "YYFJ0",
+                      "name": "Avatar",
+                      "width": 26,
+                      "height": 26,
+                      "fill": "$fb.color.brand.subtle",
+                      "cornerRadius": 999,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "UUTRU",
+                          "name": "Initials",
+                          "fill": "$fb.color.brand.text",
+                          "content": "TL",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "yK3TE",
+                      "name": "Bars",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "F91HK7",
+                          "name": "Row",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "gmkW5",
+                              "name": "Name",
+                              "fill": "$fb.color.text.secondary",
+                              "content": "Trần Linh",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "S6EVj",
+                              "name": "Legend",
+                              "fill": "$fb.color.text.muted",
+                              "content": "7 công việc",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "KJfLY",
+                          "name": "Track",
+                          "width": "fill_container",
+                          "height": 6,
+                          "fill": "$fb.color.surface.muted",
+                          "cornerRadius": 999,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "b5lrEG",
+                              "name": "Fill",
+                              "width": 95,
+                              "height": 6,
+                              "fill": "$fb.color.brand.surface-soft",
+                              "cornerRadius": 999
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "R2CTj4",
+                  "name": "Member An Trần",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "tZ3XI",
+                      "name": "Avatar",
+                      "width": 26,
+                      "height": 26,
+                      "fill": "$fb.color.brand.subtle",
+                      "cornerRadius": 999,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Yczgf",
+                          "name": "Initials",
+                          "fill": "$fb.color.brand.text",
+                          "content": "AT",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "WVKzN",
+                      "name": "Bars",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "MyMCV",
+                          "name": "Row",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "tmtSs",
+                              "name": "Name",
+                              "fill": "$fb.color.text.secondary",
+                              "content": "An Trần",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "IE3ir",
+                              "name": "Legend",
+                              "fill": "$fb.color.text.muted",
+                              "content": "4 công việc",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "n02Sb",
+                          "name": "Track",
+                          "width": "fill_container",
+                          "height": 6,
+                          "fill": "$fb.color.surface.muted",
+                          "cornerRadius": 999,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "FKb6F",
+                              "name": "Fill",
+                              "width": 55,
+                              "height": 6,
+                              "fill": "$fb.color.brand.surface-soft",
+                              "cornerRadius": 999
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "WudwO",
+              "name": "Export CTA",
+              "width": "fill_container",
+              "layout": "vertical",
+              "gap": 6,
+              "children": [
+                {
+                  "id": "WmmjH",
+                  "type": "ref",
+                  "ref": "axWhl",
+                  "name": "Primary Xuất tiến độ",
+                  "width": "fill_container",
+                  "descendants": {
+                    "vt1v3": {
+                      "content": "Xuất tiến độ"
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "id": "kPgRP",
+                  "name": "Capability note",
+                  "fill": "$fb.color.text.muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Chỉ hiện khi server trả capability report:export (Owner, Phase 1.1).",
+                  "lineHeight": 1.5,
+                  "fontFamily": "Inter",
+                  "fontSize": 11,
+                  "fontWeight": "normal"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "frame",
+      "id": "Tdty1",
+      "x": 6110,
+      "y": 12600,
+      "name": "PRJ-04 · Mobile Dark — Tổng quan dự án · viewer · read-only",
+      "theme": {
+        "mode": "dark"
+      },
+      "clip": true,
+      "width": 390,
+      "height": 844,
+      "fill": "$fb.color.surface.canvas",
+      "layout": "vertical",
+      "children": [
+        {
+          "id": "QZryv",
+          "type": "ref",
+          "ref": "q52dF",
+          "name": "Header",
+          "width": "fill_container",
+          "descendants": {
+            "B8Z2bt": {
+              "icon": "chevron-left"
+            },
+            "BuGUE": {
+              "content": "Tổng quan"
+            },
+            "V1AIti": {
+              "icon": "circle-user-round"
+            }
+          }
+        },
+        {
+          "type": "frame",
+          "id": "yHlNb",
+          "name": "Content",
+          "width": "fill_container",
+          "height": "fill_container",
+          "layout": "vertical",
+          "gap": 14,
+          "padding": 16,
+          "children": [
+            {
+              "id": "X2mvf",
+              "type": "ref",
+              "ref": "e3Lk99",
+              "name": "Role Badge",
+              "fill": "$fb.color.surface.muted",
+              "descendants": {
+                "Oq5tC": {
+                  "content": "Chỉ xem · Viewer",
+                  "fill": "$fb.color.text.secondary"
+                }
+              }
+            },
+            {
+              "type": "frame",
+              "id": "KPuji",
+              "name": "Stat row 1",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "aG6nA",
+                  "name": "Stat Tổng công việc",
+                  "width": "fill_container",
+                  "fill": "$fb.color.surface.raised",
+                  "cornerRadius": 12,
+                  "stroke": "$fb.color.border.default",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "F4Eakm",
+                      "name": "Label",
+                      "fill": "$fb.color.text.muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Tổng công việc",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "pPIwn",
+                      "name": "Value",
+                      "fill": "$fb.color.text.primary",
+                      "content": "24",
+                      "fontFamily": "Inter",
+                      "fontSize": 20,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "RWVTa",
+                  "name": "Stat Hoàn thành",
+                  "width": "fill_container",
+                  "fill": "$fb.color.surface.raised",
+                  "cornerRadius": 12,
+                  "stroke": "$fb.color.border.default",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "fN5by",
+                      "name": "Label",
+                      "fill": "$fb.color.text.muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Hoàn thành",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "eOg6n",
+                      "name": "Value",
+                      "fill": "$fb.color.intent.success.text",
+                      "content": "58%",
+                      "fontFamily": "Inter",
+                      "fontSize": 20,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "edZgB",
+              "name": "Stat row 2",
+              "width": "fill_container",
+              "gap": 10,
+              "children": [
+                {
+                  "type": "frame",
+                  "id": "Cwghg",
+                  "name": "Stat Quá hạn",
+                  "width": "fill_container",
+                  "fill": "$fb.color.surface.raised",
+                  "cornerRadius": 12,
+                  "stroke": "$fb.color.border.default",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "X5FYZ",
+                      "name": "Label",
+                      "fill": "$fb.color.text.muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Quá hạn",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "yNAQy",
+                      "name": "Value",
+                      "fill": "$fb.color.intent.danger.text",
+                      "content": "2",
+                      "fontFamily": "Inter",
+                      "fontSize": 20,
+                      "fontWeight": "700"
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "rOvw1",
+                  "name": "Stat Đang rà soát",
+                  "width": "fill_container",
+                  "fill": "$fb.color.surface.raised",
+                  "cornerRadius": 12,
+                  "stroke": "$fb.color.border.default",
+                  "strokeWidth": 1,
+                  "layout": "vertical",
+                  "gap": 2,
+                  "padding": 12,
+                  "children": [
+                    {
+                      "type": "text",
+                      "id": "qUihc",
+                      "name": "Label",
+                      "fill": "$fb.color.text.muted",
+                      "textGrowth": "fixed-width",
+                      "width": "fill_container",
+                      "content": "Đang rà soát",
+                      "fontFamily": "Inter",
+                      "fontSize": 12,
+                      "fontWeight": "normal"
+                    },
+                    {
+                      "type": "text",
+                      "id": "KPsrz",
+                      "name": "Value",
+                      "fill": "$fb.color.intent.warning.text",
+                      "content": "1",
+                      "fontFamily": "Inter",
+                      "fontSize": 20,
+                      "fontWeight": "700"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "puIEn",
+              "name": "Tiến độ theo cột",
+              "width": "fill_container",
+              "fill": "$fb.color.surface.raised",
+              "cornerRadius": 12,
+              "stroke": "$fb.color.border.default",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 10,
+              "padding": 14,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "bXlwO",
+                  "name": "Section title",
+                  "fill": "$fb.color.text.primary",
+                  "content": "Tiến độ theo cột",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "XuVGT",
+                  "name": "Bar Cần thực hiện",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "AVu4Y",
+                      "name": "Row",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ysRv3",
+                          "name": "Name",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Cần thực hiện",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "iUbCQ",
+                          "name": "Legend",
+                          "fill": "$fb.color.text.muted",
+                          "content": "3 / 8 công việc",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "xRXzj",
+                      "name": "Track",
+                      "width": "fill_container",
+                      "height": 8,
+                      "fill": "$fb.color.surface.muted",
+                      "cornerRadius": 999,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "A1TLc",
+                          "name": "Fill",
+                          "width": 60,
+                          "height": 8,
+                          "fill": "$fb.color.brand.surface",
+                          "cornerRadius": 999
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "GoPIy",
+                  "name": "Bar Đang thực hiện",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "J4ivyg",
+                      "name": "Row",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "N5HsZ",
+                          "name": "Name",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Đang thực hiện",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "EZbGK",
+                          "name": "Legend",
+                          "fill": "$fb.color.text.muted",
+                          "content": "5 / 9 công việc",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "oi90n",
+                      "name": "Track",
+                      "width": "fill_container",
+                      "height": 8,
+                      "fill": "$fb.color.surface.muted",
+                      "cornerRadius": 999,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "Vf87k",
+                          "name": "Fill",
+                          "width": 100,
+                          "height": 8,
+                          "fill": "$fb.color.brand.surface",
+                          "cornerRadius": 999
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "D0ebRw",
+                  "name": "Bar Chờ duyệt",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "JvOqO",
+                      "name": "Row",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "vzeir",
+                          "name": "Name",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Chờ duyệt",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "wrAOy",
+                          "name": "Legend",
+                          "fill": "$fb.color.text.muted",
+                          "content": "2 / 4 công việc",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "mRMbX",
+                      "name": "Track",
+                      "width": "fill_container",
+                      "height": 8,
+                      "fill": "$fb.color.surface.muted",
+                      "cornerRadius": 999,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "FyjcE",
+                          "name": "Fill",
+                          "width": 45,
+                          "height": 8,
+                          "fill": "$fb.color.brand.surface",
+                          "cornerRadius": 999
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "uibuz",
+                  "name": "Bar Hoàn thành",
+                  "width": "fill_container",
+                  "layout": "vertical",
+                  "gap": 4,
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "F4hYa",
+                      "name": "Row",
+                      "width": "fill_container",
+                      "justifyContent": "space_between",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "c9wb7",
+                          "name": "Name",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Hoàn thành",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        },
+                        {
+                          "type": "text",
+                          "id": "uSiAK",
+                          "name": "Legend",
+                          "fill": "$fb.color.text.muted",
+                          "content": "6 / 6 công việc",
+                          "fontFamily": "Inter",
+                          "fontSize": 12,
+                          "fontWeight": "normal"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "U8ZY3V",
+                      "name": "Track",
+                      "width": "fill_container",
+                      "height": 8,
+                      "fill": "$fb.color.surface.muted",
+                      "cornerRadius": 999,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "ZSQtM",
+                          "name": "Fill",
+                          "width": 140,
+                          "height": 8,
+                          "fill": "$fb.color.brand.surface",
+                          "cornerRadius": 999
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "hX31O",
+              "name": "Tải công việc",
+              "width": "fill_container",
+              "fill": "$fb.color.surface.raised",
+              "cornerRadius": 12,
+              "stroke": "$fb.color.border.default",
+              "strokeWidth": 1,
+              "layout": "vertical",
+              "gap": 10,
+              "padding": 14,
+              "children": [
+                {
+                  "type": "text",
+                  "id": "vZMP9",
+                  "name": "Section title",
+                  "fill": "$fb.color.text.primary",
+                  "content": "Tải công việc theo thành viên",
+                  "fontFamily": "Inter",
+                  "fontSize": 14,
+                  "fontWeight": "600"
+                },
+                {
+                  "type": "frame",
+                  "id": "APljB",
+                  "name": "Member Nguyễn Khánh",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "YWE0K",
+                      "name": "Avatar",
+                      "width": 26,
+                      "height": 26,
+                      "fill": "$fb.color.brand.subtle",
+                      "cornerRadius": 999,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ceIWm",
+                          "name": "Initials",
+                          "fill": "$fb.color.brand.text",
+                          "content": "NK",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "bdh4E",
+                      "name": "Bars",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "EYkJj",
+                          "name": "Row",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "c5zGP",
+                              "name": "Name",
+                              "fill": "$fb.color.text.secondary",
+                              "content": "Nguyễn Khánh",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "wpUEt",
+                              "name": "Legend",
+                              "fill": "$fb.color.text.muted",
+                              "content": "9 công việc",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "dWz6n",
+                          "name": "Track",
+                          "width": "fill_container",
+                          "height": 6,
+                          "fill": "$fb.color.surface.muted",
+                          "cornerRadius": 999,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "JxlpL",
+                              "name": "Fill",
+                              "width": 120,
+                              "height": 6,
+                              "fill": "$fb.color.brand.surface-soft",
+                              "cornerRadius": 999
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "n0ZCr",
+                  "name": "Member Trần Linh",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "FoCu7",
+                      "name": "Avatar",
+                      "width": 26,
+                      "height": 26,
+                      "fill": "$fb.color.brand.subtle",
+                      "cornerRadius": 999,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "oLZVb",
+                          "name": "Initials",
+                          "fill": "$fb.color.brand.text",
+                          "content": "TL",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Sakaq",
+                      "name": "Bars",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "h1sq4",
+                          "name": "Row",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "ZR6I6",
+                              "name": "Name",
+                              "fill": "$fb.color.text.secondary",
+                              "content": "Trần Linh",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "n8QJQ5",
+                              "name": "Legend",
+                              "fill": "$fb.color.text.muted",
+                              "content": "7 công việc",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "V7cYVO",
+                          "name": "Track",
+                          "width": "fill_container",
+                          "height": 6,
+                          "fill": "$fb.color.surface.muted",
+                          "cornerRadius": 999,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "UT7Bn",
+                              "name": "Fill",
+                              "width": 95,
+                              "height": 6,
+                              "fill": "$fb.color.brand.surface-soft",
+                              "cornerRadius": 999
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "a627tt",
+                  "name": "Member An Trần",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "nDPwm",
+                      "name": "Avatar",
+                      "width": 26,
+                      "height": 26,
+                      "fill": "$fb.color.brand.subtle",
+                      "cornerRadius": 999,
+                      "justifyContent": "center",
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "ppDAZ",
+                          "name": "Initials",
+                          "fill": "$fb.color.brand.text",
+                          "content": "AT",
+                          "fontFamily": "Inter",
+                          "fontSize": 11,
+                          "fontWeight": "600"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "B8I878",
+                      "name": "Bars",
+                      "width": "fill_container",
+                      "layout": "vertical",
+                      "gap": 3,
+                      "children": [
+                        {
+                          "type": "frame",
+                          "id": "ClCdu",
+                          "name": "Row",
+                          "width": "fill_container",
+                          "justifyContent": "space_between",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "oMz3M",
+                              "name": "Name",
+                              "fill": "$fb.color.text.secondary",
+                              "content": "An Trần",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            },
+                            {
+                              "type": "text",
+                              "id": "W9FcbY",
+                              "name": "Legend",
+                              "fill": "$fb.color.text.muted",
+                              "content": "4 công việc",
+                              "fontFamily": "Inter",
+                              "fontSize": 12,
+                              "fontWeight": "normal"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "nH7ft",
+                          "name": "Track",
+                          "width": "fill_container",
+                          "height": 6,
+                          "fill": "$fb.color.surface.muted",
+                          "cornerRadius": 999,
+                          "children": [
+                            {
+                              "type": "frame",
+                              "id": "fSIAY",
+                              "name": "Fill",
+                              "width": 55,
+                              "height": 6,
+                              "fill": "$fb.color.brand.surface-soft",
+                              "cornerRadius": 999
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": "frame",
+              "id": "NgxxH",
+              "x": 16,
+              "y": 548,
+              "name": "Export CTA",
+              "enabled": false,
+              "width": "fill_container(358)",
+              "layout": "vertical",
+              "gap": 6,
+              "children": [
+                {
+                  "id": "IDXYM",
+                  "type": "ref",
+                  "ref": "axWhl",
+                  "name": "Primary Xuất tiến độ",
+                  "width": "fill_container",
+                  "descendants": {
+                    "vt1v3": {
+                      "content": "Xuất tiến độ"
+                    }
+                  }
+                },
+                {
+                  "type": "text",
+                  "id": "F0lKHm",
+                  "name": "Capability note",
+                  "fill": "$fb.color.text.muted",
+                  "textGrowth": "fixed-width",
+                  "width": "fill_container",
+                  "content": "Chỉ hiện khi server trả capability report:export (Owner, Phase 1.1).",
+                  "lineHeight": 1.5,
+                  "fontFamily": "Inter",
+                  "fontSize": 11,
                   "fontWeight": "normal"
                 }
               ]
