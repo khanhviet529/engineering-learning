@@ -99,6 +99,8 @@ Form là dirty sau khác biệt có ý nghĩa với giá trị đã nạp/giá t
 ### Sidebar dùng chung
 
 - Mỗi item của `FbAppShell` luôn có icon, nhãn, active indicator và accessible name. Sidebar desktop có thể thu gọn còn icon; hover/focus hiển thị tooltip, keyboard focus vẫn nhìn rõ và active state không mất.
+- **Footer sidebar là bắt buộc ở cả hai trạng thái** (mở rộng và thu gọn) và chứa đúng hai thứ: entry point `USR-01` (hồ sơ và tùy chọn) và **control thu gọn/mở rộng**. Control thu gọn thuộc sidebar vì nó tác động lên chính sidebar; nó không được đặt ở topbar, và nó phải có mặt ở trạng thái mở rộng — nếu chỉ trạng thái thu gọn có control mở lại thì không có đường vào trạng thái thu gọn. Cùng một control, hai icon đối xứng theo trạng thái, cùng vị trí.
+- **Theme chỉ có một nguồn control ở chrome**: quick toggle trên topbar, đổi qua lại giữa `light` và `dark`. Sidebar **không** có control theme — đặt thêm ở đó là control thứ hai cho cùng một preference. Giá trị `system` chỉ chọn được ở `USR-01`, vì một toggle hai trạng thái không biểu diễn được ba giá trị; topbar quick toggle vì vậy là lối tắt, còn `USR-01` là nơi sở hữu preference `light|dark|system`.
 - Permission không chỉ là ẩn route: navigation/CTA lấy từ capability, route trực tiếp vẫn có thể thành `SYS-01` và API vẫn là lớp kiểm tra cuối cùng.
 
 ## 5. Conflict Resolution (409)
