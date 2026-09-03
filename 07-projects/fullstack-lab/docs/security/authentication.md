@@ -1,63 +1,63 @@
-# Flowboard authentication
+# Xác thực của Flowboard
 
-This document is the authentication contract for the Flowboard MVP. It expands the approved baseline's email/password, opaque-session design; it does not introduce social sign-in, API tokens, or public API authentication.
+Tài liệu này là hợp đồng xác thực cho Flowboard MVP. Nó mở rộng thiết kế email/password và opaque session của baseline đã phê duyệt; nó không đưa vào social sign-in, API token hay xác thực cho public API.
 
-## Identity and credential rules
+## Quy tắc danh tính và credential
 
-- A user signs up with an email address, password, and required profile fields. The service creates an unverified account and sends an email-verification link.
-- Passwords are hashed with **Argon2id**. The password hash is the only password representation stored or logged. Parameters are configuration owned by the authentication module and must be calibrated for the deployed environment; they are never client controlled.
-- Email-verification and password-reset links contain independently generated, high-entropy random tokens. Each token is one-time, expiring, and stored only as a hash. Consuming, expiring, or replacing a token makes it unusable.
-- **Password policy** (per [ADR-0007](../decisions/ADR-0007-password-policy.md), Accepted 2026-09-03): a password is 12–200 characters with **no composition requirement**. Every printable character is allowed, including spaces and non-ASCII; the value is NFKC-normalized identically at sign-up, reset, and sign-in, and is never truncated before hashing. The verifier rejects a password that appears in a versioned bundled list of common or breached passwords, or that contains the account's email local-part or display name (case-insensitive, substring of four characters or more), returning `400 VALIDATION_FAILED` with a safe field error that does not disclose which list matched. No blocklist lookup leaves the process on the sign-up path. There is no periodic rotation, password hint, or security question; the token-based reset flow remains the only replacement path. The client checks only what it can — length and the email/name similarity rule — and shows the blocklist outcome as a post-submit field error; the server-side validator is the deciding enforcement point. Changing this policy is a credential-lifecycle change and needs a new ADR, updated together with the `AUTH-02`/`AUTH-04` design checklist.
-- Sign-in accepts email and password. Invalid credentials and unknown accounts receive the same generic `401 UNAUTHENTICATED` outcome where revealing account existence would be unsafe. Valid credentials for an unverified account receive `403 EMAIL_VERIFICATION_REQUIRED` in the standard error envelope, with a safe message and `requestId` but no `details`, session cookie, CSRF token, or private data.
-- Login and password-reset requests are rate limited by a combination of client signal and normalized account identifier. Limits use a bounded response and audit/monitoring signal; they do not reveal whether an account exists.
-- Sign-up requests use the same bounded, monitored rate-limit model: enforce limits by client signal and normalized email before creating an account or sending verification email. A normalized email can have only one account; an existing unverified account does not create another account or cause unbounded verification sends, and any resend remains separately rate limited. Sign-up responses stay generic where account existence would otherwise be disclosed.
+- Người dùng đăng ký bằng email, password và các profile field bắt buộc. Service tạo một account chưa xác minh rồi gửi liên kết xác minh email.
+- Password được hash bằng **Argon2id**. Password hash là biểu diễn duy nhất của password được lưu hoặc ghi log. Tham số hash là configuration do auth module sở hữu và phải được hiệu chỉnh theo môi trường triển khai; client không bao giờ điều khiển được chúng.
+- Liên kết xác minh email và đặt lại password chứa token ngẫu nhiên high-entropy, sinh độc lập cho từng liên kết. Mỗi token dùng một lần, có expiry, và chỉ được lưu dưới dạng hash. Khi token bị tiêu thụ, hết hạn hoặc bị thay thế thì nó không còn dùng được.
+- **Password policy** (theo [ADR-0007](../decisions/ADR-0007-password-policy.md), Accepted 03/09/2026): password dài 12–200 ký tự và **không có yêu cầu composition** nào. Mọi ký tự in được đều hợp lệ, kể cả space và ký tự ngoài ASCII; giá trị được normalize NFKC **giống nhau** ở sign-up, reset và sign-in, và không bao giờ bị truncate trước khi hash. Verifier từ chối password nằm trong danh sách phổ biến hoặc đã bị lộ (bundle có version), hoặc password chứa local-part của email hay display name của chính account đó (không phân biệt hoa thường, chuỗi con từ bốn ký tự trở lên), trả `400 VALIDATION_FAILED` với field error an toàn không tiết lộ đã khớp danh sách nào. Không có lượt tra blocklist nào đi ra khỏi process trên đường sign-up. Không có rotation định kỳ, password hint hay câu hỏi bảo mật; luồng reset bằng token vẫn là đường thay password duy nhất. Client chỉ kiểm những gì kiểm được — độ dài và quy tắc không-chứa-email/tên — rồi hiển thị kết quả blocklist dưới dạng field error sau khi submit; validator phía server là điểm quyết định cuối cùng. Đổi policy này là thay đổi vòng đời credential, cần ADR mới và phải cập nhật cùng lúc với design checklist của `AUTH-02`/`AUTH-04`.
+- Sign-in nhận email và password. Credential sai và account không tồn tại đều nhận cùng một outcome `401 UNAUTHENTICATED` chung, ở những chỗ mà tiết lộ sự tồn tại của account là không an toàn. Credential đúng nhưng account chưa xác minh nhận `403 EMAIL_VERIFICATION_REQUIRED` trong error envelope chuẩn, có message an toàn và `requestId` nhưng không có `details`, không session cookie, không CSRF token và không dữ liệu private.
+- Request login và đặt lại password bị rate limit theo tổ hợp client signal và account identifier đã normalize. Giới hạn dùng response có biên cùng audit/monitoring signal; chúng không tiết lộ account có tồn tại hay không.
+- Request sign-up dùng cùng mô hình rate limit có biên và có giám sát đó: áp giới hạn theo client signal và email đã normalize **trước khi** tạo account hoặc gửi email xác minh. Một email đã normalize chỉ có được một account; một account chưa xác minh đang tồn tại không tạo thêm account thứ hai và không gây gửi xác minh vô hạn, còn mọi lần resend vẫn bị rate limit riêng. Response của sign-up giữ nội dung chung ở những chỗ mà nói cụ thể sẽ làm lộ sự tồn tại của account.
 
-## Sign-up, verification, and password recovery
+## Đăng ký, xác minh và phục hồi password
 
-1. **Sign up:** validate the input, create the user with an Argon2id password hash, create a hashed one-time verification token with an expiry, and send the verification link. No password, raw token, or credential-derived value enters logs, activity history, or API responses.
-2. **Verify email:** hash the submitted token, find one matching unused and unexpired record, mark the email verified, and consume the token in one transaction. Replays fail.
-3. **Forgot password:** accept an email address, apply the reset rate limit, and return the same acknowledgement whether or not an eligible account exists. If eligible, replace any outstanding reset token with a new hashed, expiring one-time token and send the link.
-4. **Reset password:** validate and consume the reset token, validate the new password, replace the Argon2id hash, and revoke every active session for that user in the same transaction. The user signs in again with the new password.
+1. **Sign up:** validate input, tạo user với password hash Argon2id, tạo verification token đã hash kèm expiry, rồi gửi liên kết xác minh. Không password, raw token hay giá trị dẫn xuất từ credential nào được vào log, activity history hoặc API response.
+2. **Verify email:** hash token nhận được, tìm đúng một record khớp còn chưa dùng và chưa hết hạn, đánh dấu email đã xác minh, và tiêu thụ token trong **cùng một transaction**. Gửi lại lần hai thất bại.
+3. **Forgot password:** nhận một email, áp rate limit của reset, và trả về cùng một acknowledgement bất kể account có đủ điều kiện hay không. Nếu đủ điều kiện, thay mọi reset token còn hiệu lực bằng một token mới đã hash, dùng một lần, có expiry, rồi gửi liên kết.
+4. **Reset password:** validate và tiêu thụ reset token, validate password mới, thay password hash Argon2id, và **revoke mọi active session của user đó trong cùng transaction**. User đăng nhập lại bằng password mới.
 
-An authenticated password-change endpoint and account-settings UI are deferred from the MVP. They require a separate product decision covering re-authentication, recovery, and session behavior; they are not implied by password reset.
+Endpoint đổi password khi đã đăng nhập và UI account-settings tương ứng được **hoãn** khỏi MVP. Chúng cần một quyết định sản phẩm riêng bao gồm re-authentication, phục hồi và hành vi session; chúng không được suy ra từ luồng reset password.
 
-The product may resend verification email through a separately rate-limited endpoint. A resend replaces the prior unused verification token rather than creating multiple concurrently valid links.
+Sản phẩm có thể gửi lại email xác minh qua một endpoint có rate limit riêng. Một lần resend **thay thế** verification token chưa dùng trước đó, chứ không tạo ra nhiều liên kết cùng hợp lệ một lúc.
 
-## Opaque sessions and cookies
+## Opaque session và cookie
 
-A successful sign-in creates a new random, high-entropy **opaque** session identifier. It is a bearer secret, not a JWT and not a user ID or a serialized role claim.
+Sign-in thành công tạo một session identifier **opaque**, ngẫu nhiên và high-entropy. Nó là một bearer secret — không phải JWT, không phải user ID và không phải role claim đã serialize.
 
-1. Generate the opaque identifier with a cryptographically secure random source.
-2. Send the raw value only in the session cookie.
-3. Store only its server-side hash in `auth_sessions`, with user ID, issued/expiry time, and revocation metadata. The raw session value is never persisted.
-4. On each request, `SessionGuard` hashes the cookie value, looks up the session, and accepts it only when it exists, is unexpired, and has not been revoked.
+1. Sinh opaque identifier bằng nguồn ngẫu nhiên an toàn về mật mã.
+2. Chỉ gửi giá trị thô trong session cookie.
+3. Chỉ lưu hash phía server trong `auth_sessions`, cùng user ID, thời điểm phát hành/hết hạn và metadata thu hồi. Giá trị session thô không bao giờ được persist.
+4. Ở mỗi request, `SessionGuard` hash giá trị cookie, tra session, và chỉ chấp nhận khi session tồn tại, chưa hết hạn và chưa bị revoke.
 
-The session cookie is host-only and uses `Path=/`, `HttpOnly`, an explicit expiry/max age, and `SameSite=Lax`. It uses `Secure` outside local development. Production must use HTTPS and must not weaken these attributes through a proxy or environment override. `HttpOnly` means browser JavaScript cannot read the bearer secret; session state is not placed in local storage.
+Session cookie là host-only và dùng `Path=/`, `HttpOnly`, expiry/max age tường minh, cùng `SameSite=Lax`. Nó dùng `Secure` ở mọi nơi ngoài local development. Production bắt buộc HTTPS và không được làm yếu các attribute này qua proxy hay environment override. `HttpOnly` nghĩa là JavaScript của browser không đọc được bearer secret; session state không được đặt vào local storage.
 
-Session creation rotates the identifier rather than accepting a supplied session identifier. A session can be revoked server-side at any time. Logout is idempotent: the server marks the matching active session revoked and clears the cookie even when the session is already absent or expired. Expiry, explicit logout, password reset, and administrative/security revocation all end a session; a revoked or expired session cannot be renewed by the client.
+Việc tạo session **rotate** identifier chứ không chấp nhận session identifier do client cung cấp. Một session có thể bị revoke phía server bất cứ lúc nào. Logout là idempotent: server đánh dấu active session khớp là đã revoke và clear cookie, kể cả khi session đã vắng mặt hoặc đã hết hạn. Expiry, logout tường minh, reset password và thu hồi vì lý do quản trị/bảo mật đều kết thúc một session; session đã revoke hoặc đã hết hạn thì client không thể gia hạn.
 
-## CSRF defense
+## Phòng vệ CSRF
 
-`SameSite=Lax` reduces cross-site cookie delivery but is not the CSRF authorization mechanism. For every browser-originated state-changing request (POST, PATCH, PUT, DELETE), the API requires a server-issued, session-bound CSRF token in a custom request header such as `X-CSRF-Token`.
+`SameSite=Lax` làm giảm việc cookie được gửi cross-site nhưng **không** phải cơ chế authorization cho CSRF. Với mọi request thay đổi trạng thái phát sinh từ browser (POST, PATCH, PUT, DELETE), API yêu cầu một CSRF token do server phát hành, gắn với session, đặt trong custom request header như `X-CSRF-Token`.
 
-- The token is generated with cryptographic randomness when the session is created or rotated. Its stored representation is bound to that session and is checked in constant time.
-- The browser obtains the token only from an authenticated same-origin bootstrap/response contract; it never obtains the HttpOnly session secret.
-- The API also validates an allowed `Origin` (or the HTTPS `Referer` fallback where required). Missing, invalid, or mismatched token/origin rejects the request before its use case runs.
-- CSRF checks cover sign-out and every protected mutation, including project, task, member, column, comment, and report-export routes. A CSRF failure produces no mutation or activity record.
+- Token được sinh bằng ngẫu nhiên mật mã khi session được tạo hoặc rotate. Biểu diễn lưu trữ của nó gắn với đúng session đó và được kiểm bằng so sánh constant time.
+- Browser chỉ lấy được token qua một hợp đồng bootstrap/response same-origin đã xác thực; nó không bao giờ lấy được session secret `HttpOnly`.
+- API còn validate `Origin` thuộc allowlist (hoặc fallback `Referer` qua HTTPS ở nơi cần). Token/origin thiếu, sai hoặc không khớp thì request bị từ chối **trước khi** use case chạy.
+- Kiểm tra CSRF phủ cả sign-out và mọi protected mutation, gồm route của project, task, member, column, comment và report-export. Một lần CSRF thất bại không tạo mutation hay activity record nào.
 
-Non-browser clients are outside the MVP. They must not bypass this design by reusing the browser cookie contract.
+Client không phải browser nằm ngoài MVP. Chúng không được đi vòng qua thiết kế này bằng cách tái dùng hợp đồng cookie của browser.
 
-## Authentication lifecycle outcomes
+## Outcome theo vòng đời xác thực
 
-| Event | Session and cookie result |
+| Sự kiện | Kết quả với session và cookie |
 |---|---|
-| Successful sign-in | Create a new hashed server session and set the opaque session cookie plus a session-bound CSRF token. |
-| Session expiry or server revocation | `SessionGuard` rejects it; the response clears the stale cookie where possible. |
-| Sign-out | Revoke the server session and clear the cookie. |
-| Password reset | Consume reset token, replace password hash, revoke all user sessions, and require sign-in. |
-| Unverified sign-in | Return `403 EMAIL_VERIFICATION_REQUIRED` with the standard error envelope; create no session or cookie, then direct the user to verification/resend. |
-| Email verification | Consume the verification token; it does not expose or create a reusable authentication secret. |
+| Sign-in thành công | Tạo server session mới đã hash, set opaque session cookie cùng một CSRF token gắn session. |
+| Session hết hạn hoặc bị server revoke | `SessionGuard` từ chối; response clear cookie cũ ở nơi làm được. |
+| Sign-out | Revoke server session và clear cookie. |
+| Reset password | Tiêu thụ reset token, thay password hash, revoke mọi session của user, và buộc đăng nhập lại. |
+| Sign-in khi chưa xác minh | Trả `403 EMAIL_VERIFICATION_REQUIRED` trong error envelope chuẩn; không tạo session hay cookie, rồi đưa user tới verification/resend. |
+| Xác minh email | Tiêu thụ verification token; nó không phát sinh và không lộ ra một authentication secret dùng lại được. |
 
-## Implementation integration point
+## Điểm tích hợp khi implementation
 
-`SessionGuard` is the future NestJS guard responsible only for authentication: it turns a valid opaque session into the authenticated actor or rejects the request as unauthenticated. It does not decide project permissions. `ProjectPermissionGuard` performs the subsequent action/resource decision described in [authorization-model.md](authorization-model.md).
+`SessionGuard` là NestJS guard tương lai chỉ chịu trách nhiệm **xác thực**: nó biến một opaque session hợp lệ thành authenticated actor, hoặc từ chối request là unauthenticated. Nó không quyết định permission của project. `ProjectPermissionGuard` mới thực hiện quyết định action/resource kế tiếp, mô tả trong [authorization-model.md](authorization-model.md).

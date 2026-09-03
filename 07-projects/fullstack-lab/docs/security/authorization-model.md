@@ -1,76 +1,76 @@
-# Flowboard authorization model
+# Mô hình phân quyền Flowboard
 
-This document is the central access-control contract for the frontend, NestJS guards, repositories, tests, and future AI tools. It is authoritative for MVP role behavior; the UI only reflects server-computed decisions.
+Tài liệu này là hợp đồng kiểm soát truy cập trung tâm cho frontend, NestJS guard, repository, test và AI tool tương lai. Nó là thẩm quyền về hành vi role của MVP; UI chỉ phản ánh quyết định do server tính.
 
-## Scope, roles, and default
+## Phạm vi, role và mặc định
 
-Flowboard is a workspace-tenant product. A user must be a member of a workspace before that user can be added to one of its projects. Every MVP project is private: no anonymous, workspace-wide, or public-project fallback exists.
+Flowboard là sản phẩm theo tenant workspace. Một user phải là member của workspace trước khi được thêm vào một project của workspace đó. Mọi project MVP đều private: không có fallback nào cho anonymous, cho toàn workspace, hay cho public project.
 
-Workspace roles are fixed:
+Role workspace là cố định:
 
-| Workspace role | Allowed workspace behavior | Project-content effect |
+| Role workspace | Hành vi workspace được phép | Ảnh hưởng tới nội dung project |
 |---|---|---|
-| Workspace Admin | Read its workspace, manage workspace membership and settings, and create projects. | None by itself. The admin must also be a Project Member to read or change a private project. |
-| Workspace Member | Read its workspace and be added to projects. | None by itself. |
+| Workspace Admin | Đọc workspace của mình, quản lý membership và settings của workspace, và tạo project. | Không có gì tự thân. Admin còn phải là Project Member mới đọc hoặc thay đổi được một project private. |
+| Workspace Member | Đọc workspace của mình và được thêm vào project. | Không có gì tự thân. |
 
-Project roles are fixed and version-controlled in application code. The project creator is its Owner. A project must retain at least one Owner; owner removal or demotion that would remove the last Owner is rejected. Workspace Admin is never auto-added or auto-promoted in a project.
+Role project là cố định và được version-control trong application code. Người tạo project là Owner của project đó. Một project phải luôn còn ít nhất một Owner; việc gỡ hoặc hạ quyền làm mất Owner cuối cùng bị từ chối. Workspace Admin không bao giờ được tự thêm hay tự nâng quyền trong một project.
 
-| Project role | Read project content | Write tasks/comments | Manage project | Export |
+| Role project | Đọc nội dung project | Ghi task/comment | Quản lý project | Export |
 |---|:---:|:---:|:---:|:---:|
-| Owner | Yes | Yes | Columns, members, and project settings | Yes, beginning in Phase 1.1 |
-| Editor | Yes | Tasks and comments | No | No |
-| Viewer | Yes | No | No | No |
+| Owner | Có | Có | Cột, thành viên và project settings | Có, bắt đầu từ Phase 1.1 |
+| Editor | Có | Task và comment | Không | Không |
+| Viewer | Có | Không | Không | Không |
 
-Authorization is **deny by default**. An action is allowed only when the actor has a valid session, is in the required workspace and project scope, and has the exact fixed permission. A missing membership, an unresolved resource, an action not listed below, a cross-project resource, or an unsupported future feature is denied.
+Phân quyền là **deny by default**. Một action chỉ được phép khi actor có session hợp lệ, nằm trong đúng phạm vi workspace và project, và có đúng permission cố định đó. Thiếu membership, resource không resolve được, action không nằm trong danh sách dưới đây, resource thuộc project khác, hay một tính năng tương lai chưa hỗ trợ — tất cả đều bị từ chối.
 
 ## Permission catalog
 
-The following project permissions are the complete MVP catalog:
+Các permission project sau đây là catalog đầy đủ của MVP:
 
-| Permission | Owner | Editor | Viewer | Meaning |
+| Permission | Owner | Editor | Viewer | Ý nghĩa |
 |---|:---:|:---:|:---:|---|
-| `project:read` | Allow | Allow | Allow | Read the project and its permitted metadata. |
-| `project:update` | Allow | Deny | Deny | Change project settings; MVP allows the project name only. |
-| `project:member:manage` | Allow | Deny | Deny | Add, change role, or remove project members subject to membership invariants. |
-| `board-column:read` | Allow | Allow | Allow | Read active project board columns. |
-| `board-column:manage` | Allow | Deny | Deny | Create, reorder, or archive columns. |
-| `task:read` | Allow | Allow | Allow | Read tasks in the project. |
-| `task:create` | Allow | Allow | Deny | Create a task in an active same-project column. |
-| `task:update` | Allow | Allow | Deny | Update allowlisted task content fields. |
-| `task:move` | Allow | Allow | Deny | Move a task through the dedicated move use case. |
-| `task:assign` | Allow | Allow | Deny | Assign a task to a member of the same project. |
-| `comment:read` | Allow | Allow | Allow | Read comments for an authorized task. |
-| `comment:create` | Allow | Allow | Deny | Append a comment. Comments are immutable in the MVP. |
-| `activity:read` | Allow | Allow | Allow | Read append-only project/task activity. |
-| `report:export` | Allow | Deny | Deny | Request/download a project-progress export in Phase 1.1. |
-| `sprint:read` | Allow | Allow | Allow | Read sprints and sprint-scoped board in Phase 1.4 when the project has the feature enabled. |
-| `sprint:manage` | Allow | Deny | Deny | Create, update, activate and close sprints, and change sprint settings, in Phase 1.4. |
-| `time-tracking:settings:update` | Allow | Deny | Deny | Enable/mode/backfill and Time Approver list in Phase 1.3. |
-| `work-log:read` | Allow | Allow | Allow | Read authorized project/task WorkLogs when feature is enabled. |
-| `work-log:create:self` | Allow | Allow | Deny | Create an entry authored by actor; does not update Task. |
-| `work-log:update:self` | Allow | Allow | Deny | Edit actor draft/rejected entry only in allowed date window. |
-| `work-log:submit:self` | Allow | Allow | Deny | Submit/self-close actor valid entry. |
-| `work-log:review` | Allow | Assigned Editor | Deny | Review another actor's submitted WorkLog in required-approval mode. |
-| `work-log:backfill:override` | Allow | Deny | Deny | Open bounded late-date access with reason. |
-| `time-report:read` | Allow | Assigned Editor | Deny | Read Phase 1.3 monthly aggregate within project scope. |
+| `project:read` | Allow | Allow | Allow | Đọc project và metadata được phép của nó. |
+| `project:update` | Allow | Deny | Deny | Đổi project settings; MVP chỉ cho đổi tên project. |
+| `project:member:manage` | Allow | Deny | Deny | Thêm, đổi role hoặc gỡ project member, tuân theo các invariant về membership. |
+| `board-column:read` | Allow | Allow | Allow | Đọc board column active của project. |
+| `board-column:manage` | Allow | Deny | Deny | Tạo, sắp lại hoặc archive cột. |
+| `task:read` | Allow | Allow | Allow | Đọc task trong project. |
+| `task:create` | Allow | Allow | Deny | Tạo task trong một cột active cùng project. |
+| `task:update` | Allow | Allow | Deny | Cập nhật các task content field thuộc allowlist. |
+| `task:move` | Allow | Allow | Deny | Di chuyển task qua use case move riêng. |
+| `task:assign` | Allow | Allow | Deny | Giao task cho một member cùng project. |
+| `comment:read` | Allow | Allow | Allow | Đọc comment của một task đã được authorize. |
+| `comment:create` | Allow | Allow | Deny | Thêm comment. Comment là bất biến trong MVP. |
+| `activity:read` | Allow | Allow | Allow | Đọc activity append-only của project/task. |
+| `report:export` | Allow | Deny | Deny | Yêu cầu và tải export tiến độ project ở Phase 1.1. |
+| `sprint:read` | Allow | Allow | Allow | Đọc sprint và board theo sprint ở Phase 1.4, khi project đã bật tính năng. |
+| `sprint:manage` | Allow | Deny | Deny | Tạo, sửa, activate và đóng sprint, và đổi sprint settings, ở Phase 1.4. |
+| `time-tracking:settings:update` | Allow | Deny | Deny | Bật/tắt, chọn mode, đặt backfill và danh sách Time Approver ở Phase 1.3. |
+| `work-log:read` | Allow | Allow | Allow | Đọc WorkLog đã được authorize của project/task khi tính năng đang bật. |
+| `work-log:create:self` | Allow | Allow | Deny | Tạo bản ghi do chính actor là author; không cập nhật Task. |
+| `work-log:update:self` | Allow | Allow | Deny | Sửa bản ghi `draft`/`rejected` của chính actor, chỉ trong cửa sổ ngày được phép. |
+| `work-log:submit:self` | Allow | Allow | Deny | Gửi hoặc tự chốt bản ghi hợp lệ của chính actor. |
+| `work-log:review` | Allow | Editor được chỉ định | Deny | Duyệt WorkLog `submitted` của người khác trong mode cần duyệt. |
+| `work-log:backfill:override` | Allow | Deny | Deny | Mở quyền ghi ngày quá hạn, có biên và có lý do. |
+| `time-report:read` | Allow | Editor được chỉ định | Deny | Đọc aggregate tháng của Phase 1.3 trong phạm vi project. |
 
-Workspace administration is a separate scope: `workspace:read` is available to either workspace role; `workspace:member:manage`, `workspace:settings:update`, and `project:create` require Workspace Admin. Those workspace abilities do not imply any entry in the project catalog.
+Quản trị workspace là một phạm vi riêng: `workspace:read` mở cho cả hai role workspace; `workspace:member:manage`, `workspace:settings:update` và `project:create` yêu cầu Workspace Admin. Những khả năng ở cấp workspace đó **không** hàm ý bất kỳ entry nào trong catalog của project.
 
-The role/visibility matrices in [screen inventory](../design/screen-inventory.md) and [information architecture](../design/information-architecture.md) are **derived** from this catalog, never independent sources. When any of them diverges from the catalog, the catalog wins and the derived matrix is the document to fix. A permission change is not complete until those derived matrices are re-checked; [testing strategy](../operations/testing-strategy.md) carries the test that enforces this.
+Các ma trận role/visibility trong [screen inventory](../design/screen-inventory.md) và [information architecture](../design/information-architecture.md) là **phái sinh** của catalog này, không bao giờ là nguồn độc lập. Khi bất kỳ ma trận nào lệch với catalog thì catalog thắng, và ma trận phái sinh là tài liệu phải sửa. Một thay đổi permission chưa hoàn tất khi hai ma trận phái sinh đó chưa được kiểm lại; [chiến lược kiểm thử](../operations/testing-strategy.md) giữ test cưỡng chế điều này.
 
-### Sprint conditions (Phase 1.4)
+### Điều kiện của Sprint (Phase 1.4)
 
-`sprint:read` and `sprint:manage` additionally require the project to have Sprint enabled in `project_sprint_settings`. When it is disabled, sprint routes deny with `SPRINT_DISABLED` after scope resolution, exactly as Time Tracking does, and no sprint field appears in any projection. Assigning a task to a sprint is an ordinary `task:update`, so it needs no sprint permission of its own; a closed sprint accepts no assignment regardless of role. Viewer stays read-only and a Workspace Admin without ProjectMember remains outside every sprint route.
+`sprint:read` và `sprint:manage` còn yêu cầu project đã bật Sprint trong `project_sprint_settings`. Khi tắt, các route sprint deny bằng `SPRINT_DISABLED` **sau** khi resolve scope, đúng như Time Tracking đang làm, và không projection nào có field sprint. Gán task vào sprint là một `task:update` bình thường nên nó không cần permission sprint riêng; một sprint đã `closed` không nhận thêm gán task bất kể role. Viewer vẫn read-only, và Workspace Admin chưa là ProjectMember vẫn nằm ngoài mọi route sprint.
 
-### Time Tracking conditions (Phase 1.3)
+### Điều kiện của Time Tracking (Phase 1.3)
 
-`work-log:review` and Editor `time-report:read` are not role-wide permissions: `AuthorizationService` additionally requires a current `ProjectTimeApprover` record for that exact project. Owner is an implicit approver. A reviewer must differ from `work_log.logged_by_user_id`; direct request self-review is denied even when the actor is Owner. When Time Tracking is disabled, write/review/report use cases deny with `TIME_TRACKING_DISABLED` after scope resolution.
+`work-log:review` và `time-report:read` của Editor không phải permission theo role thuần: `AuthorizationService` còn yêu cầu một record `ProjectTimeApprover` hiện hành cho đúng project đó. Owner là approver ngầm định. Người duyệt phải khác `work_log.logged_by_user_id`; tự duyệt log của chính mình bị từ chối kể cả khi actor là Owner. Khi Time Tracking đang tắt, các use case write/review/report deny bằng `TIME_TRACKING_DISABLED` sau khi resolve scope.
 
-Viewer keeps the core read-only contract: Viewer may read WorkLog only when the project feature is enabled and the normal project/task read scope permits it, but cannot create, update, submit, review, override or receive a monthly-report CTA. A Workspace Admin without ProjectMember remains outside every Time Tracking route.
+Viewer giữ nguyên hợp đồng read-only của core: Viewer chỉ đọc được WorkLog khi tính năng của project đang bật và khi phạm vi đọc project/task bình thường cho phép, nhưng không tạo, không sửa, không gửi, không duyệt, không override và không nhận CTA báo cáo tháng. Workspace Admin chưa là ProjectMember vẫn nằm ngoài mọi route Time Tracking.
 
-## Object-level authorization flow
+## Luồng phân quyền ở mức object
 
-Every endpoint accepting a project, task, comment, column, or report ID follows this sequence. An ID is a locator, never evidence of access.
+Mọi endpoint nhận ID của project, task, comment, column hay report đều đi theo trình tự sau. **ID là locator, không bao giờ là bằng chứng có quyền.**
 
 ```text
 request
@@ -81,31 +81,31 @@ request
   -> scoped repository query/mutation
 ```
 
-1. **`SessionGuard`** authenticates the opaque server session and sets the actor. It returns `401` for no valid session.
-2. **`ResourceProjectResolver`** resolves the route resource to its owning project. A project ID resolves directly; a task resolves through `task.project_id`; a comment through its task; a column through `column.project_id`; and a report through `report.project_id`. It never trusts a client-supplied `projectId` that conflicts with the resolved owner.
-3. **`ProjectPermissionGuard`** receives the required permission declared by **`RequireProjectPermission`** and calls **`AuthorizationService.can(actor, action, resource)`**. It checks workspace membership, project membership, resource-to-project ownership, and the fixed role mapping. The guard returns `404` for a resource outside the actor's visible project scope, so it does not confirm another private project's existence; it returns `403` when a visible project member lacks the requested action.
-4. The application use case still enforces domain rules: active destination column, same-project assignee, last-Owner protection, immutable comments/activity, optimistic concurrency, and allowlisted fields.
-5. The repository uses the authorized project scope for every read and write. A successful guard alone is not permission to issue an unscoped query.
+1. **`SessionGuard`** xác thực opaque server session và đặt actor. Nó trả `401` khi không có session hợp lệ.
+2. **`ResourceProjectResolver`** resolve resource của route về project sở hữu nó. Project ID resolve trực tiếp; task resolve qua `task.project_id`; comment qua task của nó; column qua `column.project_id`; report qua `report.project_id`. Nó không bao giờ tin một `projectId` do client gửi mà mâu thuẫn với owner đã resolve được.
+3. **`ProjectPermissionGuard`** nhận permission bắt buộc do **`RequireProjectPermission`** khai báo rồi gọi **`AuthorizationService.can(actor, action, resource)`**. Nó kiểm workspace membership, project membership, quan hệ resource-với-project, và mapping role cố định. Guard trả `404` cho resource nằm ngoài phạm vi project mà actor được thấy, nên nó không xác nhận sự tồn tại của một project private khác; nó trả `403` khi một project member thấy được project nhưng thiếu action được yêu cầu.
+4. Use case của application vẫn cưỡng chế quy tắc miền: cột đích active, assignee cùng project, bảo vệ Owner cuối cùng, comment/activity bất biến, optimistic concurrency, và các field thuộc allowlist.
+5. Repository dùng đúng phạm vi project đã được authorize cho mọi lượt đọc và ghi. Guard đi qua thành công **không** phải giấy phép để phát một query không scope.
 
-`AuthorizationService` is the single policy evaluator. Controllers and future AI tools supply an actor, a catalog action, and a resolved resource; they do not implement role `if` statements themselves. AI-generated resource identity or role claims are untrusted and are independently resolved and authorized through this same flow.
+`AuthorizationService` là bộ đánh giá policy duy nhất. Controller và AI tool tương lai cung cấp actor, một action trong catalog, và một resource đã resolve; chúng không tự viết câu `if` theo role. Resource identity hay role claim do AI sinh ra đều là **không đáng tin** và được resolve rồi authorize độc lập qua đúng luồng này.
 
-## Scoped repository contract
+## Hợp đồng repository đã scope
 
-A repository query or mutation over project data takes an authorized `projectId`/project scope, not an arbitrary bare resource ID. At minimum it applies these predicates:
+Một query hoặc mutation của repository trên dữ liệu project nhận `projectId`/phạm vi project đã được authorize, không nhận một resource ID trần tùy ý. Tối thiểu nó áp các predicate sau:
 
-| Resource | Required project scope |
+| Resource | Phạm vi project bắt buộc |
 |---|---|
-| Project | `projects.id = :projectId` after project membership authorization. |
+| Project | `projects.id = :projectId` sau khi authorize project membership. |
 | Board column | `board_columns.project_id = :projectId`. |
 | Task | `tasks.project_id = :projectId`. |
-| Comment | Join task and require `tasks.project_id = :projectId`. |
+| Comment | Join task và yêu cầu `tasks.project_id = :projectId`. |
 | Activity log / report export | `activity_logs.project_id = :projectId` / `report_exports.project_id = :projectId`. |
 
-The scoped repository also applies the endpoint's fixed field/filter/sort allowlists. For example, task updates reject `projectId`, `columnId`, `position`, `version`, timestamps, and audit fields; moving a task is the separate `task:move` transaction. This defense in depth prevents an ID substitution, hidden-field payload, or accidental unscoped query from crossing a project boundary.
+Repository đã scope còn áp các allowlist cố định về field/filter/sort của endpoint. Ví dụ, task update từ chối `projectId`, `columnId`, `position`, `version`, timestamp và audit field; di chuyển task là transaction `task:move` riêng. Lớp phòng vệ nhiều tầng này ngăn một lần ID substitution, một payload có hidden field, hay một query vô tình không scope vượt qua ranh giới project.
 
-## Capabilities for the frontend
+## Capabilities cho frontend
 
-Project responses include the server-computed capabilities for the authenticated actor and that exact project, for example:
+Response của project có kèm capabilities do server tính cho đúng actor đã xác thực và đúng project đó, ví dụ:
 
 ```json
 {
@@ -114,18 +114,18 @@ Project responses include the server-computed capabilities for the authenticated
 }
 ```
 
-The frontend exposes one primitive, **`can(action, resource)`**, which reads those capabilities to hide or disable unavailable controls and to prevent optimistic UI from attempting known-denied actions. It does not duplicate role mappings in page components and it does not treat a capability response as authoritative after a server rejection. The API remains the final decision point; capability values are recomputed by the server on each relevant response.
+Frontend chỉ phơi ra một primitive, **`can(action, resource)`**, đọc các capability đó để ẩn hoặc disable control không khả dụng và để optimistic UI không thử một action đã biết chắc bị từ chối. Nó không nhân bản mapping role vào page component, và nó không coi một capability response là thẩm quyền sau khi server đã từ chối. API vẫn là điểm quyết định cuối cùng; giá trị capability được server tính lại ở mỗi response liên quan.
 
-A flat project-level list cannot express permissions that depend on the state of an individual record. `work-log:update:self` and `work-log:submit:self` depend on that WorkLog's status and date window; `work-log:review` depends on that WorkLog's author differing from the actor. For these, the server computes a **per-record `capabilities` list on the resource projection itself** — a WorkLog item carries, for example, `"capabilities": ["work-log:update:self", "work-log:submit:self"]` — evaluated from the same Time Tracking conditions above. Resolution order for `can(action, resource)`: when the resolved resource projection carries its own `capabilities`, that list decides the affordance for record-scoped actions; otherwise the current project-level list decides. The frontend never re-derives these from status, dates, or authorship — that would duplicate policy on the client, which this document forbids.
+Một danh sách phẳng ở mức project **không** biểu diễn được permission phụ thuộc trạng thái của từng record. `work-log:update:self` và `work-log:submit:self` phụ thuộc status và cửa sổ ngày của chính WorkLog đó; `work-log:review` phụ thuộc việc author của WorkLog đó khác actor. Với những permission này, server tính một **danh sách `capabilities` theo từng record, đặt ngay trên projection của resource** — ví dụ một WorkLog item mang `"capabilities": ["work-log:update:self", "work-log:submit:self"]` — đánh giá theo đúng các điều kiện Time Tracking ở trên. Thứ tự resolve của `can(action, resource)`: khi projection của resource đã resolve có `capabilities` riêng thì danh sách đó quyết định affordance cho các action ở mức record; nếu không thì danh sách ở mức project quyết định. Frontend **không bao giờ** tự suy lại các giá trị này từ status, ngày hay author — làm vậy là nhân bản policy xuống client, điều mà tài liệu này cấm.
 
-## Future implementation primitives
+## Các primitive sẽ implementation
 
-| Primitive | Responsibility |
+| Primitive | Trách nhiệm |
 |---|---|
-| `SessionGuard` | Authenticate the hashed opaque session and establish the actor. |
-| `ResourceProjectResolver` | Resolve a route resource to its owning project before authorization. |
-| `RequireProjectPermission` | Controller decorator that declares a catalog action such as `task:update`. |
-| `ProjectPermissionGuard` | Enforce the declared action against the actor and resolved project resource. |
-| `AuthorizationService` | Provide the shared `can(actor, action, resource)` policy evaluation. |
-| Scoped repository query | Apply the already-authorized project predicate to every project-data read or mutation. |
-| `can(action, resource)` | Frontend capability helper; an affordance layer only, never the server authorization decision. Reads the resource projection's own `capabilities` when present (record-scoped actions), else the project-level list. |
+| `SessionGuard` | Xác thực opaque session đã hash và thiết lập actor. |
+| `ResourceProjectResolver` | Resolve resource của route về project sở hữu nó, trước khi authorize. |
+| `RequireProjectPermission` | Decorator ở controller, khai báo một action trong catalog, ví dụ `task:update`. |
+| `ProjectPermissionGuard` | Cưỡng chế action đã khai báo, đối chiếu với actor và resource project đã resolve. |
+| `AuthorizationService` | Cung cấp phép đánh giá policy dùng chung `can(actor, action, resource)`. |
+| Scoped repository query | Áp predicate project đã được authorize vào mọi lượt đọc/ghi dữ liệu project. |
+| `can(action, resource)` | Capability helper của frontend; chỉ là tầng affordance, không bao giờ là quyết định authorization của server. Đọc `capabilities` trên chính projection của resource khi có (action ở mức record), nếu không thì đọc danh sách ở mức project. |

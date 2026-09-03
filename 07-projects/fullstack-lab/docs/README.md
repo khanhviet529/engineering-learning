@@ -31,6 +31,23 @@ Các baseline sau được phê duyệt sau master specification 2026-09-01. Ch�
 |---|---|---|---|
 | Phase 1.3 — Time Tracking (2026-09-02) | [Time Tracking design](superpowers/specs/2026-09-02-flowboard-time-tracking-design.md) | [Time Tracking documentation and design plan](superpowers/plans/2026-09-02-flowboard-time-tracking-documentation-and-design.md) | [ADR-0002](decisions/ADR-0002-project-time-tracking-and-approval.md), [delivery roadmap](product/delivery-roadmap.md), [database design](data/database-design.md), [query and index policy](data/query-and-index-policy.md), [authorization model](security/authorization-model.md), [endpoint contracts](api/endpoint-contracts.md), [pagination/concurrency/idempotency](api/pagination-concurrency-idempotency.md), [Pencil handoff](design/pencil-handoff.md) |
 
+## Ngôn ngữ tài liệu
+
+Tài liệu này viết cho người đọc Việt, nên **văn xuôi dùng tiếng Việt**. Giữ nguyên tiếng Anh những thứ mà dịch ra sẽ làm mất khả năng đối chiếu với code:
+
+- Định danh kỹ thuật: tên bảng/cột (`board_columns`, `due_date`), field API (`expectedVersion`, `sprintId`), error code (`TASK_VERSION_CONFLICT`), HTTP method và status, tên route.
+- Tên công nghệ và thư viện: PostgreSQL, NestJS, Drizzle, Zod, Lucide, BullMQ.
+- Tên primitive/component và permission: `SessionGuard`, `FbSidebar`, `task:move`, `report:export`.
+- Thuật ngữ chuẩn ở bảng dưới khi nó là **tên chính thức** của khái niệm: Workspace Admin, Project Owner, Editor, Viewer, Board Column, Task, Activity Log.
+
+Ba nhóm file **cố ý giữ nguyên tiếng Anh**, không dịch:
+
+1. `superpowers/specs/*` và `superpowers/plans/*` — đây là **snapshot có ngày** của baseline và kế hoạch đã phê duyệt. Dịch chúng là viết lại lịch sử; khi nội dung cần đổi thì mở ADR mới chứ không sửa snapshot.
+2. `decisions/ADR-0001` và `ADR-0002` — ADR đã `Accepted`; quy trình cấm sửa nội dung một quyết định đã chốt. ADR từ 0003 trở đi viết tiếng Việt.
+3. Trích dẫn nguyên văn từ ba nhóm trên khi một tài liệu sống cần dẫn lại.
+
+Khi một file trộn hai ngôn ngữ không theo quy tắc này, đó là nợ tài liệu cần dọn, không phải quy ước.
+
 ## Thuật ngữ chuẩn (Canonical terminology)
 
 Những tên dưới đây là tên sản phẩm/chính sách chuẩn trong toàn bộ tài liệu. Tên database, DTO hoặc API để trong code font (ví dụ `board_columns`, `due_date`, `expectedVersion`, `requestId`) là định danh kỹ thuật, không phải tên thay thế cho khái niệm sản phẩm.
