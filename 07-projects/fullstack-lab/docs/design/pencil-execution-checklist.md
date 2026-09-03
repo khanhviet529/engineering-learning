@@ -4,8 +4,9 @@
 
 - [x] Opened and actively designed in `docs/design/flowboard-v0.1.pen`.
 - [x] Foundations, core components, Board, Task Detail, Project Members, Task Form, Project Dashboard, and My Tasks calendar are represented on canvas.
-- [x] Responsive variants (12 Screen ID mobile × Light/Dark = 28 frame), authentication pages (20 frame AUTH-01…05) và system-state flows — **đã kiểm chứng trên đĩa** (blob `6acd09ae`). Vietnamese copy review **không kiểm được bằng máy** nên không tính vào ô này; báo cáo Canvas v0.4 đã bị rút lại (xem [pencil-handoff.md](pencil-handoff.md)).
-- [ ] Tuyên bố `Ready for build` — artifact và ADR **không còn chặn** (ADR-0007/0008/0009 đã Accepted 03/09; canvas đã kiểm chứng trên đĩa). Còn chặn bởi bốn việc đo được: `SYS-05`/`SYS-06` chưa có frame riêng; `FbModal`, `FbDrawer`, `FbActivityItem` chưa dựng (`FbEmptyState`/`FbPermissionState` đang tồn tại dưới tên khác); state per-component (hover, focus-visible, disabled, loading) chưa được kiểm; và Vietnamese copy review chưa có người ký.
+- [x] Responsive variants (12 Screen ID mobile × Light/Dark = 28 frame), authentication pages (20 frame AUTH-01…05) và system-state flows — **đã kiểm chứng trên đĩa** (blob `6acd09ae`); báo cáo Canvas v0.4 đã bị rút lại (xem [pencil-handoff.md](pencil-handoff.md)).
+- [x] **Vietnamese copy review — owner đọc và ký 03/09/2026.** Ô này **không** dựa trên phép đo: máy kiểm được tương phản, token và cấu trúc, nhưng không kiểm được câu chữ hiển thị cho người dùng (nhãn nút, tiêu đề, thông báo lỗi, empty state, helper text) có rõ hành động tiếp theo và có nhất quán với bảng "Thuật ngữ chuẩn" hay không. Nó đứng trên chữ ký của owner; khi copy đổi đáng kể thì ô này phải mở lại.
+- [ ] Tuyên bố `Ready for build` — artifact và ADR **không còn chặn** (ADR-0007/0008/0009 đã Accepted 03/09; canvas đã kiểm chứng trên đĩa). Vietnamese copy review đã được owner ký 03/09/2026. Còn chặn bởi **ba** việc đo được: `SYS-05`/`SYS-06` chưa có frame riêng; `FbModal`, `FbDrawer`, `FbActivityItem` chưa dựng (`FbEmptyState`/`FbPermissionState` đang tồn tại dưới tên khác); và state per-component (hover, focus-visible, disabled, loading) chưa được kiểm.
 
 ## Mục đích và cổng bắt đầu
 
