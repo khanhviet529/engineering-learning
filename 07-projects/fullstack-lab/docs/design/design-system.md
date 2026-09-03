@@ -100,7 +100,7 @@ Pencil hiện có **9 reusable component, ~350 instance**; mọi bản copy trư
 
 Các mục còn lại của catalog (`FbBoard`, `FbTaskForm`, `FbTaskDrawer`, `FbProjectList`, `FbProjectSettings`, `FbColumnEditor`, `FbMemberManager`, `FbCommentComposer`, `FbActivityList`, `FbConfirmDiscardDialog`, `FbConflictPanel`) tồn tại trên canvas dưới dạng **composition theo Screen ID** (mỗi cái 1–2 nơi dùng, compose từ các reusable trên); chúng vẫn là component ở frontend theo bảng trên, chỉ không đáng tách reusable trong Pencil khi chưa có nơi dùng thứ ba.
 
-**Đang chờ hợp đồng (render trước trong Pencil, chưa phải contract):** trường `Liên kết bằng chứng` ở Task Form/Task Detail và toolbar định dạng cơ bản của comment composer là đề xuất sản phẩm; schema/endpoint tương ứng cần ADR trước khi frontend coi là hành vi thật.
+**Đang chờ hợp đồng (render trước trong Pencil, chưa phải contract):** trường `Liên kết bằng chứng` ở Task Form/Task Detail và toolbar định dạng cơ bản của comment composer đã được đưa vào [ADR-0009](../decisions/ADR-0009-task-evidence-and-comment-formatting.md) (**Proposed**). Khi ADR được duyệt: `evidenceUrl` là một URL `https` duy nhất và server không bao giờ fetch nó; comment vẫn là plain text immutable, toolbar chỉ chèn cú pháp Markdown thuộc subset allowlist mà client render, không có HTML thô. Trước khi ADR được duyệt, frontend không coi hai mục này là hành vi thật.
 
 ### Task planning và due state
 
