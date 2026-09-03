@@ -10,7 +10,7 @@ Các response chỉ trả projection cần cho use case:
 {
   "workspace": { "id": "uuid", "name": "Engineering", "role": "workspace_admin", "capabilities": ["workspace:read", "project:create"] },
   "project": { "id": "uuid", "workspaceId": "uuid", "name": "Launch", "createdAt": "2026-09-01T08:30:00Z", "updatedAt": "2026-09-01T08:30:00Z" },
-  "column": { "id": "uuid", "projectId": "uuid", "name": "In progress", "position": "100.0000000000", "archivedAt": null },
+  "column": { "id": "uuid", "projectId": "uuid", "name": "In progress", "requiresReviewer": false, "position": "100.0000000000", "archivedAt": null },
   "task": { "id": "uuid", "projectId": "uuid", "columnId": "uuid", "createdBy": { "id": "uuid", "displayName": "Mai" }, "assigneeId": null, "reviewerId": null, "title": "Prepare launch", "description": "", "category": "feature", "priority": "medium", "startDate": null, "dueDate": null, "dueState": "none", "position": "100.0000000000", "version": 1, "createdAt": "2026-09-01T08:30:00Z", "updatedAt": "2026-09-01T08:30:00Z" },
   "member": { "userId": "uuid", "displayName": "Mai", "email": "mai@example.test", "role": "editor" },
   "comment": { "id": "uuid", "taskId": "uuid", "author": { "id": "uuid", "displayName": "Mai" }, "body": "I will take this.", "createdAt": "2026-09-01T08:30:00Z" },
@@ -18,7 +18,7 @@ Các response chỉ trả projection cần cho use case:
 }
 ```
 
-`position` chỉ được trả khi rendering board cần thứ tự đã xác nhận. `activity.summary` do server dựng từ event payload allowlisted, không-secret; raw `payload` không bao giờ đến client. Response project detail/board gói `project` cùng `capabilities` do server tính, `columns` active, `members` project có thể làm assignee và task page có giới hạn theo column. Không response nào lộ project private cho Workspace Admin chưa có project membership tường minh.
+`position` chỉ được trả khi rendering board cần thứ tự đã xác nhận. `requiresReviewer` luôn có trong column projection: client cần biết cột đích có yêu cầu reviewer để hiện field reviewer ở `TSK-01` và để gửi `reviewerId` trong move — nó là điều kiện UI đã có trong hợp đồng, không phải cờ do client tự suy. `activity.summary` do server dựng từ event payload allowlisted, không-secret; raw `payload` không bao giờ đến client. Response project detail/board gói `project` cùng `capabilities` do server tính, `columns` active, `members` project có thể làm assignee và task page có giới hạn theo column. Không response nào lộ project private cho Workspace Admin chưa có project membership tường minh.
 
 Mọi protected mutation hoàn tất authentication/resource authorization trước transaction, rồi re-check domain invariant có thể đổi trong transaction. Business mutation thành công ghi ActivityLog event đã nêu trong chính transaction; mutation bị reject/rollback không ghi event nào. Mutation yêu cầu `Idempotency-Key` tuân theo [idempotency contract](api-conventions.md#idempotency-key): retry cùng key/fingerprint replay outcome đã lưu, cùng key khác fingerprint là `409 IDEMPOTENCY_KEY_REUSED`, retry đồng thời khi request gốc đang chạy là `409 IDEMPOTENCY_IN_PROGRESS`.
 
