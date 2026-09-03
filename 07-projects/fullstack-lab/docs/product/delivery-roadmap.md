@@ -78,6 +78,22 @@ Quyền project vẫn là ranh giới không đổi ở mọi phase: Project Own
 
 **Không thuộc phase này:** story point/estimation, velocity, burndown, capacity planning, auto-rollover, sprint xuyên project và aggregate giờ theo sprint.
 
+## Phase 1.5 — quan hệ giữa Task
+
+**Mục tiêu sản phẩm:** chia một task thành subtask giao được cho từng người, và ghi lại việc một task đang bị task khác chặn, mà không biến quan hệ thành một trục workflow thứ hai.
+
+| Ràng buộc | Tiêu chí chấp nhận |
+|---|---|
+| Cha–con | `parentTaskId` sâu đúng một cấp: task đã có cha không được làm cha. Subtask là Task đầy đủ; move một task không kéo theo con. Tiến độ cha là giá trị dẫn xuất (số con ở column `is_terminal = true`), không có cột `progress`. |
+| Phụ thuộc | Chỉ quan hệ blocking. Cạnh tạo chu trình bị từ chối bằng `409 TASK_DEPENDENCY_CYCLE` dưới advisory lock theo project; tối đa 50 cạnh mỗi chiều cho một task. |
+| Ranh giới project | Composite FK hai phía làm quan hệ xuyên project bất khả thi ở tầng database, không chỉ ở use case. |
+| Quyền | Dùng lại `task:update`, không thêm entry catalog. Viewer vẫn read-only. |
+| Cưỡng chế | Server **không** chặn move task đang bị block; UI chỉ cảnh báo. Cưỡng chế cứng cần đường vượt quyền và audit riêng, và là quyết định khác. |
+
+**Vì sao sau Phase 1.4:** quan hệ chỉ có giá trị khi vòng lặp task và lớp planning đã ổn định. Phụ thuộc cũng là nơi phức tạp nhất của phase (đồ thị, đồng thời), nên nó đi sau cùng.
+
+**Không thuộc phase này:** cây nhiều tầng, entity epic, `relates_to`/`duplicates`, phụ thuộc xuyên project, critical path và Gantt.
+
 ## AI-1 — đề xuất task từ mục tiêu Owner
 
 **Mục tiêu sản phẩm:** Owner nhập một mục tiêu; AI tạo các đề xuất task có cấu trúc và không tự ghi thay dữ liệu project.
@@ -138,6 +154,7 @@ Flowboard là một lab: mỗi phase phải kèm ít nhất một failure experi
 | Phase 1.1 | Gửi lại export request với cùng `Idempotency-Key`, cùng actor, cùng canonical payload: nhận lại cùng export record, không có bản thứ hai; cùng key với payload khác bị từ chối. | [Progress export](../reporting/progress-export.md) |
 | Phase 1.2 | Kill worker giữa chừng rồi để BullMQ giao lại job (at-least-once), hoặc enqueue lặp cùng job: status transition compare-and-set/lease và stable job ID bảo đảm generate/gửi mail không lặp side effect; attempt count và audit phản ánh đúng. | [Progress export](../reporting/progress-export.md) |
 | Phase 1.2 | Làm Redis/queue unavailable: API request core vẫn phản hồi (liveness không phụ thuộc dependency outage), export job báo trạng thái lỗi an toàn có error code, không mất intent record trong PostgreSQL. | [Progress export](../reporting/progress-export.md) (queue outage gate), [local development](../operations/local-development.md) |
+| Phase 1.5 | Dựng chuỗi phụ thuộc A→B→…→N rồi gửi đồng thời hai request tạo cạnh đóng chu trình về A: advisory lock theo project tuần tự hoá, không request nào tạo được cycle, cái thua nhận `409 TASK_DEPENDENCY_CYCLE`. Đo chi phí recursive CTE ở N = 50 để chứng minh giới hạn 50 cạnh là đủ chặt. | [ADR-0011](../decisions/ADR-0011-task-relations-subtask-and-dependency.md), [query and index policy](../data/query-and-index-policy.md) |
 | Phase 1.4 | Gửi đồng thời hai request activate hai sprint khác nhau của cùng project: đúng một thành công, request còn lại nhận `409 SPRINT_ALREADY_ACTIVE` vì partial unique index từ chối ở tầng database. Đặt cạnh thí nghiệm 1.440 phút để thấy khác biệt giữa uniqueness constraint và advisory lock. | [ADR-0010](../decisions/ADR-0010-sprint-iteration.md), [query and index policy](../data/query-and-index-policy.md) |
 | Phase 1.3 | Gửi hai WorkLog request đồng thời cho cùng `(project, user, work_date)` với tổng vượt 1.440 phút: advisory transaction lock buộc tuần tự hóa, một request commit, request còn lại bị reject validation; daily total không bao giờ vượt 1.440. | [Query and index policy](../data/query-and-index-policy.md), [database design](../data/database-design.md) |
 | AI-1 | Ép model trả structured output sai schema hoặc chứa field vượt quyền (`projectId`, role…): output bị reject như untrusted input, không task nào được ghi khi Owner chưa xác nhận tường minh. | Mục AI-1 ở trên, [AI architecture and safety](../ai/architecture-and-safety.md) |
@@ -161,7 +178,6 @@ Các phase dưới đây **chưa thuộc lộ trình đã cam kết**: mỗi m�
 
 | Đề xuất | Nội dung | Trạng thái |
 |---|---|---|
-| Phase 1.5 — Quan hệ Task | Subtask sâu đúng một cấp (`parent_task_id`) và phụ thuộc blocking (`task_dependencies`) có chống cycle; phụ thuộc xuyên project bất khả thi ở tầng database; không cưỡng chế move. | [ADR-0011](../decisions/ADR-0011-task-relations-subtask-and-dependency.md) `Proposed` |
 
 Phase 1.4 và 1.5 phụ thuộc ADR-0008: "task chưa hoàn thành" khi đóng sprint và tiến độ của task cha đều được định nghĩa bằng `is_terminal`.
 

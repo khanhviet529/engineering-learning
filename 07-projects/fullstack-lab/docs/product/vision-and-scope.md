@@ -61,6 +61,12 @@ Task MVP có creator, assignee, category fixed, priority fixed, start/end date o
 
 MVP mở rộng thêm `My Tasks` list/calendar và Project Dashboard chỉ đọc. Hai view này dùng cùng Task/Activity data đã authorized, không có bảng planning riêng trong core MVP (Sprint là lớp planning riêng của Phase 1.4), không có recurring task, notification, dependency, attachment hay custom field. Dashboard chỉ trả aggregate project-scoped; My Tasks chỉ trả task mà actor được phép đọc và được giao cho actor.
 
+## Phase 1.5: quan hệ giữa Task
+
+Subtask và phụ thuộc không thuộc core MVP; chúng là Phase 1.5, sau Sprint. Subtask là một Task đầy đủ có cha, **sâu đúng một cấp** (task đã có cha không làm cha của task khác), nên vẫn gán được người, di chuyển được trên board và ghi giờ được như mọi task. Phụ thuộc chỉ có một loại là blocking, có chống chu trình, và **không** chặn việc move: blocking là thông tin cảnh báo, không phải cưỡng chế.
+
+Cây nhiều tầng, epic, quan hệ ngoài blocking, phụ thuộc xuyên project, critical path và Gantt không thuộc Phase 1.5.
+
 ## Phase 1.4: Sprint theo project
 
 Sprint không thuộc core MVP. Đây là lớp **planning** tùy chọn do Owner bật cho từng project: sprint có tên, mục tiêu, khoảng ngày và vòng đời `planned → active → closed`, mỗi project có tối đa một sprint đang active. Task gán vào sprint qua chính task update; `sprintId` rỗng nghĩa là **backlog**, nên sprint không bao giờ bắt buộc và backlog vẫn là nơi hợp lệ để ý tưởng nằm chờ.
@@ -78,7 +84,7 @@ Timer, payroll, billing, invoice, time export, email, queue, worker, custom role
 Các mục sau bị loại trừ có chủ đích, không phải hạng mục còn thiếu của bản phát hành đầu:
 
 - AI, realtime collaboration và custom roles;
-- labels, checklists, task dependencies, recurring tasks và templates;
+- labels, checklists, recurring tasks và templates;
 - calendar/daily-planning views, attachments, public API, billing và ứng dụng mobile;
 - microservices, multi-region deployment và tự động gửi email báo cáo.
 

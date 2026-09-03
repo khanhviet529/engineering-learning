@@ -134,7 +134,7 @@ Yêu cầu `task:read` và `comment:read`. Query chỉ nhận comment-page `curs
 
 ### PATCH /tasks/:taskId — sửa content/assignment task
 
-Yêu cầu `task:update` và khi đổi `assigneeId` thì `task:assign`, CSRF và `Idempotency-Key`. Body phải có `{ "expectedVersion" }` cùng một hoặc nhiều field `title`, `description`, `assigneeId`, `category`, `priority`, `startDate`, `dueDate`, `reviewerId`, `evidenceUrl` (gửi `null` để xoá liên kết) và `sprintId` ở Phase 1.4 (`null` để đưa task về backlog; sprint phải cùng project và chưa `closed`). `200` trả committed task với version tăng, dueState mới và ghi `task.updated`. Use case reject `projectId`, `columnId`, `createdBy`, `position`, `version`, dueState, timestamp/audit field và empty patch. `expectedVersion` stale trả `409 TASK_VERSION_CONFLICT` cùng current version, không có activity; assignee/reviewer/input cross-project hoặc date invalid bị reject trước commit.
+Yêu cầu `task:update` và khi đổi `assigneeId` thì `task:assign`, CSRF và `Idempotency-Key`. Body phải có `{ "expectedVersion" }` cùng một hoặc nhiều field `title`, `description`, `assigneeId`, `category`, `priority`, `startDate`, `dueDate`, `reviewerId`, `evidenceUrl` (gửi `null` để xoá liên kết) `sprintId` ở Phase 1.4 (`null` để đưa task về backlog; sprint phải cùng project và chưa `closed`) và `parentTaskId` ở Phase 1.5 (`null` để bỏ cha; xem mục quan hệ Task). `200` trả committed task với version tăng, dueState mới và ghi `task.updated`. Use case reject `projectId`, `columnId`, `createdBy`, `position`, `version`, dueState, timestamp/audit field và empty patch. `expectedVersion` stale trả `409 TASK_VERSION_CONFLICT` cùng current version, không có activity; assignee/reviewer/input cross-project hoặc date invalid bị reject trước commit.
 
 ### POST /tasks/:taskId/move — di chuyển task có concurrency check
 
@@ -167,6 +167,20 @@ Chỉ Phase 1.1. Yêu cầu `report:export`; `200` trả report metadata an toà
 ### GET /reports/:reportId/download — tải export sẵn sàng
 
 Chỉ Phase 1.1. Yêu cầu `report:export`. Khi status là `ready` và chưa expired, `200` stream XLSX với `Content-Type`, disposition và `X-Request-Id` an toàn; không bọc file trong JSON. `requested`/`failed` trả `409 REPORT_NOT_READY`, sau expiry trả `410 REPORT_EXPIRED`, report out-of-scope trả `404`. Download authorization được kiểm tra lại lúc request.
+
+## Quan hệ Task — Phase 1.5, không phải core MVP
+
+Các route dưới đây chỉ tồn tại khi Phase 1.5 bắt đầu. Chúng dùng cùng guard chain và **không** thêm permission mới: thay đổi quan hệ là thay đổi nội dung task nên dùng `task:update`.
+
+`PATCH /tasks/:taskId` nhận thêm `parentTaskId` (`null` để bỏ cha). Cha phải cùng project, khác chính task, và **không được có cha của riêng nó** — subtask sâu đúng một cấp; vi phạm trả `400 VALIDATION_FAILED`. Gán cha không di chuyển task và không kéo theo con.
+
+`POST /tasks/:taskId/dependencies` yêu cầu `task:update`, CSRF và `Idempotency-Key`; body đúng shape `{ "blockingTaskId" }` — task hiện tại là bên bị chặn. Cả hai task phải cùng project. `201` trả cạnh đã tạo. Cạnh tạo chu trình trả `409 TASK_DEPENDENCY_CYCLE`; vượt 50 cạnh mỗi chiều trả `400 VALIDATION_FAILED`; cạnh trùng trả `409 CONFLICT`. Transaction ghi `task_dependency.added`.
+
+`DELETE /task-dependencies/:dependencyId` yêu cầu `task:update`, CSRF và `Idempotency-Key`; không body. `204` xoá cạnh và ghi `task_dependency.removed`. Đây là hard delete có chủ đích; lịch sử nằm ở Activity Log.
+
+`GET /tasks/:taskId` trả thêm `parent` (projection tối giản `{ id, title }` hoặc `null`), `subtaskSummary` (`{ total, done }` đếm con ở column `isTerminal = true`), cùng hai danh sách **có biên** `blocks` và `blockedBy`, mỗi phần tử `{ id, title, columnId, columnIsTerminal }`. Vì giới hạn 50 cạnh nên hai danh sách này không dùng cursor.
+
+**Task bị chặn vẫn move được:** server không chặn việc đưa một task đang bị block vào column terminal. Cưỡng chế cứng đòi phải có đường vượt quyền và audit của nó; ở phase này blocking là thông tin, UI hiển thị cảnh báo và `task:move` giữ nguyên contract.
 
 ## Sprint — Phase 1.4, không phải core MVP
 

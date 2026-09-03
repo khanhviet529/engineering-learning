@@ -133,6 +133,7 @@ Constraints: `UNIQUE (project_id, position)` khai báo `DEFERRABLE INITIALLY IMM
 | `version` | `integer` | No | `DEFAULT 1`, `CHECK (version > 0)` | Optimistic concurrency version. |
 | `start_date` | `date` | Yes |  | Optional calendar start date, không time-of-day. |
 | `due_date` | `date` | Yes |  | Optional calendar end/due date, không time-of-day. |
+| `parent_task_id` | `uuid` | Yes | with `project_id`: FK → `tasks(project_id, id)`, `CHECK (parent_task_id IS NULL OR parent_task_id <> id)` | Task cha, chỉ Phase 1.5. **Sâu đúng một cấp**: task đã có cha không được làm cha của task khác — quy tắc use-case làm đồ thị cha–con cycle-free theo cấu trúc, FK không diễn đạt được ([ADR-0011](../decisions/ADR-0011-task-relations-subtask-and-dependency.md)). |
 | `sprint_id` | `uuid` | Yes | with `project_id`: FK → `sprints(project_id, id)` | Sprint đang chứa task, chỉ Phase 1.4. `NULL` nghĩa **backlog** và luôn hợp lệ — sprint không bao giờ bắt buộc ([ADR-0010](../decisions/ADR-0010-sprint-iteration.md)). |
 | `evidence_url` | `text` | Yes | validation application | Một liên kết bằng chứng, scheme `https` bắt buộc, tối đa 2048 ký tự. **Server không bao giờ fetch URL này** (không preview, không unfurl, không resolve redirect) — fetch sẽ biến field người dùng nhập thành SSRF vector. Không phải attachment: không upload, không storage, không quota ([ADR-0009](../decisions/ADR-0009-task-evidence-and-comment-formatting.md)). |
 | `created_at` | `timestamptz` | No |  | UTC. |
@@ -228,6 +229,27 @@ Migration/table này chỉ được tạo khi Phase 1.1 bắt đầu; nó không
 | `updated_at` | `timestamptz` | No |  | UTC khi status/file metadata đổi. |
 
 Retention: file phải inaccessible sau `expires_at`; export row giữ audit/snapshot metadata sau expiry. Physical file purge schedule, queue retry/idempotency và delivery state thuộc Phase 1.2/retention policy sau, không phải core MVP.
+
+## Bảng Phase 1.5, quan hệ giữa Task
+
+Migration Phase 1.5 là additive. Nó không tạo loại quan hệ nào ngoài blocking, không tạo critical path, Gantt hay quan hệ xuyên project.
+
+### `task_dependencies`
+
+| Cột | PostgreSQL type | Null | Key / constraint | Ghi chú |
+|---|---|:---:|---|---|
+| `id` | `uuid` | No | PK | Dependency identifier. |
+| `project_id` | `uuid` | No | FK → `projects(id)` | Project scope. |
+| `blocking_task_id` | `uuid` | No | with `project_id`: FK → `tasks(project_id, id)` | Task chặn. |
+| `blocked_task_id` | `uuid` | No | with `project_id`: FK → `tasks(project_id, id)` | Task bị chặn. |
+| `created_by_user_id` | `uuid` | No | FK → `users(id)` | Actor tạo cạnh. |
+| `created_at` | `timestamptz` | No |  | UTC. |
+
+Constraints: `UNIQUE (project_id, blocking_task_id, blocked_task_id)`; `CHECK (blocking_task_id <> blocked_task_id)`. Composite FK hai phía làm **phụ thuộc xuyên project bất khả thi ngay ở tầng database**, không chỉ ở use case. Không có `updated_at` vì row chỉ được insert hoặc xoá, không update.
+
+Chống cycle là use-case transaction rule: insert lấy advisory transaction lock theo `(project_id)`, chạy recursive CTE kiểm tra khả năng tới được, rồi mới ghi; cycle trả `409 TASK_DEPENDENCY_CYCLE`. Đây là *aggregate* (khả năng tới được trong đồ thị) nên không constraint nào của database thay thế được — khác với "đúng một sprint active" ở Phase 1.4 vốn chỉ cần partial unique index. Tối đa **50 cạnh mỗi chiều cho một task** để recursive walk luôn có biên.
+
+Retention: **xoá cạnh là xoá row thật** (`DELETE`), là hard delete đầu tiên của schema. Ngoại lệ có chủ đích: row này là cạnh join thuần, không mang nội dung người dùng, và lịch sử nằm ở ActivityLog (`task_dependency.added`, `task_dependency.removed`) đúng nguyên tắc Activity Log là nguồn lịch sử. Soft delete chỉ buộc mọi query filter thêm mà không đổi được gì.
 
 ## Bảng Phase 1.4, Sprint theo project
 
@@ -340,6 +362,7 @@ Constraints: `UNIQUE(project_id, user_id, work_date)`. Reopen/update cùng targe
 5. Tạo `report_exports` và index liên quan chỉ với Phase 1.1.
 6. Khi Phase 1.4 bắt đầu, tạo `project_sprint_settings` và `sprints` sau `projects`, rồi thêm `tasks.sprint_id` cùng composite FK và partial unique index của sprint active; migration additive và settings mặc định disabled.
 7. Khi Phase 1.3 bắt đầu, tạo `project_time_tracking_settings`, `project_time_approvers`, `work_logs`, `work_log_access_overrides` sau projects/project_members/tasks; migration additive và settings mặc định disabled.
-8. Không tạo bảng queue, email delivery, AI, labels, attachments hay post-MVP table nào cho core behavior; Phase 1.3 không tạo timer/payroll/billing/time-export tables và Phase 1.4 không tạo estimate/velocity/capacity tables.
+8. Khi Phase 1.5 bắt đầu, thêm `tasks.parent_task_id` cùng composite FK/CHECK và tạo `task_dependencies` sau `tasks`; migration additive.
+9. Không tạo bảng queue, email delivery, AI, labels, attachments hay post-MVP table nào cho core behavior; Phase 1.3 không tạo timer/payroll/billing/time-export tables và Phase 1.4 không tạo estimate/velocity/capacity tables.
 
 Index cụ thể và cách query/transaction dùng các bảng này nằm ở [query và index policy](query-and-index-policy.md).
