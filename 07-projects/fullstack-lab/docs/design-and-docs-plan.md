@@ -13,7 +13,7 @@
 3. Dùng Pencil để thiết kế bố cục, thành phần, biến thể, trạng thái và responsive behavior; liên kết bàn giao được ghi trong `design/pencil-handoff.md`.
 4. Chỉ lập kế hoạch hoặc scaffold ứng dụng sau khi hợp đồng Markdown và thiết kế Pencil cần thiết đã ổn định.
 
-Hai dòng công việc chạy song song nên ranh giới file phải rõ: dòng **design** sở hữu `docs/design/*` cùng `docs/design/flowboard-v0.1.pen`; dòng **contract** sở hữu phần còn lại của `docs/`. Mỗi bên chỉ stage đúng path của mình khi commit (`git add <đường dẫn cụ thể>`, **không** `git add <thư mục>`) — dùng cả thư mục sẽ quét luôn file bên kia đang sửa và gộp công việc của họ vào commit sai, đã xảy ra một lần ở `b71c835`. Khi một bên phát hiện thiếu contract, escalate thay vì tự sửa file của bên kia.
+Hai dòng công việc chạy song song nên ranh giới phải chia theo **file**, không theo thư mục — `docs/design/` chứa cả tài sản visual lẫn hợp đồng hành vi, nên chia theo thư mục là sai. Dòng **design** sở hữu `design/pencil-handoff.md`, `design/pencil-execution-checklist.md`, `design/pencil-refactor-checklist.md` và `design/flowboard-v0.1.pen`. Dòng **contract** sở hữu toàn bộ phần còn lại của `docs/`, **bao gồm** `design/interaction-specifications.md`, `design/screen-inventory.md`, `design/user-flows.md` và `design/information-architecture.md` — đây là hợp đồng hành vi/IA, Markdown là nguồn chân lý cho chúng. `design/design-system.md` là file dùng chung: design sở hữu token, cấu trúc component và quy tắc visual; contract sở hữu những dòng suy ra từ API/behavior (ví dụ nguồn của `dueState`, `evidenceUrl`, subset Markdown của comment). Mỗi bên chỉ stage đúng path của mình khi commit (`git add <đường dẫn cụ thể>`, **không** `git add <thư mục>`) — dùng cả thư mục sẽ quét luôn file bên kia đang sửa và gộp công việc của họ vào commit sai, đã xảy ra một lần ở `b71c835`. Khi một bên phát hiện thiếu contract, escalate thay vì tự sửa file của bên kia.
 
 Markdown là nguồn chân lý cho quy tắc sản phẩm, hành vi hệ thống, hợp đồng kỹ thuật và quy trình vận hành. Pencil là nguồn chân lý cho thiết kế UI trực quan; nó không thay thế quyết định về phạm vi, phân quyền, dữ liệu hoặc API.
 
@@ -76,5 +76,22 @@ Checklist này là bản theo dõi rút gọn; chi tiết tiêu chí và review 
 - **Hiện trạng:** Loạt cập nhật design ngày 03/09/2026 (`design-system.md`, `pencil-handoff.md`, `pencil-execution-checklist.md`, `pencil-refactor-checklist.md`, `screen-inventory.md`) báo cáo Canvas v0.4 đã hoàn tất: 113 root frame, 9 reusable component / ~350 instance, 150 biến token và 0 hex ghi cứng, 1.742 text node đạt WCAG AA, 0 lỗi layout, bộ mobile 9 màn × 2 theme, 10 trang authentication.
 - **Bằng chứng ngược:** `docs/design/flowboard-v0.1.pen` trong repository là blob `7ff13e6a26354aafdc608d2b4dd6194308369a9b`, **giống hệt** bản đã commit ở `aa23e17` (02/09 22:43); mtime của file là 02/09 22:23:20, trong khi các mục Canvas v0.4 được ghi 03/09 00:39–00:41. Toàn bộ workspace chỉ có đúng một file `.pen` và nó không được ghi lại sau 22:23. Vì vậy trạng thái canvas mà tài liệu mô tả không tồn tại trong repository và không kiểm chứng được.
 - **Xử lý:** Giữ nguyên phần nội dung dùng được (quy tắc ramp/theme, quy ước tên frame, bẫy kỹ thuật Pencil, bảng trật tự canvas, phủ mobile) vì chúng là tri thức làm việc độc lập với số đo; thêm khối “Chờ kiểm chứng artifact” vào từng mục Canvas v0.4; đưa các checkbox khẳng định trạng thái canvas trong `pencil-execution-checklist.md` về `[ ]`. Đây là cùng cách xử lý đã dùng ở [Báo cáo Task 7](#báo-cáo-task-7--checklist-chờ-re-review): controller chỉ đánh dấu lại sau khi kiểm chứng độc lập.
-- **Điều kiện để đánh dấu lại:** file `.pen` được ghi vào đúng `docs/design/flowboard-v0.1.pen` với blob khác `7ff13e6a`, kèm output thật của script đo trên chính file đó (số frame, reusable/instance, biến token, node dưới ngưỡng tương phản) và `git hash-object` của file sau khi ghi. Không đánh dấu lại dựa trên báo cáo dạng văn xuôi.
+- **Baseline đo được (03/09/2026, qua Pencil MCP trên chính file trên disk, hash `7ff13e6a`):**
+
+| Chỉ số | Giá trị baseline |
+|---|---|
+| `nodes` | 6691 |
+| top-level frame (màn hình) | 79 |
+| `reusable` component | 8 |
+| `ref` instance | 0 |
+| property dùng hex ghi cứng | 4362 |
+| giá trị hex khác nhau | 68 |
+| variable / trong đó tiền tố `fb.` | 31 / 0 |
+| text node / trong đó `fontSize < 11` | 2562 / 0 |
+| node bị clip ngoài chủ đích | 0 |
+| theme axis | `mode: light, dark` |
+
+  Sáu chỉ số đầu **khớp chính xác** con số mà đợt design 03/09 báo là trạng thái "trước v0.4" (6.691 · 79 · 8 · 0 · 4.362 · 68). Điều đó xác nhận hai việc cùng lúc: phương pháp đo của họ là thật, và trạng thái v0.4 **không tồn tại** trên file — `fb.` = 0 cho thấy cả phần token hoá cũng chưa có. Đây là baseline chính thức để so mọi báo cáo sau.
+
+- **Điều kiện để đánh dấu lại:** báo cáo phải kèm ba thứ, đo trên file **sau khi đã ghi**: (a) `git hash-object docs/design/flowboard-v0.1.pen` khác `7ff13e6a`; (b) `git status --porcelain` thấy file ở trạng thái `M`; (c) output thô của cùng script đo, in lại **đúng mười chỉ số** trong bảng trên. Các trục phải dịch chuyển đúng hướng để claim v0.4 được chấp nhận: `ref` instance từ 0 lên dương, hex ghi cứng từ 4362 về 0, variable `fb.` từ 0 lên số được khai báo, top-level frame tăng so với 79; đồng thời node bị clip và `fontSize < 11` phải giữ ở 0. Không đánh dấu lại dựa trên báo cáo dạng văn xuôi.
 - **Không kết luận về chất lượng công việc:** phản biện của bên design về AUTH-05 (liên kết một lần thay vì mã 6 số), về việc từ chối rich text HTML cho comment, và về việc giữ `assignee`/`dueDate` nullable đều **đúng hợp đồng** và được giữ; xem [ADR-0009](decisions/ADR-0009-task-evidence-and-comment-formatting.md) cho hai đề xuất còn chờ hợp đồng.
