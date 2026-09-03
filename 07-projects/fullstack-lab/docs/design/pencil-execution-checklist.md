@@ -26,18 +26,18 @@ Checklist này chuyển Markdown baseline v0.1 thành artefact Pencil. Markdown 
 ## 2. Foundations và component system
 
 - [ ] Áp dụng visual direction: clean, calm, productivity-focused.
-- [ ] Chốt semantic color, typography, spacing, radius, elevation, breakpoints và focus token — báo cáo 150 biến `fb.*`, theme-aware, 0 hex ghi cứng (Canvas v0.4), **chờ kiểm chứng artifact**.
+- [ ] Chốt semantic color, typography, spacing, radius, elevation, breakpoints và focus token — quy tắc token và ramp đã là contract ở [design-system.md](design-system.md); hiện thực trong artifact **chưa có**.
 - [ ] Dựng `FbButton`, `FbTextField`, `FbSelect`, `FbDateField`, `FbModal`, `FbDrawer`, `FbAlert`, `FbEmptyState`, `FbPermissionState`, `FbTaskCard`, `FbBoardColumn`, `FbActivityItem`.
 - [ ] Mỗi component có default, hover, focus-visible, disabled, loading, error và responsive rule khi phù hợp.
 - [ ] Ant Design chỉ là primitive; component `Fb*` giữ behavior/style ổn định của Flowboard.
 
 ## 3. Primary MVP flows và screens
 
-- [ ] Authentication: Sign Up, Sign In, Forgot/Reset Password, Email Verification — báo cáo trang đầy đủ Light/Dark kèm biến thể liên kết hết hạn, **chờ kiểm chứng artifact**; checklist mật khẩu phải dựng lại theo [ADR-0007](../decisions/ADR-0007-password-policy.md) vì policy đã đổi.
-- [ ] Workspace/project: Workspace List, Project List, Project Create, Project Settings (`PRJ-03`, Owner-only rename) — **chờ kiểm chứng artifact**.
-- [ ] Board: Project Board, Column Editor, Task Form, Task Detail, Comments, Activity History, Project Members — **chờ kiểm chứng artifact**.
-- [ ] System: Loading, Empty, Network Error, Forbidden, Session Expired, Conflict Resolution — dùng chung `FbStatePanel`, **chờ kiểm chứng artifact**.
-- [ ] Phản ánh role Owner / Editor / Viewer; Workspace Admin không có implicit access vào private project — **chờ kiểm chứng artifact**.
+- [ ] Authentication: Sign Up, Sign In, Forgot/Reset Password, Email Verification — báo cáo trang đầy đủ Light/Dark kèm biến thể liên kết hết hạn, **chưa có trong artifact**; checklist mật khẩu phải dựng lại theo [ADR-0007](../decisions/ADR-0007-password-policy.md) vì policy đã đổi.
+- [ ] Workspace/project: Workspace List, Project List, Project Create, Project Settings (`PRJ-03`, Owner-only rename) — **chưa có trong artifact**.
+- [ ] Board: Project Board, Column Editor, Task Form, Task Detail, Comments, Activity History, Project Members — **chưa có trong artifact**.
+- [ ] System: Loading, Empty, Network Error, Forbidden, Session Expired, Conflict Resolution — dùng chung `FbStatePanel`, **chưa có trong artifact**.
+- [ ] Phản ánh role Owner / Editor / Viewer; Workspace Admin không có implicit access vào private project — **chưa có trong artifact**.
 
 ## 4. Interaction và responsive behavior
 

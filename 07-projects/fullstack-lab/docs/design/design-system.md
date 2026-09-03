@@ -89,7 +89,7 @@ Các phần sau bắt buộc là reusable dùng chung: shell (sidebar mở rộn
 
 Các mục còn lại của catalog chỉ dùng ở một hoặc hai screen; chúng là **composition theo Screen ID** compose từ các reusable trên, và vẫn là component ở frontend theo bảng catalog.
 
-**Đang chờ hợp đồng (render trước trong Pencil, chưa phải contract):** trường `Liên kết bằng chứng` ở Task Form/Task Detail và toolbar định dạng cơ bản của comment composer đã được đưa vào [ADR-0009](../decisions/ADR-0009-task-evidence-and-comment-formatting.md) (**Proposed**). Khi ADR được duyệt: `evidenceUrl` là một URL `https` duy nhất và server không bao giờ fetch nó; comment vẫn là plain text immutable, toolbar chỉ chèn cú pháp Markdown thuộc subset allowlist mà client render, không có HTML thô. Trước khi ADR được duyệt, frontend không coi hai mục này là hành vi thật.
+**Liên kết bằng chứng và định dạng comment (đã là contract theo [ADR-0009](../decisions/ADR-0009-task-evidence-and-comment-formatting.md), Accepted 2026-09-03):** `FbTaskForm` và Task Detail có trường `evidenceUrl` — một URL `https` duy nhất, tối đa 2048 ký tự, optional ở mọi cột kể cả cột yêu cầu review. UI hiển thị host dạng text và **không** fetch preview/thumbnail/favicon. `FbCommentComposer` có thể có toolbar nhưng chỉ chèn cú pháp Markdown thuộc subset allowlist (bold, italic, inline code, code block, list, link); body vẫn là plain text bất biến, không có HTML thô, không image/table/heading/embed, không mention.
 
 ### Task planning và due state
 

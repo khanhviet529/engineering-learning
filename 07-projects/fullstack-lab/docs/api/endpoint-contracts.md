@@ -11,7 +11,7 @@ Các response chỉ trả projection cần cho use case:
   "workspace": { "id": "uuid", "name": "Engineering", "role": "workspace_admin", "capabilities": ["workspace:read", "project:create"] },
   "project": { "id": "uuid", "workspaceId": "uuid", "name": "Launch", "createdAt": "2026-09-01T08:30:00Z", "updatedAt": "2026-09-01T08:30:00Z" },
   "column": { "id": "uuid", "projectId": "uuid", "name": "In progress", "requiresReviewer": false, "isTerminal": false, "position": "100.0000000000", "archivedAt": null },
-  "task": { "id": "uuid", "projectId": "uuid", "columnId": "uuid", "createdBy": { "id": "uuid", "displayName": "Mai" }, "assigneeId": null, "reviewerId": null, "title": "Prepare launch", "description": "", "category": "feature", "priority": "medium", "startDate": null, "dueDate": null, "dueState": "none", "position": "100.0000000000", "version": 1, "createdAt": "2026-09-01T08:30:00Z", "updatedAt": "2026-09-01T08:30:00Z" },
+  "task": { "id": "uuid", "projectId": "uuid", "columnId": "uuid", "createdBy": { "id": "uuid", "displayName": "Mai" }, "assigneeId": null, "reviewerId": null, "title": "Prepare launch", "description": "", "category": "feature", "priority": "medium", "startDate": null, "dueDate": null, "dueState": "none", "evidenceUrl": null, "position": "100.0000000000", "version": 1, "createdAt": "2026-09-01T08:30:00Z", "updatedAt": "2026-09-01T08:30:00Z" },
   "member": { "userId": "uuid", "displayName": "Mai", "email": "mai@example.test", "role": "editor" },
   "comment": { "id": "uuid", "taskId": "uuid", "author": { "id": "uuid", "displayName": "Mai" }, "body": "I will take this.", "createdAt": "2026-09-01T08:30:00Z" },
   "activity": { "id": "uuid", "taskId": "uuid-or-null", "actor": { "id": "uuid", "displayName": "Mai" }, "action": "task.created", "summary": "Created task", "createdAt": "2026-09-01T08:30:00Z" }
@@ -126,7 +126,7 @@ Yêu cầu `task:read`. Query chỉ dùng `cursor`, `limit`, `columnId`, `assign
 
 ### POST /projects/:projectId/tasks — tạo task trong column active
 
-Yêu cầu `task:create`, CSRF và `Idempotency-Key`. Body đúng shape `{ "title", "description", "columnId", "assigneeId", "category", "priority", "startDate", "dueDate", "reviewerId" }`; ngoại trừ `title`/`columnId`, field có thể null theo schema. Server đặt `createdBy` từ actor, validate allowlist category/priority, `startDate <= dueDate`, project scope assignee/reviewer và yêu cầu reviewer nếu column cần reviewer. `201` trả task với `position` từ server và `version: 1`, sau đó ghi `task.created`. Client không chọn projectId, createdBy, position, version, dueState, timestamp hay audit field.
+Yêu cầu `task:create`, CSRF và `Idempotency-Key`. Body đúng shape `{ "title", "description", "columnId", "assigneeId", "category", "priority", "startDate", "dueDate", "reviewerId", "evidenceUrl" }`; ngoại trừ `title`/`columnId`, field có thể null theo schema. `evidenceUrl` phải là URL tuyệt đối scheme `https`, tối đa 2048 ký tự; `http`, `javascript:`, `data:`, `file:` và URL quá dài trả `400 VALIDATION_FAILED`. Server đặt `createdBy` từ actor, validate allowlist category/priority, `startDate <= dueDate`, project scope assignee/reviewer và yêu cầu reviewer nếu column cần reviewer. `201` trả task với `position` từ server và `version: 1`, sau đó ghi `task.created`. Client không chọn projectId, createdBy, position, version, dueState, timestamp hay audit field.
 
 ### GET /tasks/:taskId — đọc task detail và comments ban đầu
 
@@ -134,7 +134,7 @@ Yêu cầu `task:read` và `comment:read`. Query chỉ nhận comment-page `curs
 
 ### PATCH /tasks/:taskId — sửa content/assignment task
 
-Yêu cầu `task:update` và khi đổi `assigneeId` thì `task:assign`, CSRF và `Idempotency-Key`. Body phải có `{ "expectedVersion" }` cùng một hoặc nhiều field `title`, `description`, `assigneeId`, `category`, `priority`, `startDate`, `dueDate`, `reviewerId`. `200` trả committed task với version tăng, dueState mới và ghi `task.updated`. Use case reject `projectId`, `columnId`, `createdBy`, `position`, `version`, dueState, timestamp/audit field và empty patch. `expectedVersion` stale trả `409 TASK_VERSION_CONFLICT` cùng current version, không có activity; assignee/reviewer/input cross-project hoặc date invalid bị reject trước commit.
+Yêu cầu `task:update` và khi đổi `assigneeId` thì `task:assign`, CSRF và `Idempotency-Key`. Body phải có `{ "expectedVersion" }` cùng một hoặc nhiều field `title`, `description`, `assigneeId`, `category`, `priority`, `startDate`, `dueDate`, `reviewerId`, `evidenceUrl` (gửi `null` để xoá liên kết). `200` trả committed task với version tăng, dueState mới và ghi `task.updated`. Use case reject `projectId`, `columnId`, `createdBy`, `position`, `version`, dueState, timestamp/audit field và empty patch. `expectedVersion` stale trả `409 TASK_VERSION_CONFLICT` cùng current version, không có activity; assignee/reviewer/input cross-project hoặc date invalid bị reject trước commit.
 
 ### POST /tasks/:taskId/move — di chuyển task có concurrency check
 
@@ -144,7 +144,7 @@ Yêu cầu `task:move`, CSRF và `Idempotency-Key`. Body đúng shape `{ "destin
 
 ### POST /tasks/:taskId/comments — append immutable comment
 
-Yêu cầu `comment:create`, CSRF và `Idempotency-Key`. Body đúng shape `{ "body" }`; `201` trả comment projection. Một transaction insert comment do actor tạo và ghi `comment.created` activity. Cố ý không có PATCH/DELETE/move comment route; unknown field, body empty/invalid, thiếu permission hoặc cross-project task không tạo comment/activity.
+Yêu cầu `comment:create`, CSRF và `Idempotency-Key`. Body đúng shape `{ "body" }`; `201` trả comment projection. `body` là **plain text bất biến**: server lưu đúng những gì người dùng gõ, không normalize, không sanitize-rồi-lưu, không chuyển sang HTML. Cú pháp Markdown trong `body` là quy ước trình bày do client render theo subset allowlist ([ADR-0009](../decisions/ADR-0009-task-evidence-and-comment-formatting.md)), không phải một content type khác. Một transaction insert comment do actor tạo và ghi `comment.created` activity. Cố ý không có PATCH/DELETE/move comment route; unknown field, body empty/invalid, thiếu permission hoặc cross-project task không tạo comment/activity.
 
 ### GET /tasks/:taskId/activity — xem audit history của task
 

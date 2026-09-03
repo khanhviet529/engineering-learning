@@ -69,8 +69,10 @@ Workspace Admin chưa là thành viên project không có hàng “chỉ đọc�
 
 Mỗi Screen ID có frame default và tất cả trạng thái được liệt kê trong bảng. Với `BRD-01`, tối thiểu cần frame desktop content, mobile horizontal content, Loading, Empty, Error và Forbidden. `PRJ-03` cần Owner-only frame Loading, default, validation, Saving, Error, Forbidden và unsaved changes; form chỉ có `name` và annotation `PATCH /projects/:projectId`. Với `TSK-01`/`TSK-02`, tối thiểu cần frame Owner hoặc Editor có thể ghi, Viewer chỉ đọc, validation/unsaved changes và Conflict. Không dùng một frame chung mang nhãn “Admin project”; phải dùng vai trò project cụ thể Owner, Editor hoặc Viewer.
 
-## Phủ mobile (Canvas v0.4)
+## Phạm vi mobile mục tiêu (chưa có trong artifact)
 
-> **Chờ kiểm chứng artifact (03/09/2026).** Số liệu và trạng thái canvas trong mục này chưa kiểm chứng được: `docs/design/flowboard-v0.1.pen` trong repository vẫn đúng bằng bản của commit `aa23e17` (blob `7ff13e6a`, ghi lần cuối 2026-09-02 22:23:20), còn mục này được viết 2026-09-03 00:39–00:41 — file canvas không được ghi lại sau đó. Xem [báo cáo Canvas v0.4](../design-and-docs-plan.md). Quy tắc, quy ước tên và bẫy kỹ thuật ở đây vẫn dùng được; các con số không được coi là đã đạt.
+> **Chưa build.** Mục này là **phạm vi cần dựng**, không phải mô tả artifact hiện có; báo cáo Canvas v0.4 đã bị rút lại — xem [pencil-handoff.md](pencil-handoff.md).
 
-Ngoài desktop, các Screen ID sau có frame mobile 390×844 cho cả Light và Dark trong `flowboard-v0.1.pen`: `AUTH-01`, `PRJ-01`, `BRD-01` (board cuộn ngang, cột kế tiếp lộ mép), `TSK-01` (full-height sheet), `TSK-02` (full-height sheet), `MYT-01`, `PRJ-04`, `WTL-02`, `WTA-01` (filter drawer). Mobile giữ nguyên Screen ID, hành vi và giới hạn quyền của desktop; khác biệt chỉ ở bố cục (sheet thay drawer/modal, board ngang, header mobile).
+Các Screen ID sau cần frame mobile 390×844 cho **cả** Light và Dark: `AUTH-01`, `PRJ-01`, `BRD-01` (board cuộn ngang, cột kế tiếp lộ mép), `TSK-01` (full-height sheet), `TSK-02` (full-height sheet), `MYT-01`, `PRJ-04`, `WTL-02`, `WTA-01` (filter drawer).
+
+Mobile giữ nguyên Screen ID, hành vi và giới hạn quyền của desktop; khác biệt chỉ ở bố cục — sheet thay drawer/modal, board cuộn ngang, header mobile thay topbar. Không dùng bố cục mobile để bỏ bớt CTA, state hay thông tin mà bản desktop có.

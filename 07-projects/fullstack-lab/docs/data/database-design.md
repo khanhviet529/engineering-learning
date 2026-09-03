@@ -133,6 +133,7 @@ Constraints: `UNIQUE (project_id, position)` khai báo `DEFERRABLE INITIALLY IMM
 | `version` | `integer` | No | `DEFAULT 1`, `CHECK (version > 0)` | Optimistic concurrency version. |
 | `start_date` | `date` | Yes |  | Optional calendar start date, không time-of-day. |
 | `due_date` | `date` | Yes |  | Optional calendar end/due date, không time-of-day. |
+| `evidence_url` | `text` | Yes | validation application | Một liên kết bằng chứng, scheme `https` bắt buộc, tối đa 2048 ký tự. **Server không bao giờ fetch URL này** (không preview, không unfurl, không resolve redirect) — fetch sẽ biến field người dùng nhập thành SSRF vector. Không phải attachment: không upload, không storage, không quota ([ADR-0009](../decisions/ADR-0009-task-evidence-and-comment-formatting.md)). |
 | `created_at` | `timestamptz` | No |  | UTC. |
 | `updated_at` | `timestamptz` | No |  | UTC. |
 
@@ -142,6 +143,7 @@ Constraints: direct `FOREIGN KEY (project_id) REFERENCES projects(id)`; `UNIQUE 
 
 - `start_date` và `due_date` là `DATE NULL` theo timezone workspace. Khi cùng có giá trị, application validation và database check bắt buộc `start_date <= due_date`.
 - `reviewer_id`, nếu có, phải là ProjectMember cùng project và khác `assignee_id`. Task vào cột `requires_reviewer = true` không được commit nếu thiếu reviewer hợp lệ.
+- `evidence_url` là optional ở mọi cột, kể cả cột `requires_reviewer = true`: không có nhánh chặn move vì thiếu bằng chứng. Nếu review workflow cần cưỡng chế thì đường đúng là một cờ `requires_evidence` do Owner cấu hình, và đó là quyết định riêng cần ADR mới.
 - `due_state` không có cột DB. Server suy ra `none`, `scheduled`, `due_soon`, `due_today`, `overdue` từ workspace-local date, `due_date` và `board_columns.is_terminal` của cột chứa task. Task ở cột `is_terminal = true` luôn có `due_state = none` bất kể `start_date`/`due_date`, nên terminal không bao giờ overdue; `none` mang nghĩa không có tín hiệu due-state, bao trùm cả trường hợp không có ngày. Enum và filter allowlist của `dueState` không đổi; affordance hoàn thành của UI lấy từ `is_terminal`, không phải từ một giá trị `dueState` thứ sáu.
 - Task query/mutation projection luôn có `createdBy`; đây là người tạo record, không là lịch sử người giao việc. Activity Log là nguồn lịch sử assignment.
 
