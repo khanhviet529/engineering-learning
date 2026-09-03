@@ -43,6 +43,8 @@ The following project permissions are the complete MVP catalog:
 | `comment:create` | Allow | Allow | Deny | Append a comment. Comments are immutable in the MVP. |
 | `activity:read` | Allow | Allow | Allow | Read append-only project/task activity. |
 | `report:export` | Allow | Deny | Deny | Request/download a project-progress export in Phase 1.1. |
+| `sprint:read` | Allow | Allow | Allow | Read sprints and sprint-scoped board in Phase 1.4 when the project has the feature enabled. |
+| `sprint:manage` | Allow | Deny | Deny | Create, update, activate and close sprints, and change sprint settings, in Phase 1.4. |
 | `time-tracking:settings:update` | Allow | Deny | Deny | Enable/mode/backfill and Time Approver list in Phase 1.3. |
 | `work-log:read` | Allow | Allow | Allow | Read authorized project/task WorkLogs when feature is enabled. |
 | `work-log:create:self` | Allow | Allow | Deny | Create an entry authored by actor; does not update Task. |
@@ -55,6 +57,10 @@ The following project permissions are the complete MVP catalog:
 Workspace administration is a separate scope: `workspace:read` is available to either workspace role; `workspace:member:manage`, `workspace:settings:update`, and `project:create` require Workspace Admin. Those workspace abilities do not imply any entry in the project catalog.
 
 The role/visibility matrices in [screen inventory](../design/screen-inventory.md) and [information architecture](../design/information-architecture.md) are **derived** from this catalog, never independent sources. When any of them diverges from the catalog, the catalog wins and the derived matrix is the document to fix. A permission change is not complete until those derived matrices are re-checked; [testing strategy](../operations/testing-strategy.md) carries the test that enforces this.
+
+### Sprint conditions (Phase 1.4)
+
+`sprint:read` and `sprint:manage` additionally require the project to have Sprint enabled in `project_sprint_settings`. When it is disabled, sprint routes deny with `SPRINT_DISABLED` after scope resolution, exactly as Time Tracking does, and no sprint field appears in any projection. Assigning a task to a sprint is an ordinary `task:update`, so it needs no sprint permission of its own; a closed sprint accepts no assignment regardless of role. Viewer stays read-only and a Workspace Admin without ProjectMember remains outside every sprint route.
 
 ### Time Tracking conditions (Phase 1.3)
 

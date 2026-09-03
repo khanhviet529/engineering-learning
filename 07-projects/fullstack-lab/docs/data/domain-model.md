@@ -39,6 +39,8 @@ Authorization không thuộc database một mình. `SessionGuard`, resource/proj
 | `Comment` | Thảo luận bất biến gắn với một Task. | Project thông qua Task. |
 | `ActivityLog` | Lịch sử nghiệp vụ chỉ-ghi-thêm của Project. | Project audit trail. |
 | `ReportExport` | Yêu cầu export, filter snapshot, trạng thái, metadata tệp và expiry. | Project; chỉ có từ Phase 1.1. |
+| `ProjectSprintSettings` | Bật/tắt Sprint và thời lượng sprint mặc định của một Project. | Project; chỉ từ Phase 1.4. |
+| `Sprint` | Khoảng thời gian có tên, mục tiêu và vòng đời `planned → active → closed` của đúng một Project. | Project planning; chỉ từ Phase 1.4. |
 | `ProjectTimeTrackingSettings` | Bật/tắt Time Tracking, approval mode và cửa sổ ghi bù của một Project. | Project; chỉ từ Phase 1.3, Owner quản lý. |
 | `ProjectTimeApprover` | Editor được Owner chỉ định có thể duyệt WorkLog của member khác. | Project; chỉ từ Phase 1.3. |
 | `WorkLog` | Giờ thực tế theo một user–task–ngày, mô tả, status/review/version. | Project qua Task; chỉ từ Phase 1.3. |

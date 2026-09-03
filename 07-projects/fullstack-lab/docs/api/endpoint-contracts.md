@@ -11,7 +11,7 @@ Các response chỉ trả projection cần cho use case:
   "workspace": { "id": "uuid", "name": "Engineering", "role": "workspace_admin", "capabilities": ["workspace:read", "project:create"] },
   "project": { "id": "uuid", "workspaceId": "uuid", "name": "Launch", "createdAt": "2026-09-01T08:30:00Z", "updatedAt": "2026-09-01T08:30:00Z" },
   "column": { "id": "uuid", "projectId": "uuid", "name": "In progress", "requiresReviewer": false, "isTerminal": false, "position": "100.0000000000", "archivedAt": null },
-  "task": { "id": "uuid", "projectId": "uuid", "columnId": "uuid", "createdBy": { "id": "uuid", "displayName": "Mai" }, "assigneeId": null, "reviewerId": null, "title": "Prepare launch", "description": "", "category": "feature", "priority": "medium", "startDate": null, "dueDate": null, "dueState": "none", "evidenceUrl": null, "position": "100.0000000000", "version": 1, "createdAt": "2026-09-01T08:30:00Z", "updatedAt": "2026-09-01T08:30:00Z" },
+  "task": { "id": "uuid", "projectId": "uuid", "columnId": "uuid", "createdBy": { "id": "uuid", "displayName": "Mai" }, "assigneeId": null, "reviewerId": null, "title": "Prepare launch", "description": "", "category": "feature", "priority": "medium", "startDate": null, "dueDate": null, "dueState": "none", "evidenceUrl": null, "sprintId": null, "position": "100.0000000000", "version": 1, "createdAt": "2026-09-01T08:30:00Z", "updatedAt": "2026-09-01T08:30:00Z" },
   "member": { "userId": "uuid", "displayName": "Mai", "email": "mai@example.test", "role": "editor" },
   "comment": { "id": "uuid", "taskId": "uuid", "author": { "id": "uuid", "displayName": "Mai" }, "body": "I will take this.", "createdAt": "2026-09-01T08:30:00Z" },
   "activity": { "id": "uuid", "taskId": "uuid-or-null", "actor": { "id": "uuid", "displayName": "Mai" }, "action": "task.created", "summary": "Created task", "createdAt": "2026-09-01T08:30:00Z" }
@@ -134,7 +134,7 @@ Yêu cầu `task:read` và `comment:read`. Query chỉ nhận comment-page `curs
 
 ### PATCH /tasks/:taskId — sửa content/assignment task
 
-Yêu cầu `task:update` và khi đổi `assigneeId` thì `task:assign`, CSRF và `Idempotency-Key`. Body phải có `{ "expectedVersion" }` cùng một hoặc nhiều field `title`, `description`, `assigneeId`, `category`, `priority`, `startDate`, `dueDate`, `reviewerId`, `evidenceUrl` (gửi `null` để xoá liên kết). `200` trả committed task với version tăng, dueState mới và ghi `task.updated`. Use case reject `projectId`, `columnId`, `createdBy`, `position`, `version`, dueState, timestamp/audit field và empty patch. `expectedVersion` stale trả `409 TASK_VERSION_CONFLICT` cùng current version, không có activity; assignee/reviewer/input cross-project hoặc date invalid bị reject trước commit.
+Yêu cầu `task:update` và khi đổi `assigneeId` thì `task:assign`, CSRF và `Idempotency-Key`. Body phải có `{ "expectedVersion" }` cùng một hoặc nhiều field `title`, `description`, `assigneeId`, `category`, `priority`, `startDate`, `dueDate`, `reviewerId`, `evidenceUrl` (gửi `null` để xoá liên kết) và `sprintId` ở Phase 1.4 (`null` để đưa task về backlog; sprint phải cùng project và chưa `closed`). `200` trả committed task với version tăng, dueState mới và ghi `task.updated`. Use case reject `projectId`, `columnId`, `createdBy`, `position`, `version`, dueState, timestamp/audit field và empty patch. `expectedVersion` stale trả `409 TASK_VERSION_CONFLICT` cùng current version, không có activity; assignee/reviewer/input cross-project hoặc date invalid bị reject trước commit.
 
 ### POST /tasks/:taskId/move — di chuyển task có concurrency check
 
@@ -167,6 +167,22 @@ Chỉ Phase 1.1. Yêu cầu `report:export`; `200` trả report metadata an toà
 ### GET /reports/:reportId/download — tải export sẵn sàng
 
 Chỉ Phase 1.1. Yêu cầu `report:export`. Khi status là `ready` và chưa expired, `200` stream XLSX với `Content-Type`, disposition và `X-Request-Id` an toàn; không bọc file trong JSON. `requested`/`failed` trả `409 REPORT_NOT_READY`, sau expiry trả `410 REPORT_EXPIRED`, report out-of-scope trả `404`. Download authorization được kiểm tra lại lúc request.
+
+## Sprint — Phase 1.4, không phải core MVP
+
+Các route Sprint chỉ tồn tại khi Phase 1.4 bắt đầu và project đã bật feature; khi tắt, chúng deny `SPRINT_DISABLED` sau scope resolution và task projection không có `sprintId`. Chúng dùng cùng `SessionGuard → ResourceProjectResolver → ProjectPermissionGuard → use case → scoped repository`; không có generic table endpoint.
+
+`GET/PATCH /projects/:projectId/sprint-settings` yêu cầu `sprint:manage` (Owner). PATCH body chỉ nhận `{ enabled, defaultDurationDays, expectedVersion }` với `defaultDurationDays` là integer 7–28; `200` trả settings/version/capabilities, version stale trả `409 SPRINT_VERSION_CONFLICT`.
+
+`GET /projects/:projectId/sprints` yêu cầu `sprint:read`; query chỉ `status`, `cursor`, `limit`. `200` trả cursor page sprint projection `{ id, projectId, name, goal, startsOn, endsOn, status, closedAt, version, createdAt, updatedAt }`.
+
+`POST /projects/:projectId/sprints` yêu cầu `sprint:manage`, CSRF và `Idempotency-Key`; body đúng shape `{ "name", "goal", "startsOn", "endsOn" }`. Sprint mới luôn ở `planned`; `startsOn <= endsOn` và tên phải unique trong project. `PATCH /sprints/:sprintId` nhận `{ name?, goal?, startsOn?, endsOn?, expectedVersion }` và chỉ áp dụng cho sprint chưa `closed`.
+
+`POST /sprints/:sprintId/activate` yêu cầu `sprint:manage`, CSRF, `Idempotency-Key` và `{ expectedVersion }`. Chỉ sprint `planned` được activate; nếu project đã có sprint `active` thì partial unique index từ chối và API trả `409 SPRINT_ALREADY_ACTIVE` — hai request đồng thời không thể cùng thành công.
+
+`POST /sprints/:sprintId/close` yêu cầu `sprint:manage`, CSRF, `Idempotency-Key`; body đúng shape `{ "unfinishedTasks": "backlog" | "move_to_sprint", "targetSprintId"?, "expectedVersion" }`. `targetSprintId` bắt buộc và chỉ hợp lệ khi `unfinishedTasks = "move_to_sprint"`, phải là sprint `planned` cùng project. "Chưa hoàn thành" là task đang ở column `isTerminal = false`. `200` trả sprint đã đóng cùng số task đã chuyển; sprint `closed` sau đó từ chối mọi thay đổi và mọi gán task với `409 SPRINT_CLOSED`.
+
+Gán hoặc bỏ gán sprint cho task dùng `PATCH /tasks/:taskId` với `sprintId` (hoặc `null` để về backlog) — không có bulk endpoint ở phase này; UI planning gửi N request và hiển thị kết quả từng dòng.
 
 ## Time Tracking — Phase 1.3, không phải core MVP
 

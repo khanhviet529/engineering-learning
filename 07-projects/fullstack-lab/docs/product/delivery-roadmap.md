@@ -62,6 +62,22 @@ Quyền project vẫn là ranh giới không đổi ở mọi phase: Project Own
 
 **Vì sao không đưa vào core MVP:** luồng tạo/giao/di chuyển task vẫn hoàn tất khi chưa có timesheet. Time Tracking thêm workflow, approval và dữ liệu audit riêng nên chỉ mở sau khi task/permission/concurrency baseline được kiểm chứng.
 
+## Phase 1.4 — Sprint theo project
+
+**Mục tiêu sản phẩm:** Owner bật Sprint cho từng project để lập kế hoạch theo chu kỳ: tạo sprint có mục tiêu và khoảng ngày, activate đúng một sprint tại một thời điểm, và đóng sprint với quyết định tường minh cho task chưa hoàn thành.
+
+| Ràng buộc | Tiêu chí chấp nhận |
+|---|---|
+| Cấu hình và quyền | Chỉ Owner bật/tắt và quản lý sprint (`sprint:manage`); Editor và Viewer chỉ đọc (`sprint:read`). Workspace Admin chưa là project member vẫn ngoài mọi route. |
+| Tính đúng đắn | Đúng một sprint `active` mỗi project, cưỡng chế bằng partial unique index chứ không phải lock thủ công; `startsOn <= endsOn`; sprint `closed` bất biến, không mở lại và không nhận thêm task. |
+| Backlog | `sprintId` rỗng là backlog và luôn hợp lệ — sprint không bao giờ bắt buộc; gán sprint đi qua task update thường, phase này không có bulk endpoint. |
+| Đóng sprint | Owner phải chọn tường minh `backlog` hoặc `move_to_sprint` cho task đang ở column `is_terminal = false`; không có carry-over ngầm. |
+| Hạ tầng | PostgreSQL/API/web hiện có; không cần Redis, worker, timer background hay provider mới. |
+
+**Vì sao không đưa vào core MVP:** vòng lặp tạo/giao/di chuyển task vẫn hoàn tất khi chưa có sprint, và nhiều team nhỏ chạy kanban liên tục. Sprint là lớp planning thêm trên vòng lặp đã kiểm chứng, nên bật theo từng project đúng như Time Tracking.
+
+**Không thuộc phase này:** story point/estimation, velocity, burndown, capacity planning, auto-rollover, sprint xuyên project và aggregate giờ theo sprint.
+
 ## AI-1 — đề xuất task từ mục tiêu Owner
 
 **Mục tiêu sản phẩm:** Owner nhập một mục tiêu; AI tạo các đề xuất task có cấu trúc và không tự ghi thay dữ liệu project.
@@ -122,6 +138,7 @@ Flowboard là một lab: mỗi phase phải kèm ít nhất một failure experi
 | Phase 1.1 | Gửi lại export request với cùng `Idempotency-Key`, cùng actor, cùng canonical payload: nhận lại cùng export record, không có bản thứ hai; cùng key với payload khác bị từ chối. | [Progress export](../reporting/progress-export.md) |
 | Phase 1.2 | Kill worker giữa chừng rồi để BullMQ giao lại job (at-least-once), hoặc enqueue lặp cùng job: status transition compare-and-set/lease và stable job ID bảo đảm generate/gửi mail không lặp side effect; attempt count và audit phản ánh đúng. | [Progress export](../reporting/progress-export.md) |
 | Phase 1.2 | Làm Redis/queue unavailable: API request core vẫn phản hồi (liveness không phụ thuộc dependency outage), export job báo trạng thái lỗi an toàn có error code, không mất intent record trong PostgreSQL. | [Progress export](../reporting/progress-export.md) (queue outage gate), [local development](../operations/local-development.md) |
+| Phase 1.4 | Gửi đồng thời hai request activate hai sprint khác nhau của cùng project: đúng một thành công, request còn lại nhận `409 SPRINT_ALREADY_ACTIVE` vì partial unique index từ chối ở tầng database. Đặt cạnh thí nghiệm 1.440 phút để thấy khác biệt giữa uniqueness constraint và advisory lock. | [ADR-0010](../decisions/ADR-0010-sprint-iteration.md), [query and index policy](../data/query-and-index-policy.md) |
 | Phase 1.3 | Gửi hai WorkLog request đồng thời cho cùng `(project, user, work_date)` với tổng vượt 1.440 phút: advisory transaction lock buộc tuần tự hóa, một request commit, request còn lại bị reject validation; daily total không bao giờ vượt 1.440. | [Query and index policy](../data/query-and-index-policy.md), [database design](../data/database-design.md) |
 | AI-1 | Ép model trả structured output sai schema hoặc chứa field vượt quyền (`projectId`, role…): output bị reject như untrusted input, không task nào được ghi khi Owner chưa xác nhận tường minh. | Mục AI-1 ở trên, [AI architecture and safety](../ai/architecture-and-safety.md) |
 | AI-2 | Yêu cầu tóm tắt "toàn workspace" hoặc project khác qua prompt: context builder phía server vẫn chỉ nạp đúng một project; phạm vi do model tự nêu bị bỏ qua. | Mục AI-2 ở trên, [AI architecture and safety](../ai/architecture-and-safety.md) |
@@ -144,7 +161,6 @@ Các phase dưới đây **chưa thuộc lộ trình đã cam kết**: mỗi m�
 
 | Đề xuất | Nội dung | Trạng thái |
 |---|---|---|
-| Phase 1.4 — Sprint | Sprint bật theo từng project; `planned → active → closed`; `sprint_id` nullable nên backlog vẫn tồn tại; đúng một sprint active mỗi project. Không estimate, không burndown, không capacity. | [ADR-0010](../decisions/ADR-0010-sprint-iteration.md) `Proposed` |
 | Phase 1.5 — Quan hệ Task | Subtask sâu đúng một cấp (`parent_task_id`) và phụ thuộc blocking (`task_dependencies`) có chống cycle; phụ thuộc xuyên project bất khả thi ở tầng database; không cưỡng chế move. | [ADR-0011](../decisions/ADR-0011-task-relations-subtask-and-dependency.md) `Proposed` |
 
 Phase 1.4 và 1.5 phụ thuộc ADR-0008: "task chưa hoàn thành" khi đóng sprint và tiến độ của task cha đều được định nghĩa bằng `is_terminal`.

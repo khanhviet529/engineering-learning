@@ -59,7 +59,13 @@ Ví dụ, phân quyền theo project, xử lý xung đột khi cập nhật task
 
 Task MVP có creator, assignee, category fixed, priority fixed, start/end date optional và reviewer điều kiện. `overdue` là derived display/filter state theo timezone workspace, không là board status. Owner cấu hình column nào cần reviewer; workflow này không tạo role mới và không bắt buộc với mọi project. Task draft persisted không thuộc MVP.
 
-MVP mở rộng thêm `My Tasks` list/calendar và Project Dashboard chỉ đọc. Hai view này dùng cùng Task/Activity data đã authorized, không có bảng planning riêng, không có recurring task, notification, dependency, attachment hay custom field. Dashboard chỉ trả aggregate project-scoped; My Tasks chỉ trả task mà actor được phép đọc và được giao cho actor.
+MVP mở rộng thêm `My Tasks` list/calendar và Project Dashboard chỉ đọc. Hai view này dùng cùng Task/Activity data đã authorized, không có bảng planning riêng trong core MVP (Sprint là lớp planning riêng của Phase 1.4), không có recurring task, notification, dependency, attachment hay custom field. Dashboard chỉ trả aggregate project-scoped; My Tasks chỉ trả task mà actor được phép đọc và được giao cho actor.
+
+## Phase 1.4: Sprint theo project
+
+Sprint không thuộc core MVP. Đây là lớp **planning** tùy chọn do Owner bật cho từng project: sprint có tên, mục tiêu, khoảng ngày và vòng đời `planned → active → closed`, mỗi project có tối đa một sprint đang active. Task gán vào sprint qua chính task update; `sprintId` rỗng nghĩa là **backlog**, nên sprint không bao giờ bắt buộc và backlog vẫn là nơi hợp lệ để ý tưởng nằm chờ.
+
+Story point/estimation, velocity, burndown, capacity planning, auto-rollover, sprint xuyên project và báo cáo giờ theo sprint không thuộc Phase 1.4. Sprint không suy ra `startDate`/`dueDate` của task và không đổi `dueState`.
 
 ## Phase 1.3: Time Tracking theo project
 

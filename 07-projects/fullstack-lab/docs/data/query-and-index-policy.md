@@ -16,7 +16,7 @@ Repository scope là defense-in-depth, không thay `ProjectPermissionGuard`. API
 - Mọi list endpoint có page size mặc định **25**, tối đa **100**. `limit` là integer dương; giá trị ngoài `1..100`, không phải integer, hoặc cursor không hợp lệ là validation error, không âm thầm clamp.
 - Response dùng `items` và `page: { nextCursor, hasMore }`. `nextCursor` là `null` khi không còn trang; cursor chỉ được phát từ server.
 - Cursor là opaque URL-safe value được server ký/chống sửa đổi. Nó chứa schema version, fingerprint của query shape đã chuẩn hóa, last sort-key value(s), `id` tie-breaker và thông tin tối thiểu cần tiếp tục seek pagination. Client không parse, tự tạo, chỉnh sửa hoặc tái dùng cursor cho query khác.
-- Query fingerprint bind tối thiểu vào project, column khi có, filters, sort direction và search. Đổi `project_id`, `columnId`, filter, sort hoặc search sẽ reset cursor và tải page đầu; reuse cursor khác fingerprint bị từ chối.
+- Query fingerprint bind tối thiểu vào project, column khi có, `sprintId` khi có, filters, sort direction và search. Đổi `project_id`, `columnId`, filter, sort hoặc search sẽ reset cursor và tải page đầu; reuse cursor khác fingerprint bị từ chối.
 - Mọi order có `id` làm tie-breaker cuối. Cursor không là offset, không là database primary key công khai, và không hỗ trợ page-number/skip arbitrary.
 
 ## Task list contract: allowlist tuyệt đối
@@ -25,7 +25,7 @@ Repository scope là defense-in-depth, không thay `ProjectPermissionGuard`. API
 
 | Loại | Fields được phép | Quy tắc |
 |---|---|---|
-| Filter | `columnId`, `assigneeId`, `createdById`, `reviewerId`, `category`, `priority`, `dueState`, `dueFrom`, `dueTo` | UUID/date/enum parse trước query; `dueFrom <= dueTo`; column/user phải thuộc project; `dueState` do server suy ra. |
+| Filter | `columnId`, `assigneeId`, `createdById`, `reviewerId`, `category`, `priority`, `dueState`, `dueFrom`, `dueTo`, `sprintId` (Phase 1.4) | UUID/date/enum parse trước query; `dueFrom <= dueTo`; column/user/sprint phải thuộc project; `dueState` do server suy ra. `sprintId` nhận UUID sprint cùng project hoặc token `backlog` cho `sprint_id IS NULL`; chỉ hợp lệ khi project đã bật Sprint. |
 | Sort | `position`, `createdAt`, `updatedAt`, `dueDate` với `asc`/`desc` | Sort được map server-side sang fixed SQL. `position` chỉ hợp lệ khi có `columnId`; không có `columnId` thì reject vì position chỉ có nghĩa trong column. |
 | Search | `search` | Chỉ title và description; không search actor, member, activity, project, raw payload hoặc hidden field. |
 
@@ -85,6 +85,9 @@ Migrations tạo các index dưới đây cùng constraints ở database design.
 | `tasks(project_id, created_by_user_id, updated_at DESC)` | btree | Created-by filter và recent task list trong project. | Core MVP |
 | `tasks(project_id, reviewer_id, updated_at DESC)` | btree | Reviewer filter (review workflow của cột `requires_reviewer`), đối xứng với assignee/created-by. | Core MVP |
 | `tasks(project_id, updated_at DESC, id DESC)` | btree | Allowlisted `updatedAt` sort với seek tie-breaker. | Core MVP |
+| `tasks(project_id, sprint_id, column_id, position)` | btree | Sprint board seek theo từng cột khi filter `sprintId`; cũng phục vụ backlog qua `sprint_id IS NULL`. | Phase 1.4 only |
+| `sprints(project_id, status, starts_on DESC)` | btree | Danh sách sprint theo trạng thái trong project. | Phase 1.4 only |
+| `sprints(project_id) WHERE status = 'active'` | unique btree, partial | Cưỡng chế đúng một sprint active mỗi project. | Phase 1.4 only |
 | `tasks` GIN trên `to_tsvector('simple', fb_unaccent(title \|\| ' ' \|\| description))` | GIN expression | Allowlisted task search unaccent-symmetric trong một project. Yêu cầu extension `unaccent` + function `fb_unaccent` tạo trước index. | Core MVP |
 | `comments(task_id, created_at, id)` | btree | Comment list theo task, khớp order/seek `createdAt, id`. | Core MVP |
 | `activity_logs(project_id, created_at DESC)` | btree | Project/task activity history. | Core MVP |
@@ -121,6 +124,9 @@ Authorization/resource resolution xảy ra trước transaction khi có thể, n
 | Activity logging | Không có mutation public độc lập để ghi ActivityLog. Module mutation tạo event allowlisted và sanitized payload trong transaction của nó. | Đây là điều kiện atomic, không phải best-effort side effect. |
 | Idempotency record | Giao thức claim → mutation → outcome theo [database design](database-design.md#idempotency_records): T1 claim `in_progress` commit **trước** mutation (chặn retry đồng thời); T2 mutation + activity + update `completed` atomic; business failure xác định ghi outcome lỗi bằng transaction thứ ba sau rollback. | Record `completed` và mutation/activity commit cùng nhau; không tồn tại mutation đã commit mà record chưa completed. |
 | Export request (Phase 1.1) | Sau Owner authorization, validate/canonicalize project-scoped filters; insert `report_exports` với immutable `filter_snapshot`, `status = 'requested'`, expiry; insert activity; commit. File generation diễn ra sau commit; update `ready`/`failed` là transaction status riêng, không sửa snapshot. | `report_export.requested` ghi cùng request insert. |
+| Sprint create/update (Phase 1.4) | Owner authorization; validate `starts_on <= ends_on`, tên unique trong project và feature đang bật; conditional update theo `expectedVersion`; insert activity; commit. | `sprint.created` hoặc `sprint.updated` chỉ sau commit. |
+| Sprint activate (Phase 1.4) | Conditional update `status` từ `planned` sang `active` theo `id` + `project_id` + version. Partial unique index từ chối sprint active thứ hai, kể cả hai request đồng thời — không cần advisory lock; unique violation được map về error envelope an toàn. | `sprint.activated` chỉ sau commit. |
+| Sprint close (Phase 1.4) | Conditional update `status` sang `closed` cùng `closed_at`; đọc tập task chưa hoàn thành (task ở column `is_terminal = false`) trong cùng transaction rồi áp dụng đúng lựa chọn `unfinishedTasks` của Owner (`backlog` hoặc `move_to_sprint` với sprint đích `planned` cùng project); insert activity; commit. Không carry-over ngầm. | `sprint.closed` một lần, kèm event chuyển task theo contract của task update. |
 | Time Tracking settings (Phase 1.3) | Lock/conditional update settings; Owner authorization; validate enabled/mode/backfill and every approver is active Editor; replace approver set atomically; increment version; insert activity. | `time_tracking.settings_changed`, approver add/remove events chỉ sau commit. |
 | WorkLog create/update/submit | Re-check feature/capability/project/task; lock advisory daily key; validate backfill/override, support reason, duration total and expected version; write valid state; insert activity; commit. | `work_log.created`, `updated`, `submitted` hoặc `self_closed` only after commit. |
 | WorkLog review/bulk review | Re-check approver current membership and author mismatch; lock/conditional update each submitted WorkLog; approved/rejected decision and required rejection note; write per-record activity; commit each safe result. | One approved/rejected activity per successful log; a conflict/denial has no false activity. |

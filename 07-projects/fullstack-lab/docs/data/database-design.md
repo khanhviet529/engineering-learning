@@ -133,6 +133,7 @@ Constraints: `UNIQUE (project_id, position)` khai báo `DEFERRABLE INITIALLY IMM
 | `version` | `integer` | No | `DEFAULT 1`, `CHECK (version > 0)` | Optimistic concurrency version. |
 | `start_date` | `date` | Yes |  | Optional calendar start date, không time-of-day. |
 | `due_date` | `date` | Yes |  | Optional calendar end/due date, không time-of-day. |
+| `sprint_id` | `uuid` | Yes | with `project_id`: FK → `sprints(project_id, id)` | Sprint đang chứa task, chỉ Phase 1.4. `NULL` nghĩa **backlog** và luôn hợp lệ — sprint không bao giờ bắt buộc ([ADR-0010](../decisions/ADR-0010-sprint-iteration.md)). |
 | `evidence_url` | `text` | Yes | validation application | Một liên kết bằng chứng, scheme `https` bắt buộc, tối đa 2048 ký tự. **Server không bao giờ fetch URL này** (không preview, không unfurl, không resolve redirect) — fetch sẽ biến field người dùng nhập thành SSRF vector. Không phải attachment: không upload, không storage, không quota ([ADR-0009](../decisions/ADR-0009-task-evidence-and-comment-formatting.md)). |
 | `created_at` | `timestamptz` | No |  | UTC. |
 | `updated_at` | `timestamptz` | No |  | UTC. |
@@ -228,6 +229,39 @@ Migration/table này chỉ được tạo khi Phase 1.1 bắt đầu; nó không
 
 Retention: file phải inaccessible sau `expires_at`; export row giữ audit/snapshot metadata sau expiry. Physical file purge schedule, queue retry/idempotency và delivery state thuộc Phase 1.2/retention policy sau, không phải core MVP.
 
+## Bảng Phase 1.4, Sprint theo project
+
+Migration Phase 1.4 là additive và tạo feature disabled cho các project hiện có. Các bảng này không tạo estimate/story point, burndown, capacity planning hay sprint xuyên project.
+
+### `project_sprint_settings`
+
+| Cột | PostgreSQL type | Null | Key / constraint | Ghi chú |
+|---|---|:---:|---|---|
+| `project_id` | `uuid` | No | PK, FK → `projects(id)` | Một settings row tối đa cho một project. |
+| `enabled` | `boolean` | No | `DEFAULT false` | Owner bật theo project; khi tắt thì không route, không CTA, không field sprint trong projection. |
+| `default_duration_days` | `smallint` | No | `CHECK (default_duration_days BETWEEN 7 AND 28)` | Default `14`; chỉ là giá trị gợi ý cho form tạo sprint. |
+| `version` | `integer` | No | `DEFAULT 1`, `CHECK (version > 0)` | Optimistic concurrency cho settings. |
+| `created_at` | `timestamptz` | No |  | UTC. |
+| `updated_at` | `timestamptz` | No |  | UTC. |
+
+### `sprints`
+
+| Cột | PostgreSQL type | Null | Key / constraint | Ghi chú |
+|---|---|:---:|---|---|
+| `id` | `uuid` | No | PK | Sprint identifier. |
+| `project_id` | `uuid` | No | FK → `projects(id)` | Project scope. |
+| `name` | `text` | No |  | Tên sprint; unique trong project. |
+| `goal` | `text` | Yes |  | Mục tiêu sprint dạng văn bản. |
+| `starts_on` | `date` | No |  | Ngày lịch theo timezone workspace. |
+| `ends_on` | `date` | No |  | Ngày lịch theo timezone workspace. |
+| `status` | `text` | No | `CHECK (status IN ('planned', 'active', 'closed'))` | Vòng đời một chiều `planned → active → closed`. |
+| `closed_at` | `timestamptz` | Yes |  | UTC; non-null khi `status = 'closed'`. |
+| `version` | `integer` | No | `DEFAULT 1`, `CHECK (version > 0)` | Optimistic concurrency. |
+| `created_at` | `timestamptz` | No |  | UTC. |
+| `updated_at` | `timestamptz` | No |  | UTC. |
+
+Constraints: `UNIQUE (project_id, id)` cho composite FK của Task; `UNIQUE (project_id, name)`; `CHECK (starts_on <= ends_on)`. **Đúng một sprint `active` mỗi project được cưỡng chế tại database** bằng partial unique index `CREATE UNIQUE INDEX ... ON sprints (project_id) WHERE status = 'active'` — invariant này là *uniqueness* nên database giữ được atomically, khác với tổng 1.440 phút/ngày của WorkLog là *aggregate* nên buộc phải advisory lock. Sprint `closed` là bất biến: không mở lại, không nhận thêm task; muốn tiếp tục thì tạo sprint mới. Retention: giữ sprint đã đóng cho lịch sử; không delete.
+
 ## Bảng Phase 1.3, Time Tracking theo project
 
 Migration Phase 1.3 là additive và tạo feature disabled cho các project hiện có. Các bảng này không tạo timer, payroll, billing, queue, worker, email delivery hoặc time-export.
@@ -304,7 +338,8 @@ Constraints: `UNIQUE(project_id, user_id, work_date)`. Reopen/update cùng targe
 3. `CREATE EXTENSION IF NOT EXISTS unaccent` và function `fb_unaccent(text)` (`IMMUTABLE`, pin dictionary — xem [query and index policy](query-and-index-policy.md)) phải chạy **trước** migration tạo GIN search index; extension phải có sẵn trong PostgreSQL image local/CI theo [local development](../operations/local-development.md).
 4. Không thể chỉ dùng foreign key để biết BoardColumn còn active, WorkspaceMember tương ứng tồn tại, Owner cuối cùng hay column còn task. Các điều kiện đó là use-case transaction rules, không trigger ngầm.
 5. Tạo `report_exports` và index liên quan chỉ với Phase 1.1.
-6. Khi Phase 1.3 bắt đầu, tạo `project_time_tracking_settings`, `project_time_approvers`, `work_logs`, `work_log_access_overrides` sau projects/project_members/tasks; migration additive và settings mặc định disabled.
-7. Không tạo bảng queue, email delivery, AI, labels, attachments hay post-MVP table nào cho core behavior; Phase 1.3 cũng không tạo timer/payroll/billing/time-export tables.
+6. Khi Phase 1.4 bắt đầu, tạo `project_sprint_settings` và `sprints` sau `projects`, rồi thêm `tasks.sprint_id` cùng composite FK và partial unique index của sprint active; migration additive và settings mặc định disabled.
+7. Khi Phase 1.3 bắt đầu, tạo `project_time_tracking_settings`, `project_time_approvers`, `work_logs`, `work_log_access_overrides` sau projects/project_members/tasks; migration additive và settings mặc định disabled.
+8. Không tạo bảng queue, email delivery, AI, labels, attachments hay post-MVP table nào cho core behavior; Phase 1.3 không tạo timer/payroll/billing/time-export tables và Phase 1.4 không tạo estimate/velocity/capacity tables.
 
 Index cụ thể và cách query/transaction dùng các bảng này nằm ở [query và index policy](query-and-index-policy.md).

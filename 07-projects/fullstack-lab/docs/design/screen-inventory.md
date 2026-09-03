@@ -69,6 +69,17 @@ Workspace Admin chưa là thành viên project không có hàng “chỉ đọc�
 
 Mỗi Screen ID có frame default và tất cả trạng thái được liệt kê trong bảng. Với `BRD-01`, tối thiểu cần frame desktop content, mobile horizontal content, Loading, Empty, Error và Forbidden. `PRJ-03` cần Owner-only frame Loading, default, validation, Saving, Error, Forbidden và unsaved changes; form chỉ có `name` và annotation `PATCH /projects/:projectId`. Với `TSK-01`/`TSK-02`, tối thiểu cần frame Owner hoặc Editor có thể ghi, Viewer chỉ đọc, validation/unsaved changes và Conflict. Không dùng một frame chung mang nhãn “Admin project”; phải dùng vai trò project cụ thể Owner, Editor hoặc Viewer.
 
+## Màn hình Phase 1.4 — Sprint
+
+| ID | Màn hình và loại | Purpose (mục đích) | Route hoặc context | API data cần | Vai trò được phép | Trạng thái bắt buộc |
+|---|---|---|---|---|---|---|
+| SPR-01 | Sprint Board — trang | Xem board của sprint đang chọn, gồm cột và task của đúng sprint đó. | `/projects/:projectId/sprints/:sprintId` | sprint projection, cột active kèm `isTerminal`, task page theo từng cột với filter `sprintId`, capability sprint | Owner, Editor, Viewer | Loading, Empty, Error, Forbidden, feature disabled, sprint closed read-only. |
+| SPR-02 | Backlog — trang | Quản lý task chưa thuộc sprint nào và đưa chúng vào sprint. | `/projects/:projectId/backlog` | task page với `sprintId=backlog`, danh sách sprint `planned`/`active`, capability task update | Owner, Editor, Viewer | Loading, Empty, Error, Forbidden, kết quả từng dòng khi gán nhiều task. |
+| SPR-03 | Sprint Settings — section trong PRJ-03 | Owner bật/tắt Sprint và đặt thời lượng mặc định. | `/projects/:projectId/settings#sprint` | settings/version, capability `sprint:manage` | Owner | Disabled/enabled, validation 7–28 ngày, Saving, Conflict, Forbidden. |
+| SPR-04 | Đóng sprint — dialog | Buộc Owner chọn tường minh cách xử lý task chưa hoàn thành khi đóng sprint. | `SPR-01` với `action=close` | số task đang ở column `isTerminal = false`, danh sách sprint `planned` làm đích, `expectedVersion` | Owner | Default, validation thiếu sprint đích, Saving, Conflict, Error; không có carry-over ngầm. |
+
+Sprint không tạo trục workflow thứ hai: cột board vẫn do Owner cấu hình, và `SPR-01` chỉ là cùng board đó với filter `sprintId`. Khi project chưa bật Sprint, các Screen ID này không có entry point và route trực tiếp trả về state feature-disabled/Forbidden.
+
 ## Phạm vi mobile mục tiêu (chưa có trong artifact)
 
 > **Chưa build.** Mục này là **phạm vi cần dựng**, không phải mô tả artifact hiện có; báo cáo Canvas v0.4 đã bị rút lại — xem [pencil-handoff.md](pencil-handoff.md).
