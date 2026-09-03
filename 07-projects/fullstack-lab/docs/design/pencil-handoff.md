@@ -242,6 +242,7 @@ Quy ước tên screen (một hệ duy nhất): `<Screen ID> · <Light|Dark|Mobi
 
 #### Bẫy kỹ thuật Pencil (bắt buộc biết trước khi sửa file)
 
+0. **Ghi file theo checkpoint, không dồn tới cuối.** Sau mỗi nhóm dựng xong (foundations, một dải component, một hàng screen, bộ mobile), ghi `.pen` rồi chạy `git hash-object docs/design/flowboard-v0.1.pen` và ghi lại hash vào báo cáo. Lý do: state trong editor không phải file, nên đóng editor là mất trắng phần chưa ghi — đã xảy ra một lần với Canvas v0.4. Checkpoint theo nhóm giới hạn thiệt hại tối đa ở một nhóm, và biến điều kiện chấp nhận ở trên thành thứ kiểm được liên tục thay vì một lần cuối.
 1. **MCP không ghi file.** `execute` tác động lên document đang mở trong editor pen.dev; file `.pen` trên disk chỉ đổi khi editor lưu. Mọi `Get`/`Print` đọc lại **cùng** state bộ nhớ đó, nên số đo luôn tự nhất quán kể cả khi file chưa từng được ghi — đây chính là cách báo cáo Canvas v0.4 sai mà vẫn nội bộ khớp nhau. Kiểm bằng `git hash-object`, không bằng `Print`.
 2. **Biến number không resolve trong `width`/`height`** — component collapse về 0×0. Biến number an toàn cho `gap`; dùng cho `padding` cũng từng gây collapse. Dùng số literal cho hình học, biến cho màu.
 3. `theme` chỉ có tác dụng ở **root frame**; đặt trên frame lồng bị bỏ qua im lặng.

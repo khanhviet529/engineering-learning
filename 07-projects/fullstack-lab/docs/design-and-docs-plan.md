@@ -13,6 +13,8 @@
 3. Dùng Pencil để thiết kế bố cục, thành phần, biến thể, trạng thái và responsive behavior; liên kết bàn giao được ghi trong `design/pencil-handoff.md`.
 4. Chỉ lập kế hoạch hoặc scaffold ứng dụng sau khi hợp đồng Markdown và thiết kế Pencil cần thiết đã ổn định.
 
+Hai dòng công việc chạy song song nên ranh giới file phải rõ: dòng **design** sở hữu `docs/design/*` cùng `docs/design/flowboard-v0.1.pen`; dòng **contract** sở hữu phần còn lại của `docs/`. Mỗi bên chỉ stage đúng path của mình khi commit (`git add <đường dẫn cụ thể>`, **không** `git add <thư mục>`) — dùng cả thư mục sẽ quét luôn file bên kia đang sửa và gộp công việc của họ vào commit sai, đã xảy ra một lần ở `b71c835`. Khi một bên phát hiện thiếu contract, escalate thay vì tự sửa file của bên kia.
+
 Markdown là nguồn chân lý cho quy tắc sản phẩm, hành vi hệ thống, hợp đồng kỹ thuật và quy trình vận hành. Pencil là nguồn chân lý cho thiết kế UI trực quan; nó không thay thế quyết định về phạm vi, phân quyền, dữ liệu hoặc API.
 
 ## Phạm vi hiện tại
