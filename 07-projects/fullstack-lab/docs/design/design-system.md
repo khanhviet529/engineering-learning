@@ -33,6 +33,22 @@ Pencil tạo token theo các nhóm và tên semantic sau. Giá trị cụ thể 
 
 Tên token dùng theo ngữ nghĩa, không theo màu vật lý như `blue-500`. Một component không tự tạo hex, khoảng cách hay shadow mới nếu token tương đương đã có.
 
+### Token đã hiện thực trong Pencil (Canvas v0.4)
+
+> **Chờ kiểm chứng artifact (03/09/2026).** Số liệu và trạng thái canvas trong mục này chưa kiểm chứng được: `docs/design/flowboard-v0.1.pen` trong repository vẫn đúng bằng bản của commit `aa23e17` (blob `7ff13e6a`, ghi lần cuối 2026-09-02 22:23:20), còn mục này được viết 2026-09-03 00:39–00:41 — file canvas không được ghi lại sau đó. Xem [báo cáo Canvas v0.4](../design-and-docs-plan.md). Quy tắc, quy ước tên và bẫy kỹ thuật ở đây vẫn dùng được; các con số không được coi là đã đạt.
+
+`flowboard-v0.1.pen` hiện có **150 biến, 100% tiền tố `fb.` dot-notation, 0 hex ghi cứng ngoài biến**, đủ 10 nhóm ở bảng trên: `fb.color` 79 · `fb.font` 17 · `fb.space` 12 · `fb.size` 14 · `fb.radius` 4 · `fb.border` 2 · `fb.shadow` 9 · `fb.motion` 5 · `fb.z` 5 · `fb.breakpoint` 3. Theme axis là `mode: light | dark`; mọi màu surface/text/border/intent là **theme-aware** (một biến, hai giá trị).
+
+Các nhóm được bổ sung so với bảng mẫu, đều mang ngữ nghĩa:
+
+- `fb.color.nav.active.surface` / `fb.color.nav.active.text` — trạng thái active của điều hướng, theme-aware.
+- `fb.color.brand.surface`, `fb.color.brand.on-surface`, `fb.color.brand.on-brand-muted` — brand dùng như surface/text theo theme; ramp `fb.color.brand.50–900` chỉ là giá trị nguồn.
+- `fb.color.category.{feature,bug,design,research,operations,other}` — khớp 6 category của Task.
+- `fb.color.neutral.50–900` — ramp nguồn; **không dùng trực tiếp làm nền hay chữ trong screen có theme** (xem quy tắc dưới).
+- `fb.size.sidebar.expanded` = 264, `fb.size.sidebar.collapsed` = 72, `fb.size.control.header` = 36, `fb.size.icon.header` = 20.
+
+**Quy tắc ramp và theme:** biến phẳng (một giá trị, ví dụ `neutral.50`, `intent.warning.100`) không được dùng làm fill nền hoặc màu chữ trong frame thuộc screen có `theme` — chúng không đổi theo theme và từng gây chữ trắng trên nền trắng ở dark. Nền dùng `surface.*`/`*.surface`; chữ dùng `text.*`/`*.text`/`brand.on-*`. Toàn bộ text hiện hành đã được kiểm tương phản WCAG: **1.742 text node, 0 node dưới 4.5:1** (3:1 cho chữ lớn).
+
 ## Quy tắc đặt tên component và variant
 
 - Component product bắt đầu `Fb`: `FbTaskCard`, `FbBoardColumn`, `FbStatePanel`.
@@ -63,6 +79,28 @@ Tên token dùng theo ngữ nghĩa, không theo màu vật lý như `blue-500`. 
 | `FbConflictPanel` | Modal/Drawer, Alert, Button | loading-current, current-ready, error, forbidden | xem bản hiện tại/bản nháp, không force overwrite. |
 
 `FbStatePanel` có thể compose trong các component khác nhưng không thay thế Screen ID. Ví dụ BRD-01 Error vẫn là frame của `BRD-01` với `FbStatePanel state="error"`.
+
+### Trạng thái hiện thực trong Pencil (Canvas v0.4)
+
+> **Chờ kiểm chứng artifact (03/09/2026).** Số liệu và trạng thái canvas trong mục này chưa kiểm chứng được: `docs/design/flowboard-v0.1.pen` trong repository vẫn đúng bằng bản của commit `aa23e17` (blob `7ff13e6a`, ghi lần cuối 2026-09-02 22:23:20), còn mục này được viết 2026-09-03 00:39–00:41 — file canvas không được ghi lại sau đó. Xem [báo cáo Canvas v0.4](../design-and-docs-plan.md). Quy tắc, quy ước tên và bẫy kỹ thuật ở đây vẫn dùng được; các con số không được coi là đã đạt.
+
+Pencil hiện có **9 reusable component, ~350 instance**; mọi bản copy trước đây đã được thay bằng instance nên sửa component là mọi màn theo:
+
+| Reusable trong Pencil | Instance | Phủ cho component catalog |
+|---|---:|---|
+| `FbSidebar` (264, 3 nhóm nav: không gian / dự án / chấm công — nhóm chấm công tắt được per-instance) | 60 | `FbAppShell` (phần sidebar), `FbWorkspaceSwitcher` (khối brand + tên không gian) |
+| `FbSidebarCollapsed` (72, icon-only) | 2 | `FbAppShell` variant `compact` |
+| `FbTopbar` (h60: breadcrumb + spacer + account controls, tự co theo mọi bề rộng) | 62 | `FbAppShell` (phần header) |
+| `FbHeaderAccountControls` (theme switch + chuông + hồ sơ) | trong `FbTopbar` | — |
+| `FbBoardColumnHeader` (dot trạng thái + tiêu đề + badge **số task đã nạp**) | 60 | `FbBoardColumn` (phần header) |
+| `FbTaskCard` (title, badge ưu tiên/category tắt-bật được, avatar + assignee, due-state pill đúng vocabulary `FbDueState`) | 107 | `FbTaskCard` |
+| `FbStatePanel` (icon tile + code tuỳ chọn + label + mô tả + ghi chú + 2 action) | 16 | `FbStatePanel` — đủ Loading/Empty/Error/Forbidden/Session/404/503 |
+| `FbTextField` (label + `*` danger riêng, icon dẫn/đuôi, help/error tắt-bật) | 34 | input của `FbTaskForm`, auth form |
+| `FbMobileHeader` (menu + brand + chuông + avatar) | 8 | `FbAppShell` mobile |
+
+Các mục còn lại của catalog (`FbBoard`, `FbTaskForm`, `FbTaskDrawer`, `FbProjectList`, `FbProjectSettings`, `FbColumnEditor`, `FbMemberManager`, `FbCommentComposer`, `FbActivityList`, `FbConfirmDiscardDialog`, `FbConflictPanel`) tồn tại trên canvas dưới dạng **composition theo Screen ID** (mỗi cái 1–2 nơi dùng, compose từ các reusable trên); chúng vẫn là component ở frontend theo bảng trên, chỉ không đáng tách reusable trong Pencil khi chưa có nơi dùng thứ ba.
+
+**Đang chờ hợp đồng (render trước trong Pencil, chưa phải contract):** trường `Liên kết bằng chứng` ở Task Form/Task Detail và toolbar định dạng cơ bản của comment composer là đề xuất sản phẩm; schema/endpoint tương ứng cần ADR trước khi frontend coi là hành vi thật.
 
 ### Task planning và due state
 

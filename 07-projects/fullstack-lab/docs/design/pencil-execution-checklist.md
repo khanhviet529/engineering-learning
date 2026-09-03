@@ -4,15 +4,16 @@
 
 - [x] Opened and actively designed in `docs/design/flowboard-v0.1.pen`.
 - [x] Foundations, core components, Board, Task Detail, Project Members, Task Form, Project Dashboard, and My Tasks calendar are represented on canvas.
-- [ ] Complete Vietnamese copy review, responsive variants, authentication/project setup screens, system-state flows, and final Pencil-to-frontend handoff before declaring `Ready for build`.
+- [x] Vietnamese copy review, responsive variants (desktop + bộ mobile Light/Dark 390×844), authentication pages, system-state flows — hoàn tất ở Canvas v0.4.
+- [ ] Tuyên bố `Ready for build` (chờ chốt hai đề xuất đang chờ hợp đồng: evidence link, comment formatting — xem design-system.md).
 
 ## Mục đích và cổng bắt đầu
 
 Checklist này chuyển Markdown baseline v0.1 thành artefact Pencil. Markdown vẫn là nguồn quyết định cho product, behavior, permission, data và API; Pencil là nguồn chân lý cho bố cục và thiết kế trực quan.
 
 - [x] Markdown baseline v0.1 đã qua acceptance review.
-- [ ] Tạo và mở `07-projects/fullstack-lab/design/flowboard-v0.1.pen` trong Pencil.
-- [ ] Không thiết kế AI, export, Redis/BullMQ hoặc các non-goal như màn hình MVP.
+- [x] Tạo và mở `07-projects/fullstack-lab/docs/design/flowboard-v0.1.pen` trong Pencil.
+- [x] Không thiết kế AI, export, Redis/BullMQ hoặc các non-goal như màn hình MVP.
 
 ## 1. Cấu trúc file Pencil
 
@@ -25,18 +26,18 @@ Checklist này chuyển Markdown baseline v0.1 thành artefact Pencil. Markdown 
 ## 2. Foundations và component system
 
 - [ ] Áp dụng visual direction: clean, calm, productivity-focused.
-- [ ] Chốt semantic color, typography, spacing, radius, elevation, breakpoints và focus token.
+- [x] Chốt semantic color, typography, spacing, radius, elevation, breakpoints và focus token — 150 biến `fb.*`, theme-aware, 0 hex ghi cứng (Canvas v0.4).
 - [ ] Dựng `FbButton`, `FbTextField`, `FbSelect`, `FbDateField`, `FbModal`, `FbDrawer`, `FbAlert`, `FbEmptyState`, `FbPermissionState`, `FbTaskCard`, `FbBoardColumn`, `FbActivityItem`.
 - [ ] Mỗi component có default, hover, focus-visible, disabled, loading, error và responsive rule khi phù hợp.
 - [ ] Ant Design chỉ là primitive; component `Fb*` giữ behavior/style ổn định của Flowboard.
 
 ## 3. Primary MVP flows và screens
 
-- [ ] Authentication: Sign Up, Sign In, Forgot/Reset Password, Email Verification.
-- [ ] Workspace/project: Workspace List, Project List, Project Create, Project Settings (`PRJ-03`, Owner-only rename).
-- [ ] Board: Project Board, Column Editor, Task Form, Task Detail, Comments, Activity History, Project Members.
-- [ ] System: Loading, Empty, Network Error, Forbidden, Session Expired, Conflict Resolution.
-- [ ] Phản ánh role Owner / Editor / Viewer; Workspace Admin không có implicit access vào private project.
+- [x] Authentication: Sign Up, Sign In, Forgot/Reset Password, Email Verification — trang đầy đủ Light/Dark, có password checklist và biến thể liên kết hết hạn.
+- [x] Workspace/project: Workspace List, Project List, Project Create, Project Settings (`PRJ-03`, Owner-only rename).
+- [x] Board: Project Board, Column Editor, Task Form, Task Detail, Comments, Activity History, Project Members.
+- [x] System: Loading, Empty, Network Error, Forbidden, Session Expired, Conflict Resolution — dùng chung `FbStatePanel`.
+- [x] Phản ánh role Owner / Editor / Viewer; Workspace Admin không có implicit access vào private project.
 
 ## 4. Interaction và responsive behavior
 

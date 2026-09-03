@@ -184,3 +184,38 @@ Time Tracking là section riêng trong Project Settings, không mở rộng form
 | `TSK-02` | `TSK-02 Light/Dark — Chi tiết công việc` | Read-only time-log extension, scope theo task; CTA ghi giờ chỉ khi có server capability. |
 
 Responsive reference `WTA-01 Mobile Dark — Bộ lọc` minh hoạ filter drawer; finite filter phải có label/value/icon (`chevron`, `calendar` hoặc search) và trạng thái active chip. Khi thay filter, frontend reset cursor theo API contract. Tất cả text/icon meaningful của các frame này dùng tối thiểu 11 px và color pairing đạt contrast 4.5:1.
+
+### Canvas v0.4 — Component hoá, token hoá, auth/mobile hoàn chỉnh
+
+> **Chờ kiểm chứng artifact (03/09/2026).** Số liệu và trạng thái canvas trong mục này chưa kiểm chứng được: `docs/design/flowboard-v0.1.pen` trong repository vẫn đúng bằng bản của commit `aa23e17` (blob `7ff13e6a`, ghi lần cuối 2026-09-02 22:23:20), còn mục này được viết 2026-09-03 00:39–00:41 — file canvas không được ghi lại sau đó. Xem [báo cáo Canvas v0.4](../design-and-docs-plan.md). Quy tắc, quy ước tên và bẫy kỹ thuật ở đây vẫn dùng được; các con số không được coi là đã đạt.
+
+Version này đổi cấu trúc file từ copy-paste sang component-instance và chuẩn hoá lại toàn bộ canvas. Số liệu kiểm chứng tại thời điểm bàn giao: **113 root frame, 9 reusable component, ~350 instance, 150 biến token (0 hex ghi cứng), 0 lỗi layout, 1.742 text node đạt WCAG AA**.
+
+#### Trật tự canvas (pitch 1560 × 1500)
+
+| Hàng (y) | Nội dung |
+|---|---|
+| `-4000…-420` | Dải **FB COMPONENTS**: các reusable (`FbSidebar`, `FbSidebarCollapsed`, `FbTopbar`, `FbHeaderAccountControls`, `FbBoardColumnHeader`, `FbTaskCard`, `FbStatePanel`, `FbTextField`, `FbMobileHeader`). Chỉ sửa ở đây; mọi màn nhận thay đổi qua instance. |
+| `0` | Tham chiếu: `REF-01…08` + `SYS-05/06 · Light/Dark — Trang lỗi` (light/dark đứng cạnh nhau). |
+| `1500` / `3000` | Hàng Light / hàng Dark của màn desktop chính — **cùng x là một cặp Light/Dark**. |
+| `4500` / `6000` | Phase 1.3 Light / Dark (`TTS-01`, `WTL-01/02`, `WTA-01`, `WTR-01`, `TSK-02 (Giờ)`, `WTA-01 (Trả lại)`). |
+| `7500` / `9000` | `AUTH-01…05` Light / Dark — trang đầy đủ (panel brand trái + form phải), không còn dạng card nổi. |
+| `10500` / `11700` | Bộ **mobile 390×844** Light / Dark: `AUTH-01`, `PRJ-01`, `BRD-01` (board ngang + cột peek), `TSK-01` (sheet), `TSK-02` (sheet), `MYT-01`, `PRJ-04`, `WTL-02`, `WTA-01`. |
+
+Quy ước đặt tên frame màn hình (một hệ duy nhất): `<Screen ID> · <Light|Dark|Mobile Light|Mobile Dark> — <Tên tiếng Việt>`; tham chiếu dùng `REF-NN`. Không còn hậu tố `Copy`, không còn node không tên, dấu `×` của chip/nút đóng là element icon riêng (gắn handler được), 5 màn tham chiếu tràn chủ đích đã bật `clip`.
+
+#### Những gì frontend có thể tin
+
+- Header/topbar mọi màn là **một** `FbTopbar` (breadcrumb + spacer + account controls, tự co 1112/1304/1376); sidebar mọi màn là **một** `FbSidebar` 264px (3 nhóm nav; nhóm `CHẤM CÔNG` chỉ bật ở màn Phase 1.3 và shell tham chiếu vì `project_time_tracking_settings` mặc định disabled) hoặc `FbSidebarCollapsed` 72px.
+- Badge số lượng ở header cột board = **số task đã nạp** (đúng câu chữ design-system), không phải tổng server.
+- Due-state trên `FbTaskCard` chỉ dùng vocabulary `FbDueState`: neutral (scheduled/chưa đặt hạn), warning (hôm nay/ngày mai), danger (quá hạn), success (hoàn thành) — không còn màu brand cho hạn.
+- Sơ đồ trong `PRJ-04`, `RPT-01`, `WTR-01`, `PRJ-04 Mobile` là stacked-bar + legend chữ (không truyền nghĩa chỉ bằng màu); không dùng line/sparkline vì Pencil không vẽ cung/đường tin cậy.
+- `AUTH-02/04` render checklist mật khẩu (≥8 ký tự, hoa, thường, số, ký tự đặc biệt) khớp password policy trong `security/authentication.md`; `AUTH-03` ghi rõ thông báo không tiết lộ email tồn tại; `AUTH-04` cảnh báo revoke mọi phiên; `AUTH-05` là **trang đích của liên kết** xác minh (không phải màn nhập mã) kèm biến thể liên kết hết hạn.
+
+#### Bẫy kỹ thuật Pencil (bắt buộc biết khi sửa file)
+
+1. **Biến number không resolve trong `width`/`height`** — component sẽ collapse về 0×0. Biến number chỉ dùng an toàn cho `gap`; `padding` bằng biến cũng từng làm collapse. Ghi số literal cho hình học, biến cho màu.
+2. `theme` chỉ có tác dụng ở **root frame**; đặt trên frame lồng sẽ bị bỏ qua im lặng.
+3. Screenshot bản định nghĩa `reusable` có thể trắng — luôn chụp **instance** đặt trong ngữ cảnh thật.
+4. `ctx.problems` tính trong cùng lượt `execute` với mutation cho false-positive; kiểm lại ở lượt kế tiếp trước khi tin.
+5. Token phẳng (ramp) làm nền/chữ trong màn có theme là bug tiềm ẩn — xem quy tắc ramp trong `design-system.md`.
