@@ -60,7 +60,20 @@ Những tên dưới đây là tên sản phẩm/chính sách chuẩn trong toà
 | `due_date` | Cột SQL DATE tùy chọn; API presentation dùng `dueDate`. |
 | `expectedVersion` | Field API cho optimistic concurrency; persistence lưu version của Task. |
 | `requestId` | Correlation ID cho HTTP request; không phải authorization claim, actor ID, hoặc metric label. |
-| capabilities | Quyền do server tính cho resource; frontend chỉ dùng để diễn đạt affordance, không thay thế authorization. |
+| capabilities | Quyền do server tính cho resource; frontend chỉ dùng để diễn đạt affordance, không thay thế authorization. Có bản theo từng record trên projection của resource (Phase 1.3). |
+| `dueState` | Enum do server suy ra: `none`, `scheduled`, `due_soon`, `due_today`, `overdue`. Nó vừa là giá trị hiển thị vừa là **filter value có index**; không phải palette trạng thái và không có giá trị thứ sáu. |
+| Terminal column | Cột board được Owner đánh dấu là điểm kết thúc công việc (`board_columns.is_terminal`). Task ở cột terminal luôn có `dueState = none`. Một project có 0..n cột terminal. |
+| Mở lại task (reopen) | Việc di chuyển task **ra khỏi** cột terminal. Nó là một `task:move` bình thường, ghi activity `task.reopened`; **không** phải một status mới của Task. |
+| `Idempotency-Key` | Header do client sinh cho **một ý định của user**; outcome được lưu ở `idempotency_records`. Giữ nguyên key khi retry cùng payload vì lỗi vận chuyển, xoay key mới khi ý định đổi. |
+| `position` | Thứ tự fractional `numeric(20,10)` do server sở hữu tuyệt đối; client không bao giờ gửi nó trong update. Rebalance là hành vi server, chỉ ghi `position`. |
+| Evidence link | Một URL `https` duy nhất trên Task (`evidence_url`) làm bằng chứng công việc. Không phải attachment; server không bao giờ fetch nó. |
+| WorkLog | Bản ghi giờ thực tế theo một user–task–ngày (Phase 1.3). Giờ **không** được suy ra từ `startDate`/`dueDate` của Task. |
+| Time Approver | Editor được Owner chỉ định để duyệt WorkLog của người khác (`ProjectTimeApprover`). Owner là approver ngầm định; không ai tự duyệt log của chính mình. |
+| Approval mode | Cách chốt giờ của một project: `self_close` (tác giả tự chốt) hoặc `requires_approval` (cần approver khác duyệt). |
+| Backfill window | Số ngày lịch trước hôm nay mà member còn được ghi bù giờ (0–31, mặc định 7); mở rộng cá biệt bằng `WorkLogAccessOverride`. |
+| Sprint; backlog | Chu kỳ lập kế hoạch theo project (Phase 1.4), vòng đời `planned → active → closed`, tối đa một sprint `active` mỗi project. **Backlog** là task chưa thuộc sprint nào (`sprint_id` rỗng) và luôn là trạng thái hợp lệ. |
+| Subtask | Task có `parent_task_id`, sâu **đúng một cấp** (Phase 1.5): task đã có cha không được làm cha. Subtask là Task đầy đủ, không phải checklist item. |
+| Dependency (blocking) | Cạnh `task_dependencies` giữa hai Task cùng project (Phase 1.5). Chỉ một loại quan hệ là blocking; đồ thị phải acyclic; task bị block **vẫn di chuyển được** — blocking là thông tin, không phải cưỡng chế. |
 
 ## Cách đọc dự án (How to read this project)
 
