@@ -12,7 +12,7 @@ Năm tài liệu đang sống dựa vào khái niệm **terminal column** để 
 - [ADR-0001](ADR-0001-task-planning-fields-and-review-workflow.md) (**Accepted**): "...derives ... from the workspace-local current date, dates, and whether the task is in a terminal column. A terminal task is never overdue."
 - `design/design-system.md`, `design/interaction-specifications.md`: "task terminal không render overdue".
 
-Nhưng `board_columns` **không có cột nào biểu diễn terminal** — grep `is_terminal`/`isTerminal` trên toàn bộ tài liệu đang sống trả về **0 kết quả**. Nghĩa là một ADR đã Accepted và bốn contract khác đang phụ thuộc vào một thuộc tính mà schema không có: server không thể implement `dueState` đúng như đặc tả. Đây là incoherence, không phải thiếu tính năng.
+Nhưng `board_columns` **không có cột nào biểu diễn terminal**: tại thời điểm viết ADR này, grep `is_terminal`/`isTerminal` trên toàn bộ tài liệu đang sống trả về **0 kết quả** (sau ADR này, các hit duy nhất là chính ADR và những ghi chú trỏ về nó — schema vẫn chưa có cột đó). Nghĩa là một ADR đã Accepted và bốn contract khác đang phụ thuộc vào một thuộc tính mà schema không có: server không thể implement `dueState` đúng như đặc tả. Đây là incoherence, không phải thiếu tính năng.
 
 Hai hệ quả kéo theo:
 

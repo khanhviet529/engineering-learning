@@ -210,7 +210,7 @@ Quy ước đặt tên frame màn hình (một hệ duy nhất): `<Screen ID> ·
 - Badge số lượng ở header cột board = **số task đã nạp** (đúng câu chữ design-system), không phải tổng server.
 - Due-state trên `FbTaskCard` chỉ dùng vocabulary `FbDueState`: neutral (scheduled/chưa đặt hạn), warning (hôm nay/ngày mai), danger (quá hạn), success (hoàn thành) — không còn màu brand cho hạn.
 - Sơ đồ trong `PRJ-04`, `RPT-01`, `WTR-01`, `PRJ-04 Mobile` là stacked-bar + legend chữ (không truyền nghĩa chỉ bằng màu); không dùng line/sparkline vì Pencil không vẽ cung/đường tin cậy.
-- `AUTH-02/04` render checklist mật khẩu (≥8 ký tự, hoa, thường, số, ký tự đặc biệt) khớp password policy trong `security/authentication.md`; `AUTH-03` ghi rõ thông báo không tiết lộ email tồn tại; `AUTH-04` cảnh báo revoke mọi phiên; `AUTH-05` là **trang đích của liên kết** xác minh (không phải màn nhập mã) kèm biến thể liên kết hết hạn.
+- `AUTH-02/04` render checklist mật khẩu dạng composition (≥8 ký tự, hoa, thường, số, ký tự đặc biệt) — **không còn khớp contract**: [ADR-0007](../decisions/ADR-0007-password-policy.md) đã đổi policy sang 12–200 ký tự, không yêu cầu composition, cộng blocklist do server quyết định. Checklist phải dựng lại thành độ dài cộng quy tắc không-chứa-email/tên, và trạng thái blocklist là field error sau submit; `AUTH-03` ghi rõ thông báo không tiết lộ email tồn tại; `AUTH-04` cảnh báo revoke mọi phiên; `AUTH-05` là **trang đích của liên kết** xác minh (không phải màn nhập mã) kèm biến thể liên kết hết hạn.
 
 #### Bẫy kỹ thuật Pencil (bắt buộc biết khi sửa file)
 
