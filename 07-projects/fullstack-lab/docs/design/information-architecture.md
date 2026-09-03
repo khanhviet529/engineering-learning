@@ -100,6 +100,9 @@ Các route dưới đây là định danh UX ổn định. Tên thư mục Next.
 | Board và task detail | Đọc, có affordance ghi dữ liệu | Đọc, có affordance ghi dữ liệu task/comment | Đọc, không có affordance ghi dữ liệu | `Forbidden`; không hiển thị nội dung private. |
 | Project Settings | Truy cập; chỉ đổi tên project | Không hiển thị; URL trực tiếp là `Forbidden` | Không hiển thị; URL trực tiếp là `Forbidden` | `Forbidden` nếu chưa có membership project. |
 | Column editor | Truy cập | Không hiển thị; URL trực tiếp là `Forbidden` | Không hiển thị; URL trực tiếp là `Forbidden` | `Forbidden` nếu chưa có membership project. |
+| Sprint board và Backlog (Phase 1.4) | Truy cập khi project đã bật Sprint | Truy cập khi project đã bật Sprint | Truy cập chỉ đọc khi project đã bật Sprint | `Forbidden` nếu chưa có membership project |
+| Sprint settings và đóng sprint (Phase 1.4) | Truy cập | Không hiển thị; URL trực tiếp là `Forbidden` | Không hiển thị; URL trực tiếp là `Forbidden` | `Forbidden` nếu chưa có membership project |
+| Quan hệ task: cha–con và blocker (Phase 1.5) | Đọc và sửa qua `task:update` | Đọc và sửa qua `task:update` | Chỉ đọc, không có affordance sửa quan hệ | `Forbidden` nếu chưa có membership project |
 | Project members | Truy cập | Không hiển thị; URL trực tiếp là `Forbidden` | Không hiển thị; URL trực tiếp là `Forbidden` | `Forbidden` nếu chưa có membership project. |
 
 Mọi vùng dữ liệu đều có cùng ngữ nghĩa trạng thái:

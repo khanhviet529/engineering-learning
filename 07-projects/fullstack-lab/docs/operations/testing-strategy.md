@@ -58,6 +58,9 @@ Integration test phải dùng PostgreSQL và transaction thực; mock repository
 | Cross-project move/assignment | Dùng destination column hoặc assignee từ Project A. | Reject trước commit; không có cross-project write hay activity. |
 | Idempotent retry | Gửi lại cùng route, actor, canonical request fingerprint và `Idempotency-Key`. | Replay outcome đã lưu, không tạo duplicate task/comment/activity. Cùng key với fingerprint khác trả `409 IDEMPOTENCY_KEY_REUSED`. |
 | Cursor scope | Dùng cursor của column/project/query khác. | `400 VALIDATION_FAILED`; không đọc sang scope khác. |
+| Rebalance không tạo 409 giả | Chèn task liên tiếp vào cùng một khe cho tới khi vượt ngưỡng rebalance, trong khi một client khác đang giữ `version` của task không bị move. | Rebalance chỉ ghi `position`; `version` và `updated_at` của các row bị ghi lại không đổi, nên client kia không nhận `409` và seek pagination theo `updatedAt` không xáo. |
+| Sprint active đồng thời (1.4) | Hai request activate hai sprint khác nhau cùng project, gửi đồng thời. | Đúng một commit; request còn lại thất bại ở partial unique index và trả `409 SPRINT_ALREADY_ACTIVE`. Không dùng advisory lock cho invariant này. |
+| Dependency cycle đồng thời (1.5) | Chuỗi A→B→…→N, hai request đồng thời cùng đóng chu trình về A. | Advisory lock theo project tuần tự hoá; không request nào tạo được cycle, cái thua nhận `409 TASK_DEPENDENCY_CYCLE`. |
 
 E2E thêm journey conflict: UI giữ local draft/snapshot, rollback optimistic move khi stale `409`, tải lại dữ liệu được phép đọc và không force/auto-merge/auto-retry stale write.
 
