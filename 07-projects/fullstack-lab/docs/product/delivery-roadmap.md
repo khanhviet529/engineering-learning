@@ -172,14 +172,9 @@ Một phase chỉ được coi là hoàn thành khi có đủ:
 4. note giải thích nguyên nhân và trade-off;
 5. screenshot hoặc command output đủ để người đọc kiểm chứng.
 
-## Đề xuất phase chờ phê duyệt
+## Phụ thuộc giữa các phase
 
-Các phase dưới đây **chưa thuộc lộ trình đã cam kết**: mỗi mục là một ADR ở trạng thái `Proposed`, chưa được duyệt, và các tài liệu contract (schema, endpoint, permission, index) **chưa** được cập nhật theo chúng. Chúng nằm ở đây để ranh giới phase được thấy rõ, không phải để suy diễn thành yêu cầu triển khai.
-
-| Đề xuất | Nội dung | Trạng thái |
-|---|---|---|
-
-Phase 1.4 và 1.5 phụ thuộc ADR-0008: "task chưa hoàn thành" khi đóng sprint và tiến độ của task cha đều được định nghĩa bằng `is_terminal`.
+Phase 1.4 và 1.5 đều dựa vào `board_columns.is_terminal` ([ADR-0008](../decisions/ADR-0008-terminal-column-and-task-reopen.md)): "task chưa hoàn thành" khi đóng sprint và tiến độ của task cha đều được định nghĩa bằng cờ đó. Phase 1.5 đi sau 1.4 theo thứ tự giá trị và độ phức tạp, nhưng hai phase không phụ thuộc dữ liệu của nhau: một project có thể bật Sprint mà không dùng quan hệ task, và ngược lại.
 
 ## Tiêu chí kiểm soát lộ trình
 
