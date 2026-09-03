@@ -85,6 +85,10 @@ Sprint không tạo trục workflow thứ hai: cột board vẫn do Owner cấu 
 
 > **Chưa build.** Mục này là **phạm vi cần dựng**, không phải mô tả artifact hiện có; báo cáo Canvas v0.4 đã bị rút lại — xem [pencil-handoff.md](pencil-handoff.md).
 
-Các Screen ID sau cần frame mobile 390×844 cho **cả** Light và Dark: `AUTH-01`, `PRJ-01`, `BRD-01` (board cuộn ngang, cột kế tiếp lộ mép), `TSK-01` (full-height sheet), `TSK-02` (full-height sheet), `MYT-01`, `PRJ-04`, `WTL-02`, `WTA-01` (filter drawer).
+Các Screen ID sau cần frame mobile 390×844 cho **cả** Light và Dark: `AUTH-01`, `WSP-01`, `PRJ-01`, `BRD-01` (board cuộn ngang, cột kế tiếp lộ mép), `TSK-01` (full-height sheet), `TSK-02` (full-height sheet), `MYT-01`, `PRJ-04`, `USR-01`, `SYS-01`, `WTL-02`, `WTA-01` (filter drawer).
+
+Danh sách này đã được đối chiếu với thực tế dựng: `WSP-01`, `USR-01` và `SYS-01` được thêm vào phạm vi vì chúng đã có frame mobile và đều là bề mặt người dùng gặp trên điện thoại (chọn workspace, tùy chọn cá nhân, bị từ chối quyền). `TSK-01` và `PRJ-04` vẫn thiếu và **bắt buộc phải có**: `TSK-01` vì [interaction specifications §9](interaction-specifications.md) yêu cầu task form là full-height sheet trên mobile, `PRJ-04` vì nó là màn chứa CTA `Xuất tiến độ` và nay đã có đường điều hướng trong [information architecture](information-architecture.md).
+
+`BRD-02` Column Editor và `PRM-01` Project Members **không** thuộc phạm vi mobile bắt buộc dù §9 mô tả chúng dùng sheet: cả hai là bề mặt Owner-only ít dùng trên điện thoại, nên chúng được hoãn có chủ đích. Khi nào có nhu cầu thật thì thêm vào danh sách này trước, rồi mới dựng.
 
 Mobile giữ nguyên Screen ID, hành vi và giới hạn quyền của desktop; khác biệt chỉ ở bố cục — sheet thay drawer/modal, board cuộn ngang, header mobile thay topbar. Không dùng bố cục mobile để bỏ bớt CTA, state hay thông tin mà bản desktop có.

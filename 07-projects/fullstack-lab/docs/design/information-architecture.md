@@ -34,6 +34,7 @@ Workspace
     ├── Danh sách project được cấp quyền
     ├── Tạo project                      [Workspace Admin]
     └── Project private được cấp quyền
+        ├── Tổng quan project             [mọi role; CTA Xuất tiến độ gated `report:export`]
         ├── Board
         │   ├── Bộ lọc, tìm kiếm, sắp xếp và tải thêm theo cột
         │   ├── Tạo/sửa task              [Owner, Editor]
@@ -52,6 +53,8 @@ Hệ thống
 ```
 
 `Thiết lập workspace` chỉ là điểm điều hướng dành cho Workspace Admin theo baseline. Chưa có trường hay hành động chi tiết nào được xác định ở đây; Pencil không được tự vẽ form cài đặt hoặc thao tác lưu cho đến khi có hợp đồng dữ liệu tương ứng.
+
+`PRJ-04 Tổng quan project` (`/projects/:projectId/overview`) là điểm điều hướng cấp project ngang hàng với Board, mở được cho cả Owner, Editor và Viewer vì nó chỉ đọc aggregate đã được authorize. Nó phải có mặt trong nav vì [RPT-01](screen-inventory.md) — CTA `Xuất tiến độ` của Phase 1.1 — sống trên chính màn này; không có đường vào Tổng quan thì luồng export không có entry point nào. Bản thân CTA vẫn gated theo capability `report:export` (Owner, Phase 1.1), nên nav item mở cho mọi role không cấp thêm quyền gì.
 
 `PRJ-03 Project Settings` là một hợp đồng khác: Owner mở màn hình này từ project được cấp quyền để đổi **duy nhất tên project**. Form chỉ nạp/tạo một trường `name` và gửi `PATCH /projects/:projectId` với trường đó. Nó không có description, visibility, thao tác xóa/archiving project hay bất kỳ setting chưa được baseline xác định.
 
