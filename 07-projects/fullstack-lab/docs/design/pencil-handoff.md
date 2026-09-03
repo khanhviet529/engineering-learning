@@ -214,20 +214,20 @@ Quy ước tên screen (một hệ duy nhất): `<Screen ID> · <Light|Dark|Mobi
 
 #### Ba chỗ đặc tả cũ lệch contract — phải dựng theo bản dưới đây
 
-**1. Checklist mật khẩu `AUTH-02` / `AUTH-04`** — theo [ADR-0007](../decisions/ADR-0007-password-policy.md) (Proposed). Policy composition (≥8 + hoa + thường + số + ký tự đặc biệt) **đã bị bác**; lý do nằm ở mục Alternatives của ADR đó. Bản đúng:
+**1. Checklist mật khẩu `AUTH-02` / `AUTH-04`** — theo [ADR-0007](../decisions/ADR-0007-password-policy.md) (Accepted 2026-09-03). Policy composition (≥8 + hoa + thường + số + ký tự đặc biệt) **đã bị bác**; lý do nằm ở mục Alternatives của ADR đó. Bản đúng:
 
 - Checklist live chỉ **hai** dòng, vì đó là tất cả những gì client kiểm được: `Tối thiểu 12 ký tự` và `Không chứa email hoặc tên của bạn`.
 - Blocklist là **server-decided**: hiển thị dạng **field error sau submit**, không phải ô tick live. Không nhúng danh sách mật khẩu đã lộ vào client.
 - Không vẽ ô tick cho hoa/thường/số/ký tự đặc biệt. Không hiển thị giới hạn 200 ký tự như một ô tick (nó là chặn nhập, không phải tiêu chí đạt).
 - `AUTH-04` giữ cảnh báo: đặt lại mật khẩu revoke mọi phiên đang mở.
 
-**2. Pill "hoàn thành" trên `FbTaskCard`** — theo [ADR-0008](../decisions/ADR-0008-terminal-column-and-task-reopen.md) (Proposed). Bản design cũ vẽ `success (hoàn thành)` như giá trị `dueState` thứ sáu. Sai: `dueState` chỉ có `none|scheduled|due_soon|due_today|overdue`, là **filter value có index** trong allowlist, không phải palette trạng thái. Bản đúng:
+**2. Pill "hoàn thành" trên `FbTaskCard`** — theo [ADR-0008](../decisions/ADR-0008-terminal-column-and-task-reopen.md) (Accepted 2026-09-03). Bản design cũ vẽ `success (hoàn thành)` như giá trị `dueState` thứ sáu. Sai: `dueState` chỉ có `none|scheduled|due_soon|due_today|overdue`, là **filter value có index** trong allowlist, không phải palette trạng thái. Bản đúng:
 
 - `FbDueState` giữ đúng năm giá trị server-derived: neutral (`none`/`scheduled`), warning (`due_soon`/`due_today`), danger (`overdue`).
-- Affordance hoàn thành lấy từ `column.isTerminal`, là biểu diễn **của cột**, không phải due state. Trong khi ADR-0008 còn `Proposed`: **không render pill hoàn thành như dueState**.
-- Khi ADR-0008 được duyệt, cần bổ sung: toggle `isTerminal` trong `BRD-02` Column Editor, và nhãn `Mở lại` trong activity feed cho action `task.reopened`.
+- Affordance hoàn thành lấy từ `column.isTerminal`, là biểu diễn **của cột**, không phải due state. Tuyệt đối không render nó như một giá trị `dueState`.
+- Bắt buộc bổ sung (ADR-0008 đã Accepted): toggle `isTerminal` trong `BRD-02` Column Editor, và nhãn `Mở lại` trong activity feed cho action `task.reopened`. Mở lại là một `task:move` bình thường — không dialog riêng, không yêu cầu lý do; nếu cột đích có `requiresReviewer` thì luồng chọn reviewer áp dụng như move thường.
 
-**3. Evidence link và định dạng comment** — theo [ADR-0009](../decisions/ADR-0009-task-evidence-and-comment-formatting.md) (Proposed). Giữ nhãn "đang chờ hợp đồng" cho tới khi ADR được duyệt. Bản đúng:
+**3. Evidence link và định dạng comment** — theo [ADR-0009](../decisions/ADR-0009-task-evidence-and-comment-formatting.md) (Accepted 2026-09-03) — đã là contract, bỏ nhãn "đang chờ hợp đồng". Bản đúng:
 
 - `evidenceUrl`: **một** URL `https` duy nhất, tối đa 2048 ký tự. Server **không bao giờ fetch** nó, nên UI **không có** link preview, thumbnail hay favicon fetch — mọi hành vi fetch biến field người dùng nhập thành SSRF vector. Hiển thị **host dạng text** để người đọc thấy đích trước khi bấm; link mang `rel="noopener noreferrer"`.
 - Evidence là **optional**, kể cả khi move vào cột `requiresReviewer`. Đề xuất cũ (bắt buộc ở cột review) đã bị ADR-0009 bác; đường đúng nếu cần cưỡng chế là cờ `board_columns.requires_evidence` bằng ADR riêng.
