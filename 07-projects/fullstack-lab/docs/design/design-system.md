@@ -46,6 +46,17 @@ Ngoài mười nhóm ở bảng trên, các token sau là bắt buộc vì mang 
 
 **Quy tắc ramp và theme (bắt buộc).** Biến màu *phẳng* — một giá trị duy nhất, không theo theme, ví dụ `fb.color.neutral.50` hay `fb.color.intent.warning.100` — là giá trị *nguồn* của ramp và **không được dùng làm fill nền hoặc màu chữ/icon** trong frame thuộc screen có `theme`. Lý do cụ thể: một nền `neutral.50` (`#F9FAFB`) trong screen dark vẫn sáng, trong khi `text.primary` ở dark cũng là `#F9FAFB` — chữ trắng trên nền trắng, không đọc được. Nền dùng `surface.*` hoặc `*.surface`; chữ và icon dùng `text.*`, `*.text` hoặc `brand.on-*`.
 
+**Thư viện icon (bắt buộc).** Lucide là thư viện icon **duy nhất**; không trộn Material Symbols hay bộ khác vào cùng canvas — hai bộ khác nhau về stroke weight, optical size và quy ước tên, trộn vào vừa lệch thị giác vừa không map được sang một icon package duy nhất khi build. Mỗi khái niệm dùng **đúng một** icon, không dùng đồng nghĩa:
+
+| Khái niệm | Icon chốt | Không dùng |
+|---|---|---|
+| Thành viên, nhóm người | `users` | `group` |
+| Ngày và lịch | `calendar-days` | `calendar` |
+| Biểu đồ cột, báo cáo | `chart-column` | `chart-bar` |
+| Đã xong, đã duyệt, tiêu chí đạt | `circle-check` | `check`, `check-check`, `check_circle` |
+| Chuyển theme (chỉ ở topbar) | `sun-moon` | `sun`, `moon` riêng lẻ |
+| Thu gọn / mở rộng sidebar | `panel-left-close` / `panel-left-open` | chevron đôi, `keyboard_double_arrow_right` |
+
 **Tương phản (bắt buộc).** Mọi cặp chữ/nền đạt tối thiểu 4.5:1, hoặc 3:1 cho chữ từ 24px hoặc từ 19px bold — ở **cả hai** theme, tính trên nền tổ tiên gần nhất có fill đục.
 
 ## Quy tắc đặt tên component và variant

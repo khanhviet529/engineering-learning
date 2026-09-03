@@ -52,17 +52,24 @@ Pencil biểu diễn role bằng các outcome Owner, Editor, Viewer và Workspac
 Tên frame bắt buộc:
 
 ```text
-[Screen ID] / [tên] / [viewport] / [role hoặc capability outcome] / [state]
+<Screen ID> · <Light|Dark|Mobile Light|Mobile Dark> — <Tên tiếng Việt> · <role> · <state>
 
 Ví dụ:
-BRD-01 / Project Board / desktop / editor / content
-BRD-01 / Project Board / compact / viewer / empty-filtered
-TSK-01 / Task Form / desktop / owner / validation-error
-PRJ-03 / Project Settings / desktop / owner / saving
-SYS-04 / Conflict Resolution / compact / editor / current-version-ready
+BRD-01 · Light — Bảng công việc · owner · content
+BRD-01 · Dark — Bảng công việc · viewer · read-only
+TSK-01 · Light — Biểu mẫu công việc · editor · content
+AUTH-05 · Dark — Xác minh email · guest · link-expired
+BRD-01 · Mobile Light — Bảng công việc · editor · content
 ```
 
-`Screen ID` phải khớp nguyên văn danh mục màn hình. `state` dùng tên rõ như `loading`, `empty`, `error`, `forbidden`, `conflict`, `syncing`, không dùng tên mơ hồ như `final-v2`.
+Đây là **hệ tên duy nhất** cho frame màn hình; ba hệ cũ (`NN prefix`, `Theme · ID`, `ID · Theme` không có slot) đã bị thay hết. Quy tắc từng slot:
+
+- `Screen ID` khớp nguyên văn [danh mục màn hình](screen-inventory.md). Frame không thuộc một Screen ID nào là tham chiếu và dùng `REF-NN · <Tên>`, có thêm `<Light|Dark>` khi tồn tại theo cặp theme.
+- `role` là một trong `owner`, `editor`, `viewer`, `ws-admin`, `guest`, `any`. Dùng `any` khi role không đổi UI; **chỉ** tạo frame theo role khi ma trận trong screen-inventory cho thấy role thật sự đổi UI (ví dụ `BRD-01`, `TSK-02`, `PRJ-04`), không nhân bản mọi màn theo ba role.
+- `state` dùng tên rõ: `content`, `loading`, `empty`, `error`, `forbidden`, `conflict`, `validation`, `saving`, `expired`, `read-only`, `sent`, `verified`, `link-expired`, `pending`, `rejection`, `time-log`. Không dùng tên mơ hồ như `final-v2`.
+- Component reusable giữ tên `Fb<Tên>` và không mang slot theme/role/state; biến thể của component thể hiện bằng override trên instance.
+
+**Trục canvas.** Light là hàng trên, Dark là hàng dưới, **cùng một cột `x` là một cặp Light/Dark của cùng frame**. Role **không** phải trục hàng: các role của cùng Screen ID nằm ở các **cột kề nhau** (ví dụ `BRD-01` owner tại `x = 9 × 1560`, editor tại `10 × 1560`, viewer tại `11 × 1560`), mỗi cột vẫn có Light trên và Dark dưới.
 
 ## Thành phần và mapping Pencil → frontend
 
