@@ -55,6 +55,7 @@ Ngoài mười nhóm ở bảng trên, các token sau là bắt buộc vì mang 
 | Biểu đồ cột, báo cáo | `chart-column` | `chart-bar` |
 | Đã xong, đã duyệt, tiêu chí đạt | `circle-check` | `check`, `check-check`, `check_circle` |
 | Chuyển theme (chỉ ở topbar) | `sun-moon` | `sun`, `moon` riêng lẻ |
+| Tổng quan project (nav `PRJ-04`) | `gauge` | `layout-dashboard` — icon đó là dấu thương hiệu trong `FbBrandMark`, dùng lại cho nav sẽ trùng nghĩa |
 | Thu gọn / mở rộng sidebar | `panel-left-close` / `panel-left-open` | chevron đôi, `keyboard_double_arrow_right` |
 
 **Tương phản (bắt buộc).** Mọi cặp chữ/nền đạt tối thiểu 4.5:1, hoặc 3:1 cho chữ từ 24px hoặc từ 19px bold — ở **cả hai** theme, tính trên nền tổ tiên gần nhất có fill đục.
