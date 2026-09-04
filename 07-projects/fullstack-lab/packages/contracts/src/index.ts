@@ -1,13 +1,29 @@
-// Public entry point của @flowboard/contracts.
-//
-// Bề mặt công khai hiện đang **trống có chủ ý**. Nội dung của package này được
-// dịch từ hợp đồng Markdown ở mốc M0.2 của kế hoạch triển khai, gồm: Zod schema
-// cho request và response projection của từng use case, `ErrorCode` enum đủ 24
-// code của danh mục, envelope thành công và lỗi, tên capability, và hình dạng
-// cursor.
-//
-// Quy tắc không đổi: package này diễn đạt **use case cụ thể** (`moveTask`),
-// không diễn đạt bảng database, và không phụ thuộc Drizzle, NestJS, Next.js
-// hay React.
+/**
+ * `@flowboard/contracts` — hợp đồng transport dùng chung giữa `apps/web` và
+ * `apps/api`.
+ *
+ * Package này là **đường nối** giữa hai bên. Markdown trong `docs/` vẫn là
+ * nguồn quyết định behavior; ở đây là bản dịch máy đọc được của nó, để cả web
+ * lẫn API đọc **cùng một** định nghĩa thay vì mỗi bên tự diễn giải tài liệu.
+ *
+ * Ba ràng buộc không được vi phạm:
+ *
+ * 1. Không phụ thuộc Drizzle, NestJS, Next.js hay React. Contract diễn đạt use
+ *    case (`moveTask`), không diễn đạt bảng database.
+ * 2. Mọi schema là `.strict()`. Field lạ là lỗi validation, không phải thứ để
+ *    bỏ qua im lặng.
+ * 3. Danh mục error code **đóng**. Thêm một code ở đây mà không thêm vào bảng
+ *    Markdown, hoặc ngược lại, sẽ làm fail test đối chiếu.
+ */
 
-export {};
+export * from "./error-codes.js";
+export * from "./envelope.js";
+export * from "./capabilities.js";
+export * from "./fields.js";
+export * from "./resources.js";
+export * from "./auth.js";
+export * from "./workspaces.js";
+export * from "./projects.js";
+export * from "./board-columns.js";
+export * from "./tasks.js";
+export * from "./comments.js";

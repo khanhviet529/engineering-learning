@@ -125,6 +125,31 @@ Nội dung bắt buộc, dịch từ [hợp đồng endpoint](api/endpoint-contr
 
 **Cổng ra đo được:** một test đối chiếu hai chiều — mọi code trong `ErrorCode` có mặt trong danh mục Markdown, và mọi code trong danh mục có mặt trong enum. Lệch một code là fail.
 
+### Đã dựng — trạng thái ngày 04/09/2026
+
+Package đọc trực tiếp hai tài liệu Markdown tại thời điểm chạy test và so từng dòng bảng, nên **không thể trôi** khỏi hợp đồng mà build vẫn xanh:
+
+| File | Nội dung |
+|---|---|
+| `error-codes.ts` | 24 code, HTTP status của từng code, và hai code duy nhất có `details` |
+| `envelope.ts` | Envelope thành công và lỗi, field-error array, `currentVersion`, page và pagination query |
+| `capabilities.ts` | 4 permission workspace, 24 permission project, ba role project, hai role workspace |
+| `fields.ts` | Instant, calendar date, position, version, category, priority, `dueState`, `evidenceUrl` |
+| `resources.ts` | Projection của workspace, project, column, task, member, comment, activity |
+| `auth.ts`, `workspaces.ts`, `projects.ts`, `board-columns.ts`, `tasks.ts`, `comments.ts` | Request và response theo từng use case |
+
+**Đã kiểm là test biết fail:** thêm một error code giả vào enum rồi chạy lại — test đổ đúng chỗ, khôi phục thì xanh lại. Một bộ đối chiếu chưa bao giờ đỏ là một bộ đối chiếu chưa được chứng minh.
+
+`evidenceUrl` có test riêng vì nó là ranh giới bảo mật chứ không phải field tiện lợi: nó được render thành link người dùng sẽ bấm. Test xác nhận chỉ `https` được nhận, còn `http`, `javascript:`, `data:`, `file:`, đường dẫn tương đối và URL vượt 2048 ký tự đều bị từ chối.
+
+### Một lỗ hổng hợp đồng lộ ra khi dịch
+
+`requiresReviewer` có trong projection của column, có cột trong database, và [ADR-0001](decisions/ADR-0001-task-planning-fields-and-review-workflow.md) nói rõ Owner là người đánh dấu nó — nhưng **không route nào đặt được giá trị đó**. Đây là cùng loại lỗi với `is_terminal` trước đây: một ADR đã `Accepted` phụ thuộc vào một field không có đường điều khiển.
+
+Đã sửa theo đúng lối mà `isTerminal` đang dùng, để hai field song song nhau thay vì mỗi field một kiểu: `requiresReviewer` vào body của `POST /projects/:projectId/columns` (optional, default `false`), thêm một command thứ tư `{ "requiresReviewer": boolean }` cho `PATCH /columns/:columnId`, sinh activity `board_column.reviewer_requirement_changed`, và một hàng transaction boundary tương ứng trong [chính sách query và index](data/query-and-index-policy.md).
+
+Quy định kèm theo: đổi `requiresReviewer` **không hồi tố** — nó chỉ áp cho create và move sau thời điểm đổi. Task đang nằm trong cột mà thiếu `reviewerId` vẫn ở nguyên, vì hồi tố sẽ biến một thao tác cấu hình thành một đợt vi phạm invariant hàng loạt không ai yêu cầu.
+
 ## M0.3 — Mock server theo contract
 
 Dựng mock phục vụ đúng các schema ở M0.2. Đây là thứ cho phép frontend chạy trước khi backend có endpoint, và là lý do M2–M4 song song được.
