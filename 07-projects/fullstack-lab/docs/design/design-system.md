@@ -26,7 +26,7 @@ Pencil tạo token theo các nhóm và tên semantic sau. Giá trị cụ thể 
 | Spacing | `fb.space.0` đến các nấc tăng đều | Padding component, khoảng giữa section, gutter board. |
 | Size | `fb.size.control.*`, `fb.size.icon.*`, `fb.size.avatar.*`, `fb.size.board-column-min` | Vùng chạm, icon, avatar và chiều rộng cột tối thiểu. |
 | Shape | `fb.radius.*`, `fb.border.width.*` | Card, input, sheet, focus ring. |
-| Elevation | `fb.shadow.raised`, `fb.shadow.drawer`, `fb.shadow.modal` | Cấp nổi của card/lớp phủ. |
+| Elevation | `fb.shadow.raised`, `fb.shadow.modal`, `fb.shadow.color` | Cấp nổi của card và lớp phủ. **`fb.shadow.drawer` không tồn tại** — artifact chỉ có `fb.shadow.raised` (dùng 88 chỗ), `fb.shadow.modal` (8) và `fb.shadow.color` (25), cộng ba biến `*.blur`. `FbDrawer` hiện **không có `effect` nào**, tức đang phẳng so với nền; cần thêm cấp nổi cho drawer trước khi freeze. |
 | Motion | `fb.motion.duration.*`, `fb.motion.easing.*` | Mở drawer, feedback DnD, toast; tôn trọng reduced motion. |
 | Layer | `fb.z.header`, `dropdown`, `drawer`, `modal`, `toast` | Thứ tự lớp phủ, không để toast chặn modal. |
 | Breakpoint | `fb.breakpoint.compact`, `tablet`, `desktop` | Variant responsive; board chuyển sang horizontal scroll ở compact. |

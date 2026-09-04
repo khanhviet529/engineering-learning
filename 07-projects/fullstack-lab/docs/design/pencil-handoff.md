@@ -73,8 +73,10 @@ BRD-01 · Mobile Light — Bảng công việc · editor · content
 
 ## Thành phần và mapping Pencil → frontend
 
-| Component/Pencil frame | Frontend component mục tiêu | Ant Design primitive bên trong (nếu cần) | Bắt buộc bàn giao |
+| Khối thiết kế (hiện diện dưới dạng màn hình, **không** phải component Pencil) | Frontend component mục tiêu | Ant Design primitive bên trong (nếu cần) | Bắt buộc bàn giao |
 |---|---|---|---|
+Bảng dưới đây map **khối thiết kế cấp trang** sang component frontend. Tên ở cột đầu theo quy ước `Fb / X` là tên khái niệm, **không phải tên frame trên canvas** — kiểm 04/09/2026: canvas không có frame nào bắt đầu bằng `Fb / `. Các khối này hiện diện dưới dạng màn hình có Screen ID, không phải component tái sử dụng. Bảng map component Pencil thật (25 component `Fb*`) nằm ở mục kế tiếp.
+
 | `Fb / App Shell` | `FbAppShell` | Layout, Menu, Dropdown | header desktop/compact, workspace context, focus order. |
 | `Fb / Workspace Switcher` | `FbWorkspaceSwitcher` | Select, Dropdown, Skeleton | Loading, Empty, Error; chỉ dữ liệu workspace được phép. |
 | `Fb / Project List` | `FbProjectList` | List, Card, Empty, Skeleton | content, Loading, Empty, Error, CTA theo capability. |
@@ -114,7 +116,22 @@ BRD-01 · Mobile Light — Bảng công việc · editor · content
 | `FbNavGroupTimeTracking` | `FbNavGroup` | Menu.ItemGroup | chỉ chèn vào slot sidebar ở project đã bật time tracking. |
 | `FbSidebarCollapsed` | `FbAppShell` (trạng thái thu gọn) | Layout.Sider collapsed | icon-only + tooltip + accessible name; footer giữ đúng control thu gọn/mở rộng. |
 
-Một component Pencil không có mapping frontend là tài sản minh họa và phải ghi rõ `visual-only`. Một wrapper Flowboard không được bị thay bằng primitive Ant Design trong feature chỉ vì frame hiện tại trông giống primitive đó.
+Một component Pencil không có mapping frontend là tài sản minh họa và phải ghi rõ `visual-only`.
+
+Chiều ngược lại cũng phải nói rõ. Tám component frontend dưới đây **không có component Pencil tái sử dụng**; hình của chúng chỉ tồn tại nội tuyến bên trong màn hình, nên frontend lấy hình từ đúng màn hình được nêu, và khi sửa phải sửa ở mọi màn hình có chúng vì không có một nguồn chung để sửa một chỗ:
+
+| Frontend component | Lấy hình từ màn hình | Ghi chú |
+|---|---|---|
+| `FbAsyncMemberSelect` | `TTS-01`, `PRM-01`, `TSK-01` | Chọn người kèm avatar và popup tìm kiếm. |
+| `FbDateRangePicker` | `WTA-01`, `WTR-01`, `MYT-01` | Khoảng ngày cho bộ lọc và báo cáo. |
+| `FbSearchInput` | `BRD-01`, `WTA-01` | Search tự do, khác `FbSelect` enum. |
+| `FbConfirmDiscardDialog` | `TSK-01 · … · unsaved` | Dùng `FbModal` làm vỏ. |
+| `FbConflictPanel` | `SYS-04` | Dùng `FbModal`/`FbDrawer` làm vỏ; không force overwrite. |
+| `FbPriority` | `TSK-01`, `TSK-02`, `BRD-01` | Năm giá trị; dùng `FbBadge` làm vỏ. |
+| `FbDueState` | `BRD-01`, `MYT-01`, `TSK-02` | Năm giá trị server-derived; dùng `FbBadge` làm vỏ. |
+| `FbReviewHandoff` | `TSK-01` | Chỉ hiện khi destination column `requiresReviewer`. |
+
+Đây là ghi nhận có chủ ý, không phải nợ: dựng thêm tám component Pencil ở giai đoạn này không đổi được kết quả frontend, nhưng bỏ qua việc ghi lại thì người triển khai sẽ đi tìm một component không tồn tại. Một wrapper Flowboard không được bị thay bằng primitive Ant Design trong feature chỉ vì frame hiện tại trông giống primitive đó.
 
 ## Hợp đồng variant và state
 
@@ -278,3 +295,22 @@ Quy ước tên screen (một hệ duy nhất): `<Screen ID> · <Light|Dark|Mobi
 4. Screenshot bản định nghĩa `reusable` có thể ra ảnh trắng — luôn chụp **instance** đặt trong ngữ cảnh thật.
 5. `ctx.problems` đọc trong cùng lượt `execute` với mutation cho false-positive; kiểm lại ở lượt sau trước khi tin.
 6. Filter theo tên khi thay node hàng loạt phải khớp **chính xác**; một regex quá rộng đã từng thay oan năm header không thuộc board và làm mất nội dung gốc không phục hồi được.
+
+## Trạng thái Ready for build theo frame (04/09/2026)
+
+Biên bản này do controller lập, dựa trên phép đo trên artifact chứ không dựa trên báo cáo. Một frame chỉ được đánh dấu ready khi đạt **cả sáu** điều kiện dưới đây; điều kiện nào không đo được thì nói rõ là không đo được thay vì coi như đạt.
+
+| Điều kiện | Cách kiểm | Kết quả |
+|---|---|---|
+| Có đủ cặp Light và Dark | đếm biến thể theo tên frame | **71/72 đạt.** Chỉ `REF-11 · Đối chiếu bao phủ` có mỗi bản Dark — đây là sheet tham chiếu, không phải màn hình dựng, nên không chặn. |
+| Role khớp `screen-inventory.md` | so slot role trong tên frame với cột role | 32/32 Screen ID đạt |
+| Tương phản | tự cài công thức WCAG, tính lại toàn bộ | 3.016 cặp, **0 dưới ngưỡng**, 20 node không có nền đục tổ tiên |
+| Màu và kích thước đọc từ token | quét `fill`/`stroke`/`effect`/`fontFamily` trên node | 170 biến, 100% tiền tố `fb.`, 0 tham chiếu gãy trên 11.151, 0 hex trong `effect` |
+| Mutation trỏ tới API có thật | đối chiếu `REF-16` với `endpoint-contracts.md` | mọi endpoint và error code đều tồn tại nguyên văn |
+| Component có đủ state | `REF-15`, 16 section | đạt; `FbChecklistRow` được ghi rõ là chỉ báo trạng thái, không nhận tương tác |
+
+**Kết quả: 28/32 Screen ID đánh dấu `Ready for build`.**
+
+**Bốn frame bị giữ lại:** `TSK-02 · Light|Dark — … · editor · content` và `TSK-02 · Light|Dark — … · viewer · read-only`. Lý do đo được: chúng dùng `FbDrawer`, mà component này **không có `effect` nào** — drawer đang phẳng so với nền, trong khi `FbModal` có shadow. `design-system.md` khai ba cấp elevation nhưng artifact chỉ hiện thực hai. Sửa xong `FbDrawer` thì bốn frame này ready mà không cần đo lại thứ gì khác.
+
+Hai việc trên là toàn bộ danh sách còn nợ trước khi freeze v0.1.
