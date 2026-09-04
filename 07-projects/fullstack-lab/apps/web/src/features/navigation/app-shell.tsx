@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   FbAccountButton,
@@ -36,7 +36,6 @@ export interface AppShellProps extends Omit<NavContext, "pathname"> {
   /** Tiêu đề `h1` của trang, do topbar render. */
   title: string;
   breadcrumb?: string | undefined;
-  pathname: string;
   workspaceName?: string | undefined;
   children: ReactNode;
 }
@@ -44,13 +43,18 @@ export interface AppShellProps extends Omit<NavContext, "pathname"> {
 export function AppShell({
   title,
   breadcrumb,
-  pathname,
   workspaceName,
   workspaceId,
   project,
   workspaceCapabilities,
   children,
 }: AppShellProps) {
+  // `pathname` **không** là prop: nó đọc được ngay ở đây, và trước đây 8 màn
+  // hình mỗi màn tự gọi `usePathname()` rồi truyền vào kèm một giá trị dự phòng
+  // tự chọn — ba giá trị khác nhau (`""`, `"/tai-khoan"`, `"/khong-gian-lam-viec"`).
+  // Dự phòng sai không gây lỗi thấy được; nó chỉ làm nav highlight sai mục, tức
+  // là loại lỗi không ai báo. Một nguồn, một giá trị dự phòng.
+  const pathname = usePathname() ?? "";
   const router = useRouter();
   const queryClient = useQueryClient();
   const { actor } = useSession();

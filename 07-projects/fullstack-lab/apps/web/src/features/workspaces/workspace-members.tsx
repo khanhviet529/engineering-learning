@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { usePathname } from "next/navigation";
 import {
   FbAlert,
   FbBadge,
@@ -45,7 +44,6 @@ const ROLE_LABEL: Record<WorkspaceRole, string> = {
 const ADD_FORM_ID = "add-workspace-member-form";
 
 export function WorkspaceMembersScreen({ workspaceId }: { workspaceId: string }) {
-  const pathname = usePathname();
   const { workspaces, failure: workspacesFailure } = useWorkspaces();
   const workspace = workspaces?.find((item) => item.id === workspaceId);
   const manageable = can("workspace:member:manage", workspace);
@@ -61,7 +59,6 @@ export function WorkspaceMembersScreen({ workspaceId }: { workspaceId: string })
     <AppShell
       title="Thành viên không gian"
       breadcrumb={workspace?.name}
-      pathname={pathname ?? ""}
       workspaceId={workspaceId}
       {...(workspace === undefined ? {} : { workspaceCapabilities: workspace.capabilities })}
       {...(workspace === undefined ? {} : { workspaceName: workspace.name })}

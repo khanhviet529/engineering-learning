@@ -1,6 +1,5 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { FbAlert, FbBadge, FbLink, FbPageSection, FbSkeleton } from "@flowboard/ui";
 import { AppShell } from "../navigation/app-shell.tsx";
 import { FailureState } from "../system/failure-state.tsx";
@@ -32,14 +31,11 @@ const THEME_OPTIONS: readonly { value: ThemePreference; label: string }[] = [
 ];
 
 export function AccountSettingsScreen() {
-  const pathname = usePathname();
   const { actor, loading, failure } = useSession();
   const { preference, setPreference, storageFailed } = useThemePreference();
 
   const shell = (children: React.ReactNode) => (
-    <AppShell title="Hồ sơ và tùy chọn" pathname={pathname ?? "/tai-khoan"}>
-      {children}
-    </AppShell>
+    <AppShell title="Hồ sơ và tùy chọn">{children}</AppShell>
   );
 
   if (failure !== undefined) return shell(<FailureState failure={failure} />);

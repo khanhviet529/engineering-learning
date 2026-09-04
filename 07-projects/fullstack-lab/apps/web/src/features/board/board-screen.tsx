@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   FbBadge,
   FbBoardColumn,
@@ -42,7 +42,6 @@ export function boardPath(projectId: string): string {
 export const COLUMN_PANEL = "columns";
 
 export function BoardScreen({ projectId }: { projectId: string }) {
-  const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { detail, loading, failure, refetch } = useProject(projectId);
@@ -54,7 +53,6 @@ export function BoardScreen({ projectId }: { projectId: string }) {
     <AppShell
       title="Bảng công việc"
       breadcrumb={detail?.project.name}
-      pathname={pathname ?? ""}
       {...(detail === undefined
         ? {}
         : { project: { id: detail.project.id, capabilities: detail.capabilities } })}

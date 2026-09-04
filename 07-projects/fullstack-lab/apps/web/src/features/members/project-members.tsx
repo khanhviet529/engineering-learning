@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { usePathname } from "next/navigation";
 import {
   FbAlert,
   FbBadge,
@@ -58,7 +57,6 @@ const ROLE_OPTIONS = [
 const ADD_FORM_ID = "add-project-member-form";
 
 export function ProjectMembersScreen({ projectId }: { projectId: string }) {
-  const pathname = usePathname();
   const { detail, loading, failure, refetch } = useProject(projectId);
   const [adding, setAdding] = useState(false);
 
@@ -66,7 +64,6 @@ export function ProjectMembersScreen({ projectId }: { projectId: string }) {
     <AppShell
       title="Thành viên dự án"
       breadcrumb={detail?.project.name}
-      pathname={pathname ?? ""}
       {...(detail === undefined
         ? {}
         : { project: { id: detail.project.id, capabilities: detail.capabilities } })}

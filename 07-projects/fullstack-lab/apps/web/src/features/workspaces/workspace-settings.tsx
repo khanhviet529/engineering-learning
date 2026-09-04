@@ -1,6 +1,5 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import { FbAlert, FbBadge, FbPageSection, FbSkeleton } from "@flowboard/ui";
 import { AppShell } from "../navigation/app-shell.tsx";
 import { FailureState, SystemState } from "../system/failure-state.tsx";
@@ -20,7 +19,6 @@ import { useWorkspaces } from "./queries.ts";
  * server đã tính, và nói rõ điều gì còn thiếu.
  */
 export function WorkspaceSettingsScreen({ workspaceId }: { workspaceId: string }) {
-  const pathname = usePathname();
   const { workspaces, loading, failure, refetch } = useWorkspaces();
   const workspace = workspaces?.find((item) => item.id === workspaceId);
 
@@ -28,7 +26,6 @@ export function WorkspaceSettingsScreen({ workspaceId }: { workspaceId: string }
     <AppShell
       title="Cài đặt không gian"
       breadcrumb={workspace?.name}
-      pathname={pathname ?? ""}
       workspaceId={workspaceId}
       {...(workspace === undefined ? {} : { workspaceCapabilities: workspace.capabilities })}
       {...(workspace === undefined ? {} : { workspaceName: workspace.name })}

@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { usePathname } from "next/navigation";
 import {
   FbAlert,
   FbBadge,
@@ -47,7 +46,6 @@ const ROLE_TONE: Record<ProjectRole, "brand" | "info" | "neutral"> = {
  * nói rằng actor chưa là thành viên của dự án nào ở đây.
  */
 export function ProjectListScreen({ workspaceId }: { workspaceId: string }) {
-  const pathname = usePathname();
   const { workspaces } = useWorkspaces();
   const workspace = workspaces?.find((item) => item.id === workspaceId);
   const { projects, loading, failure, refetch } = useWorkspaceProjects(workspaceId);
@@ -72,7 +70,6 @@ export function ProjectListScreen({ workspaceId }: { workspaceId: string }) {
     <AppShell
       title="Dự án"
       breadcrumb={workspace?.name}
-      pathname={pathname ?? ""}
       workspaceId={workspaceId}
       {...(workspace === undefined ? {} : { workspaceCapabilities: workspace.capabilities })}
       {...(workspace === undefined ? {} : { workspaceName: workspace.name })}

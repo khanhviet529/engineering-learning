@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { usePathname } from "next/navigation";
 import { FbAlert, FbBadge, FbButtonPrimary, FbListRow, FbPageSection } from "@flowboard/ui";
 import { AppShell } from "../navigation/app-shell.tsx";
 import { AsyncSection } from "../system/async-section.tsx";
@@ -22,12 +21,11 @@ import { CreateWorkspaceDialog } from "./create-workspace-dialog.tsx";
  *    chú lệch artifact trong báo cáo M2.
  */
 export function WorkspaceListScreen() {
-  const pathname = usePathname();
   const { workspaces, loading, failure, refetch } = useWorkspaces();
   const [creating, setCreating] = useState(false);
 
   return (
-    <AppShell title="Không gian làm việc" pathname={pathname ?? "/khong-gian-lam-viec"}>
+    <AppShell title="Không gian làm việc">
       <FbPageSection
         heading="Chọn không gian làm việc"
         description="Bạn chỉ thấy các không gian mà mình là thành viên."

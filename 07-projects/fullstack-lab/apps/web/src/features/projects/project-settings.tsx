@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
 import {
   FbAlert,
   FbButtonPrimary,
@@ -38,14 +37,12 @@ import { useProject, useRenameProject } from "./queries.ts";
 const FORM_ID = "project-settings-form";
 
 export function ProjectSettingsScreen({ projectId }: { projectId: string }) {
-  const pathname = usePathname();
   const { detail, loading, failure, refetch } = useProject(projectId);
 
   const shell = (children: React.ReactNode) => (
     <AppShell
       title="Cài đặt dự án"
       breadcrumb={detail?.project.name}
-      pathname={pathname ?? ""}
       {...(detail === undefined
         ? {}
         : { project: { id: detail.project.id, capabilities: detail.capabilities } })}

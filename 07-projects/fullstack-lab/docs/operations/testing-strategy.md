@@ -66,6 +66,25 @@ Integration test phải dùng PostgreSQL và transaction thực; mock repository
 
 E2E thêm journey conflict: UI giữ local draft/snapshot, rollback optimistic move khi stale `409`, tải lại dữ liệu được phép đọc và không force/auto-merge/auto-retry stale write.
 
+## Test đặt ở đâu
+
+**Cạnh source khi test có đúng một chủ. Vào `src/test/` khi nó không có chủ nào.**
+
+Đo trên cây hiện tại: 29 trong 30 test cạnh source có file chủ 1:1 cùng tên, cùng thư mục — `domain/ordering.ts` ↔ `domain/ordering.test.ts`, `lib/transport.ts` ↔ `lib/transport.test.ts`. Còn `src/test/` chứa đúng thứ không thuộc file nào: ma trận endpoint đối chiếu tài liệu, 207 khẳng định quyền trên mọi route, `accessibility`, `contrast`, `no-hardcoded-colors`, `responsive`, guard `web-routes`, cộng hạ tầng test (`fixture.ts`, `harness.tsx`).
+
+Hậu tố `*.integration.test.ts` đánh dấu **"cần database"**, không đánh dấu "cross-cutting". Hai trục độc lập, và trộn chúng là chỗ dễ nhìn cấu trúc này thành tuỳ tiện: `shared/http/idempotency.integration.test.ts` nằm cạnh source vì nó có một chủ, dù nó cần Postgres.
+
+Bốn lý do không gom hết vào `test/`:
+
+1. **Test cạnh source chết cùng source.** Xoá `ordering.ts` là xoá luôn test của nó trong cùng một lần. Test ở thư mục khác để lại một file mồ côi, hoặc tệ hơn, một test còn xanh cho code đã biến mất.
+2. **Import dài và dễ vỡ.** Repo này đã phải **bỏ** một lint rule chặn `../../../` vì nó bắt oan code đúng; thêm 30 đường như vậy là đi ngược.
+3. **`test/` thành cây thư mục thứ hai soi gương `src/`, rồi lệch.** Đổi tên một module xong quên đổi bên kia là kiểu hỏng cổ điển.
+4. **Mất tín hiệu "cái này đã có test".** Hiện `ls` một thư mục là biết; gom ra ngoài thì phải đi tìm.
+
+Cách này cũng trùng convention của NestJS: generator đặt `*.spec.ts` cạnh file và `test/*.e2e-spec.ts` riêng.
+
+Một ngoại lệ đã biết: `packages/contracts/src/contract-sync.test.ts` đọc Markdown nên là cross-cutting, nhưng package đó chỉ có hai test và không có `test/`. Tạo một thư mục cho một file là thêm cấu trúc không mua được gì; khi có test cross-cutting thứ hai thì dựng.
+
 ## Test ở đường nối giữa hai lane
 
 Khi hai lane chạy song song, mỗi lane viết test theo hợp đồng **mà lane đó đọc**, và không ai sở hữu chỗ hai hợp đồng gặp nhau. Đó là hình dạng của loại lỗi tốn nhất trong repo này, vì nó lọt qua mọi cổng: cả hai bộ test đều xanh, và đều xanh **một cách đúng đắn**.
