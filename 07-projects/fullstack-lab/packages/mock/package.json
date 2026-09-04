@@ -1,0 +1,31 @@
+{
+  "name": "@flowboard/mock",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Mock HTTP dựng từ @flowboard/contracts, dùng cho dev frontend và test. Không phải staging, không deploy, không cưỡng chế quyền hay concurrency.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@flowboard/contracts": "workspace:*",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@flowboard/config": "workspace:*",
+    "vitest": "^4.1.11"
+  }
+}

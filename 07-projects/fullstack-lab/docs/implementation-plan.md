@@ -16,7 +16,7 @@
 
 | Điều kiện | Trạng thái |
 |---|---|
-| Hợp đồng Markdown | Chốt ở baseline v0.1; 11 ADR đều `Accepted` |
+| Hợp đồng Markdown | Chốt ở baseline v0.1; 11 ADR đều `Accepted`. ADR-0012 mở trong lúc triển khai và đang `Proposed` |
 | Thiết kế Pencil | **Freeze v0.1 ngày 04/09/2026**, blob `12d6ff91`; checklist 34/34 |
 | Danh mục error code | 24 code, đóng — không code nào ngoài danh mục được xuất hiện trong response |
 | Code ứng dụng | **Chưa có dòng nào** — đây là điểm xuất phát |
@@ -155,6 +155,20 @@ Quy định kèm theo: đổi `requiresReviewer` **không hồi tố** — nó c
 Dựng mock phục vụ đúng các schema ở M0.2. Đây là thứ cho phép frontend chạy trước khi backend có endpoint, và là lý do M2–M4 song song được.
 
 Mock phải trả cả **nhánh lỗi**, không chỉ nhánh thành công: `401`, `403`, `404`, `409` từng loại, `429` kèm `Retry-After`. Nếu mock chỉ biết trả `200`, frontend sẽ được viết như thể lỗi không tồn tại và mọi trạng thái UI sẽ phải làm lại.
+
+### Đã dựng — trạng thái ngày 04/09/2026
+
+Mock sống ở `packages/mock`, là workspace package thứ tư. Thêm một package là thay đổi package boundary, mà [cấu trúc repository](engineering/repository-structure.md) yêu cầu có ADR trước — nên quyết định này nằm ở [ADR-0012](decisions/ADR-0012-contract-mock-package.md), hiện `Proposed` và **chờ chủ dự án ký**. Nó được dựng trước khi ký vì trạng thái `Proposed` chỉ chặn thay đổi *khó đảo ngược*, còn xoá một package chỉ dùng cho dev thì không có gì để đảo.
+
+| File | Nội dung |
+|---|---|
+| `fixtures.ts` | Dùng lại **đúng** bộ fixture chuẩn của [chiến lược kiểm thử](operations/testing-strategy.md): Project B có Owner/Editor/Viewer, một Workspace Admin không có `project_members` row, User A là Owner của Project A riêng tư. Cùng một tên actor mang cùng một nghĩa ở mọi lớp test. |
+| `responses.ts` | Chỗ **duy nhất** biết hình dạng envelope. Nó tự chặn: gắn `details` cho một code không công bố `details` sẽ ném ngay, thay vì tạo ra response sai hợp đồng mà frontend lại tin. |
+| `handlers.ts` | Handler theo use case, cộng 11 kịch bản lỗi gọi được trực tiếp để frontend dựng đủ mọi trạng thái đã thiết kế. |
+
+**Cổng ra — đã đạt:** 63 test xác nhận **mọi** response của mock, cả thành công lẫn lỗi, parse được bằng chính schema trong `@flowboard/contracts`; status khớp danh mục; mọi `429` mang `Retry-After`; `VALIDATION_FAILED` dùng field-error array còn `TASK_VERSION_CONFLICT` dùng object `currentVersion`; và `X-Request-Id` trùng với `requestId` trong body.
+
+**Ba giới hạn phải nhớ**, vì hiểu nhầm chúng là cách nhanh nhất để tin sai: mock **không** cưỡng chế phân quyền, concurrency hay idempotency; **không** giữ trạng thái giữa các request; và **không** được deploy. Một tính năng chỉ chạy đúng trên mock thì chưa chứng minh được gì — bằng chứng vẫn phải là integration test trên PostgreSQL thật.
 
 ## M0.4 — Token bridge và `packages/ui`
 

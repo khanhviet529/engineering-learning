@@ -15,6 +15,7 @@ fullstack-lab/
 │   └── worker/                   # Chỉ Phase 1.2: report/delivery bất đồng bộ
 ├── packages/
 │   ├── contracts/                # Zod schemas và types của HTTP use case rõ ràng
+│   ├── mock/                     # Mock HTTP dựng từ contracts, chỉ dùng cho dev và test
 │   ├── ui/                       # Primitive/wrapper UI Flowboard tái sử dụng
 │   └── config/                   # Cấu hình dùng chung, không chứa product behavior
 ├── infra/
@@ -35,6 +36,7 @@ fullstack-lab/
 | `apps/api` | HTTP boundary và product behavior phía server | Nest modules, guards, use case, domain rule, repository port/infrastructure adapter | page/component Next.js, client cache, generic table API |
 | `apps/worker` | Job report/delivery sau Phase 1.2 | consumer của use case/job contract hẹp, retry/idempotency/telemetry job | quyền bypass API, query không project-scoped, logic UI |
 | `packages/contracts` | Hợp đồng transport dùng bởi web và API | Zod request/query/response schema, inferred type, error-code vocabulary khi đã công bố | Drizzle table, Nest decorator, React component, secret/config runtime |
+| `packages/mock` | Mock HTTP dựng từ hợp đồng, cho frontend chạy trước backend ([ADR-0012](../decisions/ADR-0012-contract-mock-package.md)) | fixture tất định, handler trả đúng schema contract kể cả nhánh lỗi | business logic, cưỡng chế quyền/concurrency/idempotency, bất kỳ thứ gì được deploy |
 | `packages/ui` | UI primitive Flowboard dùng ở nhiều feature | wrapper Ant Design, token/variant/accessibility contract được phê duyệt | fetch, quyền, route, product mutation hay feature-specific form |
 | `packages/config` | Cấu hình toolchain/format/lint/type/test được versioned | preset nhỏ, documentation cho môi trường cần thiết | secret, environment value triển khai, domain constant |
 | `infra` | Artefact hạ tầng khai báo | image, compose, deployment và monitoring configuration theo phase | business rule, migration tự chạy không kiểm soát |
@@ -49,6 +51,8 @@ apps/web ──────────────┐
 apps/api ──────────────┤
                         ├── packages/config
 apps/web ──────────────┴── packages/ui
+
+packages/mock ─────────── packages/contracts   (chỉ dev/test, không vào bundle production)
 
 apps/worker (Phase 1.2) ── packages/contracts + packages/config
 ```
