@@ -1,0 +1,109 @@
+# Cổng CI của Flowboard — hiện thực bảng trong docs/operations/ci-cd.md.
+#
+# Mọi job dưới đây **chặn merge**. Đặc biệt là container image: theo phán quyết
+# của controller trong ci-cd.md, image phải build được từ chính commit của pull
+# request, chứ không phải chỉ kiểm ở lúc release. Đội chấp nhận CI chậm hơn để
+# bắt lỗi Dockerfile và build context trước khi thay đổi được merge.
+#
+# Hàng Format cố ý chỉ phủ source và config: Markdown nằm ngoài phạm vi vì
+# docs/superpowers/** là snapshot có ngày và ADR đã Accepted đều bị cấm sửa nội
+# dung. Tính đúng đắn của tài liệu do link check bảo đảm.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+defaults:
+  run:
+    working-directory: 07-projects/fullstack-lab
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Format, lint, typecheck, test, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: 07-projects/fullstack-lab/.nvmrc
+
+      - name: Bật corepack cho pnpm đã ghim trong package.json
+        run: corepack enable
+
+      - name: Cài dependency theo đúng lockfile
+        run: pnpm install --frozen-lockfile
+
+      - name: Token phải khớp artifact thiết kế
+        # Sinh lại rồi so với bản đã commit. Lệch nghĩa là ai đó sửa tay
+        # tokens.css, hoặc artifact đã đổi mà chưa chạy `pnpm tokens`.
+        run: |
+          pnpm tokens
+          git diff --exit-code -- packages/ui/src/tokens.css
+
+      - name: Format
+        run: pnpm format
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit và contract test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+  docs:
+    name: Liên kết tài liệu
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+
+      - name: Không được có link chết giữa các tài liệu
+        run: python scripts/check-doc-links.py
+
+  container-image:
+    name: Container image (cổng chặn merge)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Build image của API
+        run: docker build -f infra/docker/api.Dockerfile -t flowboard-api:${{ github.sha }} .
+
+      - name: Build image của web
+        run: docker build -f infra/docker/web.Dockerfile -t flowboard-web:${{ github.sha }} .
+
+      - name: Ghi lại digest của image
+        run: |
+          docker image inspect flowboard-api:${{ github.sha }} --format '{{.Id}}'
+          docker image inspect flowboard-web:${{ github.sha }} --format '{{.Id}}'
+
+  topology:
+    name: Topology local đúng bốn service
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Compose phải parse được và có đúng bốn service
+        # Không Redis, không BullMQ, không worker, không broker. Phase 1.2 mới
+        # thêm chúng, và khi đó phải kèm ADR.
+        run: |
+          cp .env.example .env.ci
+          services=$(docker compose --env-file .env.ci -f infra/compose/compose.yaml config --services | sort | tr '\n' ' ')
+          echo "services: $services"
+          test "$services" = "api mailpit postgres web "

@@ -209,6 +209,40 @@ Theo [CI/CD](operations/ci-cd.md), CI phải chặn merge ở: format · lint ·
 
 **Cổng ra:** một developer mới làm được năm bước trong tài liệu local — copy template env, start topology, chạy migration, nạp seed, chạy smoke journey — mà không phải tự chế config.
 
+### Đã dựng — trạng thái ngày 04/09/2026
+
+| Hạng mục | Nội dung |
+|---|---|
+| `apps/api` | Cấu hình validate lúc khởi động, `GET /health/live`, `GET /health/ready`, chuẩn hoá `requestId` |
+| `apps/web` | Next.js 16 App Router; layout gốc là chỗ **duy nhất** nạp `tokens.css` |
+| `infra/compose` | Đúng bốn service `web`, `api`, `postgres`, `mailpit`; named volume cho dữ liệu |
+| `infra/docker` | Dockerfile multi-stage cho cả hai app |
+| `.env.example` | Chỉ tên biến, mô tả và ví dụ không-secret |
+| `.github/workflows/ci.yml` | Bốn job, tất cả chặn merge |
+| `scripts/check-doc-links.py` | Bộ kiểm liên kết tài liệu, chạy trong CI |
+
+**Liveness và readiness trả lời hai câu khác nhau**, và trộn chúng là lỗi vận hành thật. `live` không chạm dependency nào — fail nghĩa là restart process. `ready` kiểm PostgreSQL với timeout cứng — fail chỉ nghĩa là chưa phục vụ được. Healthcheck của Compose vì vậy dùng `live`: dùng `ready` sẽ khiến Compose restart API trong khi lỗi nằm ở database, mà restart không sửa được gì.
+
+Ở mốc này **`ready` trả `503` một cách trung thực**, vì chưa có PostgreSQL client. Trả `ok` sẽ khiến Compose và orchestrator tin API phục vụ được trong khi nó chưa có gì để phục vụ. Probe thật được nối ở M1 cùng database boundary.
+
+CI có thêm hai cổng mà bảng gốc chưa nêu, vì cả hai bảo vệ một quy tắc đã có: **token phải khớp artifact** (chạy lại `pnpm tokens` rồi `git diff --exit-code`, nên sửa tay `tokens.css` là fail), và **topology đúng bốn service** (không Redis, không worker — Phase 1.2 mới thêm, và phải kèm ADR).
+
+### Ba lỗi thật lộ ra khi dựng
+
+1. **`node --experimental-strip-types` không chạy được parameter property.** Cú pháp `constructor(public readonly x)` phải *sinh* code, mà chế độ chỉ bóc kiểu thì không sinh gì. Đã khai field tường minh — vốn cũng là cách viết rõ hơn.
+2. **`.ts` trong import: Node chạy được, `tsc` emit thì không.** Chỉ lộ ra ở bước `build` vì `typecheck` chạy với `noEmit`. Bật `rewriteRelativeImportExtensions` để viết `./env.ts` mà emit ra `./env.js` — không có cờ này thì phải chọn một trong hai cách chạy, và cách còn lại sẽ hỏng đúng lúc cần.
+3. **Bộ kiểm link chết vì chính thông báo của nó.** Console mặc định trên Windows là cp1252 và ném `UnicodeEncodeError` khi in tiếng Việt. Đã ép UTF-8 ngay đầu script.
+
+Điểm thứ hai kéo theo một ràng buộc cho M1: **NestJS dùng decorator**, mà chế độ bóc kiểu của Node không hỗ trợ cú pháp sinh code. Vì vậy `start` và image Docker chạy `dist/main.js` đã build, không chạy thẳng source; chỉ `dev` mới dùng bóc kiểu.
+
+**Cổng ra — đã đạt:**
+
+- `pnpm verify` xanh trên cả năm workspace: format · lint · typecheck · build · test (115 test).
+- API khởi động thật và trả đúng: `live` `200 {"status":"ok"}`, `ready` `503 {"status":"unavailable"}`, đường lạ trả `404` có envelope và `requestId`.
+- `X-Request-Id` bẩn bị thay: gửi `bad id with spaces` thì server trả một ID mới do nó sinh, không phản chiếu lại chuỗi của client.
+- `docker compose config` xác nhận đúng bốn service và một named volume.
+- `scripts/check-doc-links.py` chạy sạch trên 65 tài liệu.
+
 ---
 
 # M1 — Xác thực và phiên

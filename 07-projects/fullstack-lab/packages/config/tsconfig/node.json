@@ -6,6 +6,13 @@
     "rootDir": "src",
     "outDir": "dist",
     "noEmit": false,
+
+    // Import viết `./env.ts` để Node chạy thẳng ở chế độ bóc kiểu, còn `tsc` viết lại
+    // thành `./env.js` khi emit. Không có cờ này thì phải chọn một trong hai cách
+    // chạy, và cách còn lại sẽ hỏng ở đúng lúc cần nó.
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },

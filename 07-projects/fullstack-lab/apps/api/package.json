@@ -1,0 +1,23 @@
+{
+  "name": "@flowboard/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "HTTP boundary và product behavior phía server: NestJS trên Fastify, PostgreSQL qua Drizzle.",
+  "scripts": {
+    "dev": "node --watch --experimental-strip-types src/main.ts",
+    "start": "node dist/main.js",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@flowboard/contracts": "workspace:*",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@flowboard/config": "workspace:*",
+    "@types/node": "^26.4.1",
+    "vitest": "^4.1.11"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "@flowboard/web",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Trải nghiệm Next.js phía browser. Không chứa quyết định phân quyền cuối cùng — server luôn là nơi quyết định.",
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@flowboard/contracts": "workspace:*",
+    "@flowboard/ui": "workspace:*",
+    "next": "^16.3.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@flowboard/config": "workspace:*",
+    "@flowboard/mock": "workspace:*",
+    "@types/node": "^26.4.1",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.5",
+    "vitest": "^4.1.11"
+  }
+}
