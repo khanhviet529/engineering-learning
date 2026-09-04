@@ -3,7 +3,13 @@
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
-    "noEmit": false
+    "noEmit": false,
+
+    // Preset react để `jsx: "preserve"` vì các **app** Next.js tự transform JSX
+    // của chúng. `packages/ui` là thư viện phát ra output đã build, nên nó phải
+    // tự transform: để `preserve` thì mọi consumer — Next, Vitest, hay bất kỳ
+    // bundler nào — đều nhận JSX thô và phải tự đoán cách xử lý.
+    "jsx": "react-jsx"
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"]

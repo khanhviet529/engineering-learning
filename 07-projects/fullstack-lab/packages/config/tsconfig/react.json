@@ -7,7 +7,13 @@
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "jsx": "preserve",
-    "allowJs": false
+    "allowJs": false,
+
+    // Giống preset node: viết `./x.ts` để công cụ chạy thẳng source, còn `tsc` viết
+    // lại thành `./x.js` khi emit. Hai preset phải cùng quy ước, nếu không thì
+    // chuyển một file giữa hai nơi sẽ làm nó hỏng mà không rõ vì sao.
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

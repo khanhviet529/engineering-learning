@@ -289,12 +289,43 @@ CI có thêm hai cổng mà bảng gốc chưa nêu, vì cả hai bảo vệ m�
 
 **Mailpit không khả dụng.** Luồng email báo lỗi an toàn, không lộ token, **không tiết lộ email có tồn tại hay không**, và có log correlation để điều tra. Đây là experiment đúng cho M1 vì nó chạm cả ba thứ: xử lý lỗi phụ thuộc ngoài, chính sách không enumeration, và tính hữu dụng của `requestId`.
 
-## Cổng ra
+## Cổng ra — đã đạt ngày 04/09/2026
 
-- Cookie session thật chạy được qua browser, không phải JWT.
-- Đăng nhập khi chưa xác minh trả **đúng** `403 EMAIL_VERIFICATION_REQUIRED`, không tạo session, không cookie, không CSRF token, không dữ liệu riêng tư.
-- Reset mật khẩu revoke mọi session đang hoạt động trong cùng transaction — chứng minh bằng integration test, không bằng suy luận.
-- Gửi lại cùng `Idempotency-Key` cho `sign-up` không tạo user thứ hai.
+Toàn bộ mốc chạy thật trên PostgreSQL 17 và Mailpit trong Compose. `pnpm verify` xanh trên năm workspace với **292 test**.
+
+| Cổng | Bằng chứng |
+|---|---|
+| Cookie session thật, không phải JWT | Cookie `HttpOnly` do server đặt; chỉ hash nằm trong database, token thô chỉ ở cookie |
+| Chưa xác minh email trả đúng `403` | Gọi HTTP thật: `403 EMAIL_VERIFICATION_REQUIRED`, không session, không cookie, không CSRF token |
+| Reset revoke mọi phiên trong **cùng** transaction | Integration test tạo hai phiên, reset, rồi xác nhận cả hai hết hiệu lực; và reset thất bại thì **không** phiên nào bị revoke |
+| Token dùng một lần | Lần thứ hai bị từ chối; token đã dùng và token bịa cho **cùng** một thông điệp |
+| Rate limit và `Retry-After` | 12 request liên tiếp: 8 lần `401` rồi `429` kèm `retry-after: 46` |
+| CSRF | Thiếu token `403`, token sai `403`, token đúng `204` |
+| Năm màn hình `AUTH-01`…`AUTH-05` | Đều trả `200`, render tiếng Việt, và màu đọc từ biến `--fb-*` sinh từ artifact |
+| CORS | Chỉ `WEB_ORIGIN` đã cấu hình, kèm `credentials` |
+
+### Ba quyết định bảo mật đáng ghi lại
+
+**Thứ tự kiểm khi đăng nhập.** Xác thực mật khẩu **trước**, rồi mới kiểm email đã xác minh. Thứ tự ngược lại biến `403 EMAIL_VERIFICATION_REQUIRED` thành lời xác nhận rằng email đó có tài khoản. Cùng lý do, nhánh "không có user" vẫn băm một hash giả để thời gian phản hồi hai nhánh không lệch nhau đo được.
+
+**Đăng ký không bao giờ báo email trùng.** Báo là biến trang đăng ký thành máy dò tài khoản. Response giống hệt nhau ở cả hai nhánh.
+
+**CSRF token suy từ session token, không lưu.** Không cần cột, không cần tra database, không dùng chéo phiên được, và kẻ tấn công cross-site khiến trình duyệt gửi cookie nhưng không đọc được nó thì cũng không tính ra được giá trị.
+
+### Vòng đời `Idempotency-Key` phía client
+
+Key sống trong `ref` nên nó không đổi khi component render lại. Nó **giữ nguyên** khi gửi lại vì lỗi vận chuyển — đó là toàn bộ lý do key tồn tại — và **xoay** khi người dùng sửa payload. Transport không tự xoay key ở bất kỳ đâu: quyết định đó thuộc về chỗ biết ý định của người dùng.
+
+### Bốn lỗi tìm ra khi chạy thật
+
+1. **Nest mặc định POST là `201`**, nên `email/verify` và `sign-in` trả `201` trong khi hợp đồng ghi `200`. Chỉ lộ ra khi gọi endpoint thật, không lộ khi đọc code.
+2. **`Date` trong `sql` template thô** không được gắn kiểu `timestamptz` — lần thứ hai. Cả hai chỗ nay dùng operator có kiểu.
+3. **Testing Library chỉ tự dọn DOM khi `globals: true`.** Với `globals: false`, phải đăng ký `afterEach(cleanup)` tường minh; thiếu nó thì test sau tìm thấy phần tử của test trước.
+4. **`packages/ui` để `jsx: "preserve"`** theo preset dùng chung, nhưng nó là **thư viện** chứ không phải app Next: nó phải tự transform JSX, nếu không mọi consumer đều nhận JSX thô.
+
+### Một rule của tôi sai, không phải code sai
+
+Pattern lint chặn `../../../*` được viết với ý "không leo ra ngoài package". Bên trong `apps/api`, một module import `shared/` là **đúng** quan hệ mà backend conventions quy định, và đường dẫn của nó tự nhiên vượt ba cấp. Một rule bắt nhầm việc đúng sẽ bị tắt đi, và khi đó nó không bảo vệ gì nữa — nên pattern đã bị bỏ, kèm lý do ghi ngay tại chỗ nó từng nằm. Hai pattern còn lại vẫn bắt vi phạm thật, đã kiểm lại bằng file thử.
 
 ---
 
