@@ -302,15 +302,23 @@ Biên bản này do controller lập, dựa trên phép đo trên artifact chứ
 
 | Điều kiện | Cách kiểm | Kết quả |
 |---|---|---|
-| Có đủ cặp Light và Dark | đếm biến thể theo tên frame | **71/72 đạt.** Chỉ `REF-11 · Đối chiếu bao phủ` có mỗi bản Dark — đây là sheet tham chiếu, không phải màn hình dựng, nên không chặn. |
+| Có đủ cặp Light và Dark | đếm biến thể theo tên frame | **72/72 đạt.** `REF-11` nay có đủ cặp: bản Light ở y=1500 và bản Dark ở y=3000 cùng cột x=60840, và bản Light không còn node nào mang tên `Dark`. |
 | Role khớp `screen-inventory.md` | so slot role trong tên frame với cột role | 32/32 Screen ID đạt |
-| Tương phản | tự cài công thức WCAG, tính lại toàn bộ | 3.016 cặp, **0 dưới ngưỡng**, 20 node không có nền đục tổ tiên |
-| Màu và kích thước đọc từ token | quét `fill`/`stroke`/`effect`/`fontFamily` trên node | 170 biến, 100% tiền tố `fb.`, 0 tham chiếu gãy trên 11.151, 0 hex trong `effect` |
+| Tương phản | tự cài công thức WCAG, tính lại toàn bộ | 3.032 cặp, **0 dưới ngưỡng**, 20 node không có nền đục tổ tiên |
+| Màu và kích thước đọc từ token | quét `fill`/`stroke`/`effect`/`fontFamily` trên node | 171 biến, 100% tiền tố `fb.`, 0 tham chiếu gãy, 0 hex trong `effect` |
 | Mutation trỏ tới API có thật | đối chiếu `REF-16` với `endpoint-contracts.md` | mọi endpoint và error code đều tồn tại nguyên văn |
 | Component có đủ state | `REF-15`, 16 section | đạt; `FbChecklistRow` được ghi rõ là chỉ báo trạng thái, không nhận tương tác |
 
-**Kết quả: 28/32 Screen ID đánh dấu `Ready for build`.**
+**Kết quả: 32/32 Screen ID đánh dấu `Ready for build`.**
 
-**Bốn frame bị giữ lại:** `TSK-02 · Light|Dark — … · editor · content` và `TSK-02 · Light|Dark — … · viewer · read-only`. Lý do đo được: chúng dùng `FbDrawer`, mà component này **không có `effect` nào** — drawer đang phẳng so với nền, trong khi `FbModal` có shadow. `design-system.md` khai ba cấp elevation nhưng artifact chỉ hiện thực hai. Sửa xong `FbDrawer` thì bốn frame này ready mà không cần đo lại thứ gì khác.
+Bốn frame `TSK-02` từng bị giữ nay đã đạt: `FbDrawer` có `effect` riêng — `color: $fb.shadow.drawer`, `offset (-12, 0)`, `blur 24` — và 6 instance tự nhận. Ba cấp elevation khác nhau ở **cả alpha lẫn hình học**, nên không gộp được:
 
-Hai việc trên là toàn bộ danh sách còn nợ trước khi freeze v0.1.
+| Token | Alpha | Offset · blur | Lý do hình học |
+|---|---|---|---|
+| `fb.shadow.raised` | `#0F172A12` (7%) | (0, 2…6) · nhỏ | card nằm trên nền trang |
+| `fb.shadow.drawer` | `#10182826` (15%) | (-12, 0) · 24 | drawer cao hết màn, chỉ hở cạnh trái nên bóng phải đổ ngang |
+| `fb.shadow.modal` | `#10182833` (20%) | (0, 12) · 40 | hộp thoại canh giữa trên scrim, hở cả bốn cạnh |
+
+Lý do giữ tách biệt không chỉ là thẩm mỹ: `fb.z.drawer` (300) thấp hơn `fb.z.modal` (400), nên khi hộp thoại `Bỏ thay đổi chưa lưu?` mở **trên** một drawer đang mở, bóng là tín hiệu phân lớp duy nhất. Cho hai cấp bằng nhau là xoá tín hiệu đó đúng lúc cần nhất.
+
+**Không còn việc nào nợ trước freeze v0.1.**
