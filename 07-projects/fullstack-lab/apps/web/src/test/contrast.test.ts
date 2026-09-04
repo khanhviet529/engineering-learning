@@ -172,6 +172,63 @@ const PAIRS: { where: string; fg: string; bg: string; large?: boolean }[] = [
     bg: "--fb-color-state-disabled-surface",
   },
 
+  // FbAlert — nền do Ant Design render, nhưng nay đọc từ token của ta.
+  // Chữ tiêu đề và mô tả của Alert dùng `--ant-color-text` = `text.primary`.
+  {
+    where: "alert info · chữ trên nền",
+    fg: "--fb-color-text-primary",
+    bg: "--fb-color-intent-info-subtle",
+  },
+  {
+    where: "alert success · chữ trên nền",
+    fg: "--fb-color-text-primary",
+    bg: "--fb-color-intent-success-subtle",
+  },
+  {
+    where: "alert warning · chữ trên nền",
+    fg: "--fb-color-text-primary",
+    bg: "--fb-color-intent-warning-subtle",
+  },
+  {
+    where: "alert danger · chữ trên nền",
+    fg: "--fb-color-text-primary",
+    bg: "--fb-color-intent-danger-subtle",
+  },
+  {
+    where: "alert warning · icon trên nền",
+    fg: "--fb-color-intent-warning-text",
+    bg: "--fb-color-intent-warning-subtle",
+  },
+  {
+    where: "alert danger · icon trên nền",
+    fg: "--fb-color-intent-danger-text",
+    bg: "--fb-color-intent-danger-subtle",
+  },
+
+  // Nút primary — hover và active nay đọc từ token thay vì bị antd suy từ đen.
+  {
+    where: "nút primary · mặc định",
+    fg: "--fb-color-brand-on-surface",
+    bg: "--fb-color-brand-surface",
+  },
+  {
+    where: "nút primary · hover",
+    fg: "--fb-color-brand-on-surface",
+    bg: "--fb-color-brand-surface-hover",
+  },
+  {
+    where: "nút primary · active",
+    fg: "--fb-color-brand-on-surface",
+    bg: "--fb-color-brand-surface-strong",
+  },
+
+  // PRJ-01 — badge vai trò trên hàng danh sách
+  {
+    where: "badge vai trò editor",
+    fg: "--fb-color-intent-info-text",
+    bg: "--fb-color-intent-info-subtle",
+  },
+
   // USR-01
   { where: "theme option · đang chọn", fg: "--fb-color-brand-text", bg: "--fb-color-brand-subtle" },
   { where: "theme option · thường", fg: "--fb-color-text-strong", bg: "--fb-color-surface-raised" },

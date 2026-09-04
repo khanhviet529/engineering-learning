@@ -142,7 +142,27 @@ describeIfDb("endpoint workspace và project", () => {
     });
 
     it("thiếu Idempotency-Key → 400 trước khi chạy use case", async () => {
-      const before = await f.db.select({ n: sql<number>`count(*)::int` }).from(projects);
+      /**
+       * Đếm workspace **của chính actor này**, không phải `count(*)` toàn bảng.
+       *
+       * Bản đầu của test này đếm toàn bộ `projects`, và nó xanh chỉ vì lúc đó
+       * chưa có file test nào khác tạo project song song. Khi
+       * `project-list.integration.test.ts` xuất hiện, con số nhảy vì lý do
+       * **không liên quan** tới điều test này khẳng định — một test đo trạng
+       * thái toàn cục thì không đo được hành vi của một request.
+       *
+       * Mỗi fixture tạo workspace riêng có hậu tố duy nhất, nên đếm theo
+       * membership của actor là cô lập thật.
+       */
+      const countWorkspacesOfActor = async (): Promise<number> => {
+        const [row] = await f.db
+          .select({ n: sql<number>`count(*)::int` })
+          .from(workspaceMembers)
+          .where(eq(workspaceMembers.userId, f.editor.id));
+        return row?.n ?? 0;
+      };
+
+      const before = await countWorkspacesOfActor();
 
       const response = await call(f, "POST", "/workspaces", {
         actor: f.editor,
@@ -153,8 +173,8 @@ describeIfDb("endpoint workspace và project", () => {
       const details = (response.body["error"] as { details: { field: string }[] }).details;
       expect(details[0]?.field).toBe("Idempotency-Key");
 
-      const after = await f.db.select({ n: sql<number>`count(*)::int` }).from(projects);
-      expect(after[0]?.n).toBe(before[0]?.n);
+      // Không workspace nào được tạo: request bị chặn **trước** use case.
+      expect(await countWorkspacesOfActor()).toBe(before);
     });
 
     it("field lạ trong body → 400, không bị bỏ qua im lặng", async () => {

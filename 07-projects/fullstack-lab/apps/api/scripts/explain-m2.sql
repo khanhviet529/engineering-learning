@@ -11,6 +11,11 @@
 -- rollback. Cách này trung thực hơn `SET enable_indexscan = off`, vốn chỉ ép
 -- planner đổi ý chứ không thật sự bỏ index.
 --
+-- Mỗi lượt `DROP INDEX` nằm trong một **savepoint riêng** và được `ROLLBACK TO`
+-- ngay sau khi đo. Không có nó, một index bị drop ở truy vấn 1 vẫn còn thiếu ở
+-- truy vấn 5, và cột "SAU khi có index" của truy vấn 5 thực ra được đo **khi
+-- không có index** — đúng lỗi đã xảy ra ở bản đầu của script này.
+--
 -- Chạy:
 --   docker compose --env-file .env -f infra/compose/compose.yaml exec -T postgres \
 --     psql -U flowboard -d flowboard -f - < apps/api/scripts/explain-m2.sql
@@ -118,6 +123,7 @@ LIMIT 26;
 
 \echo ''
 \echo '--- TRƯỚC khi có index (drop trong transaction, rollback trả lại) ---'
+SAVEPOINT no_index;
 DROP INDEX project_members_user_project_idx;
 EXPLAIN (ANALYZE, BUFFERS)
 SELECT p.id, p.name, p.created_at, pm.role
@@ -126,6 +132,7 @@ JOIN projects p ON p.id = pm.project_id
 WHERE pm.user_id = (SELECT user_id FROM probe)
 ORDER BY p.created_at DESC, p.id DESC
 LIMIT 26;
+ROLLBACK TO SAVEPOINT no_index;
 
 \echo ''
 \echo '######################################################################'
@@ -145,6 +152,7 @@ LIMIT 26;
 
 \echo ''
 \echo '--- TRƯỚC khi có index ---'
+SAVEPOINT no_index;
 DROP INDEX workspace_members_user_workspace_idx;
 EXPLAIN (ANALYZE, BUFFERS)
 SELECT w.id, w.name, w.created_at, wm.role
@@ -153,6 +161,7 @@ JOIN workspaces w ON w.id = wm.workspace_id
 WHERE wm.user_id = (SELECT user_id FROM probe)
 ORDER BY w.created_at DESC, w.id DESC
 LIMIT 26;
+ROLLBACK TO SAVEPOINT no_index;
 
 \echo ''
 \echo '######################################################################'
@@ -171,11 +180,13 @@ WHERE project_id = (SELECT id FROM projects ORDER BY random() LIMIT 1)
 
 \echo ''
 \echo '--- TRƯỚC khi có index ---'
+SAVEPOINT no_index;
 DROP INDEX project_members_project_user_idx;
 EXPLAIN (ANALYZE, BUFFERS)
 SELECT role FROM project_members
 WHERE project_id = (SELECT id FROM projects ORDER BY random() LIMIT 1)
   AND user_id = (SELECT user_id FROM probe);
+ROLLBACK TO SAVEPOINT no_index;
 
 \echo ''
 \echo '######################################################################'
@@ -194,6 +205,7 @@ LIMIT 26;
 
 \echo ''
 \echo '--- TRƯỚC khi có index ---'
+SAVEPOINT no_index;
 DROP INDEX projects_workspace_created_at_idx;
 EXPLAIN (ANALYZE, BUFFERS)
 SELECT id, name, created_at
@@ -201,6 +213,68 @@ FROM projects
 WHERE workspace_id = (SELECT id FROM workspaces WHERE name LIKE 'Workspace %' LIMIT 1)
 ORDER BY created_at DESC
 LIMIT 26;
+ROLLBACK TO SAVEPOINT no_index;
+
+\echo ''
+\echo '######################################################################'
+\echo '# TRUY VẤN 5 — GET /workspaces/:workspaceId/projects'
+\echo '#   Hai điều kiện scope cùng lúc: membership của actor VÀ workspace.'
+\echo '#   Index baseline: project_members(user_id, project_id)'
+\echo '#                   projects(workspace_id, created_at DESC)'
+\echo '#'
+\echo '#   Lưu ý khi đọc: truy vấn này được PHỤC VỤ BỞI HAI index có thể thay'
+\echo '#   nhau. Bỏ một cái thì cái kia tiếp quản và thời gian gần như không'
+\echo '#   đổi — nên phép so "một index" KHÔNG chứng minh được gì. Muốn thấy'
+\echo '#   chi phí thật thì phải bỏ cả hai.'
+\echo '######################################################################'
+
+-- Một workspace mà actor "nặng" thật sự thuộc về.
+CREATE TEMP TABLE probe_ws AS
+SELECT wm.workspace_id
+FROM workspace_members wm
+JOIN probe p ON p.user_id = wm.user_id
+LIMIT 1;
+
+\echo ''
+\echo '--- SAU khi có index ---'
+EXPLAIN (ANALYZE, BUFFERS)
+SELECT p.id, p.workspace_id, p.name, pm.role, p.created_at, p.updated_at
+FROM project_members pm
+JOIN projects p ON p.id = pm.project_id
+WHERE pm.user_id = (SELECT user_id FROM probe)
+  AND p.workspace_id = (SELECT workspace_id FROM probe_ws)
+ORDER BY p.created_at DESC, p.id DESC
+LIMIT 26;
+
+\echo ''
+\echo '--- BỎ MỘT index membership: index còn lại tiếp quản ---'
+\echo '--- (đo để thấy truy vấn này có dự phòng, không phải để so tốc độ) ---'
+SAVEPOINT no_index;
+DROP INDEX project_members_user_project_idx;
+EXPLAIN (ANALYZE, BUFFERS)
+SELECT p.id, p.workspace_id, p.name, pm.role, p.created_at, p.updated_at
+FROM project_members pm
+JOIN projects p ON p.id = pm.project_id
+WHERE pm.user_id = (SELECT user_id FROM probe)
+  AND p.workspace_id = (SELECT workspace_id FROM probe_ws)
+ORDER BY p.created_at DESC, p.id DESC
+LIMIT 26;
+ROLLBACK TO SAVEPOINT no_index;
+
+\echo ''
+\echo '--- TRƯỚC khi có index (bỏ CẢ HAI index membership) ---'
+SAVEPOINT no_index;
+DROP INDEX project_members_user_project_idx;
+DROP INDEX project_members_project_user_idx;
+EXPLAIN (ANALYZE, BUFFERS)
+SELECT p.id, p.workspace_id, p.name, pm.role, p.created_at, p.updated_at
+FROM project_members pm
+JOIN projects p ON p.id = pm.project_id
+WHERE pm.user_id = (SELECT user_id FROM probe)
+  AND p.workspace_id = (SELECT workspace_id FROM probe_ws)
+ORDER BY p.created_at DESC, p.id DESC
+LIMIT 26;
+ROLLBACK TO SAVEPOINT no_index;
 
 -- Không để lại gì: dữ liệu seed và các DROP INDEX đều biến mất.
 ROLLBACK;

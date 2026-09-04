@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -17,6 +18,7 @@ import {
   addProjectMemberRequestSchema,
   changeProjectMemberRoleRequestSchema,
   createProjectRequestSchema,
+  listProjectsQuerySchema,
   renameProjectRequestSchema,
 } from "@flowboard/contracts";
 import { z } from "zod";
@@ -28,7 +30,7 @@ import {
   WorkspacePermissionGuard,
   getActor,
 } from "../../../shared/authorization/index.ts";
-import { getRequestId, ok } from "../../../shared/http/envelope.ts";
+import { getRequestId, ok, okList } from "../../../shared/http/envelope.ts";
 import { parse } from "../../../shared/http/validation.ts";
 import { requireCsrf } from "../../../shared/http/csrf.ts";
 import {
@@ -38,6 +40,7 @@ import {
 } from "../../../shared/http/idempotency-runner.ts";
 import type { Database } from "../../../shared/database/client.ts";
 import type {
+  ProjectListView,
   ProjectMemberView,
   ProjectUseCases,
   ProjectView,
@@ -76,6 +79,24 @@ function toProjectProjection(project: ProjectView) {
   };
 }
 
+/**
+ * Một dòng danh sách, đúng `projectListItemSchema`.
+ *
+ * Viết tường minh từng field thay vì trải `...row`: trải là cách một cột mới
+ * thêm vào database âm thầm đi ra response. Ở đây thêm một field phải là một
+ * dòng code mà người review nhìn thấy.
+ */
+function toProjectListProjection(project: ProjectListView) {
+  return {
+    id: project.id,
+    workspaceId: project.workspaceId,
+    name: project.name,
+    role: project.role,
+    createdAt: project.createdAt.toISOString(),
+    updatedAt: project.updatedAt.toISOString(),
+  };
+}
+
 function toMemberProjection(member: ProjectMemberView) {
   return {
     userId: member.userId,
@@ -93,6 +114,38 @@ export class ProjectsController {
     @Inject(PROJECT_TOKENS.config) private readonly config: ProjectHttpConfig,
     @Inject(PROJECT_TOKENS.db) private readonly db: Database,
   ) {}
+
+  /**
+   * `GET /workspaces/:workspaceId/projects` — `200`.
+   *
+   * Permission là `workspace:read`, không phải một permission project: cả hai
+   * vai trò workspace đọc được danh sách, và thứ giới hạn kết quả là
+   * **membership từng project**, do repository áp — không phải một phép kiểm
+   * quyền ở đây.
+   *
+   * Không CSRF và không `Idempotency-Key`: đây là một lượt đọc.
+   */
+  @Get("workspaces/:workspaceId/projects")
+  @RequireWorkspacePermission("workspace:read")
+  async listProjects(
+    @Req() request: FastifyRequest,
+    @Param() params: unknown,
+    @Query() query: unknown,
+  ) {
+    const actor = getActor(request);
+    const { workspaceId } = parse(workspaceIdParamSchema, params);
+    const page = parse(listProjectsQuerySchema, query ?? {});
+
+    const result = await this.useCases.listProjectsForActor(actor, workspaceId, {
+      limit: page.limit,
+      ...(page.cursor === undefined ? {} : { cursor: page.cursor }),
+    });
+
+    return okList(request, result.items.map(toProjectListProjection), {
+      nextCursor: result.nextCursor,
+      hasMore: result.hasMore,
+    });
+  }
 
   /**
    * `POST /workspaces/:workspaceId/projects` — `201`.

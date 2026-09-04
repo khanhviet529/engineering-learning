@@ -51,6 +51,9 @@ export type Scenario =
   | "idempotency-reused"
   | "idempotency-in-progress"
   | "column-not-empty"
+  | "project-last-owner"
+  | "member-has-assigned-tasks"
+  | "workspace-member-in-projects"
   | "rate-limited"
   | "email-verification-required"
   | "internal-error";
@@ -65,6 +68,13 @@ const SCENARIO_CODE: Readonly<Record<Exclude<Scenario, "success">, ErrorCode>> =
   "idempotency-reused": "IDEMPOTENCY_KEY_REUSED",
   "idempotency-in-progress": "IDEMPOTENCY_IN_PROGRESS",
   "column-not-empty": "COLUMN_NOT_EMPTY",
+  // Ba xung đột trạng thái của membership. Chúng **không** phải optimistic
+  // concurrency: tải lại rồi gửi lại không giải quyết gì, người dùng phải đổi
+  // thứ tự thao tác. Vì vậy chúng có kịch bản riêng chứ không dùng chung
+  // `version-conflict`.
+  "project-last-owner": "PROJECT_LAST_OWNER",
+  "member-has-assigned-tasks": "MEMBER_HAS_ASSIGNED_TASKS",
+  "workspace-member-in-projects": "WORKSPACE_MEMBER_IN_PROJECTS",
   "rate-limited": "RATE_LIMITED",
   "email-verification-required": "EMAIL_VERIFICATION_REQUIRED",
   "internal-error": "INTERNAL_ERROR",
@@ -215,6 +225,30 @@ export const workspaceHandlers = {
 };
 
 export const projectHandlers = {
+  /**
+   * `GET /workspaces/:workspaceId/projects`.
+   *
+   * Chỉ trả project mà actor có `project_members` row. Fixture chuẩn cho actor
+   * mặc định (`ownerB`) đúng một project — Project B — nên một Workspace Admin
+   * chưa được thêm vào đâu sẽ nhận trang rỗng, chứ không phải danh sách project
+   * của người khác. Không có count thành viên hay count task: không projection
+   * nào công bố chúng.
+   */
+  listInWorkspace(ctx: HandlerContext = {}): MockResponse<unknown> {
+    const failed = guard(ctx);
+    if (failed) return failed;
+    return okList([
+      {
+        id: projectB.id,
+        workspaceId: projectB.workspaceId,
+        name: projectB.name,
+        role: ctx.role ?? "owner",
+        createdAt: projectB.createdAt,
+        updatedAt: projectB.updatedAt,
+      },
+    ]);
+  },
+
   detail(ctx: HandlerContext = {}): MockResponse<unknown> {
     const failed = guard(ctx);
     if (failed) return failed;

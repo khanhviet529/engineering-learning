@@ -1,4 +1,4 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, desc, eq, lt, or, sql } from "drizzle-orm";
 import type { ProjectRole } from "@flowboard/contracts";
 import type { Database, Transaction } from "../../../shared/database/client.ts";
 import { projectMembers, projects, users } from "../../../shared/database/schema.ts";
@@ -24,6 +24,21 @@ export interface ProjectRow {
   name: string;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface ProjectListRow {
+  id: string;
+  workspaceId: string;
+  name: string;
+  role: ProjectRole;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/** Vị trí seek của cursor: khoá sort chính cộng `id` tie-breaker. */
+export interface SeekPosition {
+  createdAt: Date;
+  id: string;
 }
 
 export interface ProjectMemberRow {
@@ -76,6 +91,63 @@ export class ProjectRepository {
       .innerJoin(users, eq(users.id, projectMembers.userId))
       .where(eq(projectMembers.projectId, projectId))
       .orderBy(users.displayName, projectMembers.userId)) as ProjectMemberRow[];
+  }
+
+  /**
+   * Project trong **một** workspace mà actor **là thành viên** — không phải
+   * "mọi project của workspace".
+   *
+   * Hai điều kiện scope, và **cả hai đều bắt buộc**:
+   *
+   * - `project_members.user_id = :userId` — đây là thứ làm cho một Workspace
+   *   Admin chưa được thêm vào project nào nhận **trang rỗng** thay vì danh sách
+   *   project của người khác. Join qua `project_members` chứ không phải
+   *   `left join`: không có dòng membership thì không có hàng.
+   * - `projects.workspace_id = :workspaceId` — giữ kết quả trong đúng workspace
+   *   đã được authorize.
+   *
+   * Bỏ điều kiện thứ nhất là rò toàn bộ project riêng tư của workspace; bỏ điều
+   * kiện thứ hai là để một cursor của workspace khác kéo dữ liệu sang scope
+   * này. Chúng chặn hai lỗi khác nhau, nên không cái nào thay được cái kia.
+   *
+   * Projection cố ý **không** có count thành viên hay count task: không
+   * projection nào công bố chúng, và suy chúng ra từ dữ liệu mà actor không
+   * được đọc chính là cách rò rỉ.
+   */
+  async findProjectsForActorInWorkspace(
+    workspaceId: string,
+    userId: string,
+    limit: number,
+    after?: SeekPosition,
+    tx?: Executor,
+  ): Promise<ProjectListRow[]> {
+    const scope = and(eq(projectMembers.userId, userId), eq(projects.workspaceId, workspaceId));
+
+    // Seek pagination trên `(created_at, id)` giảm dần. Viết thành `or` thay vì
+    // row-value comparison để câu SQL đọc được và khớp thẳng với thứ tự index.
+    const seek =
+      after === undefined
+        ? undefined
+        : or(
+            lt(projects.createdAt, after.createdAt),
+            and(eq(projects.createdAt, after.createdAt), lt(projects.id, after.id)),
+          );
+
+    // Đọc dư **một** hàng để biết `hasMore` mà không cần một câu `COUNT` thứ hai.
+    return (await (tx ?? this.#db)
+      .select({
+        id: projects.id,
+        workspaceId: projects.workspaceId,
+        name: projects.name,
+        role: projectMembers.role,
+        createdAt: projects.createdAt,
+        updatedAt: projects.updatedAt,
+      })
+      .from(projectMembers)
+      .innerJoin(projects, eq(projects.id, projectMembers.projectId))
+      .where(seek === undefined ? scope : and(scope, seek))
+      .orderBy(desc(projects.createdAt), desc(projects.id))
+      .limit(limit + 1)) as ProjectListRow[];
   }
 
   /** Tạo project và membership Owner của creator trong **cùng** transaction. */

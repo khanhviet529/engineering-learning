@@ -63,6 +63,7 @@ function buildRootModule(deps: {
         // M4 thay bằng adapter thật của module `tasks`.
         assigneeCheck: new NoTasksYetAssigneeCheck(),
         config: { csrfSecret: deps.csrfSecret },
+        cursorSecret: deps.cursorSecret,
         guards: wiring.providers,
       }),
     ],

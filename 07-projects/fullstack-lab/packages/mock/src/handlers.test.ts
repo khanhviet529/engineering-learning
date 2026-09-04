@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   errorEnvelopeSchema,
   listEnvelopeSchema,
+  projectListItemSchema,
   successEnvelopeSchema,
   activitySchema,
   boardColumnSchema,
@@ -47,6 +48,9 @@ const errorScenarios: Exclude<Scenario, "success">[] = [
   "idempotency-reused",
   "idempotency-in-progress",
   "column-not-empty",
+  "project-last-owner",
+  "member-has-assigned-tasks",
+  "workspace-member-in-projects",
   "rate-limited",
   "email-verification-required",
   "internal-error",
@@ -155,6 +159,18 @@ describe("nhánh thành công khớp schema contract", () => {
   it("danh sách workspace", () => {
     const res = workspaceHandlers.list();
     expect(listEnvelopeSchema(workspaceSchema).safeParse(res.body).success).toBe(true);
+  });
+
+  it("danh sách project trong workspace parse được bằng projectListItemSchema", () => {
+    const res = projectHandlers.listInWorkspace();
+    const parsed = listEnvelopeSchema(projectListItemSchema).safeParse(res.body);
+    expect(parsed.success, JSON.stringify(parsed.error?.issues)).toBe(true);
+  });
+
+  it("danh sách project KHÔNG trả count thành viên hay count task", () => {
+    const res = projectHandlers.listInWorkspace();
+    const body = JSON.stringify(res.body);
+    expect(body).not.toMatch(/memberCount|taskCount|openTasks/);
   });
 
   it("project detail gồm project, capabilities, columns và members", () => {

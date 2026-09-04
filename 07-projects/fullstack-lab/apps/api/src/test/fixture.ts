@@ -149,6 +149,7 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
         authorization: wiring.authorization,
         assigneeCheck,
         config: { csrfSecret: CSRF_SECRET },
+        cursorSecret: SESSION_SECRET,
         guards: wiring.providers,
       }),
     ],

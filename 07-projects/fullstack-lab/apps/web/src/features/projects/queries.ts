@@ -1,4 +1,4 @@
-import type { Project, ProjectDetail, ProjectRole } from "@flowboard/contracts";
+import type { ProjectDetail, ProjectListItem, ProjectRole } from "@flowboard/contracts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ApiFailure, Intent } from "../../lib/transport.ts";
 import { toFailure, unwrap } from "../../lib/query.tsx";
@@ -29,7 +29,7 @@ export const projectKeys = {
 };
 
 export function useWorkspaceProjects(workspaceId: string): {
-  projects: Project[] | undefined;
+  projects: ProjectListItem[] | undefined;
   loading: boolean;
   failure: ApiFailure | undefined;
   refetch: () => void;

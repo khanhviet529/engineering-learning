@@ -5,6 +5,12 @@ import type { Actor, AuthorizationService } from "../../../shared/authorization/
 import { projectCapabilities } from "../../../shared/authorization/index.ts";
 import type { RecordOutcome } from "../../../shared/http/idempotency-runner.ts";
 import type { ProjectRepository, ProjectRow } from "../infrastructure/project-repository.ts";
+import {
+  buildPage,
+  decodeCursor,
+  queryFingerprint,
+  type PageResult,
+} from "../../../shared/http/cursor.ts";
 import type { WorkspaceMembershipPort } from "../domain/workspace-membership-port.ts";
 import {
   assertNotAssignedToTasks,
@@ -61,6 +67,8 @@ export interface ProjectDeps {
   authorization: AuthorizationService;
   workspaceMembership: WorkspaceMembershipPort;
   assigneeCheck: ProjectAssigneeCheck;
+  /** Secret ký cursor. Cursor phải chống sửa đổi, không chỉ opaque. */
+  cursorSecret: string;
   now?: () => Date;
 }
 
@@ -77,6 +85,21 @@ export interface ProjectMemberView {
   displayName: string;
   email: string;
   role: ProjectRole;
+}
+
+/**
+ * Một dòng của danh sách project.
+ *
+ * Đúng những field mà `projectListItemSchema` công bố. Không count thành viên,
+ * không count task — xem lý do ở repository.
+ */
+export interface ProjectListView {
+  id: string;
+  workspaceId: string;
+  name: string;
+  role: ProjectRole;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ProjectDetailView {
@@ -128,6 +151,58 @@ export class ProjectUseCases {
 
       return result;
     });
+  }
+
+  /**
+   * `GET /workspaces/:workspaceId/projects` — project mà actor được phép thấy.
+   *
+   * Guard đã cưỡng chế `workspace:read`, nên workspace không accessible đã trả
+   * `404` trước khi tới đây. Điều **còn lại** mà use case này phải giữ là ranh
+   * giới thứ hai: trong một workspace mà actor đọc được, actor vẫn chỉ thấy
+   * project mà mình có `project_members` row.
+   *
+   * Đây là cùng một ranh giới với `404` của `GET /projects/:projectId`, chỉ khác
+   * cách biểu hiện: ở đó là "không tìm thấy", ở đây là "không có dòng đó trong
+   * trang". Cả hai đều **không** phải "một dòng bị ẩn ở UI" — hàng không được
+   * đọc lên ngay từ câu SQL.
+   *
+   * Một Workspace Admin chưa được thêm vào project nào vì vậy nhận trang rỗng,
+   * không phải `403` và không phải danh sách của người khác.
+   */
+  async listProjectsForActor(
+    actor: Actor,
+    workspaceId: string,
+    input: { limit: number; cursor?: string },
+  ): Promise<PageResult<ProjectListView>> {
+    // Fingerprint bind cả actor lẫn workspace: cursor của workspace khác, hay
+    // của người khác, không dùng lại được ở đây — nó là `400`, không phải một
+    // đường đọc sang scope khác.
+    const fingerprint = queryFingerprint({
+      list: "workspace-projects",
+      actor: actor.id,
+      workspace: workspaceId,
+      sort: "createdAt:desc,id:desc",
+    });
+
+    const after =
+      input.cursor === undefined
+        ? undefined
+        : (() => {
+            const decoded = decodeCursor(input.cursor, fingerprint, this.#deps.cursorSecret);
+            return { createdAt: new Date(decoded.sortKey), id: decoded.id };
+          })();
+
+    const rows = await this.#deps.repository.findProjectsForActorInWorkspace(
+      workspaceId,
+      actor.id,
+      input.limit,
+      after,
+    );
+
+    return buildPage(rows, input.limit, fingerprint, this.#deps.cursorSecret, (row) => ({
+      sortKey: row.createdAt.toISOString(),
+      id: row.id,
+    }));
   }
 
   /**

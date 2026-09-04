@@ -95,17 +95,97 @@ describe("WSP-01 — chọn không gian làm việc", () => {
 describe("PRJ-01 — danh sách dự án", () => {
   const projectsRoute = `/workspaces/${ids.workspace}/projects`;
 
+  /** Đúng hình dạng `projectListItemSchema`: có `role`, không có count nào. */
+  const listItem = (role: "owner" | "editor" | "viewer") => ({
+    id: projectB.id,
+    workspaceId: projectB.workspaceId,
+    name: projectB.name,
+    role,
+    createdAt: projectB.createdAt,
+    updatedAt: projectB.updatedAt,
+  });
+
+  const page = (role: "owner" | "editor" | "viewer") =>
+    ok({ items: [listItem(role)], page: { nextCursor: null, hasMore: false } });
+
   it("hiện dự án và KHÔNG hiện số liệu mà hợp đồng không công bố", async () => {
     mockRoutes({
       "/auth/session": SESSION,
       "/workspaces": WORKSPACES,
-      [projectsRoute]: ok({ items: [projectB], page: { nextCursor: null, hasMore: false } }),
+      [projectsRoute]: page("owner"),
     });
     renderWithProviders(<ProjectListScreen workspaceId={ids.workspace} />);
 
     expect(await screen.findByText(projectB.name)).toBeInTheDocument();
     expect(screen.queryByText(/thành viên ·/)).not.toBeInTheDocument();
     expect(screen.queryByText(/công việc đang mở/)).not.toBeInTheDocument();
+  });
+
+  it("gửi đúng query mà hợp đồng cho phép: chỉ limit, không filter", async () => {
+    mockRoutes({
+      "/auth/session": SESSION,
+      "/workspaces": WORKSPACES,
+      [projectsRoute]: page("owner"),
+    });
+    renderWithProviders(<ProjectListScreen workspaceId={ids.workspace} />);
+    await screen.findByText(projectB.name);
+
+    const calls = (globalThis.fetch as unknown as { mock: { calls: [string][] } }).mock.calls;
+    const url = new URL(calls.find(([u]) => u.includes("/projects"))![0], "http://api.test");
+    expect(url.pathname).toBe(projectsRoute);
+    expect([...url.searchParams.keys()]).toEqual(["limit"]);
+    expect(url.searchParams.get("limit")).toBe("25");
+  });
+
+  it("hiện vai trò của actor trong từng dự án, lấy từ chính projection", async () => {
+    mockRoutes({
+      "/auth/session": SESSION,
+      "/workspaces": WORKSPACES,
+      [projectsRoute]: page("editor"),
+    });
+    renderWithProviders(<ProjectListScreen workspaceId={ids.workspace} />);
+
+    expect(await screen.findByText("Editor · Có thể chỉnh sửa")).toBeInTheDocument();
+  });
+
+  it("Owner mở được dự án; Editor và Viewer KHÔNG bị dẫn vào một trang 403", async () => {
+    mockRoutes({
+      "/auth/session": SESSION,
+      "/workspaces": WORKSPACES,
+      [projectsRoute]: page("owner"),
+    });
+    const owned = renderWithProviders(<ProjectListScreen workspaceId={ids.workspace} />);
+    expect(await screen.findByRole("link", { name: /Làm mới website|Launch/ })).toHaveAttribute(
+      "href",
+      `/du-an/${projectB.id}/thanh-vien`,
+    );
+    owned.unmount();
+
+    for (const role of ["editor", "viewer"] as const) {
+      mockRoutes({
+        "/auth/session": SESSION,
+        "/workspaces": WORKSPACES,
+        [projectsRoute]: page(role),
+      });
+      const view = renderWithProviders(<ProjectListScreen workspaceId={ids.workspace} />);
+      await screen.findByText(projectB.name);
+      // Ở M2 bề mặt duy nhất trong dự án là `PRM-01` Owner-only, nên không có
+      // đích nào cho hai vai trò này — hàng không phải link.
+      expect(screen.queryByRole("link", { name: new RegExp(projectB.name) })).toBeNull();
+      view.unmount();
+    }
+  });
+
+  it("Workspace Admin chưa vào dự án nào nhận trang RỖNG, không phải dự án của người khác", async () => {
+    mockRoutes({
+      "/auth/session": SESSION,
+      "/workspaces": WORKSPACES,
+      [projectsRoute]: ok({ items: [], page: { nextCursor: null, hasMore: false } }),
+    });
+    renderWithProviders(<ProjectListScreen workspaceId={ids.workspace} />);
+
+    expect(await screen.findByText(/chưa là thành viên của dự án nào/i)).toBeInTheDocument();
+    expect(screen.queryByText(projectB.name)).not.toBeInTheDocument();
   });
 
   it("404 ra SYS-05, không phải SYS-01", async () => {
@@ -137,7 +217,7 @@ describe("PRJ-01 — danh sách dự án", () => {
     mockRoutes({
       "/auth/session": SESSION,
       "/workspaces": WORKSPACES,
-      [projectsRoute]: ok({ items: [projectB], page: { nextCursor: null, hasMore: false } }),
+      [projectsRoute]: page("owner"),
     });
     renderWithProviders(<ProjectListScreen workspaceId={ids.workspace} />);
 
@@ -303,12 +383,12 @@ describe("PRM-01 — thành viên dự án", () => {
     expect(await screen.findByText("403")).toBeInTheDocument();
   });
 
-  it("409 khi gỡ Owner cuối cùng được hiển thị nguyên văn kèm requestId", async () => {
+  it("409 khi gỡ Owner cuối cùng nói việc phải làm trước, kèm requestId", async () => {
     const actor = user();
     mockRoutes({
       "/auth/session": SESSION,
       [detailRoute]: projectDetail(capabilitiesByRole.owner),
-      [`/projects/${ids.projectB}/members/${ids.userOwnerB}`]: failure("column-not-empty"),
+      [`/projects/${ids.projectB}/members/${ids.userOwnerB}`]: failure("project-last-owner"),
     });
     renderWithProviders(<ProjectMembersScreen projectId={ids.projectB} />);
 
@@ -317,6 +397,8 @@ describe("PRM-01 — thành viên dự án", () => {
     await actor.click(await screen.findByRole("button", { name: "Gỡ khỏi dự án" }));
 
     expect(await screen.findByText(/Mã tra cứu/)).toBeInTheDocument();
+    // Đây là bất biến, không phải version conflict: chữ phải chỉ việc cần làm.
+    expect(screen.getByText(/nâng một thành viên khác lên Owner trước/i)).toBeInTheDocument();
   });
 });
 

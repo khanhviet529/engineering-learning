@@ -11,7 +11,7 @@ import {
 } from "./shell.tsx";
 import { FbModal } from "./overlays.tsx";
 import { FbBadge, FbListRow, FbSkeleton, FbToast } from "./data-display.tsx";
-import { FbSelect } from "./components.tsx";
+import { FbAlert, FbSelect, FbThemeProvider } from "./components.tsx";
 
 /**
  * Wrapper tồn tại để giữ ổn định token, accessibility và variant. Test ở đây
@@ -286,5 +286,64 @@ describe("FbSelect", () => {
     expect(select).toHaveAttribute("aria-invalid", "true");
     expect(select.getAttribute("aria-describedby")).toContain("role-error");
     expect(screen.getByRole("alert")).toHaveTextContent("Vai trò không hợp lệ.");
+  });
+});
+
+describe("cầu nối theme không để Ant Design tự suy màu", () => {
+  /**
+   * Ant Design suy hàng chục biến thể từ năm màu gốc bằng thuật toán palette
+   * của nó, và thuật toán đó **không đọc được** chuỗi `var(...)`: nó rơi về
+   * `#000000` rồi phát ra nền `#404040` cho mọi Alert. Đo được trước khi sửa:
+   * chữ `#182230` trên nền `#404040`, khoảng 1,3:1 — không đọc được.
+   *
+   * Test này là cái chốt để lỗi đó không quay lại im lặng. Nó đọc chính CSS mà
+   * Ant Design phát ra, không đọc cấu hình của chúng ta.
+   */
+  const SURFACES = [
+    "--ant-color-info-bg",
+    "--ant-color-info-border",
+    "--ant-color-success-bg",
+    "--ant-color-warning-bg",
+    "--ant-color-warning-border",
+    "--ant-color-error-bg",
+    "--ant-color-error-border",
+  ];
+
+  function emittedCss(): string {
+    return [...document.querySelectorAll("style")].map((node) => node.textContent ?? "").join("");
+  }
+
+  it.each(["info", "success", "warning", "error"] as const)(
+    "Alert %s lấy nền và viền từ biến --fb-*, không từ palette mặc định",
+    (intent) => {
+      render(
+        <FbThemeProvider>
+          <FbAlert intent={intent} title="Tiêu đề" description="Mô tả" />
+        </FbThemeProvider>,
+      );
+
+      const css = emittedCss();
+      for (const name of SURFACES) {
+        const value = new RegExp(`${name}:\\s*([^;]+);`).exec(css)?.[1];
+        if (value === undefined) continue;
+        expect(value, `${name} phải đọc từ token Flowboard`).toMatch(/^var\(--fb-/);
+      }
+    },
+  );
+
+  it("không một bề mặt intent nào của Ant Design mang giá trị hex", () => {
+    render(
+      <FbThemeProvider>
+        <FbAlert intent="warning" title="Tiêu đề" />
+      </FbThemeProvider>,
+    );
+
+    const css = emittedCss();
+    const offenders = SURFACES.map((name) => ({
+      name,
+      value: new RegExp(`${name}:\\s*([^;]+);`).exec(css)?.[1],
+    })).filter((entry) => entry.value !== undefined && entry.value.startsWith("#"));
+
+    expect(offenders).toEqual([]);
   });
 });

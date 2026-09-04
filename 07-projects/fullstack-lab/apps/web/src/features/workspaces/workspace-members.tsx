@@ -27,6 +27,7 @@ import {
   useWorkspaces,
 } from "./queries.ts";
 import { MemberTable, type MemberRow } from "../members/member-table.tsx";
+import { MembershipConflictNotice, isMembershipConflict } from "../members/membership-conflict.tsx";
 
 /**
  * `WSP-03` — thành viên của một không gian làm việc.
@@ -144,6 +145,9 @@ function RemoveMemberButton({ workspaceId, row }: { workspaceId: string; row: Me
   const intent = useRef(new Intent());
   const mutation = useRemoveWorkspaceMember(workspaceId);
   const failure = toFailure(mutation.error);
+  // Gỡ bị chặn bởi một bất biến: gửi lại **cùng** request cho cùng câu trả lời.
+  // Khoá đúng nút đó, kèm chữ nói việc phải làm trước.
+  const blocked = isMembershipConflict(failure);
 
   return (
     <>
@@ -165,6 +169,7 @@ function RemoveMemberButton({ workspaceId, row }: { workspaceId: string; row: Me
               </FbButtonSecondary>
               <FbButtonPrimary
                 loading={mutation.isPending}
+                disabled={blocked}
                 onClick={() => {
                   mutation.mutate(
                     { userId: row.id, intent: intent.current },
@@ -177,16 +182,20 @@ function RemoveMemberButton({ workspaceId, row }: { workspaceId: string; row: Me
             </>
           }
         >
-          {failure !== undefined && (
-            <FbAlert
-              intent="error"
-              title={failure.message}
-              description={`Mã tra cứu: ${failure.requestId}`}
-            />
+          {isMembershipConflict(failure) ? (
+            <MembershipConflictNotice failure={failure} />
+          ) : (
+            failure !== undefined && (
+              <FbAlert
+                intent="error"
+                title={failure.message}
+                description={`Mã tra cứu: ${failure.requestId}`}
+              />
+            )
           )}
           <p style={{ margin: 0, fontSize: "var(--fb-font-size-body)" }}>
-            Server sẽ từ chối nếu việc gỡ làm hỏng một ràng buộc của dự án, ví dụ khi họ vẫn đang
-            được giao việc.
+            Server kiểm hai điều kiện theo thứ tự: người này còn thuộc dự án nào không, rồi còn được
+            giao việc nào không. Thông điệp trả về nói đúng điều kiện nào đang chặn.
           </p>
         </FbModal>
       )}

@@ -35,6 +35,7 @@ export class ProjectsModule {
     authorization: AuthorizationService;
     assigneeCheck: ProjectAssigneeCheck;
     config: ProjectHttpConfig;
+    cursorSecret: string;
     guards: Provider[];
   }): DynamicModule {
     const useCases = new ProjectUseCases({
@@ -43,6 +44,7 @@ export class ProjectsModule {
       authorization: deps.authorization,
       workspaceMembership: new DrizzleWorkspaceMembershipAdapter(deps.db),
       assigneeCheck: deps.assigneeCheck,
+      cursorSecret: deps.cursorSecret,
     });
 
     return {

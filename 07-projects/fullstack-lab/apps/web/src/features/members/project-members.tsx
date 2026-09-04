@@ -26,6 +26,7 @@ import {
   useRemoveProjectMember,
 } from "../projects/queries.ts";
 import { MemberTable, type MemberRow } from "./member-table.tsx";
+import { MembershipConflictNotice, isMembershipConflict } from "./membership-conflict.tsx";
 
 /**
  * `PRM-01` — thành viên của một dự án.
@@ -164,11 +165,25 @@ function MemberActions({
   const [role, setRole] = useState<ProjectRole>(member?.role ?? "viewer");
   const roleIntent = useRef(new Intent());
   const removeIntent = useRef(new Intent());
+  /** Vai trò đã bị server từ chối gần nhất, để biết lựa chọn hiện tại có mới không. */
+  const roleRejected = useRef<ProjectRole | undefined>(undefined);
   const changeRole = useChangeProjectMemberRole(projectId);
   const removeMember = useRemoveProjectMember(projectId);
 
-  const failure = toFailure(changeRole.error) ?? toFailure(removeMember.error);
+  const roleFailure = toFailure(changeRole.error);
+  const removeFailure = toFailure(removeMember.error);
+  const failure = roleFailure ?? removeFailure;
   const busy = changeRole.isPending || removeMember.isPending;
+
+  // Một xung đột membership không tự hết bằng cách gửi lại **cùng** request:
+  // người dùng phải đi làm việc khác trước. Vì vậy đúng hành động đã bị từ
+  // chối bị khoá lại, kèm chữ giải thích ngay bên trên — `disabled` chỉ hợp lệ
+  // khi người dùng biết lý do, và ở đây họ biết.
+  //
+  // Đổi vai trò sang một giá trị **khác** lại là một request khác, nên nút lưu
+  // mở lại ngay khi lựa chọn đổi: khoá nó vĩnh viễn sẽ chặn cả đường đi đúng.
+  const roleBlocked = isMembershipConflict(roleFailure) && role === roleRejected.current;
+  const removeBlocked = isMembershipConflict(removeFailure);
 
   return (
     <>
@@ -187,8 +202,9 @@ function MemberActions({
               </FbButtonSecondary>
               <FbButtonPrimary
                 loading={changeRole.isPending}
-                disabled={member === undefined || role === member.role}
+                disabled={member === undefined || role === member.role || roleBlocked}
                 onClick={() => {
+                  roleRejected.current = role;
                   changeRole.mutate(
                     { userId: row.id, role, intent: roleIntent.current },
                     { onSuccess: () => setOpen(false) },
@@ -200,12 +216,16 @@ function MemberActions({
             </>
           }
         >
-          {failure !== undefined && (
-            <FbAlert
-              intent="error"
-              title={failure.message}
-              description={`Mã tra cứu: ${failure.requestId}`}
-            />
+          {isMembershipConflict(failure) ? (
+            <MembershipConflictNotice failure={failure} />
+          ) : (
+            failure !== undefined && (
+              <FbAlert
+                intent="error"
+                title={failure.message}
+                description={`Mã tra cứu: ${failure.requestId}`}
+              />
+            )
           )}
 
           <FbSelect
@@ -241,7 +261,7 @@ function MemberActions({
             <div>
               <FbButtonSecondary
                 loading={removeMember.isPending}
-                disabled={busy}
+                disabled={busy || removeBlocked}
                 onClick={() => {
                   removeMember.mutate(
                     { userId: row.id, intent: removeIntent.current },

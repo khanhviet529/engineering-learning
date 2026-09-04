@@ -1,14 +1,17 @@
-import type {
-  AddProjectMemberRequest,
-  AddWorkspaceMemberRequest,
-  Page,
-  Project,
-  ProjectDetail,
-  ProjectMember,
-  ProjectRole,
-  SessionResponse,
-  Workspace,
-  WorkspaceMemberListItem,
+import {
+  PAGE_LIMIT_DEFAULT,
+  type AddProjectMemberRequest,
+  type AddWorkspaceMemberRequest,
+  type ListProjectsQuery,
+  type Page,
+  type Project,
+  type ProjectDetail,
+  type ProjectListItem,
+  type ProjectMember,
+  type ProjectRole,
+  type SessionResponse,
+  type Workspace,
+  type WorkspaceMemberListItem,
 } from "@flowboard/contracts";
 import { transport, type ApiResult, type Intent } from "./api.ts";
 
@@ -83,27 +86,24 @@ export function removeWorkspaceMember(
 }
 
 /**
- * **HỢP ĐỒNG CÒN THIẾU — chưa được duyệt.**
+ * `GET /workspaces/:workspaceId/projects` — danh sách project actor được phép thấy.
  *
- * `PRJ-01 Project List` cần danh sách project mà actor được phép đọc trong một
- * workspace, nhưng [hợp đồng endpoint](../../../../docs/api/endpoint-contracts.md)
- * **không có** route nào trả danh sách đó: nhóm workspace chỉ có `GET /workspaces`,
- * `GET/POST/DELETE .../members` và `POST .../projects`.
+ * Server chỉ trả project mà actor có `project_members` row, nên một Workspace
+ * Admin chưa được thêm vào đâu nhận **trang rỗng**, không phải danh sách của
+ * người khác. Query chỉ có `cursor` và `limit`: không mở thêm trục lọc, vì mỗi
+ * trục là một cách dò xem project nào tồn tại.
  *
- * Đường dẫn dưới đây là chỗ **duy nhất** trong toàn bộ frontend giả định một
- * route chưa tồn tại, và nó được đặt tên để grep ra được. Nó **không** được
- * coi là hợp đồng: `packages/contracts` không có schema cho nó, và không có
- * field nào ngoài `Project` (thứ hợp đồng đã công bố) được đọc từ response.
- * Khi route thật được duyệt và thêm vào contract, chỗ phải sửa là đúng hàm này.
- *
- * Xem mục "Hợp đồng còn thiếu" trong báo cáo bàn giao M2.
+ * Mỗi dòng mang `role` của chính actor, nên UI render được affordance ngay mà
+ * không cần một lượt gọi thứ hai.
  */
-export const PENDING_CONTRACT_PROJECT_LIST = "/workspaces/{workspaceId}/projects";
-
 export function listWorkspaceProjects(
   workspaceId: string,
-): Promise<ApiResult<ListPayload<Project>>> {
-  return transport.request(`/workspaces/${workspaceId}/projects`);
+  query: ListProjectsQuery = { limit: PAGE_LIMIT_DEFAULT },
+): Promise<ApiResult<ListPayload<ProjectListItem>>> {
+  const params = new URLSearchParams({ limit: String(query.limit) });
+  // Cursor là giá trị opaque do server phát hành; client chỉ chuyển tiếp lại.
+  if (query.cursor !== undefined) params.set("cursor", query.cursor);
+  return transport.request(`/workspaces/${workspaceId}/projects?${params.toString()}`);
 }
 
 export function createProject(

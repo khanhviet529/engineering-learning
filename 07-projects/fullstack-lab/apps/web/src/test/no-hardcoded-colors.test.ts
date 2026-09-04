@@ -41,17 +41,25 @@ const NAMED_COLOR_VALUE =
   /\b(?:background|backgroundColor|color|borderColor|outlineColor|fill|stroke)\s*:\s*["'](?:white|black|red|blue|green|yellow|orange|purple|gray|grey|silver|navy|teal|olive|maroon|lime|aqua|fuchsia)["']/g;
 
 /**
- * Ba tệp được miễn, và **chỉ** ba tệp này. Danh sách là allowlist tường minh:
+ * Bốn tệp được miễn, và **chỉ** bốn tệp này. Danh sách là allowlist tường minh:
  * một quy tắc dạng "bỏ qua mọi file test" sẽ mở cửa cho màu ghi cứng ở mọi
  * component test, tức là bỏ luôn nửa số nơi cần canh.
  *
  * - `tokens.css` là **đầu ra** của `pnpm tokens`, sinh từ artifact; nó là chỗ
  *   duy nhất được phép chứa giá trị màu, và có bộ test riêng đối chiếu từng
  *   biến với artifact.
- * - Hai bộ kiểm màu bên dưới cố ý chứa hex mẫu để tự chứng minh phép đo của
- *   chúng còn hoạt động; quét chúng sẽ luôn đỏ vì đúng lý do sai.
+ * - Ba bộ kiểm màu bên dưới cố ý chứa hex trong **code** — chúng đo màu, nên
+ *   chúng phải gọi tên màu. `contrast.test.ts` đo cặp chữ/nền;
+ *   `theme.test.ts` chứng minh thuật toán palette của Ant Design cho ra
+ *   `#404040` khi seed là một chuỗi `var()`; và chính tệp này giữ mẫu vi phạm
+ *   để tự kiểm regex. Quét chúng sẽ luôn đỏ vì đúng lý do sai.
  */
-const EXEMPT = new Set(["tokens.css", "no-hardcoded-colors.test.ts", "contrast.test.ts"]);
+const EXEMPT = new Set([
+  "tokens.css",
+  "no-hardcoded-colors.test.ts",
+  "contrast.test.ts",
+  "theme.test.ts",
+]);
 
 function sourceFiles(root: string): string[] {
   const out: string[] = [];
@@ -70,8 +78,28 @@ function sourceFiles(root: string): string[] {
   return out;
 }
 
+/**
+ * Bỏ phần **chú thích** trước khi quét.
+ *
+ * Quy tắc cấm là cấm một giá trị màu **được render**, không cấm việc viết ra
+ * một giá trị màu để giải thích một lỗi. Ví dụ thật: chú thích của cầu nối
+ * theme phải nói rõ Ant Design từng phát ra nền `#404040`, vì không có con số
+ * đó thì người đọc sau không biết lỗi trông như thế nào.
+ *
+ * Chỉ bỏ khối chú thích và những dòng **bắt đầu** bằng `//` hoặc `*`. Không
+ * cắt tại `//` giữa dòng: một `https://` trong chuỗi sẽ làm mất phần còn lại
+ * của dòng, và một vi phạm thật có thể trốn ngay sau nó.
+ */
+function withoutComments(source: string): string {
+  const noBlocks = source.replace(/\/\*[\s\S]*?\*\//g, (block) => block.replace(/[^\n]/g, " "));
+  return noBlocks
+    .split("\n")
+    .map((line) => (/^\s*(\/\/|\*)/.test(line) ? "" : line))
+    .join("\n");
+}
+
 function violationsIn(file: string): string[] {
-  const source = readFileSync(file, "utf8");
+  const source = withoutComments(readFileSync(file, "utf8"));
   const found: string[] = [];
 
   for (const [label, pattern] of [
@@ -116,5 +144,19 @@ describe("không có giá trị màu viết thẳng trong code frontend", () => 
       ...sample.matchAll(NAMED_COLOR_VALUE),
     ];
     expect(matches).toHaveLength(3);
+  });
+
+  it("bỏ chú thích nhưng KHÔNG bỏ code — vi phạm thật vẫn bị bắt", () => {
+    // Nếu phép bỏ chú thích quá tay, cả bộ kiểm sẽ mù mà vẫn xanh.
+    const source = [
+      "// Trước khi sửa, Ant Design phát ra nền " + "#404040" + ".",
+      "/* Khối chú thích cũng nhắc " + "#182230" + ". */",
+      ' * JSDoc nhắc "' + "#000000" + '" nữa.',
+      'const style = { background: "' + "#ff0000" + '" };',
+    ].join("\n");
+
+    const scanned = withoutComments(source);
+    const hits = [...scanned.matchAll(HEX)].map((match) => match[0]);
+    expect(hits).toEqual(["#ff0000"]);
   });
 });
