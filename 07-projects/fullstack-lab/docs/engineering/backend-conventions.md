@@ -28,6 +28,8 @@ Dependency chỉ đi theo hướng sau:
 controller → application use case → domain rule/port → infrastructure repository
 ```
 
+Vì sao chia bốn tầng thay vì `Controller → Service → Repository`, và khi nào một module được dùng ít tầng hơn: [ADR-0015](../decisions/ADR-0015-module-layering-scope.md). Tài liệu này giữ **cơ chế**; ADR giữ **lý do** và phép thử.
+
 Controller biết HTTP/Nest/OpenAPI nhưng không biết Drizzle table. Use case điều phối authorization result, validation result, transaction và explicit product command. Domain giữ invariant/policy có ý nghĩa nghiệp vụ. Repository port diễn đạt query/mutation hẹp mà use case cần; infrastructure là nơi duy nhất module dùng Drizzle/PostgreSQL. Hạ tầng không import controller, và repository không tự quyết định HTTP response.
 
 ### Phụ thuộc giữa các module
