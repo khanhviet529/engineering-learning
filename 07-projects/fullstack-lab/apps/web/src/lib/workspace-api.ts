@@ -1,7 +1,7 @@
 import {
   PAGE_LIMIT_DEFAULT,
   type AddProjectMemberRequest,
-  type AddWorkspaceMemberRequest,
+  type InviteWorkspaceMemberRequest,
   type ListProjectsQuery,
   type Page,
   type Project,
@@ -62,11 +62,23 @@ export function listWorkspaceMembers(
   return transport.request(`/workspaces/${workspaceId}/members`);
 }
 
-export function addWorkspaceMember(
+/**
+ * Mời một người vào workspace.
+ *
+ * Theo [ADR-0013](../../../../docs/decisions/ADR-0013-workspace-member-invitation.md),
+ * route nhận **email** chứ không nhận `userId`, và **luôn** trả
+ * `202 { accepted: true }` — giống hệt nhau dù email đã có account, chưa có,
+ * hay đã là member. UI vì vậy không được suy ra điều gì từ response: nó chỉ
+ * được nói "đã gửi lời mời nếu địa chỉ hợp lệ".
+ *
+ * Backend chưa dựng route này, nên hiện tại nó trả `404`. Đó là trạng thái
+ * trung thực của khoảng giữa hợp đồng và hiện thực, không phải lỗi cần né.
+ */
+export function inviteWorkspaceMember(
   workspaceId: string,
-  body: AddWorkspaceMemberRequest,
+  body: InviteWorkspaceMemberRequest,
   intent: Intent,
-): Promise<ApiResult<{ member: WorkspaceMemberListItem }>> {
+): Promise<ApiResult<{ accepted: true }>> {
   return transport.request(`/workspaces/${workspaceId}/members`, {
     method: "POST",
     body,

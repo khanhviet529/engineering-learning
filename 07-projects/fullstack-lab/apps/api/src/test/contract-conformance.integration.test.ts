@@ -10,7 +10,6 @@ import {
   workspaceResponseSchema,
   workspaceSchema,
 } from "@flowboard/contracts";
-import { z } from "zod";
 import { call, createFixture, newKey, type Fixture } from "./fixture.ts";
 
 /**
@@ -64,18 +63,18 @@ describeIfDb("response khớp hợp đồng của @flowboard/contracts", () => {
     expect(() => schema.parse(response.body)).not.toThrow();
   });
 
-  it("POST /workspaces/:id/members trả member đúng projection đã công bố", async () => {
-    const response = await call(f, "POST", `/workspaces/${f.workspaceId}/members`, {
-      actor: f.wsAdmin,
-      idempotencyKey: newKey("conf-wsm"),
-      body: { userId: f.outsider.id, role: "workspace_member" },
-    });
-
-    const schema = successEnvelopeSchema(
-      z.object({ member: workspaceMemberListItemSchema }).strict(),
-    );
-    expect(() => schema.parse(response.body)).not.toThrow();
-  });
+  /**
+   * `POST /workspaces/:id/members` — chờ hiện thực của
+   * [ADR-0013](../../../../docs/decisions/ADR-0013-workspace-member-invitation.md).
+   *
+   * Route nay nhận `{ email, role }` và trả `202 { accepted: true }`, không còn
+   * trả member projection. Khi hiện thực xong, test này khẳng định:
+   * `acceptedResponseSchema` parse được, **và** ba nhánh — email có account,
+   * email không có account, email đã là member — cho body **giống hệt nhau**.
+   * Nhánh thứ ba là nhánh dễ bị làm sai nhất, vì nó có vẻ vô hại khi trả một
+   * thông điệp khác.
+   */
+  it.todo("POST /workspaces/:id/members trả 202 giống nhau ở cả ba nhánh (ADR-0013)");
 
   it("POST /workspaces/:id/projects khớp projectResponseSchema", async () => {
     const response = await call(f, "POST", `/workspaces/${f.workspaceId}/projects`, {

@@ -529,7 +529,7 @@ Bảng này ghi những chỗ hợp đồng còn thiếu hoặc tự mâu thuẫ
 | `GET /projects/:projectId` khai trả task theo từng column, nhưng `projectDetailSchema` không có field task | **Đã sửa 04/09/2026** | Nói rõ `columns` vào từ M3 và `tasks` từ M4; ở M2 trả mảng rỗng |
 | `USR-01` đòi hiển thị múi giờ workspace mà không projection nào có | **Đã sửa 04/09/2026** | Bỏ khỏi phạm vi màn hình; múi giờ vào schema ở mốc dựng `tasks`, vì `dueDate` được định nghĩa theo nó |
 | `POST /workspaces` không có capability để gate CTA | **Đã làm rõ 04/09/2026** | Chủ đích: client luôn hiện CTA rồi xử lý `403`. Ẩn nó sẽ chặn đúng người vừa được cấp quyền |
-| **Không có đường tra cứu người dùng để thêm workspace member** | **[ADR-0013](decisions/ADR-0013-workspace-member-invitation.md) đang `Proposed`, chờ owner ký** | `POST /workspaces/:workspaceId/members` nhận `{ userId }` là UUID, nên form thêm thành viên buộc người dùng dán UUID — không dùng được trong thực tế. Sửa nó là quyết định về sản phẩm **và** về bảo mật, không phải một chi tiết hợp đồng: mời theo email làm bề mặt enumeration, còn thêm endpoint tra cứu user cũng vậy. Tôi cố ý **không** tự quyết thay owner. Xem mục dưới |
+| **Không có đường tra cứu người dùng để thêm workspace member** | **[ADR-0013](decisions/ADR-0013-workspace-member-invitation.md) đã `Accepted` 04/09/2026** — mời theo email; hợp đồng đã cập nhật, chờ implementation | `POST /workspaces/:workspaceId/members` nhận `{ userId }` là UUID, nên form thêm thành viên buộc người dùng dán UUID — không dùng được trong thực tế. Sửa nó là quyết định về sản phẩm **và** về bảo mật, không phải một chi tiết hợp đồng: mời theo email làm bề mặt enumeration, còn thêm endpoint tra cứu user cũng vậy. Tôi cố ý **không** tự quyết thay owner. Xem mục dưới |
 
 ## Thêm workspace member: cần owner quyết
 
@@ -543,7 +543,7 @@ Ba phương án, và cái giá của từng cái:
 | Thêm `GET /users?email=` cho Workspace Admin | Sửa nhỏ nhất | Là một máy dò tài khoản có kiểm quyền. Cần rate limit và audit riêng, và vẫn nói cho admin biết email nào đã đăng ký |
 | Giữ nguyên UUID | Không thêm gì | Không ai dùng được. Thực chất là hoãn, chứ không phải một quyết định |
 
-Cả ba đều là quyết định về vòng đời danh tính, nên chúng được ghi thành [ADR-0013](decisions/ADR-0013-workspace-member-invitation.md), hiện `Proposed`.
+Cả ba đều là quyết định về vòng đời danh tính, nên chúng được ghi thành [ADR-0013](decisions/ADR-0013-workspace-member-invitation.md), **đã được chủ dự án duyệt 04/09/2026**.
 
 Một dự kiện đã loại bỏ phương án tra cứu, chứ không phải sở thích: chính sách cấp workspace mà implementation đã chọn là **bất kỳ ai xác minh email đều tạo được workspace và thành admin của nó**. Vì vậy một endpoint tra cứu "chỉ dành cho Workspace Admin" không thu hẹp gì — nó là một oracle dò email mở cho mọi người đăng ký. Rate limit và audit làm nó chậm hơn, không làm nó thôi là oracle.
 

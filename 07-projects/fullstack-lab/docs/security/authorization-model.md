@@ -54,7 +54,7 @@ Các permission project sau đây là catalog đầy đủ của MVP:
 | `work-log:backfill:override` | Allow | Deny | Deny | Mở quyền ghi ngày quá hạn, có biên và có lý do. |
 | `time-report:read` | Allow | Editor được chỉ định | Deny | Đọc aggregate tháng của Phase 1.3 trong phạm vi project. |
 
-Quản trị workspace là một phạm vi riêng: `workspace:read` mở cho cả hai role workspace; `workspace:member:manage`, `workspace:settings:update` và `project:create` yêu cầu Workspace Admin. Những khả năng ở cấp workspace đó **không** hàm ý bất kỳ entry nào trong catalog của project.
+Quản trị workspace là một phạm vi riêng: `workspace:read` mở cho cả hai role workspace; `workspace:member:manage`, `workspace:settings:update` và `project:create` yêu cầu Workspace Admin. `workspace:member:manage` bao gồm cả việc gửi, xem và thu hồi lời mời theo [ADR-0013](../decisions/ADR-0013-workspace-member-invitation.md) — lời mời là một đường tạo membership, nên nó dùng đúng permission của việc quản lý membership chứ không có permission riêng. Chấp nhận lời mời **không** cần permission nào: actor chứng minh quyền bằng chính token trong thư, và bằng việc đăng nhập đúng địa chỉ được mời. Những khả năng ở cấp workspace đó **không** hàm ý bất kỳ entry nào trong catalog của project.
 
 Các ma trận role/visibility trong [screen inventory](../design/screen-inventory.md) và [information architecture](../design/information-architecture.md) là **phái sinh** của catalog này, không bao giờ là nguồn độc lập. Khi bất kỳ ma trận nào lệch với catalog thì catalog thắng, và ma trận phái sinh là tài liệu phải sửa. Một thay đổi permission chưa hoàn tất khi hai ma trận phái sinh đó chưa được kiểm lại; [chiến lược kiểm thử](../operations/testing-strategy.md) giữ test cưỡng chế điều này.
 

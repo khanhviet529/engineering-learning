@@ -13,11 +13,7 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import type { FastifyReply, FastifyRequest } from "fastify";
-import {
-  addWorkspaceMemberRequestSchema,
-  createWorkspaceRequestSchema,
-  paginationQuerySchema,
-} from "@flowboard/contracts";
+import { createWorkspaceRequestSchema, paginationQuerySchema } from "@flowboard/contracts";
 import { z } from "zod";
 import {
   ProjectPermissionGuard,
@@ -173,42 +169,28 @@ export class WorkspacesController {
     });
   }
 
-  /** `POST /workspaces/:workspaceId/members` — `201`. */
-  @Post("workspaces/:workspaceId/members")
-  @HttpCode(201)
-  @RequireWorkspacePermission("workspace:member:manage")
-  async addMember(
-    @Req() request: FastifyRequest,
-    @Res({ passthrough: true }) reply: FastifyReply,
-    @Param() params: unknown,
-    @Body() body: unknown,
-  ) {
-    requireCsrf(request, this.config.csrfSecret);
-    const actor = getActor(request);
-    const { workspaceId } = parse(workspaceIdParamSchema, params);
-    const key = requireIdempotencyKey(request);
-    const input = parse(addWorkspaceMemberRequestSchema, body);
-
-    const result = await runIdempotent({
-      db: this.db,
-      actorId: actor.id,
-      useCase: "workspace.member.add",
-      // Fingerprint gồm cả `workspaceId`: cùng một key dùng cho hai workspace
-      // khác nhau là hai ý định khác nhau, và phải bị từ chối.
-      key,
-      request: { workspaceId, ...input },
-      successStatus: 201,
-      run: async (recordOutcome) =>
-        await this.useCases.addWorkspaceMember(workspaceId, input, recordOutcome, (member) => ({
-          member: toMemberProjection(member),
-        })),
-    });
-
-    if (result.replayed !== undefined) {
-      return applyReplay(reply, getRequestId(request), result.replayed);
-    }
-    return ok(request, { member: toMemberProjection(result.value as WorkspaceMemberView) });
-  }
+  /**
+   * `POST /workspaces/:workspaceId/members` — **chưa dựng**.
+   *
+   * [ADR-0013](../../../../../docs/decisions/ADR-0013-workspace-member-invitation.md)
+   * (Accepted 04/09/2026) đổi route này từ `{ userId, role }` sang mời theo
+   * email, và thêm ba route lời mời. Hợp đồng và `@flowboard/contracts` đã cập
+   * nhật; phần hiện thực chưa.
+   *
+   * Route cũ được **xoá** thay vì giữ lại: giữ nó nghĩa là server vẫn nhận
+   * `userId` trong khi hợp đồng nói nó nhận email, và một sai lệch im lặng giữa
+   * hai bên tệ hơn một `404`. Cho tới khi ba route mới được dựng, gọi route này
+   * trả `404` — cùng cách mà `GET /workspaces/:workspaceId/projects` đã ở trong
+   * khoảng giữa hợp đồng và hiện thực.
+   *
+   * Việc cần làm, theo ADR-0013:
+   * - `POST /workspaces/:workspaceId/members` — body `{ email, role }`, **luôn**
+   *   trả `202 { accepted: true }` ở mọi nhánh, kể cả email không có account.
+   * - `GET /workspaces/:workspaceId/invitations` — chỉ lời mời `pending`.
+   * - `DELETE /workspaces/:workspaceId/invitations/:invitationId` — `204`.
+   * - `POST /invitations/accept` — một transaction: validate token, kiểm email
+   *   actor khớp email được mời, tạo membership, đánh dấu `accepted`.
+   */
 
   /** `DELETE /workspaces/:workspaceId/members/:userId` — `204`, không body. */
   @Delete("workspaces/:workspaceId/members/:userId")

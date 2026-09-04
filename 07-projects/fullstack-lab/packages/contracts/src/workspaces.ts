@@ -31,14 +31,18 @@ export const workspaceMemberListItemSchema = z
 
 export type WorkspaceMemberListItem = z.infer<typeof workspaceMemberListItemSchema>;
 
-export const addWorkspaceMemberRequestSchema = z
-  .object({
-    userId: uuidSchema,
-    role: workspaceRoleSchema,
-  })
-  .strict();
-
-export type AddWorkspaceMemberRequest = z.infer<typeof addWorkspaceMemberRequestSchema>;
+/**
+ * Thêm workspace member **không còn** nhận `userId`.
+ *
+ * [ADR-0013](../../../docs/decisions/ADR-0013-workspace-member-invitation.md)
+ * đổi route sang mời theo email, vì không có endpoint nào tra cứu được `userId`
+ * và thêm một endpoint như vậy là mở một máy dò tài khoản cho mọi người vừa
+ * đăng ký. Schema nay ở `invitations.ts` dưới tên
+ * `inviteWorkspaceMemberRequestSchema`.
+ *
+ * Không giữ lại schema cũ dưới dạng deprecated: một schema còn export được là
+ * một schema còn dùng được, và cái này mô tả một route đã không còn tồn tại.
+ */
 
 export const workspaceResponseSchema = z.object({ workspace: workspaceSchema }).strict();
 export type WorkspaceResponse = z.infer<typeof workspaceResponseSchema>;

@@ -204,11 +204,16 @@ function RemoveMemberButton({ workspaceId, row }: { workspaceId: string; row: Me
 }
 
 /**
- * Thêm thành viên workspace.
+ * Mời thành viên vào workspace.
  *
- * Hợp đồng nhận `{ userId, role }` — **một UUID**, không phải email. Ở MVP
- * chưa có endpoint tra cứu người dùng, nên form phải nhận thẳng ID. Đây là một
- * lỗ hổng hợp đồng đã ghi lại trong báo cáo M2, không phải lựa chọn thiết kế.
+ * Theo [ADR-0013](../../../../docs/decisions/ADR-0013-workspace-member-invitation.md),
+ * route nhận **email** và **luôn** trả `202` như nhau — dù email đã có
+ * account, chưa có, hay đã là member. UI vì vậy không được suy ra điều gì từ
+ * response, và chữ hiển thị phải phản ánh đúng sự không biết đó: "đã gửi lời
+ * mời **nếu** địa chỉ hợp lệ", chứ không phải "đã thêm thành viên".
+ *
+ * Đây cũng là lý do gửi lời mời **không** làm mới danh sách thành viên: một lời
+ * mời `pending` chưa cấp quyền gì cho tới khi được chấp nhận.
  */
 function AddWorkspaceMemberDialog({
   workspaceId,
@@ -217,7 +222,7 @@ function AddWorkspaceMemberDialog({
   workspaceId: string;
   onClose: () => void;
 }) {
-  const [userId, setUserId] = useState("");
+  const [email, setEmail] = useState("");
   const [role, setRole] = useState<WorkspaceRole>("workspace_member");
   const submitted = useRef<string | undefined>(undefined);
   const intent = useRef(new Intent());
@@ -226,22 +231,19 @@ function AddWorkspaceMemberDialog({
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    if (mutation.isPending || userId.trim() === "") return;
+    if (mutation.isPending || email.trim() === "") return;
 
-    const payload = `${userId.trim()}|${role}`;
+    const payload = `${email.trim()}|${role}`;
     if (submitted.current !== undefined && submitted.current !== payload) intent.current.rotate();
     submitted.current = payload;
 
-    mutation.mutate(
-      { userId: userId.trim(), role, intent: intent.current },
-      { onSuccess: onClose },
-    );
+    mutation.mutate({ email: email.trim(), role, intent: intent.current }, { onSuccess: onClose });
   }
 
   return (
     <FbModal
-      title="Thêm thành viên không gian"
-      subtitle="Thành viên không gian mới chưa có quyền đọc bất kỳ dự án riêng tư nào."
+      title="Mời vào không gian làm việc"
+      subtitle="Người được mời phải chấp nhận lời mời trước khi trở thành thành viên, và vẫn chưa có quyền đọc bất kỳ dự án riêng tư nào."
       onRequestClose={onClose}
       closeDisabled={mutation.isPending}
       footer={
@@ -253,9 +255,9 @@ function AddWorkspaceMemberDialog({
             type="submit"
             form={ADD_FORM_ID}
             loading={mutation.isPending}
-            disabled={userId.trim() === ""}
+            disabled={email.trim() === ""}
           >
-            Thêm thành viên
+            Gửi lời mời
           </FbButtonPrimary>
         </>
       }
@@ -275,13 +277,14 @@ function AddWorkspaceMemberDialog({
         )}
 
         <FbTextField
-          id="member-user-id"
-          label="Mã người dùng"
-          value={userId}
-          onChange={setUserId}
+          id="member-email"
+          label="Email"
+          value={email}
+          onChange={setEmail}
           required
-          hint="Dán UUID của người dùng. MVP chưa có tra cứu theo email."
-          error={failure === undefined ? undefined : fieldError(failure, "userId")}
+          autoComplete="email"
+          hint="Người này sẽ nhận một thư mời. Nếu chưa có tài khoản, thư sẽ dẫn họ tới bước tạo tài khoản."
+          error={failure === undefined ? undefined : fieldError(failure, "email")}
           disabled={mutation.isPending}
         />
 

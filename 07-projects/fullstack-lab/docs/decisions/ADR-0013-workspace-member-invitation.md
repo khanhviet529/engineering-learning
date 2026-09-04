@@ -1,6 +1,6 @@
 # ADR-0013: Thêm workspace member bằng lời mời qua email, không bằng tra cứu người dùng
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Date:** 2026-09-04
 

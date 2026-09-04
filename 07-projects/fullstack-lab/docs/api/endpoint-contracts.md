@@ -108,9 +108,37 @@ Yêu cầu authenticated actor và workspace-provisioning policy do server kiể
 
 Yêu cầu `workspace:member:manage` (Workspace Admin). Query chỉ `cursor`, `limit`; `200` trả member projection phân trang `{ userId, displayName, email, role, createdAt }`. Nó **không** kèm capabilities: envelope của list endpoint là `{ items, page }` theo [quy ước API](api-conventions.md), và caller đã có capabilities của workspace từ `GET /workspaces` — trả lần hai chỉ tạo ra hai nguồn cho cùng một dữ liệu. `403` nghĩa là workspace nhìn thấy nhưng thiếu action; workspace không accessible là `404`. Không kèm project membership hay private project data.
 
-### POST /workspaces/:workspaceId/members — thêm member workspace
+### POST /workspaces/:workspaceId/members — mời member workspace qua email
 
-Yêu cầu `workspace:member:manage` và CSRF. Body đúng shape `{ "userId", "role" }`, với role `workspace_admin` hoặc `workspace_member`; yêu cầu `Idempotency-Key`. `201` trả workspace member đã tạo. Use case reject duplicate membership và user unknown/out-of-policy bằng validation/not-found outcome an toàn; không auto-add user vào project và không tạo project activity.
+Yêu cầu `workspace:member:manage`, CSRF và `Idempotency-Key`. Body đúng shape `{ "email", "role" }`, với role `workspace_admin` hoặc `workspace_member`. Theo [ADR-0013](../decisions/ADR-0013-workspace-member-invitation.md).
+
+`202` **luôn** trả generic `{ "accepted": true }` — **giống hệt nhau** dù email đã có account, chưa có account, hay đã là member của workspace này. Đây là cả lý do route nhận email thay vì `userId`: nếu response phân biệt được ba nhánh đó thì endpoint trở thành một máy dò tài khoản, và vì ai xác minh email cũng tạo được workspace để thành Workspace Admin, máy dò đó mở cho mọi người vừa đăng ký.
+
+Use case tạo hoặc ghi đè một lời mời `pending` cho cặp `(workspace, email)`, sinh token một lần và gửi thư. Token cũ mất hiệu lực ngay khi token mới được tạo. Rate limit áp **trước** khi gửi thư — thiếu nó thì route này thành máy gửi thư rác dùng tên miền của sản phẩm. Không route nào trả raw token, và `email` không xuất hiện trong log hay metric label.
+
+Lời mời `pending` **không** cấp quyền gì: `workspace_members` chỉ được tạo khi lời mời được chấp nhận. Use case không auto-add user vào project và không tạo project activity.
+
+### GET /workspaces/:workspaceId/invitations — xem lời mời đang chờ
+
+Yêu cầu `workspace:member:manage`. Query chỉ `cursor` và `limit`; `200` trả cursor page các lời mời `pending` của **chính workspace này** với projection `{ id, email, role, invitedBy, createdAt, expiresAt }`. Không trả `tokenHash`, không trả lời mời của workspace khác, và không trả lời mời đã `accepted` hay `revoked` — chúng là dữ liệu audit, không phải danh sách để hành động.
+
+Thứ tự `createdAt DESC, id DESC`. Workspace không accessible là `404`.
+
+### DELETE /workspaces/:workspaceId/invitations/:invitationId — thu hồi lời mời
+
+Yêu cầu `workspace:member:manage`, CSRF và `Idempotency-Key`; không body. `204` khi lời mời `pending` được đánh dấu `revoked`. Thu hồi có hiệu lực **ngay**: token của lời mời đó không còn dùng được kể từ lúc commit.
+
+Lời mời không tồn tại, thuộc workspace khác, hoặc đã `accepted`/`revoked` đều trả `404` — cùng một response, để không tiết lộ trạng thái của một lời mời mà caller không có quyền biết.
+
+### POST /invitations/accept — chấp nhận lời mời
+
+Yêu cầu session hợp lệ và CSRF. Body `{ "token" }`. `200` trả `{ "workspace" }` là workspace vừa tham gia.
+
+Một transaction duy nhất: validate token, kiểm email của actor **khớp** email được mời, tạo `workspace_members`, rồi đánh dấu lời mời `accepted`. Điều kiện tiêu thụ nằm trong `WHERE` của câu `UPDATE`, nên hai request cùng token không thể cùng thành công.
+
+Token invalid, hết hạn, đã dùng hoặc đã bị thu hồi đều trả **cùng một** `400 VALIDATION_FAILED` an toàn — phân biệt chúng cho biết token nào từng tồn tại. Riêng trường hợp actor đăng nhập bằng **email khác** email được mời trả `403 FORBIDDEN` nói rõ lời mời thuộc địa chỉ khác: actor đang giữ token từ hộp thư đó nên đã biết địa chỉ, và nói mơ hồ ở đây chỉ làm họ không biết phải đăng nhập bằng tài khoản nào.
+
+Endpoint này **không** tạo account. Email chưa có account thì thư dẫn tới `AUTH-02`, account được tạo qua đường sign-up bình thường — không đường nào tạo credential mà bỏ qua [chính sách mật khẩu](../decisions/ADR-0007-password-policy.md).
 
 ### DELETE /workspaces/:workspaceId/members/:userId — gỡ member workspace
 

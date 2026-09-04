@@ -207,6 +207,30 @@ Constraints: `UNIQUE (user_id, use_case, key_hash)` — đúng scope "authentica
 
 Retention: record hết hạn (`expires_at < now()`) bị lookup bỏ qua và có thể bị ghi đè bằng compare-and-set khi cùng key quay lại. Physical purge trong core MVP là lệnh vận hành explicit (cùng chính sách "không cron tự phát" của `auth_sessions`); chuyển thành scheduled job khi Phase 1.2 có worker.
 
+### `workspace_invitations`
+
+Bảng này hiện thực [ADR-0013](../decisions/ADR-0013-workspace-member-invitation.md): thêm workspace member bằng lời mời qua email, không bằng tra cứu người dùng.
+
+| Cột | PostgreSQL type | Null | Key / constraint | Ghi chú |
+|---|---|:---:|---|---|
+| `id` | `uuid` | No | PK | Định danh lời mời. |
+| `workspace_id` | `uuid` | No | FK → `workspaces(id)` | Workspace được mời vào. |
+| `email` | `text` | No |  | Canonical lowercase. Lưu **thô**, không hash, vì phải gửi thư tới nó — xem quy tắc dữ liệu cá nhân dưới đây. |
+| `role` | `text` | No | `CHECK (role IN ('workspace_admin', 'workspace_member'))` | Vai trò sẽ được cấp khi chấp nhận. |
+| `invited_by_user_id` | `uuid` | No | FK → `users(id)` | Dấu vết audit; **không** phải nguồn quyết định quyền. |
+| `token_hash` | `text` | No | `UNIQUE` | Hash của token một lần. **Không lưu token thô.** |
+| `status` | `text` | No | `CHECK (status IN ('pending', 'accepted', 'revoked'))` | Chỉ `pending` là dùng được. |
+| `expires_at` | `timestamptz` | No |  | UTC; `created_at + 7 ngày`. |
+| `accepted_at` | `timestamptz` | Yes |  | UTC; non-null khi `status = 'accepted'`. |
+| `created_at` | `timestamptz` | No |  | UTC. |
+| `updated_at` | `timestamptz` | No |  | UTC khi status đổi. |
+
+Constraint: `UNIQUE (workspace_id, email) WHERE status = 'pending'` bằng **partial unique index** — mỗi cặp workspace/email chỉ có một lời mời đang chờ, và database là nơi cưỡng chế điều đó, không phải use case. Cùng lối mà [ADR-0010](../decisions/ADR-0010-sprint-iteration.md) dùng cho một sprint active mỗi project.
+
+**Tiêu thụ token** đặt điều kiện trong `WHERE` của câu `UPDATE` (`token_hash = $1 AND status = 'pending' AND expires_at > now()`), nên hai request cùng token không thể cùng thành công: câu thứ hai cập nhật 0 dòng. Membership và việc đánh dấu `accepted` nằm trong **cùng một** transaction.
+
+**Dữ liệu cá nhân.** `email` ở đây có thể là địa chỉ của người **chưa** là người dùng Flowboard. Nó không được xuất hiện trong log, không trong metric label, và không trong bất kỳ response nào ngoài `GET /workspaces/:workspaceId/invitations` — nơi caller đã có `workspace:member:manage`. Bản ghi `accepted` và `revoked` được giữ làm audit; retention cho chúng là điều kiện xem lại đã ghi trong ADR-0013.
+
 ## Bảng Phase 1.1, không phải core MVP
 
 ### `report_exports`
@@ -360,9 +384,10 @@ Constraints: `UNIQUE(project_id, user_id, work_date)`. Reopen/update cùng targe
 3. `CREATE EXTENSION IF NOT EXISTS unaccent` và function `fb_unaccent(text)` (`IMMUTABLE`, pin dictionary — xem [query and index policy](query-and-index-policy.md)) phải chạy **trước** migration tạo GIN search index; extension phải có sẵn trong PostgreSQL image local/CI theo [local development](../operations/local-development.md).
 4. Không thể chỉ dùng foreign key để biết BoardColumn còn active, WorkspaceMember tương ứng tồn tại, Owner cuối cùng hay column còn task. Các điều kiện đó là use-case transaction rules, không trigger ngầm.
 5. Tạo `report_exports` và index liên quan chỉ với Phase 1.1.
-6. Khi Phase 1.3 bắt đầu, tạo `project_time_tracking_settings`, `project_time_approvers`, `work_logs`, `work_log_access_overrides` sau projects/project_members/tasks; migration additive và settings mặc định disabled.
-7. Khi Phase 1.4 bắt đầu, tạo `project_sprint_settings` và `sprints` sau `projects`, rồi thêm `tasks.sprint_id` cùng composite FK và partial unique index của sprint active; migration additive và settings mặc định disabled.
-8. Khi Phase 1.5 bắt đầu, thêm `tasks.parent_task_id` cùng composite FK/CHECK và tạo `task_dependencies` sau `tasks`; migration additive.
-9. Không tạo bảng queue, email delivery, AI, labels, attachments hay post-MVP table nào cho core behavior; Phase 1.3 không tạo timer/payroll/billing/time-export tables và Phase 1.4 không tạo estimate/velocity/capacity tables.
+6. Tạo `workspace_invitations` sau `workspaces` và `users`, cùng partial unique index `(workspace_id, email) WHERE status = 'pending'`. Bảng này thuộc core MVP theo [ADR-0013](../decisions/ADR-0013-workspace-member-invitation.md), không phải phase sau.
+7. Khi Phase 1.3 bắt đầu, tạo `project_time_tracking_settings`, `project_time_approvers`, `work_logs`, `work_log_access_overrides` sau projects/project_members/tasks; migration additive và settings mặc định disabled.
+8. Khi Phase 1.4 bắt đầu, tạo `project_sprint_settings` và `sprints` sau `projects`, rồi thêm `tasks.sprint_id` cùng composite FK và partial unique index của sprint active; migration additive và settings mặc định disabled.
+9. Khi Phase 1.5 bắt đầu, thêm `tasks.parent_task_id` cùng composite FK/CHECK và tạo `task_dependencies` sau `tasks`; migration additive.
+10. Không tạo bảng queue, email delivery, AI, labels, attachments hay post-MVP table nào cho core behavior; Phase 1.3 không tạo timer/payroll/billing/time-export tables và Phase 1.4 không tạo estimate/velocity/capacity tables.
 
 Index cụ thể và cách query/transaction dùng các bảng này nằm ở [query và index policy](query-and-index-policy.md).

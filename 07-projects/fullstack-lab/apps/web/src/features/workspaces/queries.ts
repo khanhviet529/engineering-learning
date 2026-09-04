@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Intent } from "../../lib/transport.ts";
 import { unwrap, toFailure } from "../../lib/query.tsx";
 import {
-  addWorkspaceMember,
+  inviteWorkspaceMember,
   createWorkspace,
   listWorkspaceMembers,
   listWorkspaces,
@@ -24,6 +24,12 @@ export const workspaceKeys = {
   all: ["workspaces"] as const,
   list: () => [...workspaceKeys.all, "list"] as const,
   members: (workspaceId: string) => [...workspaceKeys.all, workspaceId, "members"] as const,
+  /**
+   * Lời mời đang chờ là một danh sách **khác** danh sách thành viên, vì một lời
+   * mời `pending` chưa cấp quyền gì. Trộn hai danh sách vào một query key sẽ dạy
+   * người dùng rằng gửi lời mời là thêm được người.
+   */
+  invitations: (workspaceId: string) => [...workspaceKeys.all, workspaceId, "invitations"] as const,
 };
 
 export function useWorkspaces(): {
@@ -100,16 +106,20 @@ export function useAddWorkspaceMember(workspaceId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
-      userId,
+      email,
       role,
       intent,
     }: {
-      userId: string;
+      email: string;
       role: "workspace_admin" | "workspace_member";
       intent: Intent;
-    }) => unwrap(addWorkspaceMember(workspaceId, { userId, role }, intent)),
+    }) => unwrap(inviteWorkspaceMember(workspaceId, { email, role }, intent)),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: workspaceKeys.members(workspaceId) });
+      // Mời **không** tạo membership ngay, nên danh sách thành viên không đổi.
+      // Cái đổi là danh sách lời mời đang chờ — và route đó backend chưa dựng,
+      // nên chưa có query key nào để làm mới. Đừng invalidate danh sách thành
+      // viên: làm vậy dạy người dùng rằng gửi lời mời là thêm được người.
+      void queryClient.invalidateQueries({ queryKey: workspaceKeys.invitations(workspaceId) });
     },
   });
 }
