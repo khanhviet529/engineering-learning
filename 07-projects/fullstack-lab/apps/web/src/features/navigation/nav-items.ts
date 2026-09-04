@@ -28,10 +28,12 @@ export interface NavContext {
 /**
  * Chỉ liệt kê những mục mà **route đã tồn tại ở mốc này**.
  *
- * Artifact `REF-05` vẽ đủ bảy mục, trong đó `Tổng quan` (`PRJ-04`),
- * `Bảng công việc` (`BRD-01`) và `Việc của tôi` (`MYT-01`) thuộc M3–M4. Một
- * mục nav dẫn tới `404` tệ hơn một mục chưa xuất hiện: nó dạy người dùng rằng
- * điều hướng không đáng tin. Chúng được thêm lại ở đúng mốc dựng màn hình đó.
+ * Artifact `REF-05` vẽ đủ bảy mục, trong đó `Tổng quan` (`PRJ-04`) và
+ * `Việc của tôi` (`MYT-01`) vẫn thuộc M4. Một mục nav dẫn tới `404` tệ hơn một
+ * mục chưa xuất hiện: nó dạy người dùng rằng điều hướng không đáng tin. Chúng
+ * được thêm lại ở đúng mốc dựng màn hình đó.
+ *
+ * `Bảng công việc` (`BRD-01`) đã có route từ M3 nên nó xuất hiện ở đây.
  */
 export function navItemsFor(context: NavContext): FbSidebarItem[] {
   const { workspaceId, project, pathname } = context;
@@ -82,6 +84,20 @@ export function navItemsFor(context: NavContext): FbSidebarItem[] {
   }
 
   if (project !== undefined) {
+    // Đọc board là `project:read`, không phải `board-column:*`: Viewer thấy
+    // bảng, chỉ không cấu hình được cột. Gắn mục nav vào quyền quản lý cột sẽ
+    // giấu cả bảng khỏi hai trong ba vai trò.
+    if (can("project:read", projectHolder)) {
+      const href = `/du-an/${project.id}/bang-cong-viec`;
+      items.push({
+        id: "project-board",
+        label: "Bảng công việc",
+        icon: "columns-3",
+        href,
+        active: pathname === href,
+      });
+    }
+
     if (can("project:member:manage", projectHolder)) {
       const href = `/du-an/${project.id}/thanh-vien`;
       items.push({

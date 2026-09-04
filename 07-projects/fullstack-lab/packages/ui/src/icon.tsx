@@ -6,6 +6,7 @@ import {
   ChevronLeft,
   ChevronRight,
   CircleUserRound,
+  Columns3,
   Folders,
   LayoutDashboard,
   LogOut,
@@ -42,6 +43,8 @@ const ICONS = {
   "chevron-left": ChevronLeft,
   "chevron-right": ChevronRight,
   "circle-user-round": CircleUserRound,
+  // Nav `Bảng công việc` (`BRD-01`); icon lấy đúng từ `FbSidebar` trên artifact.
+  "columns-3": Columns3,
   folders: Folders,
   "layout-dashboard": LayoutDashboard,
   "log-out": LogOut,

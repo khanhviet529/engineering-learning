@@ -4,6 +4,7 @@ import { AppError, validationError } from "../../../shared/errors/app-error.ts";
 import type { Actor, AuthorizationService } from "../../../shared/authorization/index.ts";
 import { projectCapabilities } from "../../../shared/authorization/index.ts";
 import type { RecordOutcome } from "../../../shared/http/idempotency-runner.ts";
+import type { ActivityRecorder } from "../../activity/domain/activity-recorder.ts";
 import type { ProjectRepository, ProjectRow } from "../infrastructure/project-repository.ts";
 import {
   buildPage,
@@ -12,6 +13,7 @@ import {
   type PageResult,
 } from "../../../shared/http/cursor.ts";
 import type { WorkspaceMembershipPort } from "../domain/workspace-membership-port.ts";
+import type { ProjectColumnView, ProjectColumnsQuery } from "../domain/project-columns-port.ts";
 import {
   assertNotAssignedToTasks,
   assertProjectKeepsAnOwner,
@@ -32,41 +34,19 @@ import {
  * chụp với lệnh ghi.
  */
 
-/**
- * ## Nợ đã biết: ActivityLog chưa được ghi ở mốc này
- *
- * Hợp đồng endpoint yêu cầu năm mutation dưới đây ghi activity **trong cùng
- * transaction** với chính mutation đó:
- *
- * | Use case | Event |
- * |---|---|
- * | `createProject` | `project.created` |
- * | `renameProject` | `project.updated` |
- * | `addProjectMember` | `project_member.added` |
- * | `changeProjectMemberRole` | `project_member.role_changed` |
- * | `removeProjectMember` | `project_member.removed` |
- *
- * Chúng **chưa được ghi**, vì bảng `activity_logs` chưa tồn tại: phạm vi
- * migration của M2 dừng ở `workspaces`, `workspace_members`, `projects`,
- * `project_members`. Đây là một khoảng trống có ý thức, không phải một chỗ bị
- * bỏ sót.
- *
- * Hệ quả phải nhớ khi đọc test: những khẳng định dạng "deny không tạo activity
- * row" hiện **đúng một cách rỗng** — không có bảng nào để ghi vào. Chúng chỉ
- * trở thành bằng chứng thật khi `activity_logs` tồn tại.
- *
- * Khi mốc tạo `activity_logs` bắt đầu, module `activity` export
- * `ActivityRecorder.record(tx, event)` theo ADR-0005, và **năm** chỗ trong file
- * này phải gọi nó bên trong transaction đang có sẵn. Transaction đã đúng hình
- * dạng cho việc đó rồi; chỗ còn thiếu chỉ là port và lời gọi.
- */
-
 export interface ProjectDeps {
   db: Database;
   repository: ProjectRepository;
   authorization: AuthorizationService;
   workspaceMembership: WorkspaceMembershipPort;
   assigneeCheck: ProjectAssigneeCheck;
+  /**
+   * Cổng ghi activity — `activity` là module leaf, và mọi mutation ở đây ghi
+   * qua nó **trong cùng transaction** với chính mutation.
+   */
+  activity: ActivityRecorder;
+  /** Đọc board column cho `GET /projects/:projectId` — xem port để biết vì sao. */
+  columns: ProjectColumnsQuery;
   /** Secret ký cursor. Cursor phải chống sửa đổi, không chỉ opaque. */
   cursorSecret: string;
   now?: () => Date;
@@ -105,6 +85,7 @@ export interface ProjectListView {
 export interface ProjectDetailView {
   project: ProjectView;
   capabilities: string[];
+  columns: ProjectColumnView[];
   members: ProjectMemberView[];
 }
 
@@ -139,6 +120,13 @@ export class ProjectUseCases {
         { workspaceId, name: input.name, creatorUserId: actor.id },
         tx,
       );
+
+      await this.#deps.activity.record(tx, {
+        projectId: project.id,
+        actorUserId: actor.id,
+        action: "project.created",
+        payload: { name: project.name, workspaceId: project.workspaceId },
+      });
 
       const result = {
         project: toProjectView(project),
@@ -212,10 +200,10 @@ export class ProjectUseCases {
    * Repository vẫn đọc theo `projectId` đã resolve, không theo một ID nào khác
    * do client gửi.
    *
-   * `columns` trả mảng rỗng ở M2: bảng `board_columns` thuộc M3. Trả rỗng chứ
-   * **không** bỏ field — client đã được viết theo `projectDetailSchema`, và một
-   * field biến mất là lỗi hợp đồng, trong khi một mảng rỗng là sự thật đúng của
-   * mốc này.
+   * `columns` là **active column thật** từ M3, đọc qua `ProjectColumnsQuery`.
+   * Trước M3 nó là mảng rỗng vì bảng chưa tồn tại; giữ nguyên mảng rỗng sau khi
+   * bảng có sẽ biến một sự thật của mốc cũ thành một lời nói dối — board của
+   * client sẽ trống dù cột đã được tạo qua API.
    */
   async getProjectDetail(actor: Actor, projectId: string): Promise<ProjectDetailView> {
     const authorization = await this.#deps.authorization.requireProjectMembership(
@@ -230,27 +218,42 @@ export class ProjectUseCases {
     if (project === undefined) throw new AppError("NOT_FOUND");
 
     const members = await this.#deps.repository.findMembersOfProject(projectId);
+    const columns = await this.#deps.columns.activeColumnsOf(projectId);
 
     return {
       project: toProjectView(project),
       capabilities: authorization.capabilities,
+      columns,
       members,
     };
   }
 
   /** `PATCH /projects/:projectId` — đổi **tên** project, và chỉ tên. */
   async renameProject(
+    actor: Actor,
     projectId: string,
     input: { name: string },
     recordOutcome?: RecordOutcome,
     toOutcomeBody?: (detail: { project: ProjectView; capabilities: string[] }) => unknown,
   ): Promise<{ project: ProjectView; capabilities: string[] }> {
     return await this.#deps.db.transaction(async (tx) => {
+      // Đọc tên cũ **trước** khi ghi: payload nói "từ gì sang gì", và sau lệnh
+      // UPDATE thì tên cũ không còn ở đâu để lấy.
+      const before = await this.#deps.repository.findProjectById(projectId, tx);
+      if (before === undefined) throw new AppError("NOT_FOUND");
+
       const updated = await this.#deps.repository.renameProject(
         { projectId, name: input.name, now: this.#now },
         tx,
       );
       if (updated === undefined) throw new AppError("NOT_FOUND");
+
+      await this.#deps.activity.record(tx, {
+        projectId,
+        actorUserId: actor.id,
+        action: "project.updated",
+        payload: { field: "name", from: before.name, to: updated.name },
+      });
 
       // Guard đã xác nhận actor là Owner để có `project:update`, nên
       // capabilities của response là của Owner.
@@ -275,6 +278,7 @@ export class ProjectUseCases {
    * workspace vào project riêng tư, và ranh giới tenant mất ý nghĩa.
    */
   async addProjectMember(
+    actor: Actor,
     projectId: string,
     input: { userId: string; role: ProjectRole },
     recordOutcome?: RecordOutcome,
@@ -324,6 +328,18 @@ export class ProjectUseCases {
         tx,
       );
 
+      /**
+       * Payload mang `userId` và `role`, **không** mang email hay tên hiển thị.
+       * Activity là dữ liệu lưu lâu và đọc lại về sau; nhét thông tin định danh
+       * vào đây là nhân bản chúng ra một bảng không ai nghĩ tới khi rà soát.
+       */
+      await this.#deps.activity.record(tx, {
+        projectId,
+        actorUserId: actor.id,
+        action: "project_member.added",
+        payload: { userId: input.userId, role: input.role },
+      });
+
       const member: ProjectMemberView = {
         userId: target.id,
         displayName: target.displayName,
@@ -348,6 +364,7 @@ export class ProjectUseCases {
    * khi xét riêng.
    */
   async changeProjectMemberRole(
+    actor: Actor,
     projectId: string,
     userId: string,
     input: { role: ProjectRole },
@@ -365,6 +382,13 @@ export class ProjectUseCases {
         { projectId, userId, role: input.role, now: this.#now },
         tx,
       );
+
+      await this.#deps.activity.record(tx, {
+        projectId,
+        actorUserId: actor.id,
+        action: "project_member.role_changed",
+        payload: { userId, from: existing.role, to: input.role },
+      });
 
       const target = await this.#deps.repository.findUserById(userId, tx);
       if (target === undefined) throw new AppError("NOT_FOUND");
@@ -393,6 +417,7 @@ export class ProjectUseCases {
    * tại; M4 thay bằng adapter thật của module `tasks`.
    */
   async removeProjectMember(
+    actor: Actor,
     projectId: string,
     userId: string,
     recordOutcome?: RecordOutcome,
@@ -412,6 +437,13 @@ export class ProjectUseCases {
       assertNotAssignedToTasks(hasAssignedTasks);
 
       await this.#deps.repository.removeMember({ projectId, userId }, tx);
+
+      await this.#deps.activity.record(tx, {
+        projectId,
+        actorUserId: actor.id,
+        action: "project_member.removed",
+        payload: { userId, role: existing.role },
+      });
 
       if (recordOutcome !== undefined) await recordOutcome(tx, null);
     });

@@ -190,7 +190,7 @@ Yêu cầu `project:member:manage`, CSRF và `Idempotency-Key`; không body. `20
 
 ### POST /projects/:projectId/columns — thêm column active
 
-Yêu cầu `board-column:manage` (Owner), CSRF và `Idempotency-Key`. Body đúng shape `{ "name", "afterColumnId", "isTerminal", "requiresReviewer" }`; `afterColumnId` nullable và khi có phải active/cùng project; `isTerminal` và `requiresReviewer` optional, cùng default `false`; server tính fractional position. `201` trả column projection và ghi activity `board_column.created`. Client không thể gửi projectId, position, archivedAt hay timestamp.
+Yêu cầu `board-column:manage` (Owner), CSRF và `Idempotency-Key`. Body đúng shape `{ "name", "afterColumnId", "isTerminal", "requiresReviewer" }`; `afterColumnId` nullable và khi có phải active/cùng project. `null` nghĩa là **append** vào cuối (`max(position) + 1024`), không phải prepend: append là ca cơ bản trong [ADR-0006](../decisions/ADR-0006-fractional-ordering-and-concurrency.md) và là thứ người dùng làm khi thêm một cột mới. Hệ quả đã biết: MVP **không có** đường prepend qua HTTP — muốn cột mới lên đầu thì thêm rồi `POST /columns/reorder`. `isTerminal` và `requiresReviewer` optional, cùng default `false`; server tính fractional position. `201` trả column projection và ghi activity `board_column.created`. Client không thể gửi projectId, position, archivedAt hay timestamp.
 
 ### PATCH /columns/:columnId — đổi tên hoặc archive column
 

@@ -32,22 +32,66 @@ describeIfDb("phân quyền workspace và project", () => {
     await f.cleanup();
   });
 
-  /** Đếm mọi dòng có thể bị một mutation của M2 chạm tới. */
-  async function snapshot(): Promise<{ members: number; projects: number; wsMembers: number }> {
+  /**
+   * Đếm mọi dòng có thể bị một mutation chạm tới — **kể cả `activity_logs`**.
+   *
+   * Cho tới M2, `activity` không có trong ảnh chụp này vì bảng chưa tồn tại, và
+   * mọi câu "deny không tạo activity row" trong file này vì thế **đúng một cách
+   * rỗng**: không có gì để đếm thì không có gì để sai. Từ M3 bảng có thật và
+   * năm mutation của `projects` thật sự ghi vào nó, nên con số dưới đây là phần
+   * duy nhất biến những câu đó thành bằng chứng.
+   *
+   * Đếm theo **mọi project của workspace**, không chỉ Project B: một request bị
+   * từ chối vẫn có thể là request tạo project, và ảnh chụp phải bao được cả
+   * activity của một project vừa ra đời.
+   */
+  async function snapshot(): Promise<{
+    members: number;
+    projects: number;
+    wsMembers: number;
+    activity: number;
+  }> {
     const [pm] = await f.db
       .select({ n: sql<number>`count(*)::int` })
       .from(projectMembers)
       .where(eq(projectMembers.projectId, f.projectBId));
-    const [pr] = await f.db
-      .select({ n: sql<number>`count(*)::int` })
+    const projectRows = await f.db
+      .select({ id: projects.id })
       .from(projects)
       .where(eq(projects.workspaceId, f.workspaceId));
     const [wm] = await f.db
       .select({ n: sql<number>`count(*)::int` })
       .from(workspaceMembers)
       .where(eq(workspaceMembers.workspaceId, f.workspaceId));
-    return { members: pm?.n ?? 0, projects: pr?.n ?? 0, wsMembers: wm?.n ?? 0 };
+
+    return {
+      members: pm?.n ?? 0,
+      projects: projectRows.length,
+      wsMembers: wm?.n ?? 0,
+      activity: await f.activity.countForProjects(projectRows.map((row) => row.id)),
+    };
   }
+
+  /**
+   * Phép kiểm đối chứng cho chính `snapshot()`.
+   *
+   * Một ảnh chụp luôn bằng nhau vì nó **không đếm gì** trông y hệt một ảnh chụp
+   * đúng. Test này chạy một mutation **được phép**, rồi khẳng định con số
+   * `activity` đã nhích lên — tức là trường đó thật sự phản ứng với việc ghi, và
+   * `toEqual(before)` ở các case deny là một khẳng định có nội dung.
+   */
+  it("snapshot().activity phản ứng với một mutation được phép", async () => {
+    const before = await snapshot();
+
+    const response = await call(f, "PATCH", `/projects/${f.projectBId}`, {
+      actor: f.owner,
+      idempotencyKey: newKey("probe"),
+      body: { name: `Tên hợp lệ ${Date.now().toString()}` },
+    });
+
+    expect(response.status).toBe(200);
+    expect((await snapshot()).activity).toBe(before.activity + 1);
+  });
 
   describe("Viewer gọi HTTP trực tiếp", () => {
     /**

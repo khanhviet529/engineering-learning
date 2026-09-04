@@ -80,6 +80,21 @@ Ba luật rút ra:
 
 Danh sách đường nối hiện có, mỗi cái phải có guard đọc thực tại: hằng số ↔ Markdown (`contract-sync.test.ts`), error code ↔ danh mục trong tài liệu (hai chiều), status thành công ↔ hợp đồng endpoint (`endpoint-contract-matrix`), path trong thư ↔ route App Router (`web-routes.test.ts`), seed token của Ant Design ↔ variant mà component render (`theme.test.ts`).
 
+## Khẳng định rỗng, và khi nào không thể làm nó đỏ
+
+Một khẳng định **rỗng** là khẳng định đúng vì không có gì để kiểm. Nó tệ hơn một test còn thiếu, vì nó trông như bằng chứng. Repo này đã có hai lần:
+
+- Trước khi `activity_logs` tồn tại, mọi khẳng định "deny không tạo activity row" đúng vì **không có bảng nào** để ghi vào. Backend ghi lại điều đó thay vì để nó trôi.
+- Frontend gặp một test StrictMode xanh vì với `QueryClient` lạnh, lượt effect đầu thoát sớm ở `sessionLoading`, nên lượt thứ hai là lượt duy nhất thấy actor — test không hề kiểm cái nó nói.
+
+Cách chữa mặc định là **phá luật, xem test đỏ, trả lại**. Nhưng có trường hợp cách đó không áp được, và nhận ra sớm quan trọng hơn là cố:
+
+`authorization.integration.test.ts` khẳng định các nhánh deny không ghi activity. Không thể làm nó đỏ bằng cách cho một deny path ghi activity, vì deny ở đó là `403`/`404` từ **guard** — nó xảy ra **trước** use case, nên không có đường nào chạm tới recorder. Khẳng định đó không rỗng theo nghĩa sai; nó chỉ đang kiểm một điều được đảm bảo bởi kiến trúc chứ không bởi code của use case.
+
+Khi gặp trường hợp đó, việc phải làm là **chứng minh kênh quan sát còn sống**: một test đối chứng cho thấy `snapshot().activity` *có* thay đổi khi một mutation được phép chạy. Không có nó, `toEqual(before)` vẫn là một khẳng định rỗng theo một kiểu khác — nó có thể đúng vì hàm `snapshot()` không đọc bảng đó nữa và không ai biết.
+
+Nguyên tắc: **mỗi khẳng định phủ định phải đi kèm một quan sát dương tính chứng minh phép đo hoạt động.** Đây là điều mà một thí nghiệm thất bại thường làm ngầm; khi không thể phá luật, phải làm nó tường minh.
+
 ## Failure experiments và recovery checks
 
 Failure experiment chỉ chạy trên local/CI hoặc environment non-production được cô lập. Nó có owner, thời hạn, dữ liệu disposable, expected signal và cleanup; không biến thành chaos testing production ngẫu hứng.

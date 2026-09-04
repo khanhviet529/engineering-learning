@@ -93,8 +93,14 @@ export function FbModal({
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
+        // Khi lớp phủ **không** được phép đóng, `Escape` không phải của nó:
+        // để nguyên cho widget bên trong xử lý. Nuốt phím ở đây là cách một
+        // thao tác đang dở bên trong — kéo một cột bằng bàn phím chẳng hạn —
+        // mất mất phím hủy của chính nó, vì listener này chạy ở pha capture
+        // trên `document`, tức là **trước** mọi handler của phần tử con.
+        if (closeDisabled) return;
         event.stopPropagation();
-        requestClose();
+        onRequestClose();
         return;
       }
       if (event.key !== "Tab") return;
@@ -118,7 +124,7 @@ export function FbModal({
 
     document.addEventListener("keydown", onKeyDown, true);
     return () => document.removeEventListener("keydown", onKeyDown, true);
-  }, [requestClose]);
+  }, [requestClose, closeDisabled, onRequestClose]);
 
   return (
     <div

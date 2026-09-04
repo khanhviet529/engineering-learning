@@ -382,6 +382,8 @@ describeIfDb("endpoint workspace và project", () => {
         body: { name: "Dự án một Owner" },
       });
       const projectId = (created.body["data"] as { project: { id: string } }).project.id;
+      // `project.created` đã ghi một dòng; mọi dòng sau đây phải là 0 dòng thêm.
+      const activityBefore = await f.activity.countForProject(projectId);
 
       const response = await call(f, "PATCH", `/projects/${projectId}/members/${f.wsAdmin.id}`, {
         actor: f.wsAdmin,
@@ -403,6 +405,8 @@ describeIfDb("endpoint workspace và project", () => {
 
       // Vai trò không đổi — đây là phần quan trọng nhất của test này.
       expect(await roleOf(projectId, f.wsAdmin.id)).toBe("owner");
+      // Và không có dòng lịch sử nào kể về một lần hạ quyền chưa từng xảy ra.
+      expect(await f.activity.countForProject(projectId)).toBe(activityBefore);
     });
   });
 
@@ -431,6 +435,7 @@ describeIfDb("endpoint workspace và project", () => {
         body: { name: "Dự án một Owner 2" },
       });
       const projectId = (created.body["data"] as { project: { id: string } }).project.id;
+      const activityBefore = await f.activity.countForProject(projectId);
 
       const response = await call(f, "DELETE", `/projects/${projectId}/members/${f.wsAdmin.id}`, {
         actor: f.wsAdmin,
@@ -440,6 +445,7 @@ describeIfDb("endpoint workspace và project", () => {
       expect(response.status).toBe(409);
       expect((response.body["error"] as { code: string }).code).toBe("PROJECT_LAST_OWNER");
       expect(await roleOf(projectId, f.wsAdmin.id)).toBe("owner");
+      expect(await f.activity.countForProject(projectId)).toBe(activityBefore);
     });
 
     it("gỡ member đang là assignee bị chặn, KHÔNG tự unassign", async () => {
@@ -457,6 +463,11 @@ describeIfDb("endpoint workspace và project", () => {
         body: { userId: f.userA.id, role: "editor" },
       });
 
+      const activityBefore = await f.activity.countForProject(
+        f.projectBId,
+        "project_member.removed",
+      );
+
       f.setHasAssignedTasks(true);
       try {
         const response = await call(
@@ -471,6 +482,10 @@ describeIfDb("endpoint workspace và project", () => {
 
         // Membership còn nguyên: API không auto-unassign rồi gỡ.
         expect(await roleOf(f.projectBId, f.userA.id)).toBe("editor");
+        // Và không có `project_member.removed` nào cho một lần gỡ bị chặn.
+        expect(await f.activity.countForProject(f.projectBId, "project_member.removed")).toBe(
+          activityBefore,
+        );
       } finally {
         f.setHasAssignedTasks(false);
       }
@@ -482,6 +497,10 @@ describeIfDb("endpoint workspace và project", () => {
         idempotencyKey: newKey("remove-after"),
       });
       expect(after.status).toBe(204);
+      // Lần gỡ **thành công** thì có ghi — đối chứng cho khẳng định phía trên.
+      expect(await f.activity.countForProject(f.projectBId, "project_member.removed")).toBe(
+        activityBefore + 1,
+      );
     });
   });
 

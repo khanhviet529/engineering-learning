@@ -134,10 +134,28 @@ describeIfDb("response khớp hợp đồng của @flowboard/contracts", () => {
     expect(() => schema.parse(response.body)).not.toThrow();
   });
 
-  it("GET /projects/:id khớp projectDetailSchema", async () => {
+  it("GET /projects/:id khớp projectDetailSchema, kể cả phần columns", async () => {
+    /**
+     * Tạo một cột **trước** khi đọc.
+     *
+     * `columns: []` khớp schema một cách rỗng — mảng rỗng không kiểm được hình
+     * dạng phần tử nào. Cho tới M2 đó là tất cả những gì có thể; từ M3 thì
+     * không, và một test vẫn hài lòng với mảng rỗng sẽ bỏ qua đúng phần vừa
+     * được thêm.
+     */
+    const created = await call(f, "POST", `/projects/${f.projectBId}/columns`, {
+      actor: f.owner,
+      idempotencyKey: newKey("conformance-col"),
+      body: { name: "Cần làm", afterColumnId: null },
+    });
+    expect(created.status).toBe(201);
+
     const response = await call(f, "GET", `/projects/${f.projectBId}`, { actor: f.owner });
     const schema = successEnvelopeSchema(projectDetailSchema);
     expect(() => schema.parse(response.body)).not.toThrow();
+
+    const data = response.body["data"] as { columns: unknown[] };
+    expect(data.columns.length).toBeGreaterThan(0);
   });
 
   it("PATCH /projects/:id khớp projectResponseSchema", async () => {
@@ -221,6 +239,33 @@ describeIfDb("response khớp hợp đồng của @flowboard/contracts", () => {
             idempotencyKey: newKey("conf-400"),
             body: { name: "x", description: "field lạ" },
           }),
+      },
+      {
+        /**
+         * `COLUMN_NOT_EMPTY` là code mới của M3, và envelope lỗi có một `refine`
+         * cấm mọi code ngoài `VALIDATION_FAILED` mang `details`. Một code mới
+         * lỡ kèm `details` chỉ lộ ra ở đây.
+         */
+        name: "409 COLUMN_NOT_EMPTY khi archive cột còn task",
+        run: async () => {
+          const created = await call(f, "POST", `/projects/${f.projectBId}/columns`, {
+            actor: f.owner,
+            idempotencyKey: newKey("conf-col"),
+            body: { name: "Cột còn việc", afterColumnId: null },
+          });
+          const columnId = (created.body["data"] as { column: { id: string } }).column.id;
+
+          f.setColumnHasTasks(true);
+          try {
+            return await call(f, "PATCH", `/columns/${columnId}`, {
+              actor: f.owner,
+              idempotencyKey: newKey("conf-col-archive"),
+              body: { archive: true },
+            });
+          } finally {
+            f.setColumnHasTasks(false);
+          }
+        },
       },
       {
         name: "409 khi tái dùng Idempotency-Key",

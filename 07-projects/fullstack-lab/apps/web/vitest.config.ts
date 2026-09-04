@@ -22,5 +22,11 @@ export default defineConfig({
     // phần lớn test nhưng không đủ cho các test có nhiều bước tương tác — và
     // 20s vẫn còn hụt khi cả bộ chạy song song trên máy đang bận.
     testTimeout: 60_000,
+    // Chạy **tuần tự** theo tệp. Chạy song song, mỗi tệp dựng một jsdom và một
+    // cây Ant Design riêng trên cùng số lõi, nên `findBy*` hết giờ vì máy bận
+    // chứ không vì giao diện sai — và một bộ test đỏ ngẫu nhiên thì không còn
+    // là tín hiệu nào cả. Đổi lại là tổng thời gian dài hơn; đó là cái giá
+    // đúng để một lần đỏ luôn có nghĩa.
+    fileParallelism: false,
   },
 });

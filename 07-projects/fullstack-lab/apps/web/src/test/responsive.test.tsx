@@ -1,9 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { screen, within } from "@testing-library/react";
-import { actors, workspace } from "@flowboard/mock";
+import {
+  actors,
+  capabilitiesByRole,
+  columns,
+  ids,
+  members,
+  projectB,
+  workspace,
+} from "@flowboard/mock";
 import { mockRoutes, ok, renderWithProviders, resetNavigation, user } from "./harness.tsx";
 import { WorkspaceListScreen } from "../features/workspaces/workspace-list.tsx";
 import { AccountSettingsScreen } from "../features/account/account-settings.tsx";
+import { BoardScreen } from "../features/board/board-screen.tsx";
 
 /**
  * Hành vi ở màn hình hẹp.
@@ -97,5 +106,29 @@ describe("USR-01 vẫn tới được trên màn hình hẹp", () => {
     const headings = screen.getAllByRole("heading", { level: 1 });
     expect(headings).toHaveLength(1);
     expect(headings[0]).toHaveTextContent("Hồ sơ và tùy chọn");
+  });
+});
+
+describe("BRD-01 ở màn hình hẹp — board vẫn là board", () => {
+  it("giữ dải cột cuộn ngang, không xếp cột thành một danh sách dọc", async () => {
+    setViewport(true);
+    resetNavigation(`/du-an/${ids.projectB}/bang-cong-viec`);
+    mockRoutes({
+      "/auth/session": SESSION,
+      [`/projects/${ids.projectB}`]: ok({
+        project: projectB,
+        capabilities: capabilitiesByRole.viewer,
+        columns,
+        members,
+      }),
+    });
+    renderWithProviders(<BoardScreen projectId={ids.projectB} />);
+
+    // Đặc tả tương tác §9: không ép cột thành danh sách dọc, không cắt cột
+    // cuối. Cả bốn cột vẫn có mặt, và chúng vẫn nằm trong một vùng cuộn ngang.
+    const strip = await screen.findByRole("group", { name: "Cột của bảng công việc" });
+    expect(within(strip).getAllByRole("region")).toHaveLength(columns.length);
+    expect(strip).toHaveStyle({ overflowX: "auto" });
+    expect(within(strip).getByRole("heading", { name: "Done", level: 3 })).toBeInTheDocument();
   });
 });

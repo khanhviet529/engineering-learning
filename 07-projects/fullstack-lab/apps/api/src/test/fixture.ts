@@ -6,7 +6,9 @@ import cookie from "@fastify/cookie";
 import { eq, inArray } from "drizzle-orm";
 import { createDatabase, type Database, type DatabaseHandle } from "../shared/database/client.ts";
 import {
+  activityLogs,
   authSessions,
+  boardColumns,
   idempotencyRecords,
   projectMembers,
   projects,
@@ -29,6 +31,15 @@ import { hashPassword } from "../modules/auth/domain/password.ts";
 import { WorkspacesModule } from "../modules/workspaces/workspaces.module.ts";
 import { ProjectsModule } from "../modules/projects/projects.module.ts";
 import type { ProjectAssigneeCheck } from "../modules/projects/domain/project-membership-rules.ts";
+import { BoardColumnsModule } from "../modules/board-columns/board-columns.module.ts";
+import type { ColumnEmptinessCheck } from "../modules/board-columns/domain/column-emptiness-check.ts";
+import { ColumnRepository } from "../modules/board-columns/infrastructure/column-repository.ts";
+import { ColumnProjectResolver } from "../modules/board-columns/infrastructure/column-project-resolver.ts";
+import { BoardColumnsProjectQuery } from "../modules/board-columns/infrastructure/project-columns-adapter.ts";
+import {
+  ActivityQueries,
+  DrizzleActivityRecorder,
+} from "../modules/activity/infrastructure/activity-repository.ts";
 
 /**
  * Fixture chuẩn — `docs/operations/testing-strategy.md`.
@@ -89,9 +100,24 @@ export interface Fixture {
   /** Bộ đếm rate limit dùng chung, để test tự dọn giữa các case. */
   limiter: RateLimiter;
 
+  /**
+   * Đọc `activity_logs` — thứ biến các khẳng định "deny không tạo activity row"
+   * từ **đúng một cách rỗng** thành bằng chứng thật.
+   */
+  activity: ActivityQueries;
+
   cleanup: () => Promise<void>;
   /** Bật/tắt kết quả của `ProjectAssigneeCheck` để kiểm bất biến của M4 từ M2. */
   setHasAssignedTasks: (value: boolean) => void;
+  /**
+   * Bật/tắt kết quả của `ColumnEmptinessCheck`.
+   *
+   * Cùng lý do với `setHasAssignedTasks`: bảng `tasks` thuộc M4, nên ở M3 không
+   * có cách nào tạo một task thật. Nhưng luật "không archive cột còn task" đã
+   * nằm trong hợp đồng, và đường đi của nó — use case hỏi port, port trả `true`,
+   * use case trả `409` — kiểm được ngay bây giờ.
+   */
+  setColumnHasTasks: (value: boolean) => void;
 }
 
 const CSRF_SECRET = "c".repeat(32);
@@ -151,6 +177,14 @@ class ControllableAssigneeCheck implements ProjectAssigneeCheck {
   }
 }
 
+/** Cùng khuôn mẫu, cho `ColumnEmptinessCheck` của M3. */
+class ControllableEmptinessCheck implements ColumnEmptinessCheck {
+  value = false;
+  async hasTasks(): Promise<boolean> {
+    return this.value;
+  }
+}
+
 export async function createFixture(databaseUrl: string): Promise<Fixture> {
   /**
    * Pool **2**, không phải 5.
@@ -188,8 +222,17 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
   });
 
   const assigneeCheck = new ControllableAssigneeCheck();
+  const emptinessCheck = new ControllableEmptinessCheck();
+  const activity = new DrizzleActivityRecorder();
+  const columnRepository = new ColumnRepository(db);
 
-  const wiring = buildAuthorizationWiring({ db, actorResolver: authUseCases });
+  const wiring = buildAuthorizationWiring({
+    db,
+    actorResolver: authUseCases,
+    // Cùng resolver mà `main.ts` dùng: test phải chạy đúng chuỗi guard của
+    // production, không phải một chuỗi dễ hơn.
+    projectResolver: new ColumnProjectResolver(columnRepository),
+  });
 
   @Module({
     imports: [
@@ -218,8 +261,18 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
         db,
         authorization: wiring.authorization,
         assigneeCheck,
+        activity,
+        columns: new BoardColumnsProjectQuery(columnRepository),
         config: { csrfSecret: CSRF_SECRET },
         cursorSecret: SESSION_SECRET,
+        guards: wiring.providers,
+      }),
+      BoardColumnsModule.register({
+        db,
+        repository: columnRepository,
+        activity,
+        emptiness: emptinessCheck,
+        config: { csrfSecret: CSRF_SECRET },
         guards: wiring.providers,
       }),
     ],
@@ -360,8 +413,12 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
     outsider,
     mailer,
     limiter,
+    activity: new ActivityQueries(db),
     setHasAssignedTasks: (value: boolean) => {
       assigneeCheck.value = value;
+    },
+    setColumnHasTasks: (value: boolean) => {
+      emptinessCheck.value = value;
     },
     cleanup: async () => {
       await app.close();
@@ -382,6 +439,10 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
       const projectIds = ownedProjects.map((row) => row.id);
 
       if (projectIds.length > 0) {
+        // `activity_logs` và `board_columns` trỏ `projects` bằng
+        // `ON DELETE RESTRICT`, nên chúng phải đi trước.
+        await db.delete(activityLogs).where(inArray(activityLogs.projectId, projectIds));
+        await db.delete(boardColumns).where(inArray(boardColumns.projectId, projectIds));
         await db.delete(projectMembers).where(inArray(projectMembers.projectId, projectIds));
         await db.delete(projects).where(inArray(projects.id, projectIds));
       }
@@ -400,6 +461,8 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
           .where(eq(projects.workspaceId, id));
         if (rows.length > 0) {
           const ids = rows.map((r) => r.id);
+          await db.delete(activityLogs).where(inArray(activityLogs.projectId, ids));
+          await db.delete(boardColumns).where(inArray(boardColumns.projectId, ids));
           await db.delete(projectMembers).where(inArray(projectMembers.projectId, ids));
           await db.delete(projects).where(inArray(projects.id, ids));
         }

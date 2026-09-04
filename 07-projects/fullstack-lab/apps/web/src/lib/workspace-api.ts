@@ -2,6 +2,9 @@ import {
   PAGE_LIMIT_DEFAULT,
   type AcceptInvitationResponse,
   type AddProjectMemberRequest,
+  type ColumnResponse,
+  type ColumnsResponse,
+  type CreateColumnRequest,
   type InviteWorkspaceMemberRequest,
   type ListInvitationsQuery,
   type PendingInvitation,
@@ -12,7 +15,9 @@ import {
   type ProjectListItem,
   type ProjectMember,
   type ProjectRole,
+  type ReorderColumnsRequest,
   type SessionResponse,
+  type UpdateColumnRequest,
   type Workspace,
   type WorkspaceMemberListItem,
 } from "@flowboard/contracts";
@@ -229,4 +234,50 @@ export function removeProjectMember(
     method: "DELETE",
     intent,
   });
+}
+
+// ----------------------------------------------------------- board columns
+
+/**
+ * `POST /projects/:projectId/columns` — thêm một cột active.
+ *
+ * Client nói **đứng sau cột nào**, không nói vị trí: `position` là fractional
+ * và do server tính. Đó cũng là lý do không có đường nào để client gửi
+ * `projectId`, `position`, `archivedAt` hay timestamp trong body này.
+ */
+export function createColumn(
+  projectId: string,
+  body: CreateColumnRequest,
+  intent: Intent,
+): Promise<ApiResult<ColumnResponse>> {
+  return transport.request(`/projects/${projectId}/columns`, { method: "POST", body, intent });
+}
+
+/**
+ * `PATCH /columns/:columnId` — **đúng một** command mỗi lần gọi.
+ *
+ * Kiểu `UpdateColumnRequest` là một union bốn nhánh, mỗi nhánh `.strict()`, nên
+ * "đổi tên và bật cờ kết thúc cùng lúc" không biểu đạt được ở đây — TypeScript
+ * chặn nó trước khi server phải trả `400`. Muốn làm hai việc thì gọi hai lần.
+ */
+export function updateColumn(
+  columnId: string,
+  command: UpdateColumnRequest,
+  intent: Intent,
+): Promise<ApiResult<ColumnResponse>> {
+  return transport.request(`/columns/${columnId}`, { method: "PATCH", body: command, intent });
+}
+
+/**
+ * `POST /columns/reorder` — gửi **toàn bộ** active column theo thứ tự mới.
+ *
+ * Không delta, không position. Danh sách đầy đủ làm thứ tự cuối cùng trở thành
+ * tất định: server không phải đoán ý cho những cột vắng mặt, và hai client gửi
+ * cùng lúc không thể ghép thành một thứ tự mà không ai yêu cầu.
+ */
+export function reorderColumns(
+  body: ReorderColumnsRequest,
+  intent: Intent,
+): Promise<ApiResult<ColumnsResponse>> {
+  return transport.request("/columns/reorder", { method: "POST", body, intent });
 }

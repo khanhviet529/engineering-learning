@@ -123,9 +123,26 @@ export class SessionGuard implements CanActivate {
  * resource**, và một `projectId` do client gửi trong body hay query không bao
  * giờ ghi đè kết quả đó.
  */
+export interface ResolveContext {
+  params: Record<string, string>;
+  /**
+   * Body đã parse bởi Fastify, **chưa** qua Zod của controller.
+   *
+   * Chỉ đúng một route dùng tới nó: `POST /columns/reorder` mang `projectId`
+   * trong body vì nó không có resource nào trên path. Với route đó, `projectId`
+   * là **locator của resource**, không phải một lời khai về quyền — an toàn đến
+   * từ hai chỗ khác: guard authorize đúng project đó, rồi use case kiểm rằng
+   * mọi `columnId` gửi lên thuộc **chính** project ấy.
+   *
+   * Quy tắc cũ không đổi: khi route đã có resource trên path, một `projectId`
+   * trong body **không bao giờ** ghi đè chủ sở hữu đã resolve từ resource.
+   */
+  body: unknown;
+}
+
 export interface ResourceProjectResolver {
   /** Trả `undefined` khi resource không tồn tại — người gọi dịch thành `404`. */
-  resolveProjectId(params: Record<string, string>): Promise<string | undefined>;
+  resolveProjectId(context: ResolveContext): Promise<string | undefined>;
 }
 
 /**
@@ -154,10 +171,13 @@ function requireUuid(value: string | undefined, field: string): string | undefin
 
 /** Resolver của M2: route mang thẳng `:projectId`. */
 export class DirectProjectIdResolver implements ResourceProjectResolver {
-  async resolveProjectId(params: Record<string, string>): Promise<string | undefined> {
-    return requireUuid(params["projectId"], "projectId");
+  async resolveProjectId(context: ResolveContext): Promise<string | undefined> {
+    return requireUuid(context.params["projectId"], "projectId");
   }
 }
+
+/** Dùng lại phép kiểm UUID cho các resolver ở module khác. */
+export { requireUuid as requireResourceUuid };
 
 /* -------------------------------------------------------------------------- *
  * Decorator và guard permission
@@ -217,7 +237,7 @@ export class ProjectPermissionGuard implements CanActivate {
     const actor = getActor(request);
     const params = request.params as Record<string, string>;
 
-    const projectId = await this.#resolver.resolveProjectId(params);
+    const projectId = await this.#resolver.resolveProjectId({ params, body: request.body });
     // Resource không resolve được: `404`, cùng response với "không phải member".
     if (projectId === undefined) throw new AppError("NOT_FOUND");
 

@@ -13,6 +13,14 @@ import { ErrorFilter } from "./shared/errors/error.filter.ts";
 import { AuthModule } from "./modules/auth/auth.module.ts";
 import { WorkspacesModule } from "./modules/workspaces/workspaces.module.ts";
 import { ProjectsModule, NoTasksYetAssigneeCheck } from "./modules/projects/projects.module.ts";
+import {
+  BoardColumnsModule,
+  NoTasksYetEmptinessCheck,
+} from "./modules/board-columns/board-columns.module.ts";
+import { ColumnRepository } from "./modules/board-columns/infrastructure/column-repository.ts";
+import { BoardColumnsProjectQuery } from "./modules/board-columns/infrastructure/project-columns-adapter.ts";
+import { ColumnProjectResolver } from "./modules/board-columns/infrastructure/column-project-resolver.ts";
+import { DrizzleActivityRecorder } from "./modules/activity/infrastructure/activity-repository.ts";
 import { buildAuthorizationWiring } from "./shared/authorization/index.ts";
 import { AuthRepository } from "./modules/auth/infrastructure/auth-repository.ts";
 import { AuthUseCases } from "./modules/auth/application/auth-use-cases.ts";
@@ -41,10 +49,31 @@ function buildRootModule(deps: {
   cursorSecret: string;
   csrfSecret: string;
 }) {
+  /**
+   * `activity` là module leaf và **không có route nào ở M3**, nên nó không cần
+   * một Nest module: composition root dựng recorder rồi đưa cho các module ghi.
+   * Một `@Module` rỗng ở đây chỉ thêm một lớp gián tiếp mà không nối thêm gì.
+   */
+  const activity = new DrizzleActivityRecorder();
+
+  /**
+   * Một `ColumnRepository` cho cả ba chỗ cần nó: resolver của chuỗi guard,
+   * adapter đọc column cho `GET /projects/:projectId`, và use case của
+   * `board-columns`. Ba instance sẽ chạy đúng như nhau nhưng giữ ba pool
+   * statement riêng mà không ai được gì.
+   */
+  const columnRepository = new ColumnRepository(deps.db);
+
   const wiring = buildAuthorizationWiring({
     db: deps.db,
     // `AuthUseCases.resolveSession` khớp đúng hình dạng của `ActorResolver`.
     actorResolver: deps.authUseCases,
+    /**
+     * M3 thay resolver mặc định: chuỗi guard giờ phải resolve được `:columnId`
+     * và `projectId` trong body của `POST /columns/reorder`, không chỉ
+     * `:projectId` trên path.
+     */
+    projectResolver: new ColumnProjectResolver(columnRepository),
   });
 
   @Module({
@@ -66,8 +95,19 @@ function buildRootModule(deps: {
         authorization: wiring.authorization,
         // M4 thay bằng adapter thật của module `tasks`.
         assigneeCheck: new NoTasksYetAssigneeCheck(),
+        activity,
+        columns: new BoardColumnsProjectQuery(columnRepository),
         config: { csrfSecret: deps.csrfSecret },
         cursorSecret: deps.cursorSecret,
+        guards: wiring.providers,
+      }),
+      BoardColumnsModule.register({
+        db: deps.db,
+        repository: columnRepository,
+        activity,
+        // M4 thay bằng adapter thật của module `tasks`.
+        emptiness: new NoTasksYetEmptinessCheck(),
+        config: { csrfSecret: deps.csrfSecret },
         guards: wiring.providers,
       }),
     ],

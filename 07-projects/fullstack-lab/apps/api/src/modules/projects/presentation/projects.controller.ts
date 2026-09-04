@@ -45,6 +45,7 @@ import type {
   ProjectUseCases,
   ProjectView,
 } from "../application/project-use-cases.ts";
+import type { ProjectColumnView } from "../domain/project-columns-port.ts";
 
 /**
  * Controller của module `projects`.
@@ -94,6 +95,25 @@ function toProjectListProjection(project: ProjectListView) {
     role: project.role,
     createdAt: project.createdAt.toISOString(),
     updatedAt: project.updatedAt.toISOString(),
+  };
+}
+
+/**
+ * Column trong project detail — đúng `boardColumnSchema`.
+ *
+ * `position` là **string**: `numeric(20,10)` giữ nguyên precision qua JSON chỉ
+ * khi nó không đi qua một JSON number. Cùng phép format với controller của
+ * module `board-columns`, vì cùng một hợp đồng.
+ */
+function toColumnProjection(column: ProjectColumnView) {
+  return {
+    id: column.id,
+    projectId: column.projectId,
+    name: column.name,
+    requiresReviewer: column.requiresReviewer,
+    isTerminal: column.isTerminal,
+    position: column.position.toFixed(10),
+    archivedAt: column.archivedAt === null ? null : column.archivedAt.toISOString(),
   };
 }
 
@@ -198,9 +218,9 @@ export class ProjectsController {
   /**
    * `GET /projects/:projectId`.
    *
-   * `columns` là mảng rỗng ở M2 — bảng `board_columns` thuộc M3. Field vẫn có
-   * mặt vì `projectDetailSchema` của contract công bố nó; bỏ field là thay đổi
-   * hợp đồng, còn mảng rỗng là sự thật của mốc này.
+   * `columns` là active column thật từ M3, đọc qua `ProjectColumnsQuery` —
+   * xem `domain/project-columns-port.ts` để biết vì sao là port chứ không phải
+   * import thẳng module `board-columns`.
    */
   @Get("projects/:projectId")
   @RequireProjectPermission("project:read")
@@ -213,7 +233,7 @@ export class ProjectsController {
     return ok(request, {
       project: toProjectProjection(detail.project),
       capabilities: detail.capabilities,
-      columns: [],
+      columns: detail.columns.map(toColumnProjection),
       members: detail.members.map(toMemberProjection),
     });
   }
@@ -243,7 +263,7 @@ export class ProjectsController {
       request: { projectId, ...input },
       successStatus: 200,
       run: async (recordOutcome) =>
-        await this.useCases.renameProject(projectId, input, recordOutcome, (detail) => ({
+        await this.useCases.renameProject(actor, projectId, input, recordOutcome, (detail) => ({
           project: toProjectProjection(detail.project),
           capabilities: detail.capabilities,
         })),
@@ -284,7 +304,7 @@ export class ProjectsController {
       request: { projectId, ...input },
       successStatus: 201,
       run: async (recordOutcome) =>
-        await this.useCases.addProjectMember(projectId, input, recordOutcome, (member) => ({
+        await this.useCases.addProjectMember(actor, projectId, input, recordOutcome, (member) => ({
           member: toMemberProjection(member),
         })),
     });
@@ -319,6 +339,7 @@ export class ProjectsController {
       successStatus: 200,
       run: async (recordOutcome) =>
         await this.useCases.changeProjectMemberRole(
+          actor,
           projectId,
           userId,
           input,
@@ -355,7 +376,7 @@ export class ProjectsController {
       request: { projectId, userId },
       successStatus: 204,
       run: async (recordOutcome) => {
-        await this.useCases.removeProjectMember(projectId, userId, recordOutcome);
+        await this.useCases.removeProjectMember(actor, projectId, userId, recordOutcome);
       },
     });
 

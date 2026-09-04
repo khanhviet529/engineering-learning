@@ -134,6 +134,20 @@ const PAIRS: { where: string; fg: string; bg: string; large?: boolean }[] = [
   { where: "table · tiêu đề cột", fg: "--fb-color-text-muted", bg: "--fb-color-surface-subtle" },
   { where: "table · ô dữ liệu", fg: "--fb-color-text-strong", bg: "--fb-color-surface-raised" },
 
+  // Board (M3). Cột đứng trên nền `surface-subtle`, không phải `surface-raised`
+  // như phần lớn bề mặt khác — nên đây là ba cặp mới, không phải cặp đã đo.
+  { where: "board · tiêu đề cột", fg: "--fb-color-text-strong", bg: "--fb-color-surface-subtle" },
+  {
+    where: "board · chỗ chứa công việc còn trống",
+    fg: "--fb-color-text-muted",
+    bg: "--fb-color-surface-subtle",
+  },
+  {
+    where: "BRD-02 · nhãn công tắc",
+    fg: "--fb-color-text-primary",
+    bg: "--fb-color-surface-raised",
+  },
+
   // Badge — sáu tone
   { where: "badge brand", fg: "--fb-color-brand-text", bg: "--fb-color-brand-subtle" },
   { where: "badge neutral", fg: "--fb-color-text-secondary", bg: "--fb-color-surface-muted" },

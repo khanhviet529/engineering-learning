@@ -2,7 +2,7 @@ import { render, type RenderResult } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { vi } from "vitest";
-import type { ReactElement } from "react";
+import { useSyncExternalStore, type ReactElement } from "react";
 import { errorFor, type Scenario } from "@flowboard/mock";
 import { createQueryClient } from "../lib/query.tsx";
 import { ThemePreferenceProvider } from "../features/account/theme-preference.tsx";
@@ -14,25 +14,62 @@ import { ThemePreferenceProvider } from "../features/account/theme-preference.ts
  * cảnh với ứng dụng thật thay vì một ngữ cảnh giả gần giống.
  */
 
-/** Đường điều hướng mà test quan sát được, thay cho router thật của Next. */
+/**
+ * Đường điều hướng mà test quan sát được, thay cho router thật của Next.
+ *
+ * `search` tồn tại vì từ `BRD-01` trở đi, **query state là state của màn
+ * hình**: `?panel=columns` mở `BRD-02`, `?task=` mở `TSK-02`. Một router giả
+ * chỉ ghi lại lời gọi `push` sẽ không bao giờ đóng được lớp phủ trong test, và
+ * ta sẽ phải viết component quanh một prop thay vì quanh URL — tức là kiểm một
+ * kiến trúc khác với kiến trúc chạy thật.
+ */
 export const navigation = {
   pushed: [] as string[],
   pathname: "/khong-gian-lam-viec",
+  search: "",
 };
+
+const routeListeners = new Set<() => void>();
+
+function subscribeToRoute(listener: () => void): () => void {
+  routeListeners.add(listener);
+  return () => routeListeners.delete(listener);
+}
+
+/** Snapshot phải là **chuỗi**, không phải object mới mỗi lần: object mới ⇒ vòng lặp render. */
+function routeSnapshot(): string {
+  return `${navigation.pathname}?${navigation.search}`;
+}
+
+function navigate(href: string): void {
+  navigation.pushed.push(href);
+  const [pathname = "", search = ""] = href.split("?");
+  navigation.pathname = pathname;
+  navigation.search = search;
+  for (const listener of routeListeners) listener();
+}
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
-    push: (href: string) => navigation.pushed.push(href),
-    replace: (href: string) => navigation.pushed.push(href),
+    push: navigate,
+    replace: navigate,
     back: () => {},
   }),
-  usePathname: () => navigation.pathname,
-  redirect: (href: string) => navigation.pushed.push(href),
+  usePathname: () => {
+    useSyncExternalStore(subscribeToRoute, routeSnapshot, routeSnapshot);
+    return navigation.pathname;
+  },
+  useSearchParams: () => {
+    useSyncExternalStore(subscribeToRoute, routeSnapshot, routeSnapshot);
+    return new URLSearchParams(navigation.search);
+  },
+  redirect: navigate,
 }));
 
-export function resetNavigation(pathname = "/khong-gian-lam-viec"): void {
+export function resetNavigation(pathname = "/khong-gian-lam-viec", search = ""): void {
   navigation.pushed.length = 0;
   navigation.pathname = pathname;
+  navigation.search = search;
 }
 
 /**

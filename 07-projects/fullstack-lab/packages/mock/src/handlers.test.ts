@@ -348,3 +348,45 @@ describe("lời mời", () => {
     expect(res.status).toBe(400);
   });
 });
+
+/**
+ * `PATCH /columns/:columnId` nhận **đúng một** command.
+ *
+ * Kiểu union ở `packages/contracts` đã chặn body trộn lúc biên dịch, nhưng
+ * frontend không phải nguồn duy nhất gửi request tới route này. Bộ kiểm dưới
+ * đây khẳng định chính **schema** từ chối, nên chặn đó còn nguyên kể cả với
+ * một client không dùng TypeScript.
+ */
+describe("command của board column", () => {
+  it("mỗi command hợp lệ đi một mình", () => {
+    const commands = [
+      { name: "Chờ duyệt" },
+      { isTerminal: true },
+      { requiresReviewer: false },
+      { archive: true },
+    ];
+    for (const command of commands) {
+      const res = columnHandlers.update(command);
+      expect(res.status, JSON.stringify(command)).toBe(200);
+    }
+  });
+
+  it("body trộn hai command bị từ chối", () => {
+    expect(columnHandlers.update({ name: "Chờ duyệt", isTerminal: true }).status).toBe(400);
+    expect(columnHandlers.update({ archive: true, requiresReviewer: true }).status).toBe(400);
+  });
+
+  it("body rỗng và `archive: false` đều bị từ chối", () => {
+    // `archive: false` không có nghĩa nào cả: MVP không có unarchive, nên nhánh
+    // đó là `z.literal(true)` chứ không phải `z.boolean()`.
+    expect(columnHandlers.update({}).status).toBe(400);
+    expect(columnHandlers.update({ archive: false }).status).toBe(400);
+  });
+
+  it("thêm cột không nhận position hay projectId từ client", () => {
+    const base = { name: "Chờ duyệt", afterColumnId: null };
+    expect(columnHandlers.create(base).status).toBe(201);
+    expect(columnHandlers.create({ ...base, position: "512" }).status).toBe(400);
+    expect(columnHandlers.create({ ...base, projectId: ids.projectB }).status).toBe(400);
+  });
+});

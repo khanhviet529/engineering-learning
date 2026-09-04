@@ -29,6 +29,8 @@ export {
   type ActorResolver,
   type AuthenticatedRequest,
   type AuthorizedRequest,
+  requireResourceUuid,
+  type ResolveContext,
   type ResourceProjectResolver,
 } from "./guards.ts";
 export {

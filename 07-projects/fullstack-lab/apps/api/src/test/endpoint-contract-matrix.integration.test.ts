@@ -28,7 +28,7 @@ describeIfDb("ma trận endpoint ↔ hợp đồng", () => {
     await f.cleanup();
   });
 
-  it("11 endpoint trả đúng status thành công đã công bố", async () => {
+  it("14 endpoint trả đúng status thành công đã công bố", async () => {
     f.limiter.reset();
 
     /**
@@ -175,7 +175,59 @@ describeIfDb("ma trận endpoint ↔ hợp đồng", () => {
         }),
     );
 
-    // 11. DELETE /workspaces/:id/members/:userId — 204
+    // 11. POST /projects/:projectId/columns — 201
+    let matrixColumnId = "";
+    let matrixColumnId2 = "";
+    await record("POST /projects/:projectId/columns", 201, async () => {
+      const response = await call(f, "POST", `/projects/${matrixProjectId}/columns`, {
+        actor: f.wsAdmin,
+        idempotencyKey: newKey("m-col"),
+        body: { name: "Cần làm", afterColumnId: null },
+      });
+      matrixColumnId = (response.body["data"] as { column: { id: string } }).column.id;
+      return response;
+    });
+
+    const secondColumn = await call(f, "POST", `/projects/${matrixProjectId}/columns`, {
+      actor: f.wsAdmin,
+      idempotencyKey: newKey("m-col2"),
+      body: { name: "Xong", afterColumnId: null },
+    });
+    matrixColumnId2 = (secondColumn.body["data"] as { column: { id: string } }).column.id;
+
+    // 12. PATCH /columns/:columnId — 200
+    await record(
+      "PATCH /columns/:columnId",
+      200,
+      async () =>
+        await call(f, "PATCH", `/columns/${matrixColumnId}`, {
+          actor: f.wsAdmin,
+          idempotencyKey: newKey("m-col-patch"),
+          body: { name: "Cần làm (đã đổi)" },
+        }),
+    );
+
+    /**
+     * 13. POST /columns/reorder — **200**, không phải `201`.
+     *
+     * Đây chính là ô mà ma trận này tồn tại để đo: Nest mặc định POST là `201`,
+     * và một `@HttpCode(200)` bị quên trông y hệt một `@HttpCode(200)` đúng.
+     */
+    await record(
+      "POST /columns/reorder",
+      200,
+      async () =>
+        await call(f, "POST", "/columns/reorder", {
+          actor: f.wsAdmin,
+          idempotencyKey: newKey("m-col-reorder"),
+          body: {
+            projectId: matrixProjectId,
+            orderedColumnIds: [matrixColumnId2, matrixColumnId],
+          },
+        }),
+    );
+
+    // 14. DELETE /workspaces/:id/members/:userId — 204
     await record(
       "DELETE /workspaces/:workspaceId/members/:userId",
       204,
@@ -190,7 +242,7 @@ describeIfDb("ma trận endpoint ↔ hợp đồng", () => {
     expect(mismatched).toEqual([]);
     // Con số này là bản đếm tay có chủ ý: nó là thứ duy nhất báo động khi ai đó
     // **thêm** một route vào hợp đồng mà quên thêm dòng đo tương ứng ở đây.
-    expect(results).toHaveLength(11);
+    expect(results).toHaveLength(14);
   });
 
   it("mọi route project trả 404 (không phải 403) cho actor ngoài project", async () => {
@@ -201,6 +253,21 @@ describeIfDb("ma trận endpoint ↔ hợp đồng", () => {
      * Câu trả lời đúng cho **mọi** route project là `404`. Một route trả `403`
      * đã tự thú nhận rằng project tồn tại.
      */
+    /**
+     * Một cột thật của Project B, tạo bởi Owner của chính project đó.
+     *
+     * `:columnId` là **locator, không phải chứng cứ quyền**: người ngoài đoán
+     * trúng ID vẫn phải nhận `404`. Dùng một UUID bịa ra sẽ không chứng minh
+     * được điều đó — nó `404` vì không tồn tại, không vì bị chặn.
+     */
+    const columnCreated = await call(f, "POST", `/projects/${f.projectBId}/columns`, {
+      actor: f.owner,
+      idempotencyKey: newKey("probe-col"),
+      body: { name: "Cột của Project B", afterColumnId: null },
+    });
+    expect(columnCreated.status).toBe(201);
+    const columnId = (columnCreated.body["data"] as { column: { id: string } }).column.id;
+
     const routes: { method: "GET" | "PATCH" | "POST" | "DELETE"; path: string; body?: unknown }[] =
       [
         { method: "GET", path: `/projects/${f.projectBId}` },
@@ -216,6 +283,17 @@ describeIfDb("ma trận endpoint ↔ hợp đồng", () => {
           body: { role: "viewer" },
         },
         { method: "DELETE", path: `/projects/${f.projectBId}/members/${f.editor.id}` },
+        {
+          method: "POST",
+          path: `/projects/${f.projectBId}/columns`,
+          body: { name: "Cột chen ngang", afterColumnId: null },
+        },
+        { method: "PATCH", path: `/columns/${columnId}`, body: { name: "Đổi tên trộm" } },
+        {
+          method: "POST",
+          path: "/columns/reorder",
+          body: { projectId: f.projectBId, orderedColumnIds: [columnId] },
+        },
       ];
 
     // Cả hai actor này đều **không** có dòng `project_members` cho Project B.

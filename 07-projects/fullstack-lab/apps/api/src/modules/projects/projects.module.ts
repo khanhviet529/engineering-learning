@@ -2,6 +2,7 @@ import { Module, type DynamicModule } from "@nestjs/common";
 import type { Database } from "../../shared/database/client.ts";
 import type { Provider } from "@nestjs/common";
 import type { AuthorizationService } from "../../shared/authorization/index.ts";
+import type { ActivityRecorder } from "../activity/domain/activity-recorder.ts";
 import { ProjectRepository } from "./infrastructure/project-repository.ts";
 import { DrizzleWorkspaceMembershipAdapter } from "./infrastructure/workspace-membership-adapter.ts";
 import { ProjectUseCases } from "./application/project-use-cases.ts";
@@ -9,6 +10,7 @@ import {
   NoTasksYetAssigneeCheck,
   type ProjectAssigneeCheck,
 } from "./domain/project-membership-rules.ts";
+import { NoColumnsQuery, type ProjectColumnsQuery } from "./domain/project-columns-port.ts";
 import {
   PROJECT_TOKENS,
   ProjectsController,
@@ -23,6 +25,8 @@ import {
  * - `WorkspaceMembershipPort` → adapter đọc `workspace_members`.
  * - `ProjectAssigneeCheck` → ở M2 là `NoTasksYetAssigneeCheck`; **M4 thay bằng
  *   adapter thật của module `tasks`** khi bảng `tasks` tồn tại.
+ * - `ActivityRecorder` → adapter của module leaf `activity`, có từ M3.
+ * - `ProjectColumnsQuery` → adapter của module `board-columns`, có từ M3.
  *
  * `assigneeCheck` là tham số **bắt buộc** chứ không có giá trị mặc định ẩn:
  * một mặc định im lặng ở đây nghĩa là M4 có thể quên nối adapter thật mà không
@@ -34,6 +38,8 @@ export class ProjectsModule {
     db: Database;
     authorization: AuthorizationService;
     assigneeCheck: ProjectAssigneeCheck;
+    activity: ActivityRecorder;
+    columns: ProjectColumnsQuery;
     config: ProjectHttpConfig;
     cursorSecret: string;
     guards: Provider[];
@@ -44,6 +50,8 @@ export class ProjectsModule {
       authorization: deps.authorization,
       workspaceMembership: new DrizzleWorkspaceMembershipAdapter(deps.db),
       assigneeCheck: deps.assigneeCheck,
+      activity: deps.activity,
+      columns: deps.columns,
       cursorSecret: deps.cursorSecret,
     });
 
@@ -60,4 +68,4 @@ export class ProjectsModule {
   }
 }
 
-export { NoTasksYetAssigneeCheck };
+export { NoTasksYetAssigneeCheck, NoColumnsQuery };

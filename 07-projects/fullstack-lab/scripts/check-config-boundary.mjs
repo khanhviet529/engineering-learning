@@ -19,13 +19,7 @@ import { dirname, join } from "node:path";
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Dấu hiệu một script nạp config từ file. */
-const FILE_LOADERS = [
-  "--env-file",
-  "--env-file-if-exists",
-  "dotenv",
-  "loadEnvFile",
-  "env-cmd",
-];
+const FILE_LOADERS = ["--env-file", "--env-file-if-exists", "dotenv", "loadEnvFile", "env-cmd"];
 
 /**
  * `start` là lệnh production chạy. `build` và `typecheck` không nhận biến runtime

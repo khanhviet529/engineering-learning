@@ -1,11 +1,14 @@
 import {
+  boolean,
   check,
   index,
   jsonb,
+  numeric,
   pgTable,
   smallint,
   text,
   timestamp,
+  unique,
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
@@ -350,6 +353,152 @@ export const workspaceInvitations = pgTable(
     check(
       "workspace_invitations_accepted_at_check",
       sql`(${table.status} = 'accepted') = (${table.acceptedAt} is not null)`,
+    ),
+  ],
+);
+
+/* ------------------------------------------------------------------------- *
+ * M3 — board column và activity log
+ *
+ * `board_columns` mang **fractional ordering** (ADR-0006) và cờ `is_terminal`
+ * (ADR-0008). `activity_logs` được kéo từ M4 sang M3 để sáu event của mốc này
+ * không cộng dồn vào năm event M2 còn nợ.
+ * ------------------------------------------------------------------------- */
+
+export const boardColumns = pgTable(
+  "board_columns",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "restrict" }),
+
+    name: text("name").notNull(),
+
+    /**
+     * Move/create task vào cột này yêu cầu reviewer hợp lệ.
+     *
+     * Có mặt **ngay từ migration này** dù tác dụng chỉ thấy ở M4: thêm một cột
+     * vào bảng đã có dữ liệu đắt hơn nhiều so với việc khai nó lúc tạo bảng.
+     * Đổi cờ này **không hồi tố** — task đã nằm trong cột mà thiếu reviewer vẫn
+     * ở nguyên.
+     */
+    requiresReviewer: boolean("requires_reviewer").notNull().default(false),
+
+    /**
+     * Cột là điểm kết thúc công việc (ADR-0008).
+     *
+     * Một project có **0..n** cột terminal — cả `Xong` lẫn `Huỷ` đều có thể là
+     * terminal — và nó **không** suy được từ `position`: Owner reorder thì cột
+     * cuối đổi, còn ý nghĩa "đã xong" thì không.
+     */
+    isTerminal: boolean("is_terminal").notNull().default(false),
+
+    /**
+     * Thứ tự fractional, `numeric(20,10)`.
+     *
+     * `mode: "number"` để tầng ứng dụng tính trung điểm bằng số học thường.
+     * Precision 10 chữ số thập phân là biên: từ gap 1024, chia đôi liên tiếp
+     * cùng một khe khoảng 43 lần thì midpoint tròn về trùng neighbor. Ngưỡng
+     * rebalance 10⁻⁶ dừng trước đó ~13 lần chia đôi, nên cạn precision không
+     * còn là chế độ hỏng đạt tới được.
+     */
+    position: numeric("position", { precision: 20, scale: 10, mode: "number" }).notNull(),
+
+    /** `NULL` nghĩa active. Archive là transition một chiều của MVP. */
+    archivedAt: utc("archived_at"),
+
+    createdAt: utc("created_at").notNull().defaultNow(),
+    updatedAt: utc("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    /**
+     * `UNIQUE (project_id, position)` — **`DEFERRABLE INITIALLY IMMEDIATE`**.
+     *
+     * Drizzle không khai được thuộc tính `DEFERRABLE`, nên nó được thêm bằng
+     * tay trong `drizzle/0003_board_columns_and_activity.sql`. Ở đây khai
+     * `unique()` (constraint, **không** phải `uniqueIndex()`) là có chủ đích:
+     * PostgreSQL chỉ cho phép `DEFERRABLE` trên **constraint**, còn
+     * `CREATE UNIQUE INDEX` thì không bao giờ deferrable được.
+     *
+     * Vì sao cần defer: rebalance ghi lại position của N row trong một
+     * transaction, và với giá trị hiện hành tuỳ ý **không tồn tại** một thứ tự
+     * update đơn giản nào tránh được trùng ở mọi bước trung gian mà không dùng
+     * mẹo hai lượt (dịch sang dải âm rồi ghi lại) — gấp đôi số write và dễ sai.
+     * Defer cho phép trạng thái trung gian trùng, và uniqueness vẫn được kiểm
+     * đầy đủ tại commit.
+     *
+     * An toàn vì constraint này không là target của foreign key nào (FK trỏ
+     * `(project_id, id)`) và không endpoint nào dùng nó làm `ON CONFLICT`
+     * arbiter.
+     */
+    unique("board_columns_project_position_uniq").on(table.projectId, table.position),
+
+    /**
+     * `UNIQUE (project_id, id)` — **vô dụng ở M3 và vẫn phải có**.
+     *
+     * Nó là target cho composite FK `tasks(project_id, column_id)` ở M4, thứ
+     * làm "task thuộc cột **cùng project**" được database cưỡng chế thay vì chỉ
+     * được use case hứa. Thêm nó sau nghĩa là một migration trên bảng đã có
+     * dữ liệu.
+     */
+    unique("board_columns_project_id_uniq").on(table.projectId, table.id),
+
+    // Đọc board: cột active của một project theo thứ tự.
+    index("board_columns_project_position_idx").on(table.projectId, table.position),
+  ],
+);
+
+export const activityLogs = pgTable(
+  "activity_logs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "restrict" }),
+
+    /**
+     * Nullable, và **chưa có foreign key** ở M3.
+     *
+     * FK trỏ `tasks(id)`, mà `tasks` chưa tồn tại; M4 thêm bằng
+     * `ALTER TABLE ... ADD CONSTRAINT`. Mọi event của M3 là project/member/
+     * column nên cột này là `NULL` xuyên suốt — không có dữ liệu nào cần
+     * backfill khi constraint được thêm.
+     */
+    taskId: uuid("task_id"),
+
+    actorUserId: uuid("actor_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+
+    /**
+     * Tên event do **module allowlist**, không bao giờ đến từ client.
+     *
+     * Không có `CHECK` liệt kê giá trị: allowlist sống ở tầng ứng dụng nơi mỗi
+     * module sở hữu event của mình, và một `CHECK` ở đây sẽ buộc mọi mốc thêm
+     * event phải chạy migration — đúng loại ma sát khiến người ta lách bằng
+     * cách dùng lại một event sai nghĩa.
+     */
+    action: text("action").notNull(),
+
+    /** Structured, non-secret. `summary` mà client thấy do server dựng từ đây. */
+    payload: jsonb("payload").notNull().default({}),
+
+    createdAt: utc("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    // Lịch sử của một project, mới nhất trước.
+    index("activity_logs_project_created_at_idx").on(table.projectId, table.createdAt.desc()),
+    /**
+     * Lịch sử theo task, cho `GET /tasks/:taskId/activity` ở M4. Tạo sẵn ở đây
+     * vì bảng đang rỗng — dựng index trên bảng rỗng gần như miễn phí, còn dựng
+     * nó sau khi có dữ liệu thật là một thao tác khoá bảng.
+     */
+    index("activity_logs_project_task_created_at_idx").on(
+      table.projectId,
+      table.taskId,
+      table.createdAt.desc(),
     ),
   ],
 );
