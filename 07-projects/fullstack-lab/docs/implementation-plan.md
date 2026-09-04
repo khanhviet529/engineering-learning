@@ -16,7 +16,7 @@
 
 | Điều kiện | Trạng thái |
 |---|---|
-| Hợp đồng Markdown | Chốt ở baseline v0.1; 11 ADR đều `Accepted`. ADR-0012 mở trong lúc triển khai và đang `Proposed` |
+| Hợp đồng Markdown | Chốt ở baseline v0.1; **12 ADR đều `Accepted`**. ADR-0012 mở trong lúc triển khai và được chủ dự án duyệt 04/09/2026 |
 | Thiết kế Pencil | **Freeze v0.1 ngày 04/09/2026**, blob `12d6ff91`; checklist 34/34 |
 | Danh mục error code | 24 code, đóng — không code nào ngoài danh mục được xuất hiện trong response |
 | Code ứng dụng | **Chưa có dòng nào** — đây là điểm xuất phát |
@@ -158,7 +158,7 @@ Mock phải trả cả **nhánh lỗi**, không chỉ nhánh thành công: `401`
 
 ### Đã dựng — trạng thái ngày 04/09/2026
 
-Mock sống ở `packages/mock`, là workspace package thứ tư. Thêm một package là thay đổi package boundary, mà [cấu trúc repository](engineering/repository-structure.md) yêu cầu có ADR trước — nên quyết định này nằm ở [ADR-0012](decisions/ADR-0012-contract-mock-package.md), hiện `Proposed` và **chờ chủ dự án ký**. Nó được dựng trước khi ký vì trạng thái `Proposed` chỉ chặn thay đổi *khó đảo ngược*, còn xoá một package chỉ dùng cho dev thì không có gì để đảo.
+Mock sống ở `packages/mock`, là workspace package thứ tư. Thêm một package là thay đổi package boundary, mà [cấu trúc repository](engineering/repository-structure.md) yêu cầu có ADR trước — nên quyết định này nằm ở [ADR-0012](decisions/ADR-0012-contract-mock-package.md), **chủ dự án đã duyệt 04/09/2026**. Nó được dựng trước khi ký vì trạng thái `Proposed` chỉ chặn thay đổi *khó đảo ngược*, còn xoá một package chỉ dùng cho dev thì không có gì để đảo.
 
 | File | Nội dung |
 |---|---|

@@ -1,6 +1,6 @@
 # ADR-0012: `packages/mock` — mock HTTP dựng từ hợp đồng, dùng chung cho dev và test
 
-**Status:** Proposed
+**Status:** Accepted
 
 **Date:** 2026-09-04
 
