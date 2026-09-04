@@ -1,23 +1,36 @@
+import "reflect-metadata";
+import { Module } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+import { FastifyAdapter, type NestFastifyApplication } from "@nestjs/platform-fastify";
+import cookie from "@fastify/cookie";
+import { loadEnv, ConfigError, type Env } from "./shared/config/env.ts";
+import { createDatabase } from "./shared/database/client.ts";
+import { SmtpMailer } from "./shared/mail/mailer.ts";
+import { RateLimiter } from "./shared/http/rate-limit.ts";
+import { LIVE_RESULT, checkReadiness } from "./shared/http/health.ts";
+import { generateRequestId, normalizeRequestId } from "./shared/observability/request-id.ts";
+import { ErrorFilter } from "./shared/errors/error.filter.ts";
+import { AuthModule } from "./modules/auth/auth.module.ts";
+import { SESSION_TTL_MS } from "./modules/auth/domain/session.ts";
+
 /**
  * Điểm khởi động của `apps/api`.
  *
- * Ở mốc M0.5, file này chỉ làm đúng ba việc mà [backend conventions]
- * (../../docs/engineering/backend-conventions.md) cho phép `main.ts` làm:
- * validate cấu hình, dựng HTTP boundary, và tắt có trật tự. Không route nghiệp
- * vụ, không business logic — chúng thuộc về module, và module đầu tiên (`auth`)
- * xuất hiện ở M1.
+ * Theo [backend conventions](../../docs/engineering/backend-conventions.md),
+ * `main.ts` chỉ bootstrap adapter, chính sách HTTP toàn cục và vòng đời tắt máy.
+ * Không route nghiệp vụ nào sống ở đây — chúng thuộc về module.
  */
 
-import { createServer } from "node:http";
-import { loadEnv, ConfigError } from "./shared/config/env.ts";
-import { createDatabase } from "./shared/database/client.ts";
-import { LIVE_RESULT, checkReadiness } from "./shared/http/health.ts";
-import { generateRequestId, normalizeRequestId } from "./shared/observability/request-id.ts";
+/** Module gốc chỉ làm nhiệm vụ ghép, không chứa gì của riêng nó. */
+function buildRootModule(deps: Parameters<typeof AuthModule.register>[0]) {
+  @Module({ imports: [AuthModule.register(deps)] })
+  class RootModule {}
+  return RootModule;
+}
 
-function bootstrap(): void {
-  let env;
+function readEnv(): Env {
   try {
-    env = loadEnv();
+    return loadEnv();
   } catch (error) {
     if (error instanceof ConfigError) {
       // Fail fast, ghi tên biến chứ không ghi giá trị.
@@ -26,54 +39,92 @@ function bootstrap(): void {
     }
     throw error;
   }
+}
 
-  // Readiness hỏi database thật. Nó cố ý **không** đi qua use case hay
-  // authorization: đây là câu hỏi hạ tầng, không phải câu hỏi nghiệp vụ.
+async function bootstrap(): Promise<void> {
+  const env = readEnv();
+
   const database = createDatabase(env.DATABASE_URL);
-  const databaseProbe = database.ping;
+  const mailer = new SmtpMailer({
+    host: env.SMTP_HOST,
+    port: env.SMTP_PORT,
+    webOrigin: env.WEB_ORIGIN,
+  });
+  const limiter = new RateLimiter();
 
-  const server = createServer((req, res) => {
+  // Bucket hết hạn phải được dọn, nếu không một đợt dò email biến Map thành
+  // đường rò bộ nhớ. `unref` để tiến trình vẫn thoát được khi tắt máy.
+  const pruneTimer = setInterval(() => limiter.prune(), 60_000);
+  pruneTimer.unref();
+
+  const app = await NestFactory.create<NestFastifyApplication>(
+    buildRootModule({
+      db: database.db,
+      mailer,
+      limiter,
+      config: {
+        nodeEnv: env.NODE_ENV,
+        csrfSecret: env.CSRF_SECRET,
+        // `Secure` bật ở mọi nơi trừ development. Nới lỏng cho local là có chủ
+        // đích và **không** được rò sang build production.
+        cookieSecure: env.NODE_ENV !== "development",
+        cookieMaxAgeSeconds: Math.floor(SESSION_TTL_MS / 1000),
+      },
+    }),
+    new FastifyAdapter(),
+    { logger: ["error", "warn"] },
+  );
+
+  await app.register(cookie);
+
+  app.useGlobalFilters(new ErrorFilter());
+
+  // Origin allowlist lấy từ config đã validate, **không** từ header của request.
+  app.enableCors({ origin: env.WEB_ORIGIN, credentials: true });
+
+  const instance = app.getHttpAdapter().getInstance();
+
+  /**
+   * `requestId` được chuẩn hoá ở ranh giới HTTP và gắn vào request, rồi trả lại
+   * trong header. Giá trị client gửi là input không tin cậy: nó sẽ đi vào log.
+   */
+  instance.addHook("onRequest", (request, reply, done) => {
     const requestId = normalizeRequestId(
-      req.headers["x-request-id"] as string | undefined,
+      request.headers["x-request-id"] as string | undefined,
       generateRequestId,
     );
-    res.setHeader("x-request-id", requestId);
-    res.setHeader("content-type", "application/json; charset=utf-8");
-
-    const url = req.url ?? "/";
-
-    if (url === "/health/live") {
-      res.writeHead(LIVE_RESULT.status);
-      res.end(JSON.stringify(LIVE_RESULT.body));
-      return;
-    }
-
-    if (url === "/health/ready") {
-      void checkReadiness(databaseProbe).then((result) => {
-        res.writeHead(result.status);
-        res.end(JSON.stringify(result.body));
-      });
-      return;
-    }
-
-    res.writeHead(404);
-    res.end(JSON.stringify({ error: { code: "NOT_FOUND", message: "Not found." }, requestId }));
+    (request as typeof request & { requestId: string }).requestId = requestId;
+    void reply.header("x-request-id", requestId);
+    done();
   });
 
-  server.listen(env.API_PORT, () => {
-    console.warn(`[api] listening on ${String(env.API_PORT)} (${env.NODE_ENV})`);
+  /**
+   * Health không đi qua Nest router: nó phải trả lời được ngay cả khi phần còn
+   * lại của ứng dụng đang có vấn đề, và nó không được đi qua guard hay use case.
+   */
+  instance.get("/health/live", async (_request, reply) => {
+    await reply.status(LIVE_RESULT.status).send(LIVE_RESULT.body);
   });
+
+  instance.get("/health/ready", async (_request, reply) => {
+    const result = await checkReadiness(database.ping);
+    await reply.status(result.status).send(result.body);
+  });
+
+  await app.listen({ port: env.API_PORT, host: "0.0.0.0" });
+  console.warn(`[api] listening on ${String(env.API_PORT)} (${env.NODE_ENV})`);
 
   const shutdown = (signal: string): void => {
     console.warn(`[api] ${signal} received, closing`);
     // Đóng HTTP trước rồi mới đóng pool: đóng ngược lại sẽ làm các request đang
     // dở mất kết nối database giữa chừng.
-    server.close(() => {
-      void database.close().then(() => process.exit(0));
-    });
+    void app
+      .close()
+      .then(() => database.close())
+      .then(() => process.exit(0));
   };
   process.on("SIGTERM", () => shutdown("SIGTERM"));
   process.on("SIGINT", () => shutdown("SIGINT"));
 }
 
-bootstrap();
+void bootstrap();

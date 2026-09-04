@@ -15,7 +15,15 @@ import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import globals from "globals";
 
-/** Import bị cấm ở mọi workspace. */
+/**
+ * Import bị cấm ở mọi workspace.
+ *
+ * Từng có pattern thứ ba chặn `../../../*` với ý "không leo ra ngoài package".
+ * Nó đã bị bỏ vì diễn đạt sai ý định: bên trong `apps/api`, một module import
+ * `shared/` là **đúng** quan hệ mà backend conventions quy định, và đường dẫn
+ * tương đối của nó tự nhiên vượt ba cấp. Một rule bắt nhầm việc đúng sẽ bị
+ * người ta tắt đi, và khi đó nó không còn bảo vệ gì nữa.
+ */
 const forbiddenImports = [
   {
     group: ["@flowboard/*/src/*", "@flowboard/*/dist/*"],
@@ -25,11 +33,6 @@ const forbiddenImports = [
   {
     group: ["**/apps/*/src/**"],
     message: "Không app nào được import source nội bộ của app khác.",
-  },
-  {
-    group: ["../../../*"],
-    message:
-      "Import leo ra ngoài package là dấu hiệu ranh giới sai. Dùng public entry point của package đích.",
   },
 ];
 
