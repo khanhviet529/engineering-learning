@@ -360,8 +360,8 @@ Constraints: `UNIQUE(project_id, user_id, work_date)`. Reopen/update cùng targe
 3. `CREATE EXTENSION IF NOT EXISTS unaccent` và function `fb_unaccent(text)` (`IMMUTABLE`, pin dictionary — xem [query and index policy](query-and-index-policy.md)) phải chạy **trước** migration tạo GIN search index; extension phải có sẵn trong PostgreSQL image local/CI theo [local development](../operations/local-development.md).
 4. Không thể chỉ dùng foreign key để biết BoardColumn còn active, WorkspaceMember tương ứng tồn tại, Owner cuối cùng hay column còn task. Các điều kiện đó là use-case transaction rules, không trigger ngầm.
 5. Tạo `report_exports` và index liên quan chỉ với Phase 1.1.
-6. Khi Phase 1.4 bắt đầu, tạo `project_sprint_settings` và `sprints` sau `projects`, rồi thêm `tasks.sprint_id` cùng composite FK và partial unique index của sprint active; migration additive và settings mặc định disabled.
-7. Khi Phase 1.3 bắt đầu, tạo `project_time_tracking_settings`, `project_time_approvers`, `work_logs`, `work_log_access_overrides` sau projects/project_members/tasks; migration additive và settings mặc định disabled.
+6. Khi Phase 1.3 bắt đầu, tạo `project_time_tracking_settings`, `project_time_approvers`, `work_logs`, `work_log_access_overrides` sau projects/project_members/tasks; migration additive và settings mặc định disabled.
+7. Khi Phase 1.4 bắt đầu, tạo `project_sprint_settings` và `sprints` sau `projects`, rồi thêm `tasks.sprint_id` cùng composite FK và partial unique index của sprint active; migration additive và settings mặc định disabled.
 8. Khi Phase 1.5 bắt đầu, thêm `tasks.parent_task_id` cùng composite FK/CHECK và tạo `task_dependencies` sau `tasks`; migration additive.
 9. Không tạo bảng queue, email delivery, AI, labels, attachments hay post-MVP table nào cho core behavior; Phase 1.3 không tạo timer/payroll/billing/time-export tables và Phase 1.4 không tạo estimate/velocity/capacity tables.
 

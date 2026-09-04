@@ -18,9 +18,9 @@ Tài liệu này xác định trách nhiệm kiểm thử trước khi Flowboard
 | Integration | Nest use case/repository với PostgreSQL thật; Vitest | transaction, project-scoped query, migration compatibility, pagination, idempotency, session/CSRF guard và optimistic concurrency | accessibility, browser cookie behavior hay drag interaction hoàn chỉnh |
 | E2E | Next.js + API + PostgreSQL trong topology CI; Playwright | journey chính, cookie/session, role affordance, network/error/conflict recovery, keyboard và pointer drag | toàn bộ matrix SQL/guard branch |
 | Contract | API build/OpenAPI và HTTP fixture | path, schema, status, error-code variant, `X-Request-Id`/envelope | business invariant chưa được endpoint công bố |
+| Failure experiment | environment không-production, tách dữ liệu | graceful degradation, rollback, timeout và recovery runbook | test thường xuyên của pull request |
 
 Contract layer sở hữu thêm một kiểm tra hai chiều với [danh mục error code](../api/endpoint-contracts.md#danh-mục-error-code): mọi code trong danh mục phải có ít nhất một contract test dựng đúng status và `details` shape của nó, và **không** code nào ngoài danh mục được xuất hiện trong response của bất kỳ test nào. Đây là tiêu chí duy nhất cho error code — không kiểm bằng cách đòi code phải xuất hiện ở hai tài liệu, vì `api-conventions.md` cố ý chỉ giữ quy tắc envelope và trỏ tới danh mục.
-| Failure experiment | environment không-production, tách dữ liệu | graceful degradation, rollback, timeout và recovery runbook | test thường xuyên của pull request |
 
 ## Authorization là quality gate bắt buộc
 

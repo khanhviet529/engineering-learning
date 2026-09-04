@@ -147,6 +147,10 @@ Task này chỉ thiết lập bản đồ. Các tài liệu theo chủ đề đ�
 - `security/authentication.md`, `security/authorization-model.md` và `security/authorization-test-matrix.md`.
 - `api/api-conventions.md`, `api/endpoint-contracts.md` và `api/pagination-concurrency-idempotency.md`.
 
+## Từ hợp đồng sang code (From contract to code)
+
+- [Kế hoạch triển khai](implementation-plan.md) — thứ tự các mốc từ bộ khung tới vòng lặp sản phẩm, cổng ra đo được của từng mốc, và chỗ nào frontend với backend chạy song song được. Đây là tài liệu **sống**: khi một mốc lộ ra rằng thứ tự trong đó sai thì sửa ở đó, không đi vòng trong lúc code.
+
 ## Kỹ thuật và vận hành (Engineering and operations)
 
 - `engineering/repository-structure.md`, `engineering/frontend-conventions.md`, `engineering/backend-conventions.md` và `engineering/shared-helper-policy.md`.

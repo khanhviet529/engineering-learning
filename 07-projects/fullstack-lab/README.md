@@ -4,13 +4,13 @@ Flowboard là workspace quản lý công việc **riêng tư theo project** cho 
 
 Đây đồng thời là **lab** của repository này: mỗi tính năng được xây như sản phẩm thật, rồi dùng chính nó để quan sát behavior từ browser xuống database — lost update, transaction, ordering, phân quyền, concurrency, idempotency, queue.
 
-## Trạng thái hiện tại (03/09/2026)
+## Trạng thái hiện tại (04/09/2026)
 
 | Giai đoạn | Trạng thái |
 |---|---|
 | Hợp đồng Markdown | **Đã chốt** — baseline v0.1, 11 ADR đã Accepted |
-| Thiết kế Pencil | **Đang đóng cổng** `Ready for build` — còn 3 chốt đo được |
-| Code ứng dụng | **Chưa có dòng nào.** Cổng kế tiếp là implementation plan, không phải coding |
+| Thiết kế Pencil | **Freeze v0.1** ngày 04/09/2026, blob `12d6ff91`; checklist 34/34 |
+| Code ứng dụng | **Chưa có dòng nào.** Kế hoạch triển khai đã có; cổng kế tiếp là mốc **M0 — bộ khung và đường nối hợp đồng** |
 
 Nói rõ để không kỳ vọng sai: repository này hiện chỉ có **tài liệu và một file thiết kế**. Không có `apps/`, không có migration, không có server chạy được.
 
@@ -20,6 +20,7 @@ Nói rõ để không kỳ vọng sai: repository này hiện chỉ có **tài l
 - **Là engineer, muốn hiểu hệ thống chạy thế nào** → [ba lát cắt dọc](docs/how-it-works.md): sign in · move task · ghi và duyệt giờ, mỗi thao tác đi từ UX xuống schema. Sau đó theo đường stack-first trong bản đồ tài liệu.
 - **Muốn biết vì sao chọn như vậy** → [hồ sơ quyết định](docs/decisions/README.md): opaque session thay JWT, Drizzle thay Prisma, fractional ordering, subtask một cấp, và các quyết định khó đảo ngược khác.
 - **Muốn biết bài toán khó nằm ở đâu** → bảng "Bài toán khó và cách giải" trong [bản đồ tài liệu](docs/README.md).
+- **Sắp bắt tay vào code** → [kế hoạch triển khai](docs/implementation-plan.md): làm theo thứ tự nào, mỗi mốc xong khi nào, và frontend với backend tách ở đâu.
 
 Bản đồ tài liệu là danh sách điều hướng duy nhất; README này cố ý **không** nhân bản nó để hai chỗ không trôi khỏi nhau.
 
