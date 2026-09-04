@@ -24,7 +24,11 @@ services:
       timeout: 3s
       retries: 20
     ports:
-      - "5432:5432"
+      # Cổng host cấu hình được và **không** mặc định là 5432. Máy developer thường đã
+      # có một PostgreSQL khác giữ cổng đó, và khi hai bên cùng nghe thì công cụ chạy
+      # từ host sẽ nối nhầm database mà không báo gì rõ ràng hơn "sai mật khẩu".
+      # Trong mạng Compose, `api` vẫn nối tới `postgres:5432` như bình thường.
+      - "${POSTGRES_HOST_PORT}:5432"
 
   mailpit:
     image: axllent/mailpit:latest
@@ -32,8 +36,8 @@ services:
       MP_SMTP_AUTH_ACCEPT_ANY: "1"
       MP_SMTP_AUTH_ALLOW_INSECURE: "1"
     ports:
-      - "1025:1025" # SMTP
-      - "8025:8025" # giao diện xem mail
+      - "${MAILPIT_SMTP_HOST_PORT}:1025" # SMTP
+      - "${MAILPIT_UI_HOST_PORT}:8025" # giao diện xem mail
     healthcheck:
       test: ["CMD", "/mailpit", "readyz"]
       interval: 5s
@@ -60,7 +64,7 @@ services:
       mailpit:
         condition: service_healthy
     ports:
-      - "${API_PORT}:${API_PORT}"
+      - "${API_HOST_PORT}:${API_PORT}"
     healthcheck:
       # Liveness, không phải readiness: readiness phụ thuộc database, và dùng nó
       # ở đây sẽ khiến Compose restart API trong khi lỗi nằm ở PostgreSQL.
@@ -85,7 +89,7 @@ services:
       api:
         condition: service_healthy
     ports:
-      - "3000:3000"
+      - "${WEB_HOST_PORT}:3000"
 
 volumes:
   flowboard-postgres-data:

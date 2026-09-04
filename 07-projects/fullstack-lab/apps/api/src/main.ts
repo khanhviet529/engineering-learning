@@ -10,6 +10,7 @@
 
 import { createServer } from "node:http";
 import { loadEnv, ConfigError } from "./shared/config/env.ts";
+import { createDatabase } from "./shared/database/client.ts";
 import { LIVE_RESULT, checkReadiness } from "./shared/http/health.ts";
 import { generateRequestId, normalizeRequestId } from "./shared/observability/request-id.ts";
 
@@ -26,11 +27,10 @@ function bootstrap(): void {
     throw error;
   }
 
-  // M0.5 chưa có PostgreSQL client, nên readiness khai báo trung thực là chưa
-  // sẵn sàng thay vì trả `ok` sai. Probe thật được nối ở M1 cùng database
-  // boundary. Trả `ok` ở đây sẽ khiến Compose và orchestrator tin API phục vụ
-  // được trong khi nó chưa có gì để phục vụ.
-  const databaseProbe = async (): Promise<boolean> => false;
+  // Readiness hỏi database thật. Nó cố ý **không** đi qua use case hay
+  // authorization: đây là câu hỏi hạ tầng, không phải câu hỏi nghiệp vụ.
+  const database = createDatabase(env.DATABASE_URL);
+  const databaseProbe = database.ping;
 
   const server = createServer((req, res) => {
     const requestId = normalizeRequestId(
@@ -66,7 +66,11 @@ function bootstrap(): void {
 
   const shutdown = (signal: string): void => {
     console.warn(`[api] ${signal} received, closing`);
-    server.close(() => process.exit(0));
+    // Đóng HTTP trước rồi mới đóng pool: đóng ngược lại sẽ làm các request đang
+    // dở mất kết nối database giữa chừng.
+    server.close(() => {
+      void database.close().then(() => process.exit(0));
+    });
   };
   process.on("SIGTERM", () => shutdown("SIGTERM"));
   process.on("SIGINT", () => shutdown("SIGINT"));

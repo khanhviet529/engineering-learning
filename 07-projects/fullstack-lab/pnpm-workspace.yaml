@@ -1,3 +1,12 @@
 packages:
   - "packages/*"
   - "apps/*"
+
+# pnpm không chạy install script của dependency trừ khi được cho phép tường minh.
+# Đây là ranh giới chuỗi cung ứng, nên mỗi mục ở đây phải có lý do, không phải
+# thêm vào cho hết cảnh báo.
+#
+# esbuild: drizzle-kit dùng nó để chạy file cấu hình TypeScript. Postinstall của
+# esbuild chỉ tải binary đúng nền tảng; không có nó thì drizzle-kit không chạy.
+allowBuilds:
+  esbuild: true

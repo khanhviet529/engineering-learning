@@ -63,6 +63,47 @@ jobs:
       - name: Build
         run: pnpm build
 
+  integration:
+    name: Integration test trên PostgreSQL thật
+    runs-on: ubuntu-latest
+    # Mock repository không chứng minh được tính nguyên tử, phạm vi query hay việc
+    # constraint có thật sự chặn hay không. Những thứ đó chỉ đúng khi database nói
+    # chúng đúng — xem docs/operations/testing-strategy.md.
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: flowboard
+          POSTGRES_USER: flowboard
+          POSTGRES_PASSWORD: ci-local-only
+        options: >-
+          --health-cmd "pg_isready -U flowboard -d flowboard"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 20
+        ports:
+          - 5432:5432
+    env:
+      DATABASE_URL_HOST: postgres://flowboard:ci-local-only@localhost:5432/flowboard
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: 07-projects/fullstack-lab/.nvmrc
+
+      - run: corepack enable
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Chạy migration tường minh, không dùng schema push
+        run: pnpm --filter @flowboard/api exec drizzle-kit migrate
+        env:
+          DATABASE_URL: postgres://flowboard:ci-local-only@localhost:5432/flowboard
+
+      - name: Integration test
+        run: pnpm --filter @flowboard/api test
+
   docs:
     name: Liên kết tài liệu
     runs-on: ubuntu-latest
