@@ -208,7 +208,7 @@ Các frame mới cần được frontend dùng làm mapping trực tiếp:
 | System | `SYS-01…04`, `SYS-05/06` | 403 an toàn không render project data; session hết hạn không replay mutation; network error giữ form chưa gửi; conflict không force overwrite. |
 | Responsive | `02.1 Navigation — Responsive Rules` | Desktop/sidebar, tablet collapsed, mobile overlay menu; Board mobile cuộn ngang và có fallback List/Calendar. |
 | Reporting | `RPT-01` trong `PRJ-04 Dashboard` | Nút `Xuất tiến độ` chỉ hiện với capability `report:export` của Owner trong Phase 1.1; panel tuân theo request/pending/ready/failed/expired, không gửi email hay schedule. |
-| Tài khoản | `USR-01` | **Khối người dùng trên topbar (tên + avatar) là entry point duy nhất**: bấm mở menu tài khoản → `Hồ sơ và tùy chọn` (`/account/settings`); `Escape` đóng menu và trả focus về chính khối đó. Footer sidebar chỉ còn control thu gọn/mở rộng, không chứa danh tính và không mở `USR-01`. Theme `light|dark|system` là preference local; display name/email và workspace timezone chỉ đọc; đổi mật khẩu đi qua `AUTH-03`. |
+| Tài khoản | `USR-01` | **Khối người dùng trên topbar (tên + avatar) là entry point duy nhất**: bấm mở menu tài khoản → `Hồ sơ và tùy chọn` (`/tai-khoan`); `Escape` đóng menu và trả focus về chính khối đó. Footer sidebar chỉ còn control thu gọn/mở rộng, không chứa danh tính và không mở `USR-01`. Theme `light|dark|system` là preference local; display name/email và workspace timezone chỉ đọc; đổi mật khẩu đi qua `AUTH-03`. |
 
 Quy tắc role hiển thị trên frame: `Owner · Chủ sở hữu`, `Editor · Có thể chỉnh sửa`, `Viewer · Chỉ xem`. UI chọn route/CTA từ capability server; backend vẫn bắt buộc kiểm tra authorization ở mọi request.
 

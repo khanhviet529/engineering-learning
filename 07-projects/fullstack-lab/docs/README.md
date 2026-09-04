@@ -13,7 +13,7 @@ Số thứ tự ở cột đầu là số section trong [master specification](s
 | 1. Mục đích | [Tầm nhìn và phạm vi sản phẩm](product/vision-and-scope.md), [lộ trình phát hành](product/delivery-roadmap.md) |
 | 2. Vấn đề và người dùng mục tiêu | [Chân dung người dùng và công việc của họ](product/personas-and-jobs.md), [hành trình người dùng](product/user-journeys.md) |
 | 3. Phạm vi sản phẩm | [Tầm nhìn và phạm vi sản phẩm](product/vision-and-scope.md), [lộ trình phát hành](product/delivery-roadmap.md) |
-| 4. Kiến trúc thông tin và quy tắc UX | [Kiến trúc thông tin](design/information-architecture.md), [luồng người dùng](design/user-flows.md), [danh mục màn hình](design/screen-inventory.md), [bàn giao Pencil](design/pencil-handoff.md) |
+| 4. Kiến trúc thông tin và quy tắc UX | [Kiến trúc thông tin](design/information-architecture.md), [luồng người dùng](design/user-flows.md), [danh mục màn hình](design/screen-inventory.md), [bàn giao Pencil](design/pencil-handoff.md), [cách đo artifact](design/pencil-measurement.md) |
 | 5. Mô hình phân quyền | [Xác thực](security/authentication.md), [mô hình phân quyền](security/authorization-model.md), [ma trận test phân quyền](security/authorization-test-matrix.md) |
 | 6. Mô hình miền và dữ liệu | [Mô hình miền](data/domain-model.md), [thiết kế database](data/database-design.md), [chính sách query và index](data/query-and-index-policy.md) |
 | 7. Thiết kế API | [Quy ước API](api/api-conventions.md), [hợp đồng endpoint](api/endpoint-contracts.md) |
