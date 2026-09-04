@@ -1,0 +1,25 @@
+{
+  "name": "@flowboard/ui",
+  "version": "0.0.0",
+  "private": true,
+  "description": "UI primitive Flowboard: wrapper quanh Ant Design mang token, variant và accessibility contract. Không fetch data, không kiểm tra role, không gọi API.",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@flowboard/config": "workspace:*"
+  }
+}

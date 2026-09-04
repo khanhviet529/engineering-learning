@@ -1,0 +1,18 @@
+node_modules/
+dist/
+build/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+.turbo/
+.eslintcache
+
+# Environment: template được version, giá trị thật thì không
+.env
+.env.*
+!.env.example
+
+# Artefact của test và công cụ
+playwright-report/
+test-results/

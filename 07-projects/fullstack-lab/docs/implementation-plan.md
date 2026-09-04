@@ -75,7 +75,36 @@ infra/docker  infra/compose  scripts
 
 Không tạo `apps/worker`, `infra/kubernetes`, `infra/monitoring` ở mốc này — chúng thuộc phase sau và tạo sẵn "để dự phòng" là vi phạm quy tắc kiến trúc.
 
-**Cổng ra:** `pnpm install` và typecheck chạy sạch trên workspace rỗng; mỗi package có public entry point rõ ràng; không package nào deep-import source của package khác.
+**`apps/web` và `apps/api` cũng chưa được tạo ở M0.1.** Một app package không có framework, không có entry point và không có gì để typecheck thì đúng là thứ "tạo sẵn để dự phòng" mà quy tắc trên cấm. Hai app được dựng ở M0.5 cùng lúc với Next.js, NestJS và service Compose tương ứng — khi đó chúng có nội dung thật.
+
+### Đã dựng — trạng thái ngày 04/09/2026
+
+| Hạng mục | Nội dung |
+|---|---|
+| Gốc workspace | `package.json` (ESM, scripts `format`/`lint`/`typecheck`/`build`/`test`/`verify`), `pnpm-workspace.yaml`, `.npmrc`, `.nvmrc`, `.editorconfig`, `.gitignore` |
+| `packages/config` | Bốn preset TypeScript (`base`, `library`, `node`, `react`), preset ESLint, preset Prettier |
+| `packages/contracts` | Manifest, tsconfig, public entry point — bề mặt công khai **trống có chủ ý** cho tới M0.2 |
+| `packages/ui` | Manifest, tsconfig, public entry point — trống cho tới M0.4 |
+
+Preset TypeScript bật `strict` cùng bốn cờ mà mặc định không bật: `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noImplicitOverride`, `verbatimModuleSyntax`. Chọn chặt từ đầu vì nới ra sau thì dễ, siết vào sau thì phải sửa code đã viết.
+
+### Ranh giới package được cưỡng chế bằng máy, không bằng lời
+
+[Cấu trúc repository](engineering/repository-structure.md) nói "app chỉ import public entry point của package" và "không app nào import source nội bộ của app khác". Ranh giới nào chỉ nằm trong văn bản thì sớm muộn cũng bị vi phạm, nên preset ESLint biến cả hai thành lỗi lint chặn merge, qua ba pattern `no-restricted-imports`: `@flowboard/*/src/*` và `@flowboard/*/dist/*`, `**/apps/*/src/**`, và import leo ra ngoài package.
+
+Đã kiểm bằng cách viết một file thử vi phạm cả ba rồi chạy lint: **rule bắt đúng 3/3 lỗi**. Không phải giả định rằng nó hoạt động.
+
+### Phiên bản toolchain và một chỗ phải ghim
+
+Node 22 · pnpm 11.25.0 · **TypeScript 6.0.3** · ESLint 10 · Prettier 3.
+
+TypeScript ổn định mới nhất lúc dựng là **7.0.2**, nhưng `typescript-eslint@8.69.0` — bản mới nhất — khai peer `typescript >=4.8.4 <6.1.0`. Cài TS 7 làm peer gãy và lint mất khả năng phân tích type. Vì vậy ghim **6.0.3**, là bản cao nhất mà bộ lint còn hỗ trợ.
+
+**Điều kiện xem lại:** khi `typescript-eslint` phát hành bản nhận TypeScript 7, gỡ ghim và nâng cả hai cùng lúc. Đây là một version pin, đảo ngược dễ, nên không cần ADR — nhưng phải ghi lại, vì nếu không thì người sau sẽ tưởng dự án dùng TS cũ do quán tính.
+
+**Markdown nằm ngoài phạm vi Prettier.** Chạy formatter lần đầu cho thấy nó muốn ghi lại 59 file Markdown, trong đó có snapshot ở `docs/superpowers/**` và các ADR đã `Accepted` — cả hai nhóm đều bị cấm sửa nội dung. Để máy định dạng ghi lại byte của chúng là vi phạm chính hợp đồng đang bảo vệ chúng. Markdown vì vậy vào `.prettierignore`, và hàng Format trong [CI/CD](operations/ci-cd.md) đã được sửa cho khớp: formatter phủ source và config, còn tính đúng đắn của tài liệu do link check và các phép đối chiếu chéo bảo đảm.
+
+**Cổng ra — đã đạt, chạy được lại bằng `pnpm verify`:** `format` · `lint` · `typecheck` · `build` đều xanh; mỗi package có public entry point khai báo qua `exports`; ranh giới import được lint cưỡng chế và đã kiểm là bắt lỗi thật.
 
 ## M0.2 — `packages/contracts`: đường nối FE ↔ BE
 

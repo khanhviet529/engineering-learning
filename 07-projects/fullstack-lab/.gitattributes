@@ -1,3 +1,25 @@
 # .pen la JSON thuan, khong phai binary: giu LF o moi noi de blob va working file
 # khong lech nhau vi line ending, va de diff doc duoc.
 *.pen text eol=lf
+
+# Prettier ép `endOfLine: lf`. Nếu working tree bị checkout thành CRLF trên Windows
+# thì `pnpm format` fail ngay trên máy vừa clone, dù repository hoàn toàn đúng.
+# Vì vậy ghim LF cho mọi loại file mà formatter và toolchain chạm tới.
+*.ts    text eol=lf
+*.tsx   text eol=lf
+*.js    text eol=lf
+*.mjs   text eol=lf
+*.cjs   text eol=lf
+*.json  text eol=lf
+*.jsonc text eol=lf
+*.yaml  text eol=lf
+*.yml   text eol=lf
+*.md    text eol=lf
+*.scss  text eol=lf
+*.css   text eol=lf
+.editorconfig text eol=lf
+.gitignore    text eol=lf
+.npmrc        text eol=lf
+.nvmrc        text eol=lf
+.prettierignore text eol=lf
+.gitattributes text eol=lf

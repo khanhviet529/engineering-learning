@@ -1,0 +1,14 @@
+node_modules/
+dist/
+build/
+.next/
+coverage/
+pnpm-lock.yaml
+docs/design/*.pen
+
+# Markdown nằm ngoài phạm vi của formatter — xem docs/operations/ci-cd.md, hàng Format.
+# Lý do: docs/superpowers/** là snapshot có ngày và ADR đã Accepted đều bị cấm sửa
+# nội dung; để formatter ghi lại byte của chúng là vi phạm chính hợp đồng đang
+# bảo vệ chúng. Tính đúng đắn của tài liệu được kiểm bằng link check và các phép
+# đối chiếu chéo, không bằng máy định dạng.
+*.md
