@@ -45,6 +45,30 @@ Config được validate tại process startup bằng schema hẹp. Startup fail
 | Secret local | database password, session-signing/encryption material, CSRF secret, SMTP credential nếu cần | `.env.local` hoặc secret store local bị ignore | Developer tự tạo; không commit, copy vào ticket/chat/log hoặc dùng lại production secret. |
 | Secret deployed | database credential, session/CSRF material, SMTP/provider credential | approved deployment secret manager/injection | Least privilege, audit access, rotation procedure và no echo in CI. |
 
+### Biến đến từ đâu, theo từng cách chạy
+
+Cùng một tên biến có **hai giá trị đúng khác nhau**, tuỳ process chạy ở đâu. `postgres` và `mailpit` là tên service của Docker network: chỉ container phân giải được chúng. `localhost:5433` và `localhost:1026` là cổng Compose publish ra host: chỉ process trên host dùng được. Không có một giá trị nào đúng cho cả hai.
+
+| Cách chạy | Nguồn của biến | Ghi chú |
+|---|---|---|
+| Tất cả trong Compose | `.env` ở gốc lab, Compose đọc rồi inject qua `environment:` của từng service | Service `api` liệt kê **từng biến** một, không dùng `env_file:` quét cả file — biến lạ không lọt vào container |
+| API trên host, hạ tầng trong Compose | `.env` rồi `.env.host` ghi đè, cả hai nạp bởi `--env-file-if-exists` trong script `dev` | `.env.host` chỉ chứa ba dòng khác biệt: `DATABASE_URL`, `SMTP_HOST`, `SMTP_PORT` |
+| Test | `DATABASE_URL_HOST ?? DATABASE_URL` đọc thẳng từ `process.env` | Bộ test không nạp file; CI inject biến |
+| Web dev | Next.js tự nạp `.env`/`.env.local` từ gốc `apps/web` | Không thêm cơ chế nào; web không giữ credential nào |
+| Deployed | Nền tảng inject vào environment; secret từ secret manager | **Không file nào được đọc** |
+
+**Quy tắc có hiệu lực: `dev` được nạp file, `start` thì không.** `apps/api` script `start` là `node dist/main.js` — không `--env-file`, không `dotenv`, và `env.ts` chỉ đọc `process.env`. Đây là chỗ mà một "tiện cho dev" dễ rò sang production: thêm `--env-file` vào `start` cho đỡ phải cấu hình sẽ khiến production đọc một file trên đĩa thay vì environment do nền tảng cấp, và secret quay về nằm cạnh code. Sửa `start` theo hướng đó là vi phạm review, không phải một tối ưu.
+
+`--env-file-if-exists` được chọn thay vì `--env-file` vì trong Docker **không có** `.env` cạnh code và đó là bình thường. Đánh đổi đã biết: đánh máy sai tên file cũng im lặng đi tiếp y như file không tồn tại. Chấp nhận ở `dev`; đó là thêm một lý do nữa để nó không xuất hiện ở `start`.
+
+### Ba khoảng trống đã biết
+
+Cơ chế đọc config ở trên là đúng hình cho production. Cách **giữ secret** thì chưa, và ghi lại ở đây để không bị phát hiện lúc deploy — xem bảng nợ ở [kế hoạch triển khai](../implementation-plan.md):
+
+1. `SESSION_SECRET`, `CSRF_SECRET` và mật khẩu database đang là **plaintext trong `.env` trên đĩa**. `.gitignore` chặn được việc commit, không chặn được việc file tồn tại và bị đọc.
+2. **Không có cửa sổ rotate.** Đổi `SESSION_SECRET` là vô hiệu mọi session đang mở, vì tất cả đang ký bằng key cũ. Rotate được mà không đá ai ra cần **hai** key trong một khoảng thời gian: ký bằng key mới, verify bằng cả hai. Đó là thiết kế, không phải cấu hình.
+3. **Chưa có kiểm tự động nào** khẳng định `start` không nạp file. Hôm nay nó đúng vì có người viết đúng; một lint rule hoặc một test đọc `package.json` sẽ làm nó đúng vì không thể sai.
+
 Template environment chỉ liệt kê **tên**, mô tả, required/optional và safe example không-secret. API phải đặt cookie `Secure` ngoài local development; local relaxation không được leak sang build/deploy production. CORS/origin allowlist, cookie domain và public URL dùng config được validate, không lấy từ client request.
 
 ## Database, migration và seed policy

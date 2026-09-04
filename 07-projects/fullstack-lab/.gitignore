@@ -12,6 +12,7 @@ coverage/
 .env
 .env.*
 !.env.example
+!.env.host.example
 
 # Artefact của test và công cụ
 playwright-report/

@@ -1,0 +1,38 @@
+# Build context là gốc lab, nên mọi thứ không loại trừ ở đây đều được gửi tới
+# Docker daemon và đều có thể lọt vào image nếu một `COPY` sau này rộng hơn hôm nay.
+#
+# Hôm nay `infra/docker/api.Dockerfile` dùng COPY tường minh theo từng đường
+# (`packages/`, `apps/api/`, và một danh sách file ở gốc), nên `.env` không bị
+# copy vào. Nhưng điều đó đúng nhờ **kỷ luật của người viết**, không nhờ cơ chế:
+# một `COPY . .` thêm vào sau, hay một `.env` đặt bên trong `apps/api/`, là đủ
+# để secret nằm trong image. File này biến kỷ luật đó thành cơ chế.
+
+# ---- Secret: lý do chính file này tồn tại ----
+.env
+.env.*
+!.env.example
+!.env.host.example
+
+# ---- Không bao giờ cần trong image, và làm build context phình ----
+node_modules
+**/node_modules
+.git
+.gitignore
+
+# Artefact build: image tự build lại từ source trong nó. Copy `dist` từ host vào
+# nghĩa là image chứa output của máy ai đó chứ không phải của commit đã review.
+dist
+.next
+**/dist
+**/.next
+
+# Test và công cụ
+coverage
+**/coverage
+*.log
+.vitest
+**/*.tsbuildinfo
+
+# Tài liệu và design: không có gì runtime cần, và `.pen` là file lớn
+docs
+infra/compose
