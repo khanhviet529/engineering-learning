@@ -140,9 +140,13 @@ export type UpdateTaskRequest = z.infer<typeof updateTaskRequestSchema>;
 /**
  * Move là use case riêng, không phải một nhánh của update.
  *
- * `targetPosition` là giá trị ordering opaque: client chuyển tiếp lại một giá
- * trị server đã cấp, và server validate nó là decimal có giới hạn — **không bao
- * giờ** là một SQL expression.
+ * `targetPosition` là **gợi ý vị trí**, opaque với client. Theo ADR-0006 mục 1,
+ * server tính mọi giá trị `position`; giá trị client gửi chỉ là gợi ý đã được
+ * validate lại, và server **bỏ qua** nó khi column đích rỗng — lúc đó không có
+ * giá trị nào từng được cấp và không có neighbour nào để chen giữa.
+ *
+ * Nó luôn là decimal có giới hạn, **không bao giờ** là một SQL expression.
+ * Client không hiển thị và không tính toán trên nó.
  *
  * `reviewerId` chỉ được gửi khi column đích có `requiresReviewer`.
  */

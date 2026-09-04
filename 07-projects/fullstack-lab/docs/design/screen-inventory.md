@@ -45,6 +45,18 @@ Screen ID là khóa bền vững cho frame Pencil, test end-to-end, ticket front
 | SYS-05 | Not Found — full page | Báo route/resource không tồn tại mà không suy diễn đó là thiếu quyền. | URL không match route hoặc API trả 404 cho public-safe resource | URL hiện tại, đích quay lại an toàn | Bất kỳ actor nào | 404; CTA về Workspace List hoặc trang trước an toàn. Không render shell/data của project không resolve được. |
 | SYS-06 | Service Unavailable — full page/region | Báo dịch vụ tạm không thể phục vụ request đã authorized. | API/gateway trả 503 hoặc service dependency unavailable | safe request ID, callback retry, dữ liệu đã xác nhận trước đó nếu có | Actor ở context được phép | 503, retrying, recovered. Không biến 503 thành Empty hoặc xác nhận mutation chưa commit. |
 
+### Ba loại số đếm mà hợp đồng không mang
+
+`pageSchema` có `nextCursor` và `hasMore`, **không** có `total`. Nên ba thứ artifact vẽ đều không dựng được: `Comments · 3` trên task card, `Đã nạp 6 / 18` ở footer column, và badge số task ở header column (`Chờ thực hiện 4`).
+
+Frontend hiển thị `Đã nạp N · còn nữa` — đúng thứ hợp đồng mang. Đây là **cùng một khuôn mẫu** với lời hứa "số task liên quan" của `BRD-02` đã bỏ ở M3: một con số đếm được ở thời điểm đọc đã cũ vào lúc người dùng nhìn, và để có nó phải chạy `COUNT` trên mỗi lần mở board.
+
+Quyết định cần cho vòng design kế tiếp: hoặc bỏ số đếm khỏi frame, hoặc mở `total` trong hợp đồng và chấp nhận cái giá đó. **Không** chọn cách thứ ba là để frame vẽ một số mà code không điền được.
+
+### `MYT-01` và `PRJ-04` không thuộc M4
+
+Cả hai rời sang M5 vì **thiếu endpoint**, không thiếu công — xem [kế hoạch triển khai](../implementation-plan.md) mục M4. `MYT-01` cần một route task cấp workspace với **một** cursor (fan-out N project cho N cursor không hợp nhất được đúng thứ tự); `PRJ-04` cần aggregate mà `pageSchema` không mang.
+
 ### `BRD-02`: đổi thứ tự là thao tác **hoãn**, các lệnh khác gửi ngay
 
 Kéo cột chỉ sửa một bản nháp trong màn hình; **một** `POST /columns/reorder` commit nó; thất bại thì đặt lại về thứ tự server đang giữ. Đó là lý do `unsaved changes` nằm trong danh sách trạng thái bắt buộc ở trên — nếu mỗi lần kéo là một request thì trạng thái đó không mô tả gì cả, và artifact cũng đã vẽ hẳn cặp `Hủy` / `Lưu thứ tự cột`.

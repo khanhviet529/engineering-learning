@@ -424,7 +424,7 @@ Một chi tiết migration phải làm đúng: `activity_logs.task_id` có FK tr
 | Nhóm | Nội dung |
 |---|---|
 | Endpoint | `GET /projects/:projectId/tasks` · `POST /projects/:projectId/tasks` · `GET /tasks/:taskId` · `PATCH /tasks/:taskId` · `POST /tasks/:taskId/move` · `POST /tasks/:taskId/comments` · `GET /tasks/:taskId/activity` |
-| Màn hình | `BRD-01` mọi biến thể (owner, editor, viewer, column-states, dnd-syncing, mobile), `TSK-01`, `TSK-02`, `MYT-01`, `PRJ-04`, `SYS-04` |
+| Màn hình | `BRD-01` mọi biến thể (owner, editor, viewer, column-states, dnd-syncing, mobile), `TSK-01`, `TSK-02`, `SYS-04`. **`MYT-01` và `PRJ-04` rời sang M5** — xem dưới |
 | Error code | `TASK_VERSION_CONFLICT` cùng toàn bộ code chung |
 | Migration | `tasks`, `comments`; FK `activity_logs.task_id → tasks(id)` thêm bằng `ALTER TABLE` (bảng đã tạo ở M3); composite FK `(project_id, x)`; `CREATE EXTENSION unaccent` và `fb_unaccent(text)` **trước** GIN index |
 | ADR ràng buộc | [ADR-0001](decisions/ADR-0001-task-planning-fields-and-review-workflow.md) · [ADR-0005](decisions/ADR-0005-module-dependency-and-activity-boundary.md) · [ADR-0006](decisions/ADR-0006-fractional-ordering-and-concurrency.md) · [ADR-0008](decisions/ADR-0008-terminal-column-and-task-reopen.md) · [ADR-0009](decisions/ADR-0009-task-evidence-and-comment-formatting.md) |
@@ -438,6 +438,18 @@ Một chi tiết migration phải làm đúng: `activity_logs.task_id` có FK tr
 5. **Comment** — plain text bất biến, render Markdown theo **allowlist tường minh** ở [quy ước frontend](engineering/frontend-conventions.md): bold, italic, inline code, code block, list, link. Raw HTML tắt tuyệt đối. Link chỉ `https`, `http`, `mailto` và luôn có `rel="noopener noreferrer"`.
 6. **`evidenceUrl`** render như link kèm host dạng text để người đọc thấy đích trước khi bấm; **không** fetch preview, thumbnail, favicon hay metadata ở bất kỳ tầng nào.
 7. **Cột terminal và reopen**: move vào cột `is_terminal = true` thì `dueState` chuyển `none` và task rời khỏi filter `overdue`; move ngược ra ghi **đúng một** `task.reopened`, không kèm `task.moved`.
+
+## `MYT-01` và `PRJ-04` không dựng được trên hợp đồng M4
+
+Frontend báo và tôi xác minh: cả hai màn thiếu endpoint, không thiếu công.
+
+**`MYT-01` Việc của tôi** cần task có `assigneeId = actor` **trên toàn workspace**, sắp theo hạn, có một cursor. Endpoint list task duy nhất là `GET /projects/:projectId/tasks` — cấp project. Fan-out qua từng project cho **N cursor không hợp nhất được đúng**: mỗi project chỉ trả trang đầu của nó, nên phần đầu của danh sách đã gộp có thể sai. Một danh sách "hạn gần nhất" sai thứ tự thì tệ hơn không có, vì người dùng tin nó.
+
+Cần: `GET /workspaces/:workspaceId/tasks` với cùng allowlist filter và **một** cursor, trả chỉ task trong project mà actor có `project_members` row. Đây là endpoint mới có hệ quả phân quyền thật, nên nó là việc của một mốc chứ không phải một dòng thêm vào M4 đang chạy.
+
+**`PRJ-04` Tổng quan** cần total, phần trăm, workload theo assignee và delta tuần-so-tuần. `pageSchema` không mang `total`, và §6 cấm nạp toàn bộ task của một project. Chỉ số `Đang bị chặn` của nó thuộc Phase 1.5.
+
+Và [information architecture](design/information-architecture.md) **đã ghi `PRJ-04` là "Dự kiến — M5"** trong khi bảng phạm vi ở trên liệt nó vào M4. Đó là mâu thuẫn do tôi tạo ra khi viết bảng route, và IA là bên đúng: nó khớp với thứ hợp đồng đỡ được. Frontend chỉ ra chỗ này chứ không tự chọn một bên rồi im lặng.
 
 ## Frontend — bốn chỗ dễ sai
 
@@ -462,6 +474,8 @@ Vòng lặp Owner/Editor/Viewer chạy end-to-end qua browser, gồm: Viewer g�
 ---
 
 # M5 — Hoàn thiện, ma trận quyền và vận hành
+
+**Nhận thêm từ M4 (quyết định 05/09/2026):** `MYT-01`, `PRJ-04`, và endpoint `GET /workspaces/:workspaceId/tasks` mà `MYT-01` phụ thuộc. `PRJ-04` còn cần một endpoint aggregate chưa tồn tại — total, phần trăm, workload theo assignee — vì `pageSchema` không mang `total` và §6 cấm nạp toàn bộ task để tự đếm ở client. Cả hai đều là **thiếu endpoint**, không phải thiếu công.
 
 Mốc này không thêm feature. Nó biến thứ đang chạy được thành thứ **vận hành được và chứng minh được**.
 
@@ -558,6 +572,14 @@ Bảng này ghi những chỗ hợp đồng còn thiếu hoặc tự mâu thuẫ
 | Không có frame nào cho trạng thái reorder cột đang gửi | **Nợ design** | `BRD-01 · dnd-syncing` là kéo thả **task**, không phải cột. Frontend tự dựng bằng loading của nút `Lưu thứ tự cột` cộng live region, và đã báo rõ là của họ. Vào backlog vòng design kế tiếp |
 | `packages/ui/src/shell.tsx` gom 653 dòng và nhiều component không liên quan nhau | **Nợ, để M5** | Vấn đề là **một file gom nhiều component** (`FbTopbar`, `FbSidebar`, `FbSidebarCollapsed`, `FbMobileHeader`, `FbAccountMenu`, `FbAccountButton`), không phải thư mục phẳng — chia thư mục mà giữ file 653 dòng thì không giải quyết gì. Tách theo component rồi mới xét có cần thư mục hay không. Hoãn tới sau M4 có chủ đích: M4 thêm `FbTaskCard`, `FbTaskForm`, `FbCommentList`… nên chia trước là đoán trước ranh giới, và `shell.test.tsx` (349 dòng) phải tách theo |
 | 18 chỗ trong 16 file của `apps/web` render `failure.message` của server vào JSX | **Nợ, để M5** | [ADR-0016](decisions/ADR-0016-error-code-is-contract-message-is-ui.md) đổi vai `message` thành **chẩn đoán**; chữ cho người dùng thuộc frontend, sống ở `features/x/messages.ts`. Trả nợ **để M5 có chủ đích**: frontend đang giữa M4 và đổi 16 file lúc này là xung đột chắc chắn. Guard chặn `failure.message` vào JSX cũng dựng ở M5 — dựng trước khi trả nợ thì nó đỏ 18 lần rồi bị tắt, và một guard bị tắt thì không bảo vệ gì. `query.tsx:53` (`super(failure.message)`) **không** phải vi phạm: `.message` của một `Error` chính là vai chẩn đoán |
+| `GET /projects/:projectId` hứa "page đầu 25 task cho mỗi column" mà `projectDetailSchema` không có chỗ đặt | **Đã sửa 05/09/2026** | Hợp đồng tự mâu thuẫn từ lúc viết; frontend phát hiện khi dựng board. Bỏ lời hứa thay vì thêm field, vì đây là chiều **đảo được**: thêm field optional về sau là additive, bỏ field đã nhúng thì phá client |
+| Board gọi N request ở lần vẽ đầu (một `GET .../tasks?columnId=` cho mỗi column) | **Nợ, để M5** | Hệ quả của quyết định trên. Một board 6 cột là 7 round trip trước lần vẽ có nghĩa đầu tiên, trên màn hình chính của sản phẩm. Cách trả: thêm field `tasks` **optional** vào `projectDetailSchema` cho lần vẽ đầu, giữ `GET .../tasks` cho load-more và cho retry sau lỗi — additive, không phá gì |
+| `targetPosition` bị mô tả là "giá trị server đã cấp", nên move vào column **rỗng** không diễn đạt được | **Đã sửa 05/09/2026** | ADR-0006 mục 1 mới là bên đúng: server tính mọi giá trị, client chỉ gửi **gợi ý**. Hợp đồng endpoint và comment trong `packages/contracts/src/tasks.ts` nay nói vậy, và nói rõ server **bỏ qua** gợi ý khi column đích rỗng |
+| Artifact hứa ba loại số đếm mà không projection nào mang: `Comments · 3` trên task card, `Đã nạp 6 / 18`, badge số task ở header column | **Nợ design** | `pageSchema` có `nextCursor` và `hasMore`, **không** có `total`. Cùng loại với lời hứa "số task" của `BRD-02` đã bỏ ở M3 — lần này là ba chỗ. Frontend thay bằng `Đã nạp N · còn nữa`, đúng thứ hợp đồng mang. Vào backlog vòng design kế tiếp: hoặc bỏ số đếm khỏi frame, hoặc mở `total` trong hợp đồng và chấp nhận cái giá của một `COUNT` trên mỗi lần đọc board |
+| `TSK-01` trong artifact **không có** trường `evidenceUrl`, nhưng hợp đồng, §3 đặc tả tương tác và `TSK-02` đều có | **Nợ design** | Không có input thì trường đó không bao giờ đặt được. Frontend đã thêm; frame cần theo |
+| `TSK-01` vẽ `Độ ưu tiên *` như bắt buộc, hợp đồng thì nullable và có thành viên `none` | **Nợ design** | Frontend mặc định `Không đặt`. Frame cần bỏ dấu bắt buộc |
+| `TSK-02` vẽ danh sách hoạt động ở **hai** chỗ: tab `Hoạt động` và block `Hoạt động gần đây` trong tab Tổng quan | **Nợ design** | Hai chỗ cho một danh sách là hai nguồn sẽ lệch. Frontend chọn một (tab). Frame cần chọn theo |
+| Toolbar board trong artifact có hai select `Bảng việc` / `Tất cả công việc` không map được vào `listTasksQuerySchema` | **Nợ design** | Frontend dựng sáu control, tất cả là trục đã allowlist. Hai select kia cần được định nghĩa trong hợp đồng hoặc bỏ khỏi frame |
 
 ## Thêm workspace member: cần owner quyết
 
