@@ -28,7 +28,7 @@ Artifact **không có khái niệm page**: `.pen` là một canvas phẳng, mọ
 
 ## 2. Foundations và component system
 
-- [ ] Áp dụng visual direction: clean, calm, productivity-focused.
+- [x] **Áp dụng visual direction: clean, calm, productivity-focused — owner xem và ký 04/09/2026.** Ô này **không** dựa trên phép đo: máy kiểm được token, tương phản và cấu trúc, nhưng không kiểm được hướng thị giác tổng thể có đúng tinh thần *clean, calm, productivity-focused* hay không. Nó đứng trên chữ ký của owner; khi hướng thị giác đổi đáng kể thì ô này phải mở lại.
 - [ ] Chốt semantic color, typography, spacing, radius, elevation, breakpoints và focus token. Đo lại 04/09/2026 **bằng phương pháp đúng** (thuộc tính style nằm thẳng trên node — `fill`, `stroke`, `effect`, `fontFamily` — chứ không nằm dưới một object `styles`; hai lần đo trước của cả tôi lẫn design agent đều quét vào chỗ rỗng nên ra `0` giả):
 
   - **199 biến, 168 mang tiền tố `fb.`.** Trong 31 biến còn lại, **22 biến vẫn đang được tham chiếu ở 4.929 property** — nhiều nhất là `$font-sans` (2.178), `$muted` (697), `$line` (439), `$surface` (404), `$ink` (393). Chỉ **9 biến thật sự chết**: `space-8`, `space-12`, `space-16`, `space-24`, `space-32`, `fb-primary`, `fb-warning`, `fb-success`, `fb-font`. Xoá thẳng 31 biến sẽ làm hỏng 4.929 chỗ; phải remap sang `fb.*` trước rồi mới xoá.
