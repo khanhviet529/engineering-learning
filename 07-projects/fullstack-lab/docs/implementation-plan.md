@@ -388,8 +388,8 @@ Mốc nhỏ nhưng đặt nền cho hai thứ mà M4 dựa vào: **fractional or
 | Endpoint | `POST /projects/:projectId/columns` · `PATCH /columns/:columnId` · `POST /columns/reorder` |
 | Màn hình | `BRD-02` |
 | Error code | `COLUMN_NOT_EMPTY` |
-| Migration | `board_columns` cùng `UNIQUE (project_id, position)` dạng `DEFERRABLE INITIALLY IMMEDIATE` |
-| ADR ràng buộc | [ADR-0006](decisions/ADR-0006-fractional-ordering-and-concurrency.md) ordering · [ADR-0008](decisions/ADR-0008-terminal-column-and-task-reopen.md) cột terminal |
+| Migration | `board_columns` cùng `UNIQUE (project_id, position)` dạng `DEFERRABLE INITIALLY IMMEDIATE` · **`activity_logs`** (chuyển từ M4 sang, xem dưới) |
+| ADR ràng buộc | [ADR-0006](decisions/ADR-0006-fractional-ordering-and-concurrency.md) ordering · [ADR-0008](decisions/ADR-0008-terminal-column-and-task-reopen.md) cột terminal · [ADR-0005](decisions/ADR-0005-module-dependency-and-activity-boundary.md) ranh giới activity |
 
 ## Điểm phải làm đúng
 
@@ -398,6 +398,16 @@ Mốc nhỏ nhưng đặt nền cho hai thứ mà M4 dựa vào: **fractional or
 **`ColumnEmptinessCheck` là port, không phải import chéo.** Use case archive của `board-columns` định nghĩa port trong domain của nó; module `tasks` implement adapter; composition root nối lại. Đây là cách đồ thị phụ thuộc giữ được tính acyclic — dùng `forwardRef` để che cycle là vi phạm review.
 
 **`is_terminal` phải có ngay từ migration này**, dù tác dụng của nó (`dueState`, `task.reopened`) chỉ thấy ở M4. Thêm cột vào sau là một migration trên bảng đã có dữ liệu, đắt hơn nhiều.
+
+**`activity_logs` và `ActivityRecorder` chuyển từ M4 sang M3.** Quyết định 04/09/2026, sau khi M2 đóng.
+
+M2 để lại một khoảng trống có ý thức và có ghi lại: năm mutation của `projects` bị hợp đồng buộc ghi activity nhưng chưa ghi, vì `activity_logs` chưa tồn tại. Backend ghi rõ điều đó trong `project-use-cases.ts` kèm một quan sát quan trọng hơn cả khoảng trống — **những khẳng định dạng "deny không tạo activity row" hiện đúng một cách rỗng**, vì không có bảng nào để ghi vào. Một test xanh vì không có gì để kiểm là tín hiệu sai, và tín hiệu sai tệ hơn một tính năng còn thiếu.
+
+M3 thêm sáu event nữa (`board_column.created`, `renamed`, `terminal_changed`, `reviewer_requirement_changed`, `archived`, `reordered`). Để nguyên thì nợ từ 5 lên 11 event chưa ghi, và đúng lý do mà chính mốc M4 nêu — "lắp sau sẽ phải sửa mọi use case đã viết" — bị trả giá hai lần thay vì một.
+
+`activity_logs` là bảng leaf: module `activity` sở hữu nó và **không module nào khác** insert trực tiếp, nên đưa nó lên sớm không kéo theo phụ thuộc nào.
+
+Một chi tiết migration phải làm đúng: `activity_logs.task_id` có FK trỏ `tasks(id)`, mà `tasks` chưa tồn tại ở M3. Cột được tạo **nullable, chưa có FK**; M4 thêm constraint bằng `ALTER TABLE ... ADD CONSTRAINT` khi `tasks` đã có. Mọi event của M3 đều là project/member/column nên `task_id` là `NULL` — không có dữ liệu nào cần backfill.
 
 ## Failure experiment
 
@@ -416,13 +426,13 @@ Mốc nhỏ nhưng đặt nền cho hai thứ mà M4 dựa vào: **fractional or
 | Endpoint | `GET /projects/:projectId/tasks` · `POST /projects/:projectId/tasks` · `GET /tasks/:taskId` · `PATCH /tasks/:taskId` · `POST /tasks/:taskId/move` · `POST /tasks/:taskId/comments` · `GET /tasks/:taskId/activity` |
 | Màn hình | `BRD-01` mọi biến thể (owner, editor, viewer, column-states, dnd-syncing, mobile), `TSK-01`, `TSK-02`, `MYT-01`, `PRJ-04`, `SYS-04` |
 | Error code | `TASK_VERSION_CONFLICT` cùng toàn bộ code chung |
-| Migration | `tasks`, `comments`, `activity_logs`; composite FK `(project_id, x)`; `CREATE EXTENSION unaccent` và `fb_unaccent(text)` **trước** GIN index |
+| Migration | `tasks`, `comments`; FK `activity_logs.task_id → tasks(id)` thêm bằng `ALTER TABLE` (bảng đã tạo ở M3); composite FK `(project_id, x)`; `CREATE EXTENSION unaccent` và `fb_unaccent(text)` **trước** GIN index |
 | ADR ràng buộc | [ADR-0001](decisions/ADR-0001-task-planning-fields-and-review-workflow.md) · [ADR-0005](decisions/ADR-0005-module-dependency-and-activity-boundary.md) · [ADR-0006](decisions/ADR-0006-fractional-ordering-and-concurrency.md) · [ADR-0008](decisions/ADR-0008-terminal-column-and-task-reopen.md) · [ADR-0009](decisions/ADR-0009-task-evidence-and-comment-formatting.md) |
 
 ## Thứ tự làm — chia nhỏ để mỗi bước tự chứng minh được
 
 1. **Task đọc trước, ghi sau.** `GET /projects/:projectId/tasks` với đủ filter, sort, cursor và search. Làm search **cùng lúc** với list chứ không để dành: `fb_unaccent` phải đối xứng hai phía (index và query), nếu không thì `thiet ke` không khớp `thiết kế` — người Việt gõ không dấu thường xuyên nên đây là yêu cầu UX, không phải tối ưu.
-2. **`ActivityRecorder.record(tx, event)`** dựng ngay, trước mutation đầu tiên. Module `activity` là leaf sở hữu `activity_logs`; **không module nào insert trực tiếp**. Lắp sau sẽ phải sửa mọi use case đã viết.
+2. **`ActivityRecorder.record(tx, event)`** đã có từ M3 cùng bảng `activity_logs`; ở đây chỉ mở rộng allowlist event sang `task.*` và `comment.*`, và thêm FK `task_id`. Module `activity` là leaf sở hữu bảng; **không module nào insert trực tiếp**.
 3. **Create và update task** với `expectedVersion`, `409 TASK_VERSION_CONFLICT` trả `details.currentVersion`.
 4. **Move task** — phần khó nhất. Transaction riêng, lock vừa đủ, fractional ordering có rebalance, unique constraint `DEFERRABLE` hoãn tới lúc commit. **Rebalance chỉ ghi `position`**: không tăng `version`, không chạm `updated_at` của các hàng bị ghi lại — nếu không, client đang mở màn hình sẽ nhận `409` giả và seek pagination theo `updatedAt` sẽ xáo.
 5. **Comment** — plain text bất biến, render Markdown theo **allowlist tường minh** ở [quy ước frontend](engineering/frontend-conventions.md): bold, italic, inline code, code block, list, link. Raw HTML tắt tuyệt đối. Link chỉ `https`, `http`, `mailto` và luôn có `rel="noopener noreferrer"`.
