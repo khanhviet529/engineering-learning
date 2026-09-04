@@ -55,6 +55,15 @@ export interface FbButtonProps {
   disabled?: boolean;
   block?: boolean;
   onClick?: () => void;
+  /**
+   * `id` của form mà nút này submit, khi nút nằm **ngoài** thẻ `form` — ví dụ
+   * ở footer của một modal.
+   *
+   * Đây là thuộc tính HTML chuẩn, và nó là cách đúng để giữ một form thật:
+   * `Enter` trong input vẫn submit, và không cần đi tìm form bằng selector rồi
+   * gọi `requestSubmit` bằng tay.
+   */
+  form?: string;
 }
 
 /**
@@ -72,6 +81,7 @@ export function FbButtonPrimary({
   disabled = false,
   block = false,
   onClick,
+  form,
 }: FbButtonProps) {
   return (
     <Button
@@ -81,6 +91,7 @@ export function FbButtonPrimary({
       disabled={disabled}
       block={block}
       onClick={onClick}
+      {...(form === undefined ? {} : { form })}
     >
       {children}
     </Button>
@@ -94,9 +105,17 @@ export function FbButtonSecondary({
   disabled = false,
   block = false,
   onClick,
+  form,
 }: FbButtonProps) {
   return (
-    <Button htmlType={type} loading={loading} disabled={disabled} block={block} onClick={onClick}>
+    <Button
+      htmlType={type}
+      loading={loading}
+      disabled={disabled}
+      block={block}
+      onClick={onClick}
+      {...(form === undefined ? {} : { form })}
+    >
       {children}
     </Button>
   );
@@ -239,6 +258,75 @@ export function FbPasswordField(props: FbFieldProps) {
         disabled={disabled}
         {...optionalInputProps(props)}
       />
+    </Field>
+  );
+}
+
+export interface FbSelectOption {
+  value: string;
+  label: string;
+}
+
+export interface FbSelectProps {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: readonly FbSelectOption[];
+  error?: string | undefined;
+  hint?: string | undefined;
+  required?: boolean | undefined;
+  disabled?: boolean | undefined;
+}
+
+/**
+ * Select cho tập giá trị **hữu hạn đã biết trước**: vai trò project, vai trò
+ * workspace, và các enum khác của hợp đồng.
+ *
+ * Nó dùng `<select>` gốc thay vì dropdown tự dựng. Lý do là accessibility chứ
+ * không phải lười: `<select>` gốc có sẵn điều hướng bàn phím, tìm theo ký tự
+ * và giao diện chọn của từng nền tảng — ba thứ mà một dropdown tự dựng phải
+ * làm lại đúng, và thường làm sai. Hệ thống thiết kế cấm "text giả làm
+ * dropdown", và một `<select>` thật đáp ứng yêu cầu đó chặt hơn một div.
+ */
+export function FbSelect(props: FbSelectProps) {
+  const { id, label, value, onChange, options, error, hint, required } = props;
+  const disabled = props.disabled ?? false;
+  const described = describedBy(id, hint, error);
+
+  return (
+    <Field id={id} label={label} error={error} hint={hint} required={required}>
+      <select
+        id={id}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        disabled={disabled}
+        aria-invalid={error !== undefined}
+        {...(described === undefined ? {} : { "aria-describedby": described })}
+        style={{
+          width: "100%",
+          minHeight: 40,
+          padding: "0 var(--fb-space-3)",
+          borderRadius: "var(--fb-radius-md)",
+          border: `1px solid ${
+            error === undefined
+              ? "var(--fb-color-border-default)"
+              : "var(--fb-color-intent-danger-text)"
+          }`,
+          background: disabled
+            ? "var(--fb-color-state-disabled-surface)"
+            : "var(--fb-color-surface-raised)",
+          color: disabled ? "var(--fb-color-state-disabled-text)" : "var(--fb-color-text-primary)",
+          fontSize: "var(--fb-font-size-body)",
+          fontFamily: "inherit",
+        }}
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
     </Field>
   );
 }

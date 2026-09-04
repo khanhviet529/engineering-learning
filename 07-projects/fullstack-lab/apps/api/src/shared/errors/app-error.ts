@@ -66,6 +66,11 @@ const DEFAULT_MESSAGES: Readonly<Record<ErrorCode, string>> = {
   IDEMPOTENCY_KEY_REUSED: "Idempotency key đã được dùng cho một request khác.",
   IDEMPOTENCY_IN_PROGRESS: "Một request cùng key đang được xử lý.",
   COLUMN_NOT_EMPTY: "Cột vẫn còn công việc.",
+  // Ba code dưới đây **không** phải optimistic concurrency: tải lại rồi gửi lại
+  // không giải quyết được gì, nên thông điệp phải nói việc cần làm trước.
+  PROJECT_LAST_OWNER: "Dự án phải luôn có ít nhất một Owner.",
+  MEMBER_HAS_ASSIGNED_TASKS: "Thành viên này vẫn đang được giao công việc.",
+  WORKSPACE_MEMBER_IN_PROJECTS: "Thành viên này vẫn thuộc một số dự án trong không gian này.",
   RATE_LIMITED: "Bạn đã thao tác quá nhanh. Vui lòng thử lại sau.",
   INTERNAL_ERROR: "Đã có lỗi xảy ra. Vui lòng thử lại.",
   REPORT_NOT_READY: "Báo cáo chưa sẵn sàng.",
@@ -80,6 +85,7 @@ const DEFAULT_MESSAGES: Readonly<Record<ErrorCode, string>> = {
   SPRINT_ALREADY_ACTIVE: "Đã có một sprint đang hoạt động.",
   SPRINT_CLOSED: "Sprint đã đóng.",
   SPRINT_VERSION_CONFLICT: "Sprint đã được thay đổi.",
+  TASK_DEPENDENCY_DUPLICATE: "Phụ thuộc này đã tồn tại.",
   TASK_DEPENDENCY_CYCLE: "Phụ thuộc này sẽ tạo thành vòng lặp.",
 };
 

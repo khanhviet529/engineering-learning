@@ -8,10 +8,10 @@ import {
   verifyPassword,
   type PasswordRejection,
 } from "../domain/password.ts";
+import { deriveCsrfToken } from "../../../shared/http/csrf.ts";
 import {
   EMAIL_VERIFICATION_TTL_MS,
   PASSWORD_RESET_TTL_MS,
-  deriveCsrfToken,
   generateOneTimeToken,
   generateSessionToken,
   hashOneTimeToken,

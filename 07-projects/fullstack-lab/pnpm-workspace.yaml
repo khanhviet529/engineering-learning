@@ -10,3 +10,6 @@ packages:
 # esbuild chỉ tải binary đúng nền tảng; không có nó thì drizzle-kit không chạy.
 allowBuilds:
   esbuild: true
+
+minimumReleaseAgeExclude:
+  - lucide-react@1.40.0

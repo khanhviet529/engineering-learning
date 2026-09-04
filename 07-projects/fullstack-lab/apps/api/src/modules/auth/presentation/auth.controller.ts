@@ -8,9 +8,11 @@ import {
   signUpRequestSchema,
   verifyEmailRequestSchema,
 } from "@flowboard/contracts";
-import type { ZodType } from "zod";
-import { AppError, validationError } from "../../../shared/errors/app-error.ts";
-import { SESSION_COOKIE_NAME, csrfTokenMatches, deriveCsrfToken } from "../domain/session.ts";
+import { AppError } from "../../../shared/errors/app-error.ts";
+import { ok } from "../../../shared/http/envelope.ts";
+import { parse } from "../../../shared/http/validation.ts";
+import { SESSION_COOKIE_NAME } from "../../../shared/http/session-cookie.ts";
+import { deriveCsrfToken, requireCsrf } from "../../../shared/http/csrf.ts";
 import type { AuthUseCases } from "../application/auth-use-cases.ts";
 import type { RateLimiter, RateLimitedRoute } from "../../../shared/http/rate-limit.ts";
 
@@ -33,28 +35,6 @@ export interface AuthConfig {
   csrfSecret: string;
   cookieSecure: boolean;
   cookieMaxAgeSeconds: number;
-}
-
-/** Envelope thành công. `requestId` do middleware đặt vào request. */
-function ok<T>(request: FastifyRequest, data: T): { data: T; requestId: string } {
-  return { data, requestId: getRequestId(request) };
-}
-
-function getRequestId(request: FastifyRequest): string {
-  return (request as FastifyRequest & { requestId?: string }).requestId ?? "unknown";
-}
-
-/** Parse body theo schema contract; lỗi thành `400` với field-error array. */
-function parse<T>(schema: ZodType<T>, body: unknown): T {
-  const result = schema.safeParse(body);
-  if (result.success) return result.data;
-  throw validationError(
-    result.error.issues.map((issue) => ({
-      field: issue.path.join(".") || "(root)",
-      code: issue.code,
-      message: issue.message,
-    })),
-  );
 }
 
 /**
@@ -104,19 +84,11 @@ export class AuthController {
   /**
    * Mọi mutation có session phải mang `X-CSRF-Token` hợp lệ.
    *
-   * Token được suy lại từ session token, nên không cần tra database: nếu cookie
-   * hợp lệ thì giá trị mong đợi tính được ngay, và kẻ tấn công cross-site không
-   * đọc được cookie `HttpOnly` để tính ra nó.
+   * Phép kiểm sống ở `shared/http/csrf.ts` vì mọi module có mutation đều cần
+   * nó; controller chỉ cung cấp secret đã cấu hình.
    */
   #requireCsrf(request: FastifyRequest): void {
-    const sessionToken = this.#sessionToken(request);
-    if (sessionToken === undefined) throw new AppError("UNAUTHENTICATED");
-
-    const received = request.headers["x-csrf-token"];
-    const expected = deriveCsrfToken(sessionToken, this.config.csrfSecret);
-    if (typeof received !== "string" || !csrfTokenMatches(expected, received)) {
-      throw new AppError("FORBIDDEN", { message: "Yêu cầu thiếu hoặc sai CSRF token." });
-    }
+    requireCsrf(request, this.config.csrfSecret);
   }
 
   @Post("sign-up")

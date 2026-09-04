@@ -1,5 +1,7 @@
 import { Transport, type ApiResult, type Intent } from "./transport.ts";
 
+export type { ApiResult, Intent };
+
 /**
  * Client gọi API xác thực.
  *

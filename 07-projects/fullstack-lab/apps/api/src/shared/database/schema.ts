@@ -14,9 +14,10 @@ import { sql } from "drizzle-orm";
 /**
  * Schema PostgreSQL — bản dịch của `docs/data/database-design.md`.
  *
- * Chỉ ba bảng đầu tiên của thứ tự migration có mặt ở đây, đúng phạm vi M1:
- * `users`, `auth_sessions`, `idempotency_records`. Các bảng còn lại xuất hiện
- * ở mốc tạo ra chúng, không dựng sẵn.
+ * Bảng xuất hiện theo đúng mốc tạo ra chúng, không dựng sẵn. M1 mang `users`,
+ * `auth_sessions`, `idempotency_records`; M2 mang `workspaces`,
+ * `workspace_members`, `projects`, `project_members`. `board_columns`, `tasks`,
+ * `comments` và `activity_logs` thuộc M3 và M4.
  *
  * Quy ước: cột dùng `snake_case` và **không** lộ thành API contract; projection
  * `camelCase` là việc của `@flowboard/contracts`.
@@ -134,5 +135,120 @@ export const idempotencyRecords = pgTable(
     ),
     index("idempotency_records_expires_at_idx").on(table.expiresAt),
     check("idempotency_records_status_check", sql`${table.status} in ('in_progress', 'completed')`),
+  ],
+);
+
+/* ------------------------------------------------------------------------- *
+ * M2 — workspace và project scope
+ *
+ * Bước 1 và 2 của thứ tự migration ở `docs/data/database-design.md`. Thứ tự
+ * khai báo ở đây trùng thứ tự foreign key: `workspaces` → `workspace_members` →
+ * `projects` → `project_members`.
+ *
+ * Mọi foreign key dùng `ON DELETE RESTRICT` theo quy ước toàn cục của thiết kế
+ * database: core MVP **không** cascade delete dữ liệu private hay audit. Xoá
+ * một hàng mà còn hàng phụ thuộc phải là quyết định tường minh của use case,
+ * không phải hiệu ứng phụ âm thầm của database.
+ * ------------------------------------------------------------------------- */
+
+export const workspaces = pgTable("workspaces", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  createdAt: utc("created_at").notNull().defaultNow(),
+  updatedAt: utc("updated_at").notNull().defaultNow(),
+});
+
+export const workspaceMembers = pgTable(
+  "workspace_members",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "restrict" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+
+    /**
+     * Hai vai trò workspace cố định. `CHECK` ở database là lớp phòng thủ thứ
+     * hai sau Zod: một đường ghi bỏ qua validation vẫn không tạo được vai trò
+     * mà catalog permission không biết tới.
+     */
+    role: text("role").notNull(),
+
+    createdAt: utc("created_at").notNull().defaultNow(),
+    updatedAt: utc("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    // Membership check và chặn trùng — index baseline.
+    uniqueIndex("workspace_members_workspace_user_idx").on(table.workspaceId, table.userId),
+    // Chiều ngược lại phục vụ `GET /workspaces`: danh sách workspace của actor.
+    index("workspace_members_user_workspace_idx").on(table.userId, table.workspaceId),
+    check(
+      "workspace_members_role_check",
+      sql`${table.role} in ('workspace_admin', 'workspace_member')`,
+    ),
+  ],
+);
+
+export const projects = pgTable(
+  "projects",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "restrict" }),
+
+    /**
+     * Actor tạo project. Cùng transaction tạo một `project_members` vai trò
+     * `owner` cho chính người này — cột này là dấu vết lịch sử, **không** phải
+     * nguồn quyết định quyền. Quyền đọc từ `project_members`, luôn luôn.
+     */
+    createdByUserId: uuid("created_by_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+
+    /** Trường duy nhất Project Settings của MVP được phép update. */
+    name: text("name").notNull(),
+
+    createdAt: utc("created_at").notNull().defaultNow(),
+    updatedAt: utc("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    // Danh sách project trong workspace, sau khi đã lọc theo access scope.
+    index("projects_workspace_created_at_idx").on(table.workspaceId, table.createdAt.desc()),
+  ],
+);
+
+export const projectMembers = pgTable(
+  "project_members",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "restrict" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+
+    /** Ba vai trò project cố định; không có custom role trong MVP. */
+    role: text("role").notNull(),
+
+    createdAt: utc("created_at").notNull().defaultNow(),
+    updatedAt: utc("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    /**
+     * `UNIQUE (project_id, user_id)` phục vụ hai việc cùng lúc: chặn membership
+     * trùng, và làm **target cho composite foreign key** của các bảng sau —
+     * `tasks(project_id, assignee_id)`, `tasks(project_id, reviewer_id)`,
+     * `work_logs(project_id, logged_by_user_id)`. Nhờ nó, "assignee phải là
+     * thành viên **cùng project**" được database cưỡng chế, chứ không chỉ được
+     * use case hứa.
+     */
+    uniqueIndex("project_members_project_user_idx").on(table.projectId, table.userId),
+    // Chiều ngược lại: danh sách project mà actor truy cập được.
+    index("project_members_user_project_idx").on(table.userId, table.projectId),
+    check("project_members_role_check", sql`${table.role} in ('owner', 'editor', 'viewer')`),
   ],
 );

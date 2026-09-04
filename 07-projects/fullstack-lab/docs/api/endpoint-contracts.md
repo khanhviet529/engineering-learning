@@ -38,6 +38,9 @@ Bảng này là **danh mục đầy đủ** các `error.code` đã công bố, �
 | `IDEMPOTENCY_KEY_REUSED` | 409 | Không | Mọi mutation có `Idempotency-Key` | Đây là **bug client**: đã dùng lại key cho payload khác. Không hiện nhánh UI riêng. |
 | `IDEMPOTENCY_IN_PROGRESS` | 409 | Không | Mọi mutation có `Idempotency-Key` | Chờ theo `Retry-After` rồi gửi lại **cùng key**. |
 | `COLUMN_NOT_EMPTY` | 409 | Không | `PATCH /columns/:columnId` (archive) | Yêu cầu di chuyển hết task trước; không tự move task. |
+| `PROJECT_LAST_OWNER` | 409 | Không | `PATCH`/`DELETE /projects/:projectId/members/:userId` | Chọn một Owner khác trước; đừng gửi lại cùng request. |
+| `MEMBER_HAS_ASSIGNED_TASKS` | 409 | Không | `DELETE /projects/:projectId/members/:userId`, `DELETE /workspaces/:workspaceId/members/:userId` | Giao lại task cho người khác trước; API **không** tự unassign. |
+| `WORKSPACE_MEMBER_IN_PROJECTS` | 409 | Không | `DELETE /workspaces/:workspaceId/members/:userId` | Gỡ khỏi từng project trước; API **không** tự gỡ hộ. |
 | `RATE_LIMITED` | 429 | Không | Auth endpoint và endpoint đắt | Disable control tới hết `Retry-After`; không tự retry mutation. |
 | `INTERNAL_ERROR` | 5xx | Không | Mọi endpoint | Thông báo an toàn kèm `requestId`; **không** coi mutation là đã thành công. |
 | `REPORT_NOT_READY` | 409 | Không | `GET /reports/:reportId/download` — Phase 1.1 | Chờ trạng thái `ready`; không retry vòng lặp. |
@@ -52,6 +55,7 @@ Bảng này là **danh mục đầy đủ** các `error.code` đã công bố, �
 | `SPRINT_ALREADY_ACTIVE` | 409 | Không | `POST /sprints/:sprintId/activate` — Phase 1.4 | Đóng sprint đang active trước; không retry. |
 | `SPRINT_CLOSED` | 409 | Không | Sprint update và task update có `sprintId` — Phase 1.4 | Chọn sprint khác hoặc tạo sprint mới; sprint đã đóng là bất biến. |
 | `SPRINT_VERSION_CONFLICT` | 409 | Không | Sprint/sprint-settings update — Phase 1.4 | Tải lại sprint/settings rồi gửi lại. |
+| `TASK_DEPENDENCY_DUPLICATE` | 409 | Không | `POST /tasks/:taskId/dependencies` — Phase 1.5 | Cạnh đã tồn tại; coi như đã xong, không hiện lỗi cho người dùng. |
 | `TASK_DEPENDENCY_CYCLE` | 409 | Không | `POST /tasks/:taskId/dependencies` — Phase 1.5 | Bỏ cạnh gây chu trình; không retry cùng cặp task. |
 
 Code của một phase chưa mở vẫn nằm trong bảng: kết quả của nó được chốt từ bây giờ để client và test không phải đoán khi phase đó khởi động. Không có code nào ngoài bảng này được phép xuất hiện trong response.
@@ -98,11 +102,11 @@ Yêu cầu `workspace:read` trên từng workspace được trả. Query chỉ `
 
 ### POST /workspaces — tạo workspace khi server cho phép
 
-Yêu cầu authenticated actor và workspace-provisioning policy do server kiểm soát; policy này cố ý không suy diễn từ project role. Body đúng shape `{ "name" }` và `Idempotency-Key`; `201` trả workspace summary/capabilities. Creation atomically thiết lập workspace membership/administrative capability của creator cần để quản lý workspace mới. `400`, `401`, `403`, `429` khi áp dụng; không có project ActivityLog vì ActivityLog project-scoped.
+Yêu cầu authenticated actor và workspace-provisioning policy do server kiểm soát; policy này cố ý không suy diễn từ project role. Catalog permission vì vậy **không** có `workspace:create`, và đó là chủ đích: client **luôn** hiển thị CTA tạo workspace rồi xử lý `403` nếu bị từ chối. Ẩn CTA sẽ chặn đúng người vừa được cấp quyền, vì client không có cách nào biết policy hiện tại là gì. Body đúng shape `{ "name" }` và `Idempotency-Key`; `201` trả workspace summary/capabilities. Creation atomically thiết lập workspace membership/administrative capability của creator cần để quản lý workspace mới. `400`, `401`, `403`, `429` khi áp dụng; không có project ActivityLog vì ActivityLog project-scoped.
 
 ### GET /workspaces/:workspaceId/members — xem membership workspace
 
-Yêu cầu `workspace:member:manage` (Workspace Admin). Query chỉ `cursor`, `limit`; `200` trả member projection phân trang `{ userId, displayName, email, role, createdAt }` cùng workspace capabilities. `403` nghĩa là workspace nhìn thấy nhưng thiếu action; workspace không accessible là `404`. Không kèm project membership hay private project data.
+Yêu cầu `workspace:member:manage` (Workspace Admin). Query chỉ `cursor`, `limit`; `200` trả member projection phân trang `{ userId, displayName, email, role, createdAt }`. Nó **không** kèm capabilities: envelope của list endpoint là `{ items, page }` theo [quy ước API](api-conventions.md), và caller đã có capabilities của workspace từ `GET /workspaces` — trả lần hai chỉ tạo ra hai nguồn cho cùng một dữ liệu. `403` nghĩa là workspace nhìn thấy nhưng thiếu action; workspace không accessible là `404`. Không kèm project membership hay private project data.
 
 ### POST /workspaces/:workspaceId/members — thêm member workspace
 
@@ -110,9 +114,17 @@ Yêu cầu `workspace:member:manage` và CSRF. Body đúng shape `{ "userId", "r
 
 ### DELETE /workspaces/:workspaceId/members/:userId — gỡ member workspace
 
-Yêu cầu `workspace:member:manage`, CSRF và `Idempotency-Key`; không body. `204` chỉ remove membership khi transaction giữ mọi ProjectMember/task-assignee invariant phụ thuộc. Removal bị chặn trả `409 CONFLICT` với invariant-safe code; không silently unassign task, đổi project membership hay ghi activity.
+Yêu cầu `workspace:member:manage`, CSRF và `Idempotency-Key`; không body. `204` chỉ remove membership khi transaction giữ mọi ProjectMember/task-assignee invariant phụ thuộc. Removal bị chặn trả `409 WORKSPACE_MEMBER_IN_PROJECTS` khi target còn `project_members` row, hoặc `409 MEMBER_HAS_ASSIGNED_TASKS` khi target còn là assignee của task; không silently unassign task, đổi project membership hay ghi activity. Kiểm theo đúng thứ tự đó, để thông điệp nói đúng việc cần làm trước.
 
 ## Projects và project members
+
+### GET /workspaces/:workspaceId/projects — danh sách project actor được phép thấy
+
+Yêu cầu `workspace:read` trên workspace, và trả **chỉ** những project mà actor có `project_members` row. Query chỉ `cursor` và `limit`. `200` trả cursor page của project projection cùng `role` của actor trong từng project.
+
+Endpoint này **không** làm rò rỉ project riêng tư: một Workspace Admin chưa được thêm vào project nào sẽ nhận một trang rỗng, không phải danh sách project của người khác. Nó cũng không trả count thành viên hay count task — không projection nào công bố chúng, và suy ra chúng từ dữ liệu actor không được đọc chính là cách rò rỉ.
+
+Thứ tự cố định là `createdAt DESC, id DESC`, khớp seek order mặc định trong [chính sách query và index](../data/query-and-index-policy.md). Workspace không accessible là `404`.
 
 ### POST /workspaces/:workspaceId/projects — tạo private project
 
@@ -120,7 +132,7 @@ Yêu cầu `project:create` (Workspace Admin), CSRF và `Idempotency-Key`. Body 
 
 ### GET /projects/:projectId — mở project board/detail
 
-Yêu cầu `project:read`. Không cần query để mở board: `200` trả project projection, current-project capabilities, active column, assignable project-member projection và page đầu default 25 task độc lập cho mỗi column. Board load bình thường loại archived column và không bao giờ fetch toàn bộ task của project lớn. Load-more của một column dùng explicit task-list use case `GET /projects/:projectId/tasks?columnId=...&cursor=...`, nên không ảnh hưởng page của column khác. ID non-member/cross-project trả `404`; member nhìn thấy project nhưng thiếu action trả `403`.
+Yêu cầu `project:read`. Không cần query để mở board: `200` trả project projection, current-project capabilities, active column, assignable project-member projection và page đầu default 25 task độc lập cho mỗi column. **Phần task và column chỉ có mặt từ mốc dựng bảng của chúng**: `columns` từ M3, `tasks` từ M4. Ở M2, response đúng là `{ project, capabilities, columns: [], members }` — trả một mảng rỗng là trung thực, còn bỏ hẳn field sẽ buộc client viết hai nhánh cho cùng một endpoint. Board load bình thường loại archived column và không bao giờ fetch toàn bộ task của project lớn. Load-more của một column dùng explicit task-list use case `GET /projects/:projectId/tasks?columnId=...&cursor=...`, nên không ảnh hưởng page của column khác. ID non-member/cross-project trả `404`; member nhìn thấy project nhưng thiếu action trả `403`.
 
 ### PATCH /projects/:projectId — đổi tên project
 
@@ -132,11 +144,11 @@ Yêu cầu `project:member:manage` (Owner), CSRF và `Idempotency-Key`. Body đ�
 
 ### PATCH /projects/:projectId/members/:userId — đổi project role
 
-Yêu cầu `project:member:manage`, CSRF và `Idempotency-Key`. Body đúng shape `{ "role" }`, một fixed project role; `200` trả member đã đổi. Transaction giữ tối thiểu một Owner và ghi `project_member.role_changed`; demote Owner cuối cùng trả `409 CONFLICT` và không ghi gì.
+Yêu cầu `project:member:manage`, CSRF và `Idempotency-Key`. Body đúng shape `{ "role" }`, một fixed project role; `200` trả member đã đổi. Transaction giữ tối thiểu một Owner và ghi `project_member.role_changed`; demote Owner cuối cùng trả `409 PROJECT_LAST_OWNER` và không ghi gì.
 
 ### DELETE /projects/:projectId/members/:userId — gỡ project member
 
-Yêu cầu `project:member:manage`, CSRF và `Idempotency-Key`; không body. `204` chỉ remove khi còn tối thiểu một Owner và target không còn là assignee của task trong project. Vi phạm trả `409 CONFLICT`; API không auto-unassign/transfer task. Commit thành công ghi activity `project_member.removed`.
+Yêu cầu `project:member:manage`, CSRF và `Idempotency-Key`; không body. `204` chỉ remove khi còn tối thiểu một Owner và target không còn là assignee của task trong project. Gỡ Owner cuối cùng trả `409 PROJECT_LAST_OWNER`; target còn là assignee trả `409 MEMBER_HAS_ASSIGNED_TASKS`. API không auto-unassign/transfer task. Commit thành công ghi activity `project_member.removed`.
 
 ## Board columns
 
@@ -208,7 +220,7 @@ Các route dưới đây chỉ tồn tại khi Phase 1.5 bắt đầu. Chúng d�
 
 `PATCH /tasks/:taskId` nhận thêm `parentTaskId` (`null` để bỏ cha). Cha phải cùng project, khác chính task, và **không được có cha của riêng nó** — subtask sâu đúng một cấp; vi phạm trả `400 VALIDATION_FAILED`. Gán cha không di chuyển task và không kéo theo con.
 
-`POST /tasks/:taskId/dependencies` yêu cầu `task:update`, CSRF và `Idempotency-Key`; body đúng shape `{ "blockingTaskId" }` — task hiện tại là bên bị chặn. Cả hai task phải cùng project. `201` trả cạnh đã tạo. Cạnh tạo chu trình trả `409 TASK_DEPENDENCY_CYCLE`; vượt 50 cạnh mỗi chiều trả `400 VALIDATION_FAILED`; cạnh trùng trả `409 CONFLICT`. Transaction ghi `task_dependency.added`.
+`POST /tasks/:taskId/dependencies` yêu cầu `task:update`, CSRF và `Idempotency-Key`; body đúng shape `{ "blockingTaskId" }` — task hiện tại là bên bị chặn. Cả hai task phải cùng project. `201` trả cạnh đã tạo. Cạnh tạo chu trình trả `409 TASK_DEPENDENCY_CYCLE`; vượt 50 cạnh mỗi chiều trả `400 VALIDATION_FAILED`; cạnh trùng trả `409 TASK_DEPENDENCY_DUPLICATE`. Transaction ghi `task_dependency.added`.
 
 `DELETE /task-dependencies/:dependencyId` yêu cầu `task:update`, CSRF và `Idempotency-Key`; không body. `204` xoá cạnh và ghi `task_dependency.removed`. Đây là hard delete có chủ đích; lịch sử nằm ở Activity Log.
 

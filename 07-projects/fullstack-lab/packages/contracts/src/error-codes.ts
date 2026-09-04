@@ -22,6 +22,15 @@ export const ERROR_CODES = [
   "IDEMPOTENCY_KEY_REUSED",
   "IDEMPOTENCY_IN_PROGRESS",
   "COLUMN_NOT_EMPTY",
+
+  // Xung đột trạng thái của membership. Chúng **không** phải optimistic
+  // concurrency: tải lại rồi gửi lại không giải quyết được gì, người dùng phải
+  // đổi thứ tự thao tác. Đó là lý do chúng có code riêng thay vì dùng lại một
+  // code `*_VERSION_CONFLICT` đã có.
+  "PROJECT_LAST_OWNER",
+  "MEMBER_HAS_ASSIGNED_TASKS",
+  "WORKSPACE_MEMBER_IN_PROJECTS",
+
   "RATE_LIMITED",
   "INTERNAL_ERROR",
 
@@ -44,6 +53,7 @@ export const ERROR_CODES = [
   "SPRINT_VERSION_CONFLICT",
 
   // Phase 1.5 — quan hệ giữa Task
+  "TASK_DEPENDENCY_DUPLICATE",
   "TASK_DEPENDENCY_CYCLE",
 ] as const;
 
@@ -68,6 +78,9 @@ export const ERROR_STATUS: Readonly<Record<ErrorCode, number>> = {
   IDEMPOTENCY_KEY_REUSED: 409,
   IDEMPOTENCY_IN_PROGRESS: 409,
   COLUMN_NOT_EMPTY: 409,
+  PROJECT_LAST_OWNER: 409,
+  MEMBER_HAS_ASSIGNED_TASKS: 409,
+  WORKSPACE_MEMBER_IN_PROJECTS: 409,
   RATE_LIMITED: 429,
   INTERNAL_ERROR: 500,
 
@@ -86,6 +99,7 @@ export const ERROR_STATUS: Readonly<Record<ErrorCode, number>> = {
   SPRINT_CLOSED: 409,
   SPRINT_VERSION_CONFLICT: 409,
 
+  TASK_DEPENDENCY_DUPLICATE: 409,
   TASK_DEPENDENCY_CYCLE: 409,
 } as const;
 

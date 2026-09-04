@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { capabilitiesSchema, projectRoleSchema } from "./capabilities.js";
+import { paginationQuerySchema } from "./envelope.js";
 import { uuidSchema } from "./fields.js";
 import { projectMemberSchema, projectSchema } from "./resources.js";
 
@@ -13,6 +14,36 @@ import { projectMemberSchema, projectSchema } from "./resources.js";
  */
 
 export const projectNameSchema = z.string().trim().min(1).max(120);
+
+/**
+ * Query của `GET /workspaces/:workspaceId/projects`.
+ *
+ * Chỉ `cursor` và `limit`. Không filter, không sort do client chọn: danh sách
+ * này đã bị giới hạn theo membership của actor, và mở thêm trục lọc ở đây là mở
+ * thêm cách để dò xem project nào tồn tại.
+ */
+export const listProjectsQuerySchema = paginationQuerySchema.strict();
+export type ListProjectsQuery = z.infer<typeof listProjectsQuerySchema>;
+
+/**
+ * Một dòng trong danh sách project.
+ *
+ * Có `role` của actor để UI biết ngay cần render affordance nào, nhưng **không**
+ * có count thành viên hay count task: không projection nào công bố chúng, và
+ * suy ra chúng từ dữ liệu actor không được đọc chính là cách rò rỉ.
+ */
+export const projectListItemSchema = z
+  .object({
+    id: uuidSchema,
+    workspaceId: uuidSchema,
+    name: z.string().min(1),
+    role: projectRoleSchema,
+    createdAt: z.iso.datetime({ offset: false }),
+    updatedAt: z.iso.datetime({ offset: false }),
+  })
+  .strict();
+
+export type ProjectListItem = z.infer<typeof projectListItemSchema>;
 
 export const createProjectRequestSchema = z.object({ name: projectNameSchema }).strict();
 export type CreateProjectRequest = z.infer<typeof createProjectRequestSchema>;

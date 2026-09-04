@@ -1,4 +1,4 @@
-import { createHash, randomBytes, timingSafeEqual, createHmac } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 
 /**
  * Opaque session và CSRF — [ADR-0003](../../../../../docs/decisions/ADR-0003-opaque-session-authentication.md)
@@ -60,64 +60,16 @@ export function isSessionUsable(session: SessionRecord, now: Date = new Date()):
 }
 
 /**
- * Thuộc tính cookie session.
+ * Cookie session và CSRF đã chuyển sang `shared/http/`.
  *
- * `Secure` bật ở mọi nơi trừ development. Nới lỏng cho local là có chủ đích,
- * nhưng nó **không** được rò sang build production — vì vậy điều kiện nằm ở
- * đúng một hàm, không rải rác trong code.
+ * Lý do: `SessionGuard` của `shared/authorization` và mọi module có mutation
+ * đều cần chúng, nên quy tắc hai consumer ở
+ * `docs/engineering/shared-helper-policy.md` đã đạt. Giữ thêm một bản sao ở đây
+ * là tạo ra hai nguồn cho cùng một tên cookie — và một lần đổi tên sót chỗ thứ
+ * hai làm mọi phiên đăng nhập im lặng trở thành `401`.
+ *
+ * Xem `shared/http/session-cookie.ts` và `shared/http/csrf.ts`.
  */
-export interface SessionCookieOptions {
-  name: string;
-  httpOnly: true;
-  sameSite: "lax";
-  secure: boolean;
-  path: "/";
-  maxAge: number;
-}
-
-export const SESSION_COOKIE_NAME = "fb_session";
-
-export function sessionCookieOptions(nodeEnv: string): SessionCookieOptions {
-  return {
-    name: SESSION_COOKIE_NAME,
-    // Cookie session không bao giờ đọc được bằng JavaScript: XSS không được
-    // biến thành đánh cắp phiên.
-    httpOnly: true,
-    // `lax` cho phép điều hướng từ link email về ứng dụng vẫn mang cookie,
-    // trong khi vẫn chặn cookie đi kèm request cross-site dạng form POST.
-    sameSite: "lax",
-    secure: nodeEnv !== "development",
-    path: "/",
-    maxAge: Math.floor(SESSION_TTL_MS / 1000),
-  };
-}
-
-/**
- * CSRF token **gắn với session**.
- *
- * Nó là HMAC của session token dưới một secret riêng, nên:
- *
- * - Không cần lưu thêm cột nào: giá trị suy lại được từ session.
- * - Một CSRF token của phiên này không dùng được cho phiên khác.
- * - Kẻ tấn công cross-site không đọc được cookie `HttpOnly` nên không tự tính
- *   được giá trị này, dù họ khiến trình duyệt gửi cookie đi.
- */
-export function deriveCsrfToken(sessionToken: string, csrfSecret: string): string {
-  return createHmac("sha256", csrfSecret).update(sessionToken, "utf8").digest("base64url");
-}
-
-/**
- * So sánh CSRF token theo thời gian hằng định.
- *
- * So sánh bằng `===` rò rỉ độ dài tiền tố khớp qua thời gian chạy. Với một giá
- * trị mà kẻ tấn công gửi được nhiều lần, đó là một kênh phụ thật.
- */
-export function csrfTokenMatches(expected: string, received: string): boolean {
-  const a = Buffer.from(expected, "utf8");
-  const b = Buffer.from(received, "utf8");
-  if (a.length !== b.length) return false;
-  return timingSafeEqual(a, b);
-}
 
 /**
  * Token một lần cho xác minh email và reset mật khẩu.

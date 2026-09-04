@@ -1,0 +1,109 @@
+import type { Permission } from "@flowboard/contracts";
+import type { FbSidebarItem } from "@flowboard/ui";
+import { can, type CapabilityHolder } from "../authorization/can.ts";
+
+/**
+ * Điều hướng được suy từ **capability server trả về**, không từ role.
+ *
+ * `if (role === "owner")` trong page là duplicate policy — thứ mà
+ * [mô hình phân quyền](../../../../../docs/security/authorization-model.md) cấm.
+ * Ở đây mỗi mục khai đúng permission mà nó cần, rồi `can` quyết định.
+ *
+ * Ẩn một mục **không phải** là phân quyền: route trực tiếp vẫn phải đi tới
+ * `SYS-01`/`SYS-05` và API vẫn là lớp kiểm cuối cùng. Ẩn chỉ để người dùng
+ * không bấm vào thứ chắc chắn bị từ chối.
+ */
+
+export interface NavContext {
+  /** Workspace đang mở; bỏ trống khi actor mới chỉ ở danh sách workspace. */
+  workspaceId?: string | undefined;
+  /** Project đang mở, kèm capabilities server tính cho actor trên chính nó. */
+  project?: { id: string; capabilities: readonly Permission[] } | undefined;
+  /** Capability ở cấp workspace, lấy từ projection của workspace đang mở. */
+  workspaceCapabilities?: readonly Permission[] | undefined;
+  /** Đường dẫn hiện tại, để đánh dấu mục đang mở. */
+  pathname: string;
+}
+
+/**
+ * Chỉ liệt kê những mục mà **route đã tồn tại ở mốc này**.
+ *
+ * Artifact `REF-05` vẽ đủ bảy mục, trong đó `Tổng quan` (`PRJ-04`),
+ * `Bảng công việc` (`BRD-01`) và `Việc của tôi` (`MYT-01`) thuộc M3–M4. Một
+ * mục nav dẫn tới `404` tệ hơn một mục chưa xuất hiện: nó dạy người dùng rằng
+ * điều hướng không đáng tin. Chúng được thêm lại ở đúng mốc dựng màn hình đó.
+ */
+export function navItemsFor(context: NavContext): FbSidebarItem[] {
+  const { workspaceId, project, pathname } = context;
+  const items: FbSidebarItem[] = [];
+  const workspaceHolder: CapabilityHolder = { capabilities: context.workspaceCapabilities };
+  const projectHolder: CapabilityHolder | undefined =
+    project === undefined ? undefined : { capabilities: project.capabilities };
+
+  items.push({
+    id: "workspaces",
+    label: "Không gian làm việc",
+    icon: "building-2",
+    href: "/khong-gian-lam-viec",
+    active: pathname === "/khong-gian-lam-viec",
+  });
+
+  if (workspaceId !== undefined) {
+    const projectsHref = `/khong-gian-lam-viec/${workspaceId}`;
+    items.push({
+      id: "projects",
+      label: "Dự án",
+      icon: "folders",
+      href: projectsHref,
+      active: pathname === projectsHref,
+    });
+
+    if (can("workspace:member:manage", workspaceHolder)) {
+      const href = `${projectsHref}/thanh-vien`;
+      items.push({
+        id: "workspace-members",
+        label: "Thành viên không gian",
+        icon: "users",
+        href,
+        active: pathname === href,
+      });
+    }
+
+    if (can("workspace:settings:update", workspaceHolder)) {
+      const href = `${projectsHref}/cai-dat`;
+      items.push({
+        id: "workspace-settings",
+        label: "Cài đặt không gian",
+        icon: "settings",
+        href,
+        active: pathname === href,
+      });
+    }
+  }
+
+  if (project !== undefined) {
+    if (can("project:member:manage", projectHolder)) {
+      const href = `/du-an/${project.id}/thanh-vien`;
+      items.push({
+        id: "project-members",
+        label: "Thành viên dự án",
+        icon: "users",
+        href,
+        active: pathname === href,
+      });
+    }
+
+    if (can("project:update", projectHolder)) {
+      const href = `/du-an/${project.id}/cai-dat`;
+      items.push({
+        id: "project-settings",
+        label: "Cài đặt dự án",
+        icon: "settings",
+        href,
+        active: pathname === href,
+      });
+    }
+  }
+
+  return items;
+}

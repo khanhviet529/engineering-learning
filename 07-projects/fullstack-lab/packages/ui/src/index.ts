@@ -13,4 +13,8 @@
  */
 
 export * from "./theme.ts";
+export * from "./icon.tsx";
 export * from "./components.tsx";
+export * from "./shell.tsx";
+export * from "./overlays.tsx";
+export * from "./data-display.tsx";

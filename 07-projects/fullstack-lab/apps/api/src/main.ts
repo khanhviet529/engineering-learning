@@ -11,6 +11,11 @@ import { LIVE_RESULT, checkReadiness } from "./shared/http/health.ts";
 import { generateRequestId, normalizeRequestId } from "./shared/observability/request-id.ts";
 import { ErrorFilter } from "./shared/errors/error.filter.ts";
 import { AuthModule } from "./modules/auth/auth.module.ts";
+import { WorkspacesModule } from "./modules/workspaces/workspaces.module.ts";
+import { ProjectsModule, NoTasksYetAssigneeCheck } from "./modules/projects/projects.module.ts";
+import { buildAuthorizationWiring } from "./shared/authorization/index.ts";
+import { AuthRepository } from "./modules/auth/infrastructure/auth-repository.ts";
+import { AuthUseCases } from "./modules/auth/application/auth-use-cases.ts";
 import { SESSION_TTL_MS } from "./modules/auth/domain/session.ts";
 
 /**
@@ -21,9 +26,47 @@ import { SESSION_TTL_MS } from "./modules/auth/domain/session.ts";
  * Không route nghiệp vụ nào sống ở đây — chúng thuộc về module.
  */
 
-/** Module gốc chỉ làm nhiệm vụ ghép, không chứa gì của riêng nó. */
-function buildRootModule(deps: Parameters<typeof AuthModule.register>[0]) {
-  @Module({ imports: [AuthModule.register(deps)] })
+/**
+ * Module gốc chỉ làm nhiệm vụ ghép, không chứa gì của riêng nó.
+ *
+ * Đây là **composition root**: nơi duy nhất biết cả ba module và nối các port
+ * lại với nhau. `SessionGuard` nhận `AuthUseCases` làm `ActorResolver` ở đây —
+ * nhờ vậy `shared/authorization` không import module `auth`, và đồ thị phụ
+ * thuộc của ADR-0005 vẫn acyclic.
+ */
+function buildRootModule(deps: {
+  auth: Parameters<typeof AuthModule.register>[0];
+  authUseCases: AuthUseCases;
+  db: Parameters<typeof WorkspacesModule.register>[0]["db"];
+  cursorSecret: string;
+  csrfSecret: string;
+}) {
+  const wiring = buildAuthorizationWiring({
+    db: deps.db,
+    // `AuthUseCases.resolveSession` khớp đúng hình dạng của `ActorResolver`.
+    actorResolver: deps.authUseCases,
+  });
+
+  @Module({
+    imports: [
+      AuthModule.register(deps.auth),
+      WorkspacesModule.register({
+        db: deps.db,
+        authorization: wiring.authorization,
+        config: { csrfSecret: deps.csrfSecret },
+        cursorSecret: deps.cursorSecret,
+        guards: wiring.providers,
+      }),
+      ProjectsModule.register({
+        db: deps.db,
+        authorization: wiring.authorization,
+        // M4 thay bằng adapter thật của module `tasks`.
+        assigneeCheck: new NoTasksYetAssigneeCheck(),
+        config: { csrfSecret: deps.csrfSecret },
+        guards: wiring.providers,
+      }),
+    ],
+  })
   class RootModule {}
   return RootModule;
 }
@@ -57,18 +100,34 @@ async function bootstrap(): Promise<void> {
   const pruneTimer = setInterval(() => limiter.prune(), 60_000);
   pruneTimer.unref();
 
+  // Dựng use case của `auth` ở đây vì hai nơi cần chính **một** instance:
+  // module `auth`, và `SessionGuard` dùng nó làm `ActorResolver`.
+  const authUseCases = new AuthUseCases({
+    db: database.db,
+    repository: new AuthRepository(database.db),
+    mailer,
+    csrfSecret: env.CSRF_SECRET,
+  });
+
   const app = await NestFactory.create<NestFastifyApplication>(
     buildRootModule({
       db: database.db,
-      mailer,
-      limiter,
-      config: {
-        nodeEnv: env.NODE_ENV,
-        csrfSecret: env.CSRF_SECRET,
-        // `Secure` bật ở mọi nơi trừ development. Nới lỏng cho local là có chủ
-        // đích và **không** được rò sang build production.
-        cookieSecure: env.NODE_ENV !== "development",
-        cookieMaxAgeSeconds: Math.floor(SESSION_TTL_MS / 1000),
+      authUseCases,
+      cursorSecret: env.SESSION_SECRET,
+      csrfSecret: env.CSRF_SECRET,
+      auth: {
+        db: database.db,
+        mailer,
+        limiter,
+        useCases: authUseCases,
+        config: {
+          nodeEnv: env.NODE_ENV,
+          csrfSecret: env.CSRF_SECRET,
+          // `Secure` bật ở mọi nơi trừ development. Nới lỏng cho local là có chủ
+          // đích và **không** được rò sang build production.
+          cookieSecure: env.NODE_ENV !== "development",
+          cookieMaxAgeSeconds: Math.floor(SESSION_TTL_MS / 1000),
+        },
       },
     }),
     new FastifyAdapter(),

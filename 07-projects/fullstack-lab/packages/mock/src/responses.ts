@@ -70,6 +70,9 @@ const DEFAULT_MESSAGES: Readonly<Record<ErrorCode, string>> = {
   IDEMPOTENCY_KEY_REUSED: "Idempotency key reused with a different request.",
   IDEMPOTENCY_IN_PROGRESS: "A request with this idempotency key is still running.",
   COLUMN_NOT_EMPTY: "The column still contains tasks.",
+  PROJECT_LAST_OWNER: "A project must keep at least one owner.",
+  MEMBER_HAS_ASSIGNED_TASKS: "This member still has tasks assigned to them.",
+  WORKSPACE_MEMBER_IN_PROJECTS: "This member still belongs to projects in this workspace.",
   RATE_LIMITED: "Too many requests.",
   INTERNAL_ERROR: "Something went wrong.",
   REPORT_NOT_READY: "The report is not ready yet.",
@@ -84,6 +87,7 @@ const DEFAULT_MESSAGES: Readonly<Record<ErrorCode, string>> = {
   SPRINT_ALREADY_ACTIVE: "Another sprint is already active.",
   SPRINT_CLOSED: "The sprint is closed.",
   SPRINT_VERSION_CONFLICT: "The sprint was changed by someone else.",
+  TASK_DEPENDENCY_DUPLICATE: "This dependency already exists.",
   TASK_DEPENDENCY_CYCLE: "This dependency would create a cycle.",
 };
 

@@ -18,14 +18,26 @@ export class AuthModule {
     mailer: Mailer;
     config: AuthConfig;
     limiter: RateLimiter;
+    /**
+     * Instance dựng sẵn ở composition root.
+     *
+     * `SessionGuard` của `shared/authorization` dùng chính instance này làm
+     * `ActorResolver`, nên nó phải được dựng **một lần** bên ngoài rồi truyền
+     * vào — hai instance riêng sẽ có hai đồng hồ và hai đường tới database cho
+     * cùng một trách nhiệm. Tham số optional để chỗ gọi cũ (test) vẫn dựng được
+     * module mà không phải tự lắp repository.
+     */
+    useCases?: AuthUseCases;
   }): DynamicModule {
     const repository = new AuthRepository(deps.db);
-    const useCases = new AuthUseCases({
-      db: deps.db,
-      repository,
-      mailer: deps.mailer,
-      csrfSecret: deps.config.csrfSecret,
-    });
+    const useCases =
+      deps.useCases ??
+      new AuthUseCases({
+        db: deps.db,
+        repository,
+        mailer: deps.mailer,
+        csrfSecret: deps.config.csrfSecret,
+      });
 
     return {
       module: AuthModule,

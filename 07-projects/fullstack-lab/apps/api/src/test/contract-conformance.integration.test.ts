@@ -1,0 +1,212 @@
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import {
+  errorEnvelopeSchema,
+  listEnvelopeSchema,
+  projectDetailSchema,
+  projectMemberResponseSchema,
+  projectResponseSchema,
+  successEnvelopeSchema,
+  workspaceMemberListItemSchema,
+  workspaceResponseSchema,
+  workspaceSchema,
+} from "@flowboard/contracts";
+import { z } from "zod";
+import { call, createFixture, newKey, type Fixture } from "./fixture.ts";
+
+/**
+ * Response thật phải parse được bằng **chính schema** của
+ * `@flowboard/contracts`.
+ *
+ * Đây là đường nối giữa hai bên đang làm song song. Frontend viết theo mock, và
+ * mock được kiểm bằng cùng bộ schema này; nếu API trả một hình dạng khác thì
+ * hai bên sẽ chỉ phát hiện lúc ghép — muộn nhất có thể.
+ *
+ * Mọi schema là `.strict()`, nên test này bắt **cả hai** chiều: thiếu field, và
+ * thừa field. Thừa field mới là thứ nguy hiểm hơn — nó thường là dữ liệu rò rỉ
+ * ra ngoài projection đã duyệt.
+ */
+
+const url = process.env["DATABASE_URL_HOST"] ?? process.env["DATABASE_URL"];
+const describeIfDb = url ? describe : describe.skip;
+
+describeIfDb("response khớp hợp đồng của @flowboard/contracts", () => {
+  let f: Fixture;
+
+  beforeAll(async () => {
+    f = await createFixture(url as string);
+  });
+
+  afterAll(async () => {
+    await f.cleanup();
+  });
+
+  it("GET /workspaces khớp list envelope của workspace", async () => {
+    const response = await call(f, "GET", "/workspaces", { actor: f.wsAdmin });
+    const schema = listEnvelopeSchema(workspaceSchema);
+    expect(() => schema.parse(response.body)).not.toThrow();
+  });
+
+  it("POST /workspaces khớp workspaceResponseSchema", async () => {
+    const response = await call(f, "POST", "/workspaces", {
+      actor: f.editor,
+      idempotencyKey: newKey("conf-ws"),
+      body: { name: "Kiểm hợp đồng" },
+    });
+    const schema = successEnvelopeSchema(workspaceResponseSchema);
+    expect(() => schema.parse(response.body)).not.toThrow();
+  });
+
+  it("GET /workspaces/:id/members khớp list envelope của workspace member", async () => {
+    const response = await call(f, "GET", `/workspaces/${f.workspaceId}/members`, {
+      actor: f.wsAdmin,
+    });
+    const schema = listEnvelopeSchema(workspaceMemberListItemSchema);
+    expect(() => schema.parse(response.body)).not.toThrow();
+  });
+
+  it("POST /workspaces/:id/members trả member đúng projection đã công bố", async () => {
+    const response = await call(f, "POST", `/workspaces/${f.workspaceId}/members`, {
+      actor: f.wsAdmin,
+      idempotencyKey: newKey("conf-wsm"),
+      body: { userId: f.outsider.id, role: "workspace_member" },
+    });
+
+    const schema = successEnvelopeSchema(
+      z.object({ member: workspaceMemberListItemSchema }).strict(),
+    );
+    expect(() => schema.parse(response.body)).not.toThrow();
+  });
+
+  it("POST /workspaces/:id/projects khớp projectResponseSchema", async () => {
+    const response = await call(f, "POST", `/workspaces/${f.workspaceId}/projects`, {
+      actor: f.wsAdmin,
+      idempotencyKey: newKey("conf-proj"),
+      body: { name: "Dự án kiểm hợp đồng" },
+    });
+    const schema = successEnvelopeSchema(projectResponseSchema);
+    expect(() => schema.parse(response.body)).not.toThrow();
+  });
+
+  it("GET /projects/:id khớp projectDetailSchema", async () => {
+    const response = await call(f, "GET", `/projects/${f.projectBId}`, { actor: f.owner });
+    const schema = successEnvelopeSchema(projectDetailSchema);
+    expect(() => schema.parse(response.body)).not.toThrow();
+  });
+
+  it("PATCH /projects/:id khớp projectResponseSchema", async () => {
+    const response = await call(f, "PATCH", `/projects/${f.projectBId}`, {
+      actor: f.owner,
+      idempotencyKey: newKey("conf-rename"),
+      body: { name: "Tên đã đổi" },
+    });
+    const schema = successEnvelopeSchema(projectResponseSchema);
+    expect(() => schema.parse(response.body)).not.toThrow();
+  });
+
+  it("POST và PATCH project member khớp projectMemberResponseSchema", async () => {
+    /**
+     * Test này thêm User A vào Project B, nên nó **phải trả fixture về nguyên
+     * trạng** trước khi kết thúc.
+     *
+     * Lý do không phải là gọn gàng: "User A không có membership Project B" là
+     * một **tiền đề của fixture chuẩn**, và nhiều test khác dựa vào đó để chứng
+     * minh `404`. Một test để lại User A trong project sẽ làm các test đó pass
+     * vì lý do sai — chúng vẫn xanh, nhưng không còn kiểm điều chúng nói. Đó
+     * đúng là kiểu phụ thuộc thứ tự mà `docs/operations/testing-strategy.md`
+     * cấm.
+     */
+    const added = await call(f, "POST", `/projects/${f.projectBId}/members`, {
+      actor: f.owner,
+      idempotencyKey: newKey("conf-pm"),
+      body: { userId: f.userA.id, role: "viewer" },
+    });
+    const changed = await call(f, "PATCH", `/projects/${f.projectBId}/members/${f.userA.id}`, {
+      actor: f.owner,
+      idempotencyKey: newKey("conf-pmr"),
+      body: { role: "editor" },
+    });
+
+    const schema = successEnvelopeSchema(projectMemberResponseSchema);
+    expect(() => schema.parse(added.body)).not.toThrow();
+    expect(() => schema.parse(changed.body)).not.toThrow();
+
+    const removed = await call(f, "DELETE", `/projects/${f.projectBId}/members/${f.userA.id}`, {
+      actor: f.owner,
+      idempotencyKey: newKey("conf-pmd"),
+    });
+    expect(removed.status).toBe(204);
+
+    // Khẳng định tiền đề đã trở lại: User A ở ngoài Project B.
+    const denied = await call(f, "GET", `/projects/${f.projectBId}`, { actor: f.userA });
+    expect(denied.status).toBe(404);
+  });
+
+  describe("envelope lỗi", () => {
+    /**
+     * Envelope lỗi có một `refine` riêng: chỉ `VALIDATION_FAILED` được mang
+     * field-error array và chỉ `TASK_VERSION_CONFLICT` được mang object
+     * `currentVersion`. Mọi code khác mà kèm `details` là sai hợp đồng, và
+     * schema sẽ từ chối.
+     */
+    const cases: { name: string; run: () => Promise<{ body: Record<string, unknown> }> }[] = [
+      {
+        name: "401 khi không có session",
+        run: async () => await call(f, "GET", "/workspaces"),
+      },
+      {
+        name: "403 khi Viewer gọi mutation",
+        run: async () =>
+          await call(f, "PATCH", `/projects/${f.projectBId}`, {
+            actor: f.viewer,
+            idempotencyKey: newKey("conf-403"),
+            body: { name: "x" },
+          }),
+      },
+      {
+        name: "404 khi actor ngoài project",
+        run: async () => await call(f, "GET", `/projects/${f.projectBId}`, { actor: f.userA }),
+      },
+      {
+        name: "400 khi body sai schema",
+        run: async () =>
+          await call(f, "PATCH", `/projects/${f.projectBId}`, {
+            actor: f.owner,
+            idempotencyKey: newKey("conf-400"),
+            body: { name: "x", description: "field lạ" },
+          }),
+      },
+      {
+        name: "409 khi tái dùng Idempotency-Key",
+        run: async () => {
+          const key = newKey("conf-409");
+          await call(f, "POST", "/workspaces", {
+            actor: f.owner,
+            idempotencyKey: key,
+            body: { name: "Lần một" },
+          });
+          return await call(f, "POST", "/workspaces", {
+            actor: f.owner,
+            idempotencyKey: key,
+            body: { name: "Lần hai" },
+          });
+        },
+      },
+    ];
+
+    for (const testCase of cases) {
+      it(`${testCase.name} khớp errorEnvelopeSchema`, async () => {
+        const response = await testCase.run();
+        expect(() => errorEnvelopeSchema.parse(response.body)).not.toThrow();
+      });
+    }
+
+    it("mọi error code trả về đều nằm trong danh mục đóng", async () => {
+      const responses = await Promise.all(cases.map(async (c) => await c.run()));
+      for (const response of responses) {
+        const parsed = errorEnvelopeSchema.parse(response.body);
+        // `errorCodeSchema` là enum đóng, nên parse thành công đã là bằng chứng.
+        expect(parsed.error.code).toBeTruthy();
+      }
+    });
+  });
+});

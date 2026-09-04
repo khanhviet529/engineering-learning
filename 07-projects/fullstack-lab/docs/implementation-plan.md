@@ -18,7 +18,7 @@
 |---|---|
 | Hợp đồng Markdown | Chốt ở baseline v0.1; **12 ADR đều `Accepted`**. ADR-0012 mở trong lúc triển khai và được chủ dự án duyệt 04/09/2026 |
 | Thiết kế Pencil | **Freeze v0.1 ngày 04/09/2026**, blob `12d6ff91`; checklist 34/34 |
-| Danh mục error code | 24 code, đóng — không code nào ngoài danh mục được xuất hiện trong response |
+| Danh mục error code | **28 code**, đóng — không code nào ngoài danh mục được xuất hiện trong response. Bốn code thêm ở M2 để vá chỗ hợp đồng tự mâu thuẫn |
 | Code ứng dụng | **Chưa có dòng nào** — đây là điểm xuất phát |
 
 Phạm vi thiết kế của v0.1 là core MVP cộng Phase 1.1 và Phase 1.3. Sprint (1.4) và quan hệ task (1.5) đã có ADR, schema và hợp đồng nhưng **chưa có thiết kế** — chúng thuộc Pencil v0.2 theo quyết định của chủ dự án ngày 04/09/2026.
@@ -116,7 +116,7 @@ Nội dung bắt buộc, dịch từ [hợp đồng endpoint](api/endpoint-contr
 |---|---|---|
 | Zod schema cho request/query/body của từng use case | hợp đồng endpoint | Chỉ field trong allowlist; từ chối field lạ |
 | Zod schema cho response projection | mục "Hình dạng resource trả về" | Đúng projection endpoint công bố, không thừa field |
-| `ErrorCode` enum | [danh mục error code](api/endpoint-contracts.md#danh-mục-error-code) | **Đủ 24 code, không hơn không kém** |
+| `ErrorCode` enum | [danh mục error code](api/endpoint-contracts.md#danh-mục-error-code) | **Khớp đúng danh mục, không hơn không kém** (28 code từ 04/09/2026) |
 | Envelope thành công và lỗi | quy ước API | `{ code, message, requestId, details? }` |
 | Tên capability | [mô hình phân quyền](security/authorization-model.md) | Dùng chung cho `can(action, resource)` |
 | Hình dạng cursor | [chính sách query và index](data/query-and-index-policy.md) | Cursor gắn fingerprint của filter/sort |
@@ -516,6 +516,34 @@ Phase 1.4 và 1.5 đều dựa vào `board_columns.is_terminal`, nhưng **không
 3. **`capabilities` per-record** — backend tính và trả; frontend chỉ đọc, không tự suy từ status, ngày hay tác giả.
 
 ---
+
+# Nợ hợp đồng đã biết
+
+Bảng này ghi những chỗ hợp đồng còn thiếu hoặc tự mâu thuẫn, phát hiện trong lúc triển khai. Nó tồn tại để không ai phải phát hiện lại lần thứ hai, và để chỗ nào cần owner quyết thì không bị lặng lẽ quyết thay.
+
+| Khoảng trống | Trạng thái | Ghi chú |
+|---|---|---|
+| `409 CONFLICT` được dùng ở bốn chỗ nhưng không có trong danh mục error code | **Đã sửa 04/09/2026** | Thay bằng bốn code riêng: `PROJECT_LAST_OWNER`, `MEMBER_HAS_ASSIGNED_TASKS`, `WORKSPACE_MEMBER_IN_PROJECTS`, `TASK_DEPENDENCY_DUPLICATE`. Danh mục nay có 28 code. Chúng **không** phải optimistic concurrency: tải lại rồi gửi lại không giải quyết gì, người dùng phải đổi thứ tự thao tác |
+| Không có route trả danh sách project của một workspace, dù `PRJ-01` là màn bắt buộc | **Đã sửa 04/09/2026** | Thêm `GET /workspaces/:workspaceId/projects`, chỉ trả project mà actor có `project_members` row, không trả count thành viên hay count task |
+| `GET /workspaces/:workspaceId/members` khai trả "workspace capabilities" nhưng envelope list là `{ items, page }` | **Đã sửa 04/09/2026** | Bỏ khẳng định đó; caller đã có capabilities từ `GET /workspaces` |
+| `GET /projects/:projectId` khai trả task theo từng column, nhưng `projectDetailSchema` không có field task | **Đã sửa 04/09/2026** | Nói rõ `columns` vào từ M3 và `tasks` từ M4; ở M2 trả mảng rỗng |
+| `USR-01` đòi hiển thị múi giờ workspace mà không projection nào có | **Đã sửa 04/09/2026** | Bỏ khỏi phạm vi màn hình; múi giờ vào schema ở mốc dựng `tasks`, vì `dueDate` được định nghĩa theo nó |
+| `POST /workspaces` không có capability để gate CTA | **Đã làm rõ 04/09/2026** | Chủ đích: client luôn hiện CTA rồi xử lý `403`. Ẩn nó sẽ chặn đúng người vừa được cấp quyền |
+| **Không có đường tra cứu người dùng để thêm workspace member** | **Chờ owner quyết** | `POST /workspaces/:workspaceId/members` nhận `{ userId }` là UUID, nên form thêm thành viên buộc người dùng dán UUID — không dùng được trong thực tế. Sửa nó là quyết định về sản phẩm **và** về bảo mật, không phải một chi tiết hợp đồng: mời theo email làm bề mặt enumeration, còn thêm endpoint tra cứu user cũng vậy. Tôi cố ý **không** tự quyết thay owner. Xem mục dưới |
+
+## Thêm workspace member: cần owner quyết
+
+Hôm nay `POST /workspaces/:workspaceId/members` nhận `{ userId, role }`, và không có endpoint nào cho phép tìm `userId` từ một cái tên hay email. Frontend vì vậy chỉ có thể cho dán UUID.
+
+Ba phương án, và cái giá của từng cái:
+
+| Phương án | Được | Mất |
+|---|---|---|
+| Mời theo email, tạo lời mời chờ | Dùng được ngay; không cần biết user có tồn tại | Thêm khái niệm lời mời vào MVP — một thực thể, một vòng đời, và các màn hình đi kèm |
+| Thêm `GET /users?email=` cho Workspace Admin | Sửa nhỏ nhất | Là một máy dò tài khoản có kiểm quyền. Cần rate limit và audit riêng, và vẫn nói cho admin biết email nào đã đăng ký |
+| Giữ nguyên UUID | Không thêm gì | Không ai dùng được. Thực chất là hoãn, chứ không phải một quyết định |
+
+Cả ba đều là quyết định về vòng đời danh tính, nên theo [quy trình ADR](decisions/README.md) chúng cần một ADR trước khi implementation. Nó đang chặn phần "thêm thành viên" của `WSP-03`; phần còn lại của M2 không bị chặn.
 
 # Rủi ro đã biết
 
