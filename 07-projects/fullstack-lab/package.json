@@ -12,7 +12,7 @@
   "scripts": {
     "format": "prettier --check .",
     "format:write": "prettier --write .",
-    "lint": "eslint .",
+    "lint": "eslint . && node scripts/check-config-boundary.mjs",
     "typecheck": "pnpm -r --if-present typecheck",
     "build": "pnpm -r --if-present build",
     "test": "pnpm -r --workspace-concurrency=1 --if-present test",

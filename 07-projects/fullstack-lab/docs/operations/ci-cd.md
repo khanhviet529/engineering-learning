@@ -13,7 +13,7 @@ format -> lint -> typecheck -> unit -> integration -> build -> E2E -> container 
 | Stage | Bằng chứng | Merge policy |
 |---|---|---|
 | Format | Formatter kiểm tra source và config thay đổi. **Markdown nằm ngoài phạm vi**: `docs/superpowers/**` là snapshot có ngày và ADR đã `Accepted` đều bị cấm sửa nội dung, nên để máy định dạng ghi lại byte của chúng là vi phạm chính hợp đồng đang bảo vệ chúng. Tính đúng đắn của tài liệu được kiểm bằng link check và các phép đối chiếu chéo. | Block merge. |
-| Lint | Linter không có error | Block merge. |
+| Lint | Linter không có error, **và** `scripts/check-config-boundary.mjs` xanh: script `start` của `apps/api`/`apps/web` không nạp config từ file. Bộ kiểm này đọc chính `package.json` mà runtime chạy, vì quy tắc "`dev` nạp file, `start` thì không" hôm nay đúng nhờ người viết đúng — và một quy tắc chỉ nằm trong tài liệu thì không chặn được ai. | Block merge. |
 
 | Typecheck | Tất cả workspace typecheck thành công | Block merge. |
 | Unit | Bộ test cho domain, schema, mapper, policy và shared contract | Block merge. |
