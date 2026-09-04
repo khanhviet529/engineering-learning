@@ -176,10 +176,28 @@ Pencil v0.1 có **171 biến `fb.*`** với hai theme. Không có bước nào �
 
 1. **Xuất token thành CSS variable**, giữ nguyên tên `fb.*` để tra ngược về artifact được. Hai theme Light và Dark định nghĩa cùng một bộ tên, khác giá trị.
 2. **Theme là một nguồn duy nhất**, theo [đặc tả tương tác](design/interaction-specifications.md). Không component nào tự đọc `prefers-color-scheme` riêng.
-3. **Dựng trước các wrapper mà M1 cần**, không dựng cả 25 component: `FbBrandMark`, `FbTextField`, `FbPasswordField`, `FbButtonPrimary`, `FbButtonSecondary`, `FbLink`, `FbAlert`, `FbChecklistRow`, `FbStatePanel`. Các component còn lại dựng đúng lúc mốc cần chúng.
-4. Wrapper trong `packages/ui` **không** tự fetch data, **không** kiểm tra role và **không** gọi API — đó là quy tắc ở [quy ước frontend](engineering/frontend-conventions.md). Component cần capability hoặc mutation thì thuộc về feature, không thuộc `packages/ui`.
+3. Wrapper trong `packages/ui` **không** tự fetch data, **không** kiểm tra role và **không** gọi API — đó là quy tắc ở [quy ước frontend](engineering/frontend-conventions.md). Component cần capability hoặc mutation thì thuộc về feature, không thuộc `packages/ui`.
 
-**Cổng ra đo được:** không một giá trị màu nào viết thẳng trong code frontend; mọi màu đọc từ CSS variable sinh ra từ token. Đây là cùng một tiêu chí mà artifact đã đạt (0 hex ghi cứng), chỉ chuyển sang phía code.
+### Đã dựng — trạng thái ngày 04/09/2026
+
+`tokens.css` **được sinh ra**, không chép tay: [`scripts/generate-tokens.mjs`](../scripts/generate-tokens.mjs) đọc thẳng artifact đã freeze và phát ra CSS. Chép tay là tạo ra một bản sao thứ hai, và bản sao thứ hai luôn trôi khỏi bản gốc — chỉ là sớm hay muộn. Chạy lại bằng `pnpm tokens`.
+
+Kết quả: **171 biến**, trong đó **83 biến có giá trị riêng cho theme tối**, tổng 254 khai báo CSS.
+
+Script từ chối đoán ở hai chỗ, và cả hai đều làm nó **dừng** thay vì phát ra thứ sai:
+
+- Artifact còn biến không mang tiền tố `fb.` thì dừng — nghĩa là remap chưa xong.
+- Token số rơi ngoài ba họ đã biết đơn vị (`px`, `ms`, không đơn vị) thì dừng. Phát số trần ra CSS buộc mọi nơi dùng phải viết `calc(var(--fb-space-4) * 1px)`, và chỉ cần một chỗ quên là layout sai âm thầm.
+
+Theme có **đúng một** nguồn quyết định: `[data-theme]` là lựa chọn tường minh của người dùng, còn khi không có thuộc tính đó thì đi theo `prefers-color-scheme`. Test khẳng định trong toàn bộ file chỉ có **một** media query theo `prefers-color-scheme`, nên không component nào có cớ tự đọc lại nó.
+
+**Cổng ra — đã đạt:** 14 test xác nhận `tokens.css` là dẫn xuất trung thực của artifact — mọi biến trong artifact có mặt trong CSS, CSS không chứa biến nào artifact không có, đơn vị đúng theo từng họ, và theme chỉ có một nguồn quyết định. Không có test này thì `pnpm tokens` chỉ là một lời hứa: ai đó sửa tay một giá trị màu trong CSS và không gì phát hiện ra.
+
+### Chín wrapper `Fb*` chuyển sang M1
+
+Kế hoạch ban đầu đặt chín wrapper đầu tiên ở mốc này. Khi bắt tay vào thì lý do để chuyển chúng sang M1 rõ hơn lý do giữ lại: ở M0.4 chưa có màn hình nào render chúng, nên API của component sẽ được **đoán** thay vì rút ra từ nhu cầu thật, và mọi thứ đoán sai chỉ lộ ra khi M1 dựng `AUTH-01`.
+
+Chúng vì vậy được dựng ở M1, ngay trước các màn hình dùng chúng, và vẫn đúng chín cái đó: `FbBrandMark`, `FbTextField`, `FbPasswordField`, `FbButtonPrimary`, `FbButtonSecondary`, `FbLink`, `FbAlert`, `FbChecklistRow`, `FbStatePanel`. Phần token — thứ mà mọi màn hình đều cần và không phụ thuộc màn hình nào — vẫn ở lại M0.4.
 
 ## M0.5 — Topology local và cổng CI
 

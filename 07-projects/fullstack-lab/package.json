@@ -16,7 +16,8 @@
     "typecheck": "pnpm -r --if-present typecheck",
     "build": "pnpm -r --if-present build",
     "test": "pnpm -r --if-present test",
-    "verify": "pnpm format && pnpm lint && pnpm typecheck && pnpm build && pnpm test"
+    "verify": "pnpm format && pnpm lint && pnpm typecheck && pnpm build && pnpm test",
+    "tokens": "node scripts/generate-tokens.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -12,3 +12,6 @@ docs/design/*.pen
 # bảo vệ chúng. Tính đúng đắn của tài liệu được kiểm bằng link check và các phép
 # đối chiếu chéo, không bằng máy định dạng.
 *.md
+
+# Sinh tự động bởi `pnpm tokens`; để formatter sửa nó sẽ làm hai bên đánh nhau mãi.
+packages/ui/src/tokens.css
