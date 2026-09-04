@@ -54,9 +54,9 @@ Hệ thống
 
 `Thiết lập workspace` chỉ là điểm điều hướng dành cho Workspace Admin theo baseline. Chưa có trường hay hành động chi tiết nào được xác định ở đây; Pencil không được tự vẽ form cài đặt hoặc thao tác lưu cho đến khi có hợp đồng dữ liệu tương ứng.
 
-`PRJ-04 Tổng quan project` (`/projects/:projectId/overview`) là điểm điều hướng cấp project ngang hàng với Board, mở được cho cả Owner, Editor và Viewer vì nó chỉ đọc aggregate đã được authorize. Nó phải có mặt trong nav vì [RPT-01](screen-inventory.md) — CTA `Xuất tiến độ` của Phase 1.1 — sống trên chính màn này; không có đường vào Tổng quan thì luồng export không có entry point nào. Bản thân CTA vẫn gated theo capability `report:export` (Owner, Phase 1.1), nên nav item mở cho mọi role không cấp thêm quyền gì.
+`PRJ-04 Tổng quan project` (`/du-an/:projectId/tong-quan`) là điểm điều hướng cấp project ngang hàng với Board, mở được cho cả Owner, Editor và Viewer vì nó chỉ đọc aggregate đã được authorize. Nó phải có mặt trong nav vì [RPT-01](screen-inventory.md) — CTA `Xuất tiến độ` của Phase 1.1 — sống trên chính màn này; không có đường vào Tổng quan thì luồng export không có entry point nào. Bản thân CTA vẫn gated theo capability `report:export` (Owner, Phase 1.1), nên nav item mở cho mọi role không cấp thêm quyền gì.
 
-`PRJ-03 Project Settings` là một hợp đồng khác: Owner mở màn hình này từ project được cấp quyền để đổi **duy nhất tên project**. Form chỉ nạp/tạo một trường `name` và gửi `PATCH /projects/:projectId` với trường đó. Nó không có description, visibility, thao tác xóa/archiving project hay bất kỳ setting chưa được baseline xác định.
+`PRJ-03 Project Settings` (`/du-an/:projectId/cai-dat`) là một hợp đồng khác: Owner mở màn hình này từ project được cấp quyền để đổi **duy nhất tên project**. Form chỉ nạp/tạo một trường `name` và gửi `PATCH /projects/:projectId` với trường đó. Nó không có description, visibility, thao tác xóa/archiving project hay bất kỳ setting chưa được baseline xác định.
 
 ## Mô hình ngữ cảnh
 
@@ -81,19 +81,34 @@ Một URL đến project hoặc task luôn phải được đánh giá lại ở
 
 ## Quy ước route và lớp phủ
 
-Các route dưới đây là định danh UX ổn định. Tên thư mục Next.js cụ thể có thể triển khai tương đương, nhưng không đổi ý nghĩa hoặc ID màn hình.
+Quy ước dưới đây do [ADR-0014](../decisions/ADR-0014-route-language.md) quyết định.
 
-| Vùng | Route hoặc route context | Ghi chú hành vi |
-|---|---|---|
-| Authentication | `/sign-in`, `/sign-up`, `/password/forgot`, `/password/reset`, `/email/verify` | URL có thể mang đích quay lại đã được kiểm tra an toàn; không mang ID project để cấp quyền. |
-| Workspace | `/workspaces`, `/workspaces/:workspaceId` | `/workspaces/:workspaceId` là context danh sách project. |
-| Project board | `/projects/:projectId/board` | Filter, sort, search và cursor là query state có thể chia sẻ; không đưa dữ liệu private vào URL. |
-| Project Settings | `/projects/:projectId/settings` | `PRJ-03` là trang Owner-only; nạp tên/capability project và chỉ cập nhật `name` bằng `PATCH /projects/:projectId`. |
-| Task detail | `/projects/:projectId/board?task=:taskId` | Mở drawer/modal trên board; deep link phải tải lại và kiểm tra cả project lẫn task. |
-| Task form | context board với `task=new` hoặc `task=:taskId&edit=1` | Là lớp phủ; form mới không được xuất hiện cho Viewer. |
-| Column editor | context board với `panel=columns` | Là lớp phủ chỉ Owner. |
-| Project members | context project với `panel=members` | Là lớp phủ hoặc trang con chỉ Owner. |
-| System | route đã yêu cầu hoặc context thao tác | `Forbidden`, `Session expired`, `Error` và `Conflict` giữ đủ ngữ cảnh để người dùng biết cách quay lại hoặc xem lại. |
+Route là **bề mặt sản phẩm**, không phải định danh nội bộ — chúng được ghi ở đây đúng như người dùng thấy trên thanh địa chỉ. Thứ bền vững là Screen ID; route có thể đổi mà ID không đổi, nhưng khi route đổi thì **file này phải đổi theo**, vì đây là nơi duy nhất công bố chúng.
+
+Segment của path viết bằng **tiếng Việt không dấu**, cùng lý do khiến toàn bộ UI là tiếng Việt: URL là chữ người dùng đọc, gõ và gửi cho nhau. Ngược lại, **query key giữ tiếng Anh** (`task`, `panel`, `limit`) — chúng là tham số kỹ thuật, không phải chữ hiển thị, và chúng đi cùng API chứ không cùng UI.
+
+Cột `Trạng thái` phân biệt route **đã dựng** với route còn là dự kiến. Đây là chỗ M2 từng hụt: route được đặt tên trong lúc code mà không ghi lại, nên tài liệu công bố một bộ path tiếng Anh mà app chưa bao giờ phục vụ. Route của M3/M4 được đặt tên **trước** ở đây để không lặp lại chuyện đó.
+
+| Vùng | Route | Screen ID | Trạng thái | Ghi chú hành vi |
+|---|---|---|---|---|
+| Gốc | `/` | — | Đã dựng | Chuyển hướng sang `/khong-gian-lam-viec`. Không tự chọn hộ một workspace: danh sách có thể rỗng hoặc có nhiều. |
+| Authentication | `/dang-nhap`, `/dang-ky`, `/quen-mat-khau`, `/dat-lai-mat-khau`, `/xac-minh-email` | `AUTH-01`…`AUTH-05` | Đã dựng | URL có thể mang đích quay lại đã được kiểm tra an toàn; không mang ID project để cấp quyền. |
+| Workspace list | `/khong-gian-lam-viec` | `WSP-01` | Đã dựng | `WSP-02` Tạo không gian là modal trên chính màn này, không có route riêng. |
+| Project list | `/khong-gian-lam-viec/:workspaceId` | `PRJ-01` | Đã dựng | Là context danh sách project. `PRJ-02` Tạo project là modal trên màn này. |
+| Workspace members | `/khong-gian-lam-viec/:workspaceId/thanh-vien` | `WSP-03` | Đã dựng | Trang con Workspace Admin. Từ [ADR-0013](../decisions/ADR-0013-workspace-member-invitation.md) màn này có hai danh sách: member và lời mời `pending`. |
+| Workspace settings | `/khong-gian-lam-viec/:workspaceId/cai-dat` | `WSP-04` | Đã dựng | Trang con Workspace Admin. |
+| Project members | `/du-an/:projectId/thanh-vien` | `PRM-01` | Đã dựng | Trang con chỉ Owner, **không** phải lớp phủ. Nó rời khỏi `panel=members` vì một lớp phủ giữ board bên dưới ở trạng thái sống: board vẫn poll, vẫn nhận DnD, và người dùng vừa đổi role của một người vừa nhìn thấy dữ liệu cũ của người đó phía sau. Một trang con thì không có gì phía sau để lệch. |
+| Project settings | `/du-an/:projectId/cai-dat` | `PRJ-03` | Đã dựng | Trang Owner-only; nạp tên/capability project và chỉ cập nhật `name` bằng `PATCH /projects/:projectId`. |
+| Tài khoản | `/tai-khoan` | `USR-01` | Đã dựng | Vào từ khối tài khoản trên topbar và từ `Trailing slot` của mobile header. |
+| Không có quyền | `/khong-co-quyen` | `SYS-01` | Đã dựng | Giữ đủ ngữ cảnh để người dùng biết cách quay lại. |
+| Chấp nhận lời mời | `/loi-moi/chap-nhan` | `WSP-05` | Dự kiến — ADR-0013 | Token đi trong query. Invalid, expired và đã dùng cho **cùng một** thông điệp; token phải sống sót qua bước đăng nhập/đăng ký. |
+| Project board | `/du-an/:projectId/bang-cong-viec` | `BRD-01` | Dự kiến — M3 | Filter, sort, search và cursor là query state có thể chia sẻ; không đưa dữ liệu private vào URL. |
+| Column editor | `/du-an/:projectId/bang-cong-viec?panel=columns` | `BRD-02` | Dự kiến — M3 | Là lớp phủ chỉ Owner trên board. |
+| Task detail | `/du-an/:projectId/bang-cong-viec?task=:taskId` | `TSK-02` | Dự kiến — M4 | Mở drawer/modal trên board; deep link phải tải lại và kiểm tra cả project lẫn task. |
+| Task form | `?task=new` hoặc `?task=:taskId&edit=1` trên board | `TSK-01` | Dự kiến — M4 | Là lớp phủ; form mới không được xuất hiện cho Viewer. |
+| Việc của tôi | `/viec-cua-toi` | `MYT-01` | Dự kiến — M4 | Cấp workspace, không thuộc một project nào. |
+| Tổng quan dự án | `/du-an/:projectId/tong-quan` | `PRJ-04` | Dự kiến — M5 | Chỉ đọc aggregate đã authorize; là nơi CTA `Xuất tiến độ` của Phase 1.1 sống. |
+| System | route đã yêu cầu hoặc context thao tác | `SYS-02`…`SYS-05` | Một phần | `Session expired`, `Error` và `Conflict` là trạng thái trên chính route đang mở, không phải route riêng. |
 
 ## Điều hướng theo vai trò và trạng thái
 

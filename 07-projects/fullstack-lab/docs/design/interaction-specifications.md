@@ -91,7 +91,7 @@ Form là dirty sau khác biệt có ý nghĩa với giá trị đã nạp/giá t
 
 ### USR-01 — Hồ sơ và tùy chọn
 
-- **Khối người dùng trên topbar là entry point duy nhất của `USR-01`**: bấm avatar/tên mở menu tài khoản rồi vào route `/account/settings`. Footer sidebar **không** mở route này. Tên hiển thị và email lấy từ actor session, chỉ đọc trong MVP. Menu tài khoản đặt ngay dưới khối người dùng, đóng bằng `Escape` và trả focus về chính khối đó.
+- **Khối người dùng trên topbar là entry point duy nhất của `USR-01`**: bấm avatar/tên mở menu tài khoản rồi vào route `/tai-khoan`. Footer sidebar **không** mở route này. Tên hiển thị và email lấy từ actor session, chỉ đọc trong MVP. Menu tài khoản đặt ngay dưới khối người dùng, đóng bằng `Escape` và trả focus về chính khối đó.
 - Theme `light|dark|system` là preference cục bộ; thay đổi áp dụng ngay, không tạo mutation API. UI thông báo ngắn khi lưu preference thất bại ở local storage và vẫn cho actor chọn lại.
 - Múi giờ là dữ liệu của workspace, chỉ đọc. Không cho mỗi cá nhân đổi timezone vì due state/overdue phải nhất quán cho toàn project.
 - `Đổi mật khẩu` điều hướng sang `AUTH-03`; không thiết kế quản lý phiên, thiết bị hay khóa API trong MVP.
@@ -151,7 +151,7 @@ MVP hỗ trợ web responsive, không phải ứng dụng mobile native. Ở vie
 - Cột giữ chiều rộng có thể đọc; vùng board cuộn ngang native. Không ép tất cả cột thành một danh sách dọc và không cắt mất cột cuối.
 - Có dấu hiệu cuộn ngang có thể nhận biết bằng thị giác và truy cập được. Focus vào task/card phải được đưa vào vùng nhìn thấy mà không tự đổi cột.
 - Kéo cảm ứng bắt đầu bằng drag handle/nhấn giữ; khi chưa kích hoạt kéo, vuốt dùng để cuộn ngang. Khi kéo, target hợp lệ và vị trí nguồn vẫn được biểu đạt rõ.
-- Task detail, task form, Column Editor và Project Members trên mobile dùng full-height sheet/drawer có tiêu đề, nút đóng và focus management tương đương desktop. Project Settings giữ route riêng với form name đơn; cửa sổ xác nhận/Conflict không vượt viewport và vẫn cuộn nội dung độc lập.
+- Task detail, task form và Column Editor trên mobile dùng full-height sheet/drawer có tiêu đề, nút đóng và focus management tương đương desktop. `PRM-01` Project Members **không** nằm trong danh sách này nữa: nó là trang con tại `/du-an/:projectId/thanh-vien`, nên trên mobile nó là một trang, và mọi hành vi sheet — focus trap, nút đóng, khôi phục focus khi đóng — không áp dụng cho nó. Project Settings giữ route riêng với form name đơn; cửa sổ xác nhận/Conflict không vượt viewport và vẫn cuộn nội dung độc lập.
 
 Pencil phải thể hiện ít nhất desktop và mobile horizontal cho BRD-01, cùng trạng thái DnD, optimistic pending, Error rollback và Conflict của task card.
 
