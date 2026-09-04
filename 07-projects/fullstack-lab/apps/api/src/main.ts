@@ -55,6 +55,10 @@ function buildRootModule(deps: {
         authorization: wiring.authorization,
         config: { csrfSecret: deps.csrfSecret },
         cursorSecret: deps.cursorSecret,
+        // Cùng instance mailer và limiter mà `auth` dùng: một tiến trình, một
+        // transport SMTP, một bộ đếm rate limit.
+        mailer: deps.auth.mailer,
+        limiter: deps.auth.limiter,
         guards: wiring.providers,
       }),
       ProjectsModule.register({

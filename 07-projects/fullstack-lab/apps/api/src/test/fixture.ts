@@ -11,6 +11,7 @@ import {
   projectMembers,
   projects,
   users,
+  workspaceInvitations,
   workspaceMembers,
   workspaces,
 } from "../shared/database/schema.ts";
@@ -77,6 +78,17 @@ export interface Fixture {
   /** Actor không thuộc workspace nào — dùng cho nhánh danh sách rỗng. */
   outsider: TestActor;
 
+  /**
+   * Hộp thư của test.
+   *
+   * Token lời mời thô chỉ tồn tại trong lá thư — database chỉ giữ hash. Test
+   * muốn chấp nhận một lời mời thì phải đọc token ở đúng chỗ người dùng thật
+   * đọc, và đây là chỗ đó.
+   */
+  mailer: SilentMailer;
+  /** Bộ đếm rate limit dùng chung, để test tự dọn giữa các case. */
+  limiter: RateLimiter;
+
   cleanup: () => Promise<void>;
   /** Bật/tắt kết quả của `ProjectAssigneeCheck` để kiểm bất biến của M4 từ M2. */
   setHasAssignedTasks: (value: boolean) => void;
@@ -85,9 +97,40 @@ export interface Fixture {
 const CSRF_SECRET = "c".repeat(32);
 const SESSION_SECRET = "s".repeat(32);
 
+/**
+ * Mailer của test: không gửi gì ra ngoài, nhưng **ghi lại** thư mời.
+ *
+ * Token thô chỉ tồn tại đúng một lần — trong thư. Server chỉ lưu hash, nên
+ * không có đường nào lấy lại nó từ database. Test muốn chấp nhận một lời mời
+ * thì phải đọc token ở đúng chỗ người dùng thật đọc: hộp thư.
+ *
+ * Đây cũng là chỗ test kiểm được rằng thư mang đủ context (tên workspace, tên
+ * người mời) — thứ phân biệt một lời mời với một thư phishing.
+ */
 class SilentMailer implements Mailer {
+  readonly invitations: {
+    to: string;
+    token: string;
+    workspaceName: string;
+    invitedByName: string;
+  }[] = [];
+
   async sendVerificationEmail(): Promise<void> {}
   async sendPasswordResetEmail(): Promise<void> {}
+
+  async sendWorkspaceInvitationEmail(input: {
+    to: string;
+    token: string;
+    workspaceName: string;
+    invitedByName: string;
+  }): Promise<void> {
+    this.invitations.push(input);
+  }
+
+  /** Token của lời mời gần nhất gửi tới địa chỉ này, nếu có. */
+  lastTokenFor(email: string): string | undefined {
+    return this.invitations.filter((i) => i.to === email).at(-1)?.token;
+  }
 }
 
 /**
@@ -109,13 +152,38 @@ class ControllableAssigneeCheck implements ProjectAssigneeCheck {
 }
 
 export async function createFixture(databaseUrl: string): Promise<Fixture> {
-  const handle = createDatabase(databaseUrl, { max: 5 });
+  /**
+   * Pool **2**, không phải 5.
+   *
+   * Một fixture phát request tuần tự, nên nó không bao giờ dùng hết 5 kết nối —
+   * con số đó chỉ là mặc định chép lại. Nhưng vitest chạy các file test song
+   * song, mỗi file dựng một fixture, nên số kết nối nhân theo số file: bảy
+   * fixture × 5 là 35 kết nối cho một việc cần nhiều nhất 14.
+   *
+   * Điều đó có hậu quả đo được: hai lần trong lúc phát triển, một lượt chạy đầy
+   * đủ báo lỗi ở `beforeAll` và bỏ qua cả trăm test — dấu hiệu của việc giành
+   * kết nối chứ không phải của một assertion sai. Giảm pool bỏ luôn nguồn áp
+   * lực đó mà không đánh đổi gì, vì phần dư chưa từng được dùng.
+   */
+  const handle = createDatabase(databaseUrl, { max: 2 });
   const db = handle.db;
+
+  /**
+   * **Một** mailer và **một** limiter cho cả tiến trình test.
+   *
+   * Trước đây fixture dựng hai `SilentMailer` riêng — vô hại khi không ai đọc
+   * chúng, nhưng nay test phải lấy token lời mời từ hộp thư, và một instance
+   * thứ hai nghĩa là thư rơi vào cái mà test không cầm. Cùng lý do với limiter:
+   * hai bộ đếm là hai hạn mức, và test rate limit sẽ đo nhầm cái không được
+   * dùng.
+   */
+  const mailer = new SilentMailer();
+  const limiter = new RateLimiter();
 
   const authUseCases = new AuthUseCases({
     db,
     repository: new AuthRepository(db),
-    mailer: new SilentMailer(),
+    mailer,
     csrfSecret: CSRF_SECRET,
   });
 
@@ -127,8 +195,8 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
     imports: [
       AuthModule.register({
         db,
-        mailer: new SilentMailer(),
-        limiter: new RateLimiter(),
+        mailer,
+        limiter,
         useCases: authUseCases,
         config: {
           nodeEnv: "test",
@@ -142,6 +210,8 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
         authorization: wiring.authorization,
         config: { csrfSecret: CSRF_SECRET },
         cursorSecret: SESSION_SECRET,
+        mailer,
+        limiter,
         guards: wiring.providers,
       }),
       ProjectsModule.register({
@@ -288,6 +358,8 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
     userA,
     userB,
     outsider,
+    mailer,
+    limiter,
     setHasAssignedTasks: (value: boolean) => {
       assigneeCheck.value = value;
     },
@@ -332,6 +404,15 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
           await db.delete(projects).where(inArray(projects.id, ids));
         }
         await db.delete(workspaceMembers).where(eq(workspaceMembers.workspaceId, id));
+        /**
+         * Lời mời cũng phải dọn trước workspace.
+         *
+         * FK của `workspace_invitations` là `ON DELETE RESTRICT`, đúng quy ước
+         * "core MVP không cascade dữ liệu private hay audit". Nghĩa là database
+         * **từ chối** xoá workspace khi còn lời mời — và đó là hành vi đúng;
+         * chỗ phải thích ứng là cleanup, không phải constraint.
+         */
+        await db.delete(workspaceInvitations).where(eq(workspaceInvitations.workspaceId, id));
       }
       await db.delete(workspaces).where(inArray(workspaces.id, workspaceIds));
 

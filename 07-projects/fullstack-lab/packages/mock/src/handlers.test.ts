@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   errorEnvelopeSchema,
   listEnvelopeSchema,
+  pendingInvitationSchema,
   projectListItemSchema,
   successEnvelopeSchema,
   activitySchema,
@@ -23,12 +24,13 @@ import {
   columnHandlers,
   commentHandlers,
   errorFor,
+  invitationHandlers,
   projectHandlers,
   taskHandlers,
   workspaceHandlers,
   type Scenario,
 } from "./handlers.js";
-import { ids } from "./fixtures.js";
+import { ids, invitations } from "./fixtures.js";
 
 /**
  * Cổng ra đo được của M0.3.
@@ -252,6 +254,97 @@ describe("body sai trả 400 với field-error array", () => {
       projectId: ids.projectB,
       orderedColumnIds: [ids.columnBacklog, ids.columnBacklog],
     });
+    expect(res.status).toBe(400);
+  });
+});
+
+/**
+ * Lời mời — [ADR-0013](../../../docs/decisions/ADR-0013-workspace-member-invitation.md).
+ *
+ * Điều đáng kiểm nhất ở đây không phải shape mà là **sự giống nhau**: ba nhánh
+ * mời và bốn nguyên nhân token hỏng phải cho ra những response không phân biệt
+ * được. Vì thế các test dưới đây so các response **với nhau**, chứ không so
+ * từng cái với một chuỗi mong đợi — so với chuỗi thì hai nhánh cùng sai theo
+ * cùng một kiểu vẫn xanh.
+ */
+describe("lời mời", () => {
+  it("danh sách chỉ có lời mời pending và parse đúng projection", () => {
+    const res = invitationHandlers.list();
+    const parsed = listEnvelopeSchema(pendingInvitationSchema).safeParse(res.body);
+    expect(parsed.success, JSON.stringify(parsed.error?.issues)).toBe(true);
+  });
+
+  it("projection không chứa tokenHash hay status", () => {
+    // `.strict()` của schema đã cấm field lạ, nhưng fixture mới có thể được
+    // thêm field và schema mới có thể được nới. Kiểm thẳng vào dữ liệu để hai
+    // sai lầm đó không thể cùng lúc trốn thoát.
+    const serialized = JSON.stringify(invitations);
+    expect(serialized).not.toContain("tokenHash");
+    expect(serialized).not.toContain("status");
+  });
+
+  it("thu hồi trả 204 không body", () => {
+    const res = invitationHandlers.revoke();
+    expect(res.status).toBe(204);
+    expect(res.body).toBeNull();
+  });
+
+  it("chấp nhận trả workspace vừa tham gia", () => {
+    const res = invitationHandlers.accept({ token: "a".repeat(43) });
+    const schema = successEnvelopeSchema(z.object({ workspace: workspaceSchema }).strict());
+    const parsed = schema.safeParse(res.body);
+    expect(parsed.success, JSON.stringify(parsed.error?.issues)).toBe(true);
+  });
+
+  it("bốn nguyên nhân token hỏng cho cùng một response", () => {
+    // Mock chỉ có **một** hàm cho cả bốn, nên phép kiểm thật nằm ở chỗ: gọi nó
+    // bốn lần cho ra bốn body giống nhau trừ `requestId`. Nếu sau này có ai
+    // thêm nhánh riêng cho "hết hạn", test này đỏ.
+    const bodies = ["invalid", "expired", "used", "revoked"].map(() => {
+      const res = invitationHandlers.tokenUnusable();
+      const body = res.body as { error: unknown; requestId: string };
+      return { status: res.status, error: body.error };
+    });
+    for (const body of bodies) expect(body).toEqual(bodies[0]);
+    expect(bodies[0]?.status).toBe(400);
+  });
+
+  it("token hỏng KHÔNG kèm details — details là chỗ nguyên nhân rò ra", () => {
+    const res = invitationHandlers.tokenUnusable();
+    const body = res.body as { error: { code: string; details?: unknown } };
+    expect(body.error.code).toBe("VALIDATION_FAILED");
+    expect(body.error.details).toBeUndefined();
+  });
+
+  it("email khác là 403 và nói rõ, vì người giữ token đã đọc được hộp thư đó", () => {
+    const res = invitationHandlers.emailMismatch();
+    expect(res.status).toBe(403);
+    const parsed = errorEnvelopeSchema.safeParse(res.body);
+    expect(parsed.success).toBe(true);
+    const body = res.body as { error: { code: string; message: string } };
+    expect(body.error.code).toBe("FORBIDDEN");
+    expect(body.error.message).not.toBe("");
+  });
+
+  it("mời trả 202 accepted giống hệt nhau cho mọi email", () => {
+    // Ba nhánh mà ADR-0013 yêu cầu không phân biệt được: đã có account, chưa
+    // có account, đã là member. Fixture cố ý có một email trùng actor và một
+    // email không trùng ai.
+    const responses = [
+      "ownerb@example.test",
+      "khong-ton-tai@example.test",
+      "quan@example.test",
+    ].map((email) => workspaceHandlers.invite({ email, role: "workspace_member" }));
+    const shapes = responses.map((res) => ({
+      status: res.status,
+      data: (res.body as { data: unknown }).data,
+    }));
+    for (const shape of shapes) expect(shape).toEqual(shapes[0]);
+    expect(shapes[0]).toEqual({ status: 202, data: { accepted: true } });
+  });
+
+  it("mời với role không hợp lệ bị từ chối trước khi gửi thư", () => {
+    const res = workspaceHandlers.invite({ email: "a@example.test", role: "owner" });
     expect(res.status).toBe(400);
   });
 });

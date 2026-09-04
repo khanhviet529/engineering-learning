@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
+  acceptedResponseSchema,
   errorEnvelopeSchema,
   listEnvelopeSchema,
   projectDetailSchema,
@@ -74,7 +75,54 @@ describeIfDb("response khớp hợp đồng của @flowboard/contracts", () => {
    * Nhánh thứ ba là nhánh dễ bị làm sai nhất, vì nó có vẻ vô hại khi trả một
    * thông điệp khác.
    */
-  it.todo("POST /workspaces/:id/members trả 202 giống nhau ở cả ba nhánh (ADR-0013)");
+  it("POST /workspaces/:id/members trả 202 giống nhau ở cả ba nhánh (ADR-0013)", async () => {
+    f.limiter.reset();
+
+    // Nhánh 1: địa chỉ chưa từng có account.
+    const stranger = await call(f, "POST", `/workspaces/${f.workspaceId}/members`, {
+      actor: f.wsAdmin,
+      idempotencyKey: newKey("conf-inv-1"),
+      body: {
+        email: `khong-ton-tai-${crypto.randomUUID().slice(0, 8)}@example.test`,
+        role: "workspace_member",
+      },
+    });
+
+    // Nhánh 2: có account, chưa thuộc workspace này.
+    const withAccount = await call(f, "POST", `/workspaces/${f.workspaceId}/members`, {
+      actor: f.wsAdmin,
+      idempotencyKey: newKey("conf-inv-2"),
+      body: { email: f.outsider.email, role: "workspace_member" },
+    });
+
+    // Nhánh 3: đã là member của chính workspace này.
+    const alreadyMember = await call(f, "POST", `/workspaces/${f.workspaceId}/members`, {
+      actor: f.wsAdmin,
+      idempotencyKey: newKey("conf-inv-3"),
+      body: { email: f.editor.email, role: "workspace_member" },
+    });
+
+    const schema = successEnvelopeSchema(acceptedResponseSchema);
+    for (const response of [stranger, withAccount, alreadyMember]) {
+      expect(response.status).toBe(202);
+      expect(() => schema.parse(response.body)).not.toThrow();
+    }
+
+    /**
+     * So **chéo** ba response với nhau, không so từng cái với một hằng số.
+     *
+     * Ba lần `expect(body).toEqual({ accepted: true })` đều pass ngay cả khi một
+     * nhánh thêm một field mà hằng số cũng thêm — hoặc khi tác giả test sửa
+     * hằng số cho khớp thứ đang chạy. So chéo thì không có chỗ nào để sửa cho
+     * khớp: hai response phải giống nhau, chấm hết.
+     */
+    const comparable = (body: Record<string, unknown>) => ({ ...body, requestId: "<redacted>" });
+    expect(comparable(withAccount.body)).toEqual(comparable(stranger.body));
+    expect(comparable(alreadyMember.body)).toEqual(comparable(stranger.body));
+
+    // Và không response nào nhắc lại địa chỉ đã nhập.
+    expect(JSON.stringify(alreadyMember.body)).not.toContain(f.editor.email);
+  });
 
   it("POST /workspaces/:id/projects khớp projectResponseSchema", async () => {
     const response = await call(f, "POST", `/workspaces/${f.workspaceId}/projects`, {

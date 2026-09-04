@@ -66,6 +66,20 @@ Integration test phải dùng PostgreSQL và transaction thực; mock repository
 
 E2E thêm journey conflict: UI giữ local draft/snapshot, rollback optimistic move khi stale `409`, tải lại dữ liệu được phép đọc và không force/auto-merge/auto-retry stale write.
 
+## Test ở đường nối giữa hai lane
+
+Khi hai lane chạy song song, mỗi lane viết test theo hợp đồng **mà lane đó đọc**, và không ai sở hữu chỗ hai hợp đồng gặp nhau. Đó là hình dạng của loại lỗi tốn nhất trong repo này, vì nó lọt qua mọi cổng: cả hai bộ test đều xanh, và đều xanh **một cách đúng đắn**.
+
+Ví dụ đã xảy ra ở M2. `apps/api` dựng link trong thư mời trỏ `/loi-moi`; `apps/web` dựng route `/loi-moi/chap-nhan`. Mọi người được mời nhận `404` — tức là tính năng không có đường vào nào — trong khi 543 test của backend và 242 test của frontend đều xanh. Lý do không bên nào bắt được: test backend đọc token **ra khỏi** Mailpit rồi tự gọi API, test frontend render component với `token` truyền vào và tự đặt `window.location`. Cả hai đều kiểm phần mình rất kỹ và không bên nào nhìn vào chính cái path trong thư.
+
+Ba luật rút ra:
+
+1. **Giá trị đi qua đường nối phải có một chỗ định nghĩa duy nhất**, và chỗ đó là `packages/contracts`. Path của link trong thư nay ở `WEB_ROUTES`; trước đó nó là hai chuỗi viết tay ở hai app.
+2. **Guard phải đọc thực tại, không đọc một hằng số khác.** Test so hằng số với hằng số chỉ chứng minh hai chuỗi giống nhau. Guard cho `WEB_ROUTES` đọc `src/app` **trên đĩa** và khẳng định mỗi path có `page.tsx` — cùng lối `contract-sync.test.ts` đọc Markdown thay vì tin một bản sao trong code.
+3. **Đường nối thuộc về người tích hợp, không thuộc lane nào.** Cả hai lane đều đúng theo phần mình; ai gộp hai lane lại là người phải viết test cho chỗ gặp nhau.
+
+Danh sách đường nối hiện có, mỗi cái phải có guard đọc thực tại: hằng số ↔ Markdown (`contract-sync.test.ts`), error code ↔ danh mục trong tài liệu (hai chiều), status thành công ↔ hợp đồng endpoint (`endpoint-contract-matrix`), path trong thư ↔ route App Router (`web-routes.test.ts`), seed token của Ant Design ↔ variant mà component render (`theme.test.ts`).
+
 ## Failure experiments và recovery checks
 
 Failure experiment chỉ chạy trên local/CI hoặc environment non-production được cô lập. Nó có owner, thời hạn, dữ liệu disposable, expected signal và cleanup; không biến thành chaos testing production ngẫu hứng.

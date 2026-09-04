@@ -9,6 +9,8 @@ import {
   moveTaskRequestSchema,
   updateTaskRequestSchema,
   createCommentRequestSchema,
+  acceptInvitationRequestSchema,
+  inviteWorkspaceMemberRequestSchema,
   createColumnRequestSchema,
   updateColumnRequestSchema,
   reorderColumnsRequestSchema,
@@ -21,6 +23,7 @@ import {
   columns,
   comments,
   ids,
+  invitations,
   members,
   projectB,
   tasks,
@@ -221,6 +224,83 @@ export const workspaceHandlers = {
     const failed = guard(ctx);
     if (failed) return failed;
     return okList([workspace]);
+  },
+
+  /**
+   * `POST /workspaces/:workspaceId/members` — mời qua email.
+   *
+   * Trả **đúng một** body cho mọi email hợp lệ. Mock cố ý không tra `actors`
+   * để quyết định trả gì khác: làm vậy sẽ tái tạo chính cái oracle mà
+   * [ADR-0013](../../../docs/decisions/ADR-0013-workspace-member-invitation.md)
+   * dựng ra để loại bỏ, và frontend viết dựa trên nó sẽ hiện chữ suy diễn.
+   */
+  invite(body: unknown, ctx: HandlerContext = {}): MockResponse<unknown> {
+    const failed = guard(ctx);
+    if (failed) return failed;
+    const parsed = parse(inviteWorkspaceMemberRequestSchema, body);
+    if (!parsed.ok) return parsed.response;
+    return ok({ accepted: true as const }, 202);
+  },
+};
+
+// ------------------------------------------------------------- invitations
+
+export const invitationHandlers = {
+  /**
+   * `GET /workspaces/:workspaceId/invitations`.
+   *
+   * Chỉ lời mời `pending`, thứ tự `createdAt DESC, id DESC`. Không có
+   * `tokenHash` trong projection và cũng không có trong fixture — một giá trị
+   * không tồn tại thì không lọt ra được.
+   */
+  list(ctx: HandlerContext = {}): MockResponse<unknown> {
+    const failed = guard(ctx);
+    if (failed) return failed;
+    return okList(invitations);
+  },
+
+  /**
+   * `DELETE /workspaces/:workspaceId/invitations/:invitationId`.
+   *
+   * Lời mời không tồn tại, thuộc workspace khác, hoặc đã `accepted`/`revoked`
+   * đều là `404` — dựng bằng kịch bản `not-found`, không phải một nhánh riêng,
+   * vì hợp đồng nói chúng **cùng một** response.
+   */
+  revoke(ctx: HandlerContext = {}): MockResponse<unknown> {
+    const failed = guard(ctx);
+    if (failed) return failed;
+    return noContent();
+  },
+
+  /**
+   * `POST /invitations/accept`.
+   *
+   * Token invalid, hết hạn, đã dùng hay đã thu hồi đều trả **cùng một**
+   * `400 VALIDATION_FAILED` **không có** `details`. Không có details là chủ ý:
+   * một `details` mô tả "hết hạn" hay "đã dùng" chính là phép phân biệt mà hợp
+   * đồng cấm, và nó sẽ lọt ra ngoài qua đúng cái field-error mà UI hiển thị.
+   *
+   * Email của actor khác email được mời là ngoại lệ duy nhất: `403` nói rõ, vì
+   * người đang giữ token đã đọc được hộp thư đó rồi.
+   */
+  accept(body: unknown, ctx: HandlerContext = {}): MockResponse<unknown> {
+    const failed = guard(ctx);
+    if (failed) return failed;
+    const parsed = parse(acceptInvitationRequestSchema, body);
+    if (!parsed.ok) return parsed.response;
+    return ok({ workspace });
+  },
+
+  /** Token không dùng được — một response duy nhất cho cả bốn nguyên nhân. */
+  tokenUnusable(): MockResponse<unknown> {
+    return err("VALIDATION_FAILED");
+  },
+
+  /** Actor đăng nhập bằng email khác email được mời. */
+  emailMismatch(): MockResponse<unknown> {
+    return err("FORBIDDEN", {
+      message: "Lời mời này thuộc về một địa chỉ email khác. Hãy đăng nhập bằng địa chỉ đó.",
+    });
   },
 };
 

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FbAlert, FbButtonPrimary, FbLink, FbPasswordField, FbTextField } from "@flowboard/ui";
 import { signIn } from "../../lib/api.ts";
 import { fieldError, type ApiFailure } from "../../lib/transport.ts";
+import { DEFAULT_RETURN_PATH, safeReturnPath } from "../../lib/safe-return.ts";
 
 /**
  * `AUTH-01` — đăng nhập.
@@ -15,9 +16,15 @@ import { fieldError, type ApiFailure } from "../../lib/transport.ts";
  * 1. Gặp `403 EMAIL_VERIFICATION_REQUIRED` thì **xoá mật khẩu**, chỉ giữ email
  *    trong form state tạm, rồi chuyển sang `AUTH-05`.
  * 2. **Không bao giờ tự retry** sign-in. Một lần bấm là một lần thử.
+ *
+ * `next` là đích quay lại sau khi đăng nhập — `WSP-05` dùng nó để đưa người
+ * được mời về đúng lời mời đang cầm, kèm token. Nó **luôn** đi qua
+ * `safeReturnPath`: giá trị này do người gửi liên kết viết, và nhận nguyên nó
+ * là dựng sẵn một open redirect ngay trên trang đăng nhập thật.
  */
-export function SignInForm() {
+export function SignInForm({ next }: { next?: string | undefined } = {}) {
   const router = useRouter();
+  const returnPath = safeReturnPath(next, DEFAULT_RETURN_PATH);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -35,7 +42,7 @@ export function SignInForm() {
     setSubmitting(false);
 
     if (result.ok) {
-      router.push("/");
+      router.push(returnPath);
       return;
     }
 
@@ -104,7 +111,17 @@ export function SignInForm() {
         }}
       >
         <FbLink href="/quen-mat-khau">Quên mật khẩu?</FbLink>
-        <FbLink href="/dang-ky">Tạo tài khoản</FbLink>
+        {/* `next` đi theo sang trang đăng ký, nếu không người dùng đổi hướng ở
+            đây sẽ mất đích quay lại — với `WSP-05` là mất luôn lời mời. */}
+        <FbLink
+          href={
+            returnPath === DEFAULT_RETURN_PATH
+              ? "/dang-ky"
+              : `/dang-ky?next=${encodeURIComponent(returnPath)}`
+          }
+        >
+          Tạo tài khoản
+        </FbLink>
       </div>
     </form>
   );

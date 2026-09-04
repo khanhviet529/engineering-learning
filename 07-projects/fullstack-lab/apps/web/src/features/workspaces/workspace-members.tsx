@@ -15,7 +15,6 @@ import {
 } from "@flowboard/ui";
 import type { WorkspaceRole } from "@flowboard/contracts";
 import { AppShell } from "../navigation/app-shell.tsx";
-import { AsyncSection } from "../system/async-section.tsx";
 import { FailureState, SystemState } from "../system/failure-state.tsx";
 import { can } from "../authorization/can.ts";
 import { Intent, fieldError } from "../../lib/transport.ts";
@@ -28,6 +27,7 @@ import {
 } from "./queries.ts";
 import { MemberTable, type MemberRow } from "../members/member-table.tsx";
 import { MembershipConflictNotice, isMembershipConflict } from "../members/membership-conflict.tsx";
+import { WorkspaceInvitationsSection } from "./workspace-invitations.tsx";
 
 /**
  * `WSP-03` — thành viên của một không gian làm việc.
@@ -52,6 +52,10 @@ export function WorkspaceMembersScreen({ workspaceId }: { workspaceId: string })
   // Chỉ hỏi danh sách khi đã biết actor được phép quản lý.
   const { members, loading, failure, refetch } = useWorkspaceMembers(workspaceId, manageable);
   const [adding, setAdding] = useState(false);
+  // Kết quả của mutation được nói ra một lần, ở một chỗ. Hai vùng live region
+  // trên cùng một trang sẽ đọc chồng lên nhau và người dùng screen reader
+  // không nghe rõ vùng nào vừa đổi.
+  const [notice, setNotice] = useState<string | undefined>(undefined);
 
   const shell = (children: React.ReactNode) => (
     <AppShell
@@ -84,57 +88,93 @@ export function WorkspaceMembersScreen({ workspaceId }: { workspaceId: string })
     return shell(<SystemState screen="SYS-01" backHref={`/khong-gian-lam-viec/${workspaceId}`} />);
   }
 
+  // Danh sách thành viên là resource chính của màn này. Nó hỏng thì cả trang là
+  // **một** màn hình hệ thống — không phải hai panel lỗi giống nhau xếp chồng,
+  // và cũng không phải một trang nửa hỏng nửa dùng được.
+  if (failure !== undefined) return shell(<FailureState failure={failure} onRetry={refetch} />);
+  if (loading || members === undefined) return shell(<FbSkeleton lines={4} />);
+
   return shell(
     <>
+      {/* Kết quả mutation được đọc lên bằng `role="status"`: người dùng screen
+          reader không thấy hộp thoại vừa đóng, nên phải nghe được nó đã làm gì.
+          `polite` chứ không phải `alert` — đây là xác nhận, không phải lỗi cần
+          cắt ngang. Vùng này luôn có mặt trong DOM; chỉ nội dung bên trong đổi,
+          vì một vùng live region vừa được chèn vào thường không được đọc. */}
+      <div role="status" aria-live="polite">
+        {notice !== undefined && <FbAlert intent="success" title={notice} />}
+      </div>
+
       <FbPageSection
         heading="Danh sách thành viên"
-        description="Quản trị viên không gian quản lý thành viên và quyền ở cấp không gian."
-        action={<FbButtonPrimary onClick={() => setAdding(true)}>Thêm thành viên</FbButtonPrimary>}
+        description="Người trong danh sách này đã chấp nhận lời mời và đã có quyền ở cấp không gian."
+        action={<FbButtonPrimary onClick={() => setAdding(true)}>Mời thành viên</FbButtonPrimary>}
       >
         <FbAlert
           intent="info"
           title="Quyền ở không gian không cấp quyền đọc dự án riêng tư"
-          description="Sau khi được thêm vào không gian, người đó vẫn phải được Owner thêm vào từng dự án với một vai trò cụ thể."
+          description="Sau khi vào không gian, người đó vẫn phải được Owner thêm vào từng dự án với một vai trò cụ thể."
         />
 
-        <AsyncSection
-          loading={loading}
-          failure={failure}
-          data={members}
-          onRetry={refetch}
-          skeletonLines={4}
-        >
-          {(items) =>
-            items.length === 0 ? (
-              <FbAlert
-                intent="info"
-                title="Không gian này chưa có thành viên nào khác"
-                description="Thêm thành viên để họ có thể được mời vào các dự án của không gian."
-              />
-            ) : (
-              <MemberTable
-                caption="Thành viên của không gian làm việc"
-                columns={["Thành viên", "Vai trò", "Tham gia từ"]}
-                rows={items.map<MemberRow>((member) => ({
-                  id: member.userId,
-                  name: member.displayName,
-                  email: member.email,
-                  badge: (
-                    <FbBadge tone={member.role === "workspace_admin" ? "brand" : "neutral"}>
-                      {ROLE_LABEL[member.role]}
-                    </FbBadge>
-                  ),
-                  meta: new Date(member.createdAt).toLocaleDateString("vi-VN"),
-                }))}
-                renderActions={(row) => <RemoveMemberButton workspaceId={workspaceId} row={row} />}
-              />
-            )
-          }
-        </AsyncSection>
+        {members.length === 0 ? (
+          <FbAlert
+            intent="info"
+            title="Không gian này chưa có thành viên nào khác"
+            description="Mời thêm người để họ có thể được thêm vào các dự án của không gian."
+          />
+        ) : (
+          <MemberTable
+            caption="Thành viên của không gian làm việc"
+            columns={["Thành viên", "Vai trò", "Tham gia từ"]}
+            rows={members.map<MemberRow>((member) => ({
+              id: member.userId,
+              name: member.displayName,
+              email: member.email,
+              badge: (
+                <FbBadge tone={member.role === "workspace_admin" ? "brand" : "neutral"}>
+                  {ROLE_LABEL[member.role]}
+                </FbBadge>
+              ),
+              meta: new Date(member.createdAt).toLocaleDateString("vi-VN"),
+            }))}
+            renderActions={(row) => <RemoveMemberButton workspaceId={workspaceId} row={row} />}
+          />
+        )}
+      </FbPageSection>
+
+      {/* Khối thứ hai, không phải vài hàng nữa của khối trên: lời mời `pending`
+          chưa cấp quyền gì, còn mọi người ở bảng trên thì đã có quyền rồi. */}
+      <FbPageSection
+        heading="Lời mời đang chờ"
+        description="Chưa ai trong danh sách này có quyền ở không gian. Họ chỉ trở thành thành viên sau khi mở thư và chấp nhận lời mời."
+      >
+        <WorkspaceInvitationsSection
+          workspaceId={workspaceId}
+          enabled={manageable}
+          onRevoked={(email) => {
+            setNotice(
+              `Đã thu hồi lời mời gửi tới ${email}. Liên kết trong thư đó không còn dùng được.`,
+            );
+          }}
+        />
       </FbPageSection>
 
       {adding && (
-        <AddWorkspaceMemberDialog workspaceId={workspaceId} onClose={() => setAdding(false)} />
+        <AddWorkspaceMemberDialog
+          workspaceId={workspaceId}
+          onClose={() => setAdding(false)}
+          onSent={() => {
+            // Chữ này **không** suy ra bất cứ điều gì từ response, vì response
+            // cố tình giống hệt nhau cho ba nhánh: email đã có account, chưa có
+            // account, và đã là member. "Đã thêm thành viên" sai với cả ba.
+            // "Người này đã là thành viên" thì vừa sai vừa phá đúng cái lý do
+            // ADR-0013 tồn tại — nó biến màn hình này thành máy dò tài khoản mà
+            // hợp đồng vừa đóng lại.
+            setNotice(
+              "Đã gửi lời mời nếu địa chỉ hợp lệ. Người được mời phải mở thư và chấp nhận thì mới trở thành thành viên.",
+            );
+          }}
+        />
       )}
     </>,
   );
@@ -218,9 +258,12 @@ function RemoveMemberButton({ workspaceId, row }: { workspaceId: string; row: Me
 function AddWorkspaceMemberDialog({
   workspaceId,
   onClose,
+  onSent,
 }: {
   workspaceId: string;
   onClose: () => void;
+  /** Gọi sau khi server nhận `202`; chỗ gọi quyết định nói gì với người dùng. */
+  onSent: () => void;
 }) {
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<WorkspaceRole>("workspace_member");
@@ -237,7 +280,15 @@ function AddWorkspaceMemberDialog({
     if (submitted.current !== undefined && submitted.current !== payload) intent.current.rotate();
     submitted.current = payload;
 
-    mutation.mutate({ email: email.trim(), role, intent: intent.current }, { onSuccess: onClose });
+    mutation.mutate(
+      { email: email.trim(), role, intent: intent.current },
+      {
+        onSuccess: () => {
+          onSent();
+          onClose();
+        },
+      },
+    );
   }
 
   return (

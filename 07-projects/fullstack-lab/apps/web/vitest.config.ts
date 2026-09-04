@@ -19,7 +19,8 @@ export default defineConfig({
     globals: false,
     // Màn hình M2 dựng cả app shell (sidebar, topbar, antd ConfigProvider) nên
     // một lần render đắt hơn một component đơn lẻ nhiều. 5s mặc định đủ cho
-    // phần lớn test nhưng không đủ cho các test có nhiều bước tương tác.
-    testTimeout: 20_000,
+    // phần lớn test nhưng không đủ cho các test có nhiều bước tương tác — và
+    // 20s vẫn còn hụt khi cả bộ chạy song song trên máy đang bận.
+    testTimeout: 60_000,
   },
 });

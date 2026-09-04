@@ -3,6 +3,7 @@ import type {
   Actor,
   BoardColumn,
   Comment,
+  PendingInvitation,
   Project,
   ProjectMember,
   Task,
@@ -43,6 +44,8 @@ export const ids = {
   taskOpen: "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
   taskOverdue: "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
   comment: "ffffffff-ffff-4fff-8fff-ffffffffffff",
+  invitationPending: "14141414-1414-4141-8141-141414141414",
+  invitationSecond: "15151515-1515-4151-8151-151515151515",
   activity: "12121212-1212-4121-8121-121212121212",
 } as const;
 
@@ -277,3 +280,31 @@ export const capabilitiesByRole = {
   ],
   viewer: ["project:read", "board-column:read", "task:read", "comment:read", "activity:read"],
 } as const;
+
+/**
+ * Lời mời **đang chờ** — [ADR-0013](../../../docs/decisions/ADR-0013-workspace-member-invitation.md).
+ *
+ * Chỉ có `pending`: lời mời `accepted` và `revoked` là dữ liệu audit, không
+ * phải danh sách để hành động, nên endpoint không trả chúng và fixture cũng
+ * không dựng chúng. Một trong hai địa chỉ dưới đây cố ý **không** trùng actor
+ * nào trong `actors`, vì mời theo email không cần account tồn tại — đó là cả
+ * lý do phương án này được chọn.
+ */
+export const invitations: readonly PendingInvitation[] = [
+  {
+    id: ids.invitationPending,
+    email: "nguoi-moi@example.test",
+    role: "workspace_member",
+    invitedBy: { id: ids.userWorkspaceAdmin, displayName: "Quan" },
+    createdAt: T0,
+    expiresAt: "2026-09-08T08:30:00Z",
+  },
+  {
+    id: ids.invitationSecond,
+    email: "quan-tri@example.test",
+    role: "workspace_admin",
+    invitedBy: { id: ids.userWorkspaceAdmin, displayName: "Quan" },
+    createdAt: T0,
+    expiresAt: "2026-09-08T08:30:00Z",
+  },
+];

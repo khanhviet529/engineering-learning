@@ -11,6 +11,7 @@ import {
 } from "@flowboard/ui";
 import { signUp } from "../../lib/api.ts";
 import { Intent, fieldError, type ApiFailure } from "../../lib/transport.ts";
+import { DEFAULT_RETURN_PATH, safeReturnPath } from "../../lib/safe-return.ts";
 import { checklistSatisfied, passwordChecklist } from "./password-checklist.ts";
 
 /**
@@ -20,7 +21,16 @@ import { checklistSatisfied, passwordChecklist } from "./password-checklist.ts";
  * không chứa email hay tên hiển thị. Blocklist là quyết định của server và
  * hiện thành field error **sau khi submit** — client không mang danh sách đó.
  */
-export function SignUpForm() {
+export function SignUpForm({ next }: { next?: string | undefined } = {}) {
+  // Đăng ký **không** tạo phiên: nó gửi thư xác minh. Nên `next` không thể
+  // được "quay lại" ngay sau khi submit ở đây — nó chỉ đi tiếp sang đường
+  // đăng nhập, là chỗ có phiên để quay lại. Nói thẳng điều đó với người dùng
+  // còn hơn để họ chờ một cú chuyển trang không bao giờ tới.
+  const returnPath = safeReturnPath(next, DEFAULT_RETURN_PATH);
+  const signInHref =
+    returnPath === DEFAULT_RETURN_PATH
+      ? "/dang-nhap"
+      : `/dang-nhap?next=${encodeURIComponent(returnPath)}`;
   const [email, setEmail] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
@@ -76,7 +86,8 @@ export function SignUpForm() {
         description={
           <>
             Kiểm tra hộp thư <strong>{email}</strong> và nhấn vào liên kết để kích hoạt tài khoản.
-            Liên kết có hiệu lực trong 24 giờ.
+            Liên kết có hiệu lực trong 24 giờ. Xong bước đó,{" "}
+            <FbLink href={signInHref}>đăng nhập</FbLink> để quay lại chỗ bạn đang dở.
           </>
         }
       />
@@ -133,7 +144,7 @@ export function SignUpForm() {
       </FbButtonPrimary>
 
       <div style={{ fontSize: "var(--fb-font-size-body-sm)" }}>
-        Đã có tài khoản? <FbLink href="/dang-nhap">Đăng nhập</FbLink>
+        Đã có tài khoản? <FbLink href={signInHref}>Đăng nhập</FbLink>
       </div>
     </form>
   );

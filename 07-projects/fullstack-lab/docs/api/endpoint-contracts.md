@@ -116,11 +116,17 @@ Yêu cầu `workspace:member:manage`, CSRF và `Idempotency-Key`. Body đúng sh
 
 Use case tạo hoặc ghi đè một lời mời `pending` cho cặp `(workspace, email)`, sinh token một lần và gửi thư. Token cũ mất hiệu lực ngay khi token mới được tạo. Rate limit áp **trước** khi gửi thư — thiếu nó thì route này thành máy gửi thư rác dùng tên miền của sản phẩm. Không route nào trả raw token, và `email` không xuất hiện trong log hay metric label.
 
+Nhánh "đã là member" **thu hồi** lời mời `pending` đang treo của email đó, nếu có. Để một lời mời treo cho người đã vào rồi nghĩa là chấp nhận nó sau đó sẽ đâm vào unique constraint của `workspace_members` — một `500` cho một trạng thái lẽ ra không nên tồn tại. Việc thu hồi này **không** làm response khác đi.
+
+Use case gửi lời mời trả `void` trong code, không trả một giá trị nào: nếu nó trả một object khác nhau giữa ba nhánh thì sớm muộn có người dịch nó thành ba response. Bất biến "ba nhánh không quan sát được khác nhau" vì vậy được cưỡng chế bởi type, không chỉ bởi test.
+
 Lời mời `pending` **không** cấp quyền gì: `workspace_members` chỉ được tạo khi lời mời được chấp nhận. Use case không auto-add user vào project và không tạo project activity.
 
 ### GET /workspaces/:workspaceId/invitations — xem lời mời đang chờ
 
 Yêu cầu `workspace:member:manage`. Query chỉ `cursor` và `limit`; `200` trả cursor page các lời mời `pending` của **chính workspace này** với projection `{ id, email, role, invitedBy, createdAt, expiresAt }`. Không trả `tokenHash`, không trả lời mời của workspace khác, và không trả lời mời đã `accepted` hay `revoked` — chúng là dữ liệu audit, không phải danh sách để hành động.
+
+Lời mời đã **hết hạn** không nằm trong danh sách này, dù hàng vẫn mang `status = 'pending'` cho tới khi có ai dọn. `pending` là trạng thái lưu trữ; "đang chờ" là điều người quản trị đọc được, và một lời mời quá 7 ngày thì không còn chờ gì nữa — trả nó ra là nói sai với đúng người đang cần quyết định gửi lại hay không. Bộ lọc `expires_at > now()` nằm trong truy vấn.
 
 Thứ tự `createdAt DESC, id DESC`. Workspace không accessible là `404`.
 
@@ -137,6 +143,8 @@ Yêu cầu session hợp lệ và CSRF. Body `{ "token" }`. `200` trả `{ "work
 Một transaction duy nhất: validate token, kiểm email của actor **khớp** email được mời, tạo `workspace_members`, rồi đánh dấu lời mời `accepted`. Điều kiện tiêu thụ nằm trong `WHERE` của câu `UPDATE`, nên hai request cùng token không thể cùng thành công.
 
 Token invalid, hết hạn, đã dùng hoặc đã bị thu hồi đều trả **cùng một** `400 VALIDATION_FAILED` an toàn — phân biệt chúng cho biết token nào từng tồn tại. Riêng trường hợp actor đăng nhập bằng **email khác** email được mời trả `403 FORBIDDEN` nói rõ lời mời thuộc địa chỉ khác: actor đang giữ token từ hộp thư đó nên đã biết địa chỉ, và nói mơ hồ ở đây chỉ làm họ không biết phải đăng nhập bằng tài khoản nào.
+
+Actor **đã là member** của workspace đó (được thêm bằng đường khác giữa lúc mời và lúc chấp nhận): token vẫn được tiêu thụ, membership giữ **nguyên vai trò hiện có**, và response trả vai trò thật đó chứ không phải vai trò ghi trong lời mời. Một lời mời không được âm thầm nâng hay hạ quyền của người đã có mặt — nếu cần đổi role thì đó là việc của `PATCH`, có kiểm quyền riêng.
 
 Endpoint này **không** tạo account. Email chưa có account thì thư dẫn tới `AUTH-02`, account được tạo qua đường sign-up bình thường — không đường nào tạo credential mà bỏ qua [chính sách mật khẩu](../decisions/ADR-0007-password-policy.md).
 

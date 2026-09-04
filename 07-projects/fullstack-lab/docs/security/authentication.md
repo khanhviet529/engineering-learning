@@ -47,6 +47,23 @@ Việc tạo session **rotate** identifier chứ không chấp nhận session id
 
 Client không phải browser nằm ngoài MVP. Chúng không được đi vòng qua thiết kế này bằng cách tái dùng hợp đồng cookie của browser.
 
+## Token một lần đi trong URL
+
+Token xác minh email, token reset password và token lời mời workspace đều tới người dùng bằng **một link trong thư**, nên chúng nằm trong URL. Đó là điều kiện của bài toán, không phải một lựa chọn còn mở: một token không nằm trong link thì cái link không làm được việc gì.
+
+Quy tắc vì vậy hẹp hơn "token không bao giờ được vào URL" — quy tắc rộng đó bất khả thi ở đây, và một quy tắc bất khả thi thì bị bỏ qua toàn bộ chứ không bị bỏ qua một nửa:
+
+- Token **không** vào log của chúng ta, không vào metric label, không vào analytics, không vào message của error.
+- Token bị **xoá khỏi thanh địa chỉ ngay khi đã tiêu** — thành công hoặc token không dùng được. Giữ lại ở trạng thái lỗi mạng, vì ở đó token **chưa** bị tiêu và người dùng cần tải lại được.
+- Token **sống sót** qua bước đăng nhập/đăng ký, vì người nhận lời mời thường chưa có phiên. Mất token khi chuyển màn nghĩa là lời mời chỉ dùng được bởi người đã đăng nhập — tức loại đúng những người mà tính năng này nhắm tới.
+- Đích quay lại (`?next=`) phải được **kiểm an toàn** như mọi redirect khác: chỉ path nội bộ, từ chối URL tuyệt đối và `//host`.
+
+Ba link trong thư — `/xac-minh-email`, `/dat-lai-mat-khau`, `/loi-moi/chap-nhan` — được dựng ở `apps/api` nhưng **được phục vụ** bởi `apps/web`. Path của chúng vì vậy sống ở `packages/contracts` (`WEB_ROUTES`), không phải dưới dạng chuỗi viết tay ở hai nơi, và `apps/web` có một test đọc `src/app` **trên đĩa** để khẳng định mỗi path là route thật. Guard đó tồn tại vì thư mời từng trỏ `/loi-moi` trong khi route là `/loi-moi/chap-nhan`: mọi người được mời nhận `404`, trong khi 543 test của backend và 242 test của frontend đều xanh — không bên nào nhìn vào chính cái path trong thư.
+
+**Người được mời chưa có account** là đường đi dài nhất và là chỗ dễ để lại ngõ cụt. `POST /auth/email/verify` cố ý **không** tạo session, nên chuỗi đăng ký → xác minh → đăng nhập kết thúc ở một phiên hợp lệ mà `?next=` đã mất từ lâu. Chúng ta **không** cố mang `next` qua ba chặng đó: mỗi chặng thêm state là thêm một chỗ mất, và người dùng có thể đổi tab hoặc đổi thiết bị giữa đường. Thay vào đó **thư mời nói thẳng**: đăng ký, xác minh, rồi quay lại thư và nhấn lại link. Token còn hiệu lực 7 ngày, nên đường đó luôn đi được, không cần giữ gì cả. Chữ trong thư là bộ phận của hợp đồng ở đây, không phải trang trí.
+
+Đánh đổi đã được cân nhắc và chọn có chủ ý: giữ token trong URL qua bước đăng nhập làm nó xuất hiện thêm ở URL của trang đăng nhập. Phương án ngược lại — nhét token vào `sessionStorage` rồi xoá khỏi URL ngay — thu hẹp bề mặt đó nhưng đánh mất token khi vòng đăng nhập nhảy sang tab khác, và khi đó người dùng gặp một lời mời "không dùng được" mà thật ra vẫn còn hiệu lực. Thư điện tử đã mang token này qua đường không mã hoá đầu-cuối và được log bởi các mail server trên đường đi; coi URL là chỗ rò rỉ chính là đặt sai mối đe dọa.
+
 ## Outcome theo vòng đời xác thực
 
 | Sự kiện | Kết quả với session và cookie |

@@ -1,5 +1,4 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
-import { workspaceMembers } from "../shared/database/schema.ts";
 import { call, createFixture, newKey, type Fixture } from "./fixture.ts";
 
 /**
@@ -29,21 +28,26 @@ describeIfDb("ma trận endpoint ↔ hợp đồng", () => {
     await f.cleanup();
   });
 
-  it("10 endpoint đã dựng trả đúng status thành công đã công bố", async () => {
-    // Dựng sẵn một người để thêm/gỡ, không đụng tới fixture chuẩn.
-    //
-    // Membership workspace của `spare` được ghi **thẳng vào DB**, không qua HTTP:
-    // route tạo nó đã đổi theo ADR-0013 và chưa dựng lại (xem mục 4 dưới đây).
-    // Bốn route sau vẫn cần một workspace member thật để đo được, và việc đo
-    // chúng không phụ thuộc vào việc member đó tới bằng đường nào.
-    //
-    // `spare` là `f.outsider`, và bước cuối cùng của ma trận gỡ member này ra —
-    // giữ nguyên tính chất "ngoài workspace" mà test 404 phía dưới dựa vào.
-    // Fixture chỉ dựng một lần cho cả describe, nên phép cộng phải về không.
+  it("11 endpoint trả đúng status thành công đã công bố", async () => {
+    f.limiter.reset();
+
+    /**
+     * Membership workspace của `spare` nay tới bằng **đường thật**: mời rồi
+     * chấp nhận.
+     *
+     * Trước đây nó được ghi thẳng vào DB, vì route tạo nó đã đổi theo ADR-0013
+     * và chưa dựng lại. Nay nó đã dựng, nên đo qua HTTP là đo đúng thứ người
+     * dùng đi qua.
+     *
+     * Chú ý điều `202` **không** làm: nó không tạo membership, nó tạo lời mời.
+     * Membership chỉ xuất hiện sau `POST /invitations/accept`. Dùng `202` để
+     * dựng một member là hiểu sai chính hợp đồng mà ma trận này đang đo.
+     *
+     * `spare` là `f.outsider`, và bước cuối cùng của ma trận gỡ member này ra —
+     * giữ nguyên tính chất "ngoài workspace" mà test 404 phía dưới dựa vào.
+     * Fixture chỉ dựng một lần cho cả describe, nên phép cộng phải về không.
+     */
     const spare = f.outsider;
-    await f.db
-      .insert(workspaceMembers)
-      .values({ workspaceId: f.workspaceId, userId: spare.id, role: "workspace_member" });
 
     const results: { route: string; expected: number; actual: number }[] = [];
 
@@ -83,12 +87,27 @@ describeIfDb("ma trận endpoint ↔ hợp đồng", () => {
         await call(f, "GET", `/workspaces/${f.workspaceId}/members`, { actor: f.wsAdmin }),
     );
 
-    // 4. POST /workspaces/:id/members — CHƯA DỰNG, xem ADR-0013.
-    // ADR-0013 (Accepted 04/09/2026) đổi route này sang mời theo email và
-    // thêm ba route lời mời; hợp đồng đã cập nhật, hiện thực chưa. Dòng này
-    // bị lược khỏi ma trận thay vì đổi sang khẳng định `404`: khẳng định
-    // `404` là khoá cứng một trạng thái tạm thành hành vi mong đợi, và ai đó
-    // sẽ phải nhớ xoá nó — trong khi chỗ trống này tự nói ra việc còn thiếu.
+    // 4. POST /workspaces/:id/members — 202 (mời qua email, ADR-0013)
+    await record(
+      "POST /workspaces/:workspaceId/members",
+      202,
+      async () =>
+        await call(f, "POST", `/workspaces/${f.workspaceId}/members`, {
+          actor: f.wsAdmin,
+          idempotencyKey: newKey("m-invite"),
+          body: { email: spare.email, role: "workspace_member" },
+        }),
+    );
+
+    // Lời mời chưa phải membership. Bốn route sau cần `spare` **là** member,
+    // nên phải chấp nhận lời mời trước — đúng đường mà người dùng đi.
+    const acceptToken = f.mailer.lastTokenFor(spare.email);
+    expect(acceptToken).toBeTruthy();
+    const accepted = await call(f, "POST", "/invitations/accept", {
+      actor: spare,
+      body: { token: acceptToken as string },
+    });
+    expect(accepted.status).toBe(200);
 
     // 5. POST /workspaces/:id/projects — 201
     let matrixProjectId = "";
@@ -171,8 +190,7 @@ describeIfDb("ma trận endpoint ↔ hợp đồng", () => {
     expect(mismatched).toEqual([]);
     // Con số này là bản đếm tay có chủ ý: nó là thứ duy nhất báo động khi ai đó
     // **thêm** một route vào hợp đồng mà quên thêm dòng đo tương ứng ở đây.
-    // 11 route workspace/project đã công bố, trừ đúng một route chờ ADR-0013.
-    expect(results).toHaveLength(10);
+    expect(results).toHaveLength(11);
   });
 
   it("mọi route project trả 404 (không phải 403) cho actor ngoài project", async () => {
@@ -221,12 +239,21 @@ describeIfDb("ma trận endpoint ↔ hợp đồng", () => {
   });
 
   it("mọi route workspace trả 404 cho actor ngoài workspace, 403 cho member thiếu quyền", async () => {
+    // Route mời có hạn mức 10/phút; vòng lặp dưới đây gọi nó nhiều lần.
+    f.limiter.reset();
+
     const routes: { method: "GET" | "POST" | "DELETE"; path: string; body?: unknown }[] = [
       { method: "GET", path: `/workspaces/${f.workspaceId}/members` },
-      // `POST /workspaces/:workspaceId/members` không có ở đây: ADR-0013 đổi nó
-      // sang mời theo email và hiện thực chưa có, nên nó trả `404` cho **mọi**
-      // actor — kể cả người có quyền. Giữ nó trong danh sách này sẽ cho một test
-      // xanh vì lý do sai: đúng status, sai nguyên nhân.
+      {
+        method: "POST",
+        path: `/workspaces/${f.workspaceId}/members`,
+        body: { email: "ai-do@example.test", role: "workspace_member" },
+      },
+      { method: "GET", path: `/workspaces/${f.workspaceId}/invitations` },
+      {
+        method: "DELETE",
+        path: `/workspaces/${f.workspaceId}/invitations/00000000-0000-4000-8000-000000000001`,
+      },
       { method: "DELETE", path: `/workspaces/${f.workspaceId}/members/${f.editor.id}` },
       {
         method: "POST",

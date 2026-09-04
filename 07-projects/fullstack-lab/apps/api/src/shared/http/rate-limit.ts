@@ -48,6 +48,17 @@ export const RATE_LIMIT_RULES = {
   "auth.password.reset": { limit: 5, windowMs: 60_000 },
   "auth.email.resend": { limit: 5, windowMs: 60_000 },
 
+  /**
+   * Gửi lời mời workspace — ADR-0013.
+   *
+   * Route này gửi thư tới **địa chỉ do người gọi tự nhập**, tới người có thể
+   * chưa từng là người dùng Flowboard. Không có giới hạn, nó là một máy gửi thư
+   * rác mang tên miền của sản phẩm, và người bị hại là người nhận chứ không
+   * phải chúng ta. Vì vậy nó nằm cùng nhóm với các route auth, không phải nhóm
+   * "endpoint đắt" — cái giá ở đây là uy tín tên miền, không phải CPU.
+   */
+  "workspace.invite": { limit: 10, windowMs: 60_000 },
+
   /** Endpoint đắt, theo bảng trong API conventions. */
   "task.search": { limit: 30, windowMs: 60_000 },
   "time-report.monthly": { limit: 20, windowMs: 60_000 },
@@ -103,6 +114,22 @@ export class RateLimiter {
 
     bucket.count += 1;
     return { allowed: true, retryAfterSeconds: 0, remaining: rule.limit - bucket.count };
+  }
+
+  /**
+   * Xoá sạch mọi bucket.
+   *
+   * Khác `prune()`: `prune` chỉ bỏ bucket **đã hết hạn** và là việc vận hành
+   * định kỳ; `reset` bỏ tất cả, kể cả bucket đang đếm.
+   *
+   * Nó tồn tại cho test: một suite gọi cùng một route hàng chục lần từ cùng một
+   * địa chỉ sẽ chạm hạn mức và bắt đầu đo `429` thay vì đo hành vi nó định đo.
+   * Cách khác là chờ hết cửa sổ (một phút cho mỗi case) hoặc nới hạn mức trong
+   * test — cái đầu làm suite không chạy nổi, cái sau làm test không còn kiểm
+   * đúng cấu hình production.
+   */
+  reset(): void {
+    this.#buckets.clear();
   }
 
   /**

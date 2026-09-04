@@ -161,6 +161,42 @@ export class WorkspaceRepository {
     return workspace as WorkspaceRow;
   }
 
+  /** Một workspace theo ID. Authorization đã xảy ra trước; đây là lượt đọc dữ liệu. */
+  async findWorkspaceById(workspaceId: string, tx?: Executor): Promise<WorkspaceRow | undefined> {
+    const [row] = await (tx ?? this.#db)
+      .select({
+        id: workspaces.id,
+        name: workspaces.name,
+        createdAt: workspaces.createdAt,
+        updatedAt: workspaces.updatedAt,
+      })
+      .from(workspaces)
+      .where(eq(workspaces.id, workspaceId));
+    return row;
+  }
+
+  /**
+   * Người dùng theo email đã canonical.
+   *
+   * Method này **không** phục vụ một endpoint tra cứu nào — ADR-0013 đã loại
+   * hẳn phương án đó vì nó là oracle dò email. Nó chỉ được gọi **bên trong**
+   * use case mời, và kết quả của nó không bao giờ ra tới response: cả ba nhánh
+   * của việc mời trả cùng một `202`.
+   *
+   * Nói cách khác, đây là chỗ duy nhất trong module biết một email có account
+   * hay không, và nó có trách nhiệm không kể lại điều đó cho ai.
+   */
+  async findUserByEmail(
+    email: string,
+    tx?: Executor,
+  ): Promise<{ id: string; displayName: string; email: string } | undefined> {
+    const [row] = await (tx ?? this.#db)
+      .select({ id: users.id, displayName: users.displayName, email: users.email })
+      .from(users)
+      .where(eq(users.email, email));
+    return row;
+  }
+
   /** Người dùng theo ID — dùng để xác nhận target của thao tác member tồn tại. */
   async findUserById(
     userId: string,

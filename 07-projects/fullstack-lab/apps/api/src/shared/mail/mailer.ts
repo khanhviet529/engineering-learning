@@ -1,5 +1,6 @@
 import { createTransport, type Transporter } from "nodemailer";
-import type { Mailer } from "../../modules/auth/application/auth-use-cases.ts";
+import { webRouteWithToken } from "@flowboard/contracts";
+import type { Mailer } from "./mailer.port.ts";
 
 /**
  * Gửi mail qua SMTP.
@@ -27,7 +28,7 @@ export class SmtpMailer implements Mailer {
   }
 
   async sendVerificationEmail(input: { to: string; token: string }): Promise<void> {
-    const link = `${this.#webOrigin}/xac-minh-email?token=${encodeURIComponent(input.token)}`;
+    const link = webRouteWithToken(this.#webOrigin, "emailVerify", input.token);
     await this.#transport.sendMail({
       from: "Flowboard <no-reply@flowboard.test>",
       to: input.to,
@@ -45,7 +46,7 @@ export class SmtpMailer implements Mailer {
   }
 
   async sendPasswordResetEmail(input: { to: string; token: string }): Promise<void> {
-    const link = `${this.#webOrigin}/dat-lai-mat-khau?token=${encodeURIComponent(input.token)}`;
+    const link = webRouteWithToken(this.#webOrigin, "passwordReset", input.token);
     await this.#transport.sendMail({
       from: "Flowboard <no-reply@flowboard.test>",
       to: input.to,
@@ -59,6 +60,47 @@ export class SmtpMailer implements Mailer {
         "Liên kết có hiệu lực trong 1 giờ và chỉ dùng được một lần.",
         "Đặt lại mật khẩu sẽ đăng xuất mọi thiết bị đang đăng nhập.",
         "Nếu bạn không yêu cầu việc này, hãy bỏ qua thư — mật khẩu hiện tại không đổi.",
+      ].join("\n"),
+    });
+  }
+
+  /**
+   * Thư mời vào workspace.
+   *
+   * Khác hai thư kia ở một điểm quyết định nội dung: người nhận **có thể chưa
+   * từng nghe về Flowboard**. Với họ, một thư chỉ có link là một thư đáng ngờ —
+   * và đáng ngờ là phản ứng đúng. Nên thư này nói đủ ba thứ để họ tự quyết:
+   * ai mời, mời vào đâu, và họ có thể bỏ qua.
+   *
+   * Không có gì trong thư tiết lộ rằng địa chỉ này đã có account hay chưa: cùng
+   * một nội dung đi tới cả hai loại người nhận. Việc phân biệt sẽ làm hỏng
+   * chính điều mà ADR-0013 dựng ra để bảo vệ.
+   */
+  async sendWorkspaceInvitationEmail(input: {
+    to: string;
+    token: string;
+    workspaceName: string;
+    invitedByName: string;
+  }): Promise<void> {
+    const link = webRouteWithToken(this.#webOrigin, "invitationAccept", input.token);
+    await this.#transport.sendMail({
+      from: "Flowboard <no-reply@flowboard.test>",
+      to: input.to,
+      subject: `${input.invitedByName} mời bạn vào không gian làm việc ${input.workspaceName}`,
+      text: [
+        "Chào bạn,",
+        "",
+        `${input.invitedByName} đã mời bạn tham gia không gian làm việc "${input.workspaceName}" trên Flowboard.`,
+        "",
+        "Nhấn vào liên kết dưới đây để xem và chấp nhận lời mời:",
+        link,
+        "",
+        "Bạn cần đăng nhập bằng chính địa chỉ email này để chấp nhận.",
+        "Nếu bạn chưa có tài khoản Flowboard: hãy đăng ký, xác minh email,",
+        "rồi quay lại thư này và nhấn lại liên kết trên — nó vẫn còn hiệu lực.",
+        "",
+        "Liên kết có hiệu lực trong 7 ngày và chỉ dùng được một lần.",
+        "Nếu bạn không mong đợi lời mời này, hãy bỏ qua thư — không có gì thay đổi.",
       ].join("\n"),
     });
   }

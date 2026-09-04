@@ -1,7 +1,7 @@
 import type { WorkspaceRole } from "@flowboard/contracts";
 import type { Database } from "../../../shared/database/client.ts";
 import type { RecordOutcome } from "../../../shared/http/idempotency-runner.ts";
-import { AppError, validationError } from "../../../shared/errors/app-error.ts";
+import { AppError } from "../../../shared/errors/app-error.ts";
 import type { Actor, AuthorizationService } from "../../../shared/authorization/index.ts";
 import { workspaceCapabilities } from "../../../shared/authorization/index.ts";
 import {
@@ -190,61 +190,15 @@ export class WorkspaceUseCases {
   }
 
   /**
-   * `POST /workspaces/:workspaceId/members`.
+   * `addWorkspaceMember` (thêm trực tiếp bằng `userId`) đã bị **xoá**.
    *
-   * Thêm member **không** tự thêm họ vào project nào và không tạo project
-   * activity: membership workspace là điều kiện cần cho membership project, chứ
-   * không phải một lối tắt vào project.
+   * ADR-0013 thay nó bằng lời mời qua email; use case mới ở
+   * `application/invitation-use-cases.ts`. Giữ lại hàm cũ nghĩa là giữ một
+   * đường tạo membership thứ hai không đi qua lời mời — và đường đó chính là
+   * thứ ADR-0013 loại bỏ.
+   *
+   * `repository.addMember` vẫn còn, vì luồng chấp nhận lời mời gọi nó.
    */
-  async addWorkspaceMember(
-    workspaceId: string,
-    input: { userId: string; role: WorkspaceRole },
-    recordOutcome?: RecordOutcome,
-    toOutcomeBody?: (member: WorkspaceMemberView) => unknown,
-  ): Promise<WorkspaceMemberView> {
-    return await this.#deps.db.transaction(async (tx) => {
-      const target = await this.#deps.repository.findUserById(input.userId, tx);
-
-      // User không tồn tại là **lỗi validation của `userId`**, không phải `404`
-      // của route: route trỏ tới workspace, và workspace thì tồn tại. Trả `404`
-      // ở đây sẽ nói dối client rằng workspace biến mất.
-      if (target === undefined) {
-        throw validationError([
-          { field: "userId", code: "unknown_user", message: "Không tìm thấy người dùng này." },
-        ]);
-      }
-
-      const existing = await this.#deps.repository.findMembership(workspaceId, input.userId, tx);
-      if (existing !== undefined) {
-        throw validationError([
-          {
-            field: "userId",
-            code: "already_member",
-            message: "Người dùng này đã là thành viên của không gian làm việc.",
-          },
-        ]);
-      }
-
-      const created = await this.#deps.repository.addMember(
-        { workspaceId, userId: input.userId, role: input.role },
-        tx,
-      );
-
-      const member: WorkspaceMemberView = {
-        userId: target.id,
-        displayName: target.displayName,
-        email: target.email,
-        role: input.role,
-        createdAt: created.createdAt,
-      };
-
-      if (recordOutcome !== undefined && toOutcomeBody !== undefined) {
-        await recordOutcome(tx, toOutcomeBody(member));
-      }
-
-      return member;
-    });
-  }
 
   /**
    * `DELETE /workspaces/:workspaceId/members/:userId`.

@@ -30,6 +30,8 @@ ADR cũng bắt buộc cho API contract breaking change, package boundary/migrat
 
 Không đưa secret, token, cookie/session ID, dữ liệu project riêng tư, raw prompt hoặc thông tin vận hành nhạy cảm vào ADR.
 
+**Đính chính ADR-0013 (04/09/2026).** Bảng route trong [ADR-0013](ADR-0013-workspace-member-invitation.md) ghi `POST /invitations/accept` là "Anonymous". Đó là một trượt bút, không phải một quyết định: **cùng dòng đó** viết "Actor phải đã đăng nhập bằng đúng email được mời", và [hợp đồng endpoint](../api/endpoint-contracts.md) viết "Yêu cầu session hợp lệ và CSRF". Hành vi đúng là **bắt buộc session và CSRF** — không session trả `401`, thiếu CSRF trả `403`; cả hai đã có test trong `apps/api`. ADR không được sửa vì nó đã `Accepted` và quy trình cấm; đính chính ghi ở đây, đúng chỗ người đọc index sẽ gặp trước khi mở ADR. Backend agent phát hiện và **báo chứ không tự sửa** — đó là hành xử đúng với một ADR đã `Accepted`.
+
 **Nợ đã biết:** [ADR-0001](ADR-0001-task-planning-fields-and-review-workflow.md) được viết trước khi template hiện hành được áp dụng, nên nó thiếu `Alternatives` và `Revisit When`. Nó **không** được sửa: quy trình cấm thay đổi một ADR đã `Accepted`, và trên thực tế nó vẫn đang được xem lại đúng cơ chế được phép — [ADR-0008](ADR-0008-terminal-column-and-task-reopen.md) đóng phần terminal column mà nó phụ thuộc, [ADR-0009](ADR-0009-task-evidence-and-comment-formatting.md) mở rộng tập field của Task. Mọi ADR từ 0002 trở đi đủ năm mục.
 
 ## Trạng thái

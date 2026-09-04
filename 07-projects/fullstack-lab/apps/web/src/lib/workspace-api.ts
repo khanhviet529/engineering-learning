@@ -1,7 +1,10 @@
 import {
   PAGE_LIMIT_DEFAULT,
+  type AcceptInvitationResponse,
   type AddProjectMemberRequest,
   type InviteWorkspaceMemberRequest,
+  type ListInvitationsQuery,
+  type PendingInvitation,
   type ListProjectsQuery,
   type Page,
   type Project,
@@ -84,6 +87,56 @@ export function inviteWorkspaceMember(
     body,
     intent,
   });
+}
+
+/**
+ * `GET /workspaces/:workspaceId/invitations` — lời mời **đang chờ**.
+ *
+ * Đây là một danh sách khác danh sách thành viên, không phải một bộ lọc của nó:
+ * một lời mời `pending` chưa cấp quyền gì. Server chỉ trả `pending`, nên không
+ * có tham số `status` để truyền và cũng không có gì để lọc.
+ */
+export function listWorkspaceInvitations(
+  workspaceId: string,
+  query: ListInvitationsQuery = { limit: PAGE_LIMIT_DEFAULT },
+): Promise<ApiResult<ListPayload<PendingInvitation>>> {
+  const params = new URLSearchParams({ limit: String(query.limit) });
+  if (query.cursor !== undefined) params.set("cursor", query.cursor);
+  return transport.request(`/workspaces/${workspaceId}/invitations?${params.toString()}`);
+}
+
+/**
+ * `DELETE /workspaces/:workspaceId/invitations/:invitationId` — thu hồi.
+ *
+ * Hợp đồng endpoint yêu cầu `Idempotency-Key` cho route này, còn bảng khoá bắt
+ * buộc trong tài liệu pagination/concurrency lại không liệt kê nó. Hai tài liệu
+ * lệch nhau, và hướng an toàn chỉ có một: gửi thừa một key là vô hại, thiếu một
+ * key bắt buộc là `400`. Chỗ lệch đã được báo cho chủ hợp đồng.
+ */
+export function revokeWorkspaceInvitation(
+  workspaceId: string,
+  invitationId: string,
+  intent: Intent,
+): Promise<ApiResult<void>> {
+  return transport.request(`/workspaces/${workspaceId}/invitations/${invitationId}`, {
+    method: "DELETE",
+    intent,
+  });
+}
+
+/**
+ * `POST /invitations/accept` — chấp nhận lời mời.
+ *
+ * Route này **tiêu thụ** token: nó validate và tạo membership trong cùng một
+ * transaction, không có endpoint "chỉ kiểm token" nào để gọi trước. Vì vậy chỗ
+ * gọi phải chắc chắn nó chỉ chạy **một lần** cho một token.
+ *
+ * Không nhận `Intent`: hợp đồng không yêu cầu `Idempotency-Key` ở đây, vì chính
+ * điều kiện tiêu thụ nằm trong mệnh đề `WHERE` của câu `UPDATE` — hai request
+ * cùng token không thể cùng thành công dù có key hay không.
+ */
+export function acceptInvitation(token: string): Promise<ApiResult<AcceptInvitationResponse>> {
+  return transport.request("/invitations/accept", { method: "POST", body: { token } });
 }
 
 export function removeWorkspaceMember(

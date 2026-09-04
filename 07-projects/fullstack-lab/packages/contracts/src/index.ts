@@ -24,6 +24,7 @@ export * from "./resources.js";
 export * from "./auth.js";
 export * from "./workspaces.js";
 export * from "./invitations.js";
+export * from "./web-routes.js";
 export * from "./projects.js";
 export * from "./board-columns.js";
 export * from "./tasks.js";

@@ -16,8 +16,9 @@ import { sql } from "drizzle-orm";
  *
  * Bảng xuất hiện theo đúng mốc tạo ra chúng, không dựng sẵn. M1 mang `users`,
  * `auth_sessions`, `idempotency_records`; M2 mang `workspaces`,
- * `workspace_members`, `projects`, `project_members`. `board_columns`, `tasks`,
- * `comments` và `activity_logs` thuộc M3 và M4.
+ * `workspace_members`, `projects`, `project_members`, và `workspace_invitations`
+ * theo ADR-0013. `board_columns`, `tasks`, `comments` và `activity_logs` thuộc
+ * M3 và M4.
  *
  * Quy ước: cột dùng `snake_case` và **không** lộ thành API contract; projection
  * `camelCase` là việc của `@flowboard/contracts`.
@@ -250,5 +251,105 @@ export const projectMembers = pgTable(
     // Chiều ngược lại: danh sách project mà actor truy cập được.
     index("project_members_user_project_idx").on(table.userId, table.projectId),
     check("project_members_role_check", sql`${table.role} in ('owner', 'editor', 'viewer')`),
+  ],
+);
+
+/* ------------------------------------------------------------------------- *
+ * ADR-0013 — lời mời workspace qua email
+ *
+ * Bước 6 của thứ tự migration: sau `workspaces` và `users`.
+ *
+ * Bảng này tồn tại vì thêm workspace member bằng **tra cứu người dùng** là một
+ * oracle dò email. Ai xác minh email cũng tạo được workspace để tự thành
+ * Workspace Admin, nên một endpoint "chỉ dành cho admin" không thu hẹp gì —
+ * nó mở cho mọi người vừa đăng ký. Mời theo email không cần biết account có
+ * tồn tại, nên không có gì để dò.
+ * ------------------------------------------------------------------------- */
+
+export const workspaceInvitations = pgTable(
+  "workspace_invitations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    workspaceId: uuid("workspace_id")
+      .notNull()
+      .references(() => workspaces.id, { onDelete: "restrict" }),
+
+    /**
+     * Canonical lowercase, lưu **thô** chứ không hash — vì phải gửi thư tới nó.
+     *
+     * Đây là dữ liệu cá nhân của người **có thể chưa từng là người dùng
+     * Flowboard**: họ chưa đồng ý gì cả. Nên nó không được xuất hiện trong log,
+     * trong metric label, hay trong bất kỳ response nào ngoài
+     * `GET /workspaces/:workspaceId/invitations` — nơi caller đã có
+     * `workspace:member:manage`.
+     */
+    email: text("email").notNull(),
+
+    /** Vai trò sẽ được cấp **khi chấp nhận**, không phải quyền có ngay. */
+    role: text("role").notNull(),
+
+    /** Dấu vết audit; **không** phải nguồn quyết định quyền. */
+    invitedByUserId: uuid("invited_by_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+
+    /**
+     * Hash của token một lần. **Không lưu token thô** — cùng lối với session
+     * token và token xác minh email: rò rỉ database không cho ai một lời mời
+     * dùng được.
+     */
+    tokenHash: text("token_hash").notNull().unique(),
+
+    status: text("status").notNull(),
+
+    /** UTC; `created_at + 7 ngày`. */
+    expiresAt: utc("expires_at").notNull(),
+
+    /** UTC; non-null khi `status = 'accepted'`. */
+    acceptedAt: utc("accepted_at"),
+
+    createdAt: utc("created_at").notNull().defaultNow(),
+    updatedAt: utc("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    /**
+     * Mỗi cặp workspace/email chỉ có **một** lời mời đang chờ, và **database**
+     * là nơi cưỡng chế điều đó.
+     *
+     * Một use case kiểm trước rồi insert sau là một race có hai nhánh cùng
+     * thắng: hai request đồng thời cùng đọc "chưa có", cùng insert, và workspace
+     * có hai lời mời pending với hai token khác nhau — thu hồi một cái không
+     * giết được cái kia. Partial unique index thì không có cửa sổ đó.
+     *
+     * Cùng lối mà ADR-0010 dùng cho "đúng một sprint active mỗi project".
+     */
+    uniqueIndex("workspace_invitations_pending_uniq")
+      .on(table.workspaceId, table.email)
+      .where(sql`${table.status} = 'pending'`),
+
+    // Danh sách lời mời pending của một workspace, theo seek order mặc định.
+    index("workspace_invitations_workspace_created_at_idx").on(
+      table.workspaceId,
+      table.createdAt.desc(),
+    ),
+
+    check(
+      "workspace_invitations_role_check",
+      sql`${table.role} in ('workspace_admin', 'workspace_member')`,
+    ),
+    check(
+      "workspace_invitations_status_check",
+      sql`${table.status} in ('pending', 'accepted', 'revoked')`,
+    ),
+    /**
+     * `accepted_at` và `status` không được nói hai điều khác nhau. Không có
+     * check này, một bản ghi `accepted` mà thiếu `accepted_at` vẫn ghi được, và
+     * audit mất một mốc thời gian mà không ai phát hiện.
+     */
+    check(
+      "workspace_invitations_accepted_at_check",
+      sql`(${table.status} = 'accepted') = (${table.acceptedAt} is not null)`,
+    ),
   ],
 );

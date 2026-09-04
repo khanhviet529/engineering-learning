@@ -221,7 +221,7 @@ Bảng này hiện thực [ADR-0013](../decisions/ADR-0013-workspace-member-invi
 | `token_hash` | `text` | No | `UNIQUE` | Hash của token một lần. **Không lưu token thô.** |
 | `status` | `text` | No | `CHECK (status IN ('pending', 'accepted', 'revoked'))` | Chỉ `pending` là dùng được. |
 | `expires_at` | `timestamptz` | No |  | UTC; `created_at + 7 ngày`. |
-| `accepted_at` | `timestamptz` | Yes |  | UTC; non-null khi `status = 'accepted'`. |
+| `accepted_at` | `timestamptz` | Yes | `CHECK ((status = 'accepted') = (accepted_at IS NOT NULL))` | UTC; non-null khi và chỉ khi `status = 'accepted'`. Ràng buộc này ở database chứ không ở use case: không có nó, một hàng `accepted` thiếu `accepted_at` vẫn ghi được và audit mất đúng cái mốc thời gian nó tồn tại để giữ. |
 | `created_at` | `timestamptz` | No |  | UTC. |
 | `updated_at` | `timestamptz` | No |  | UTC khi status đổi. |
 

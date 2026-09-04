@@ -4,14 +4,15 @@ import { SignUpForm } from "../../features/auth/sign-up-form.tsx";
 
 export const metadata: Metadata = { title: "Tạo tài khoản · Flowboard" };
 
-/** `AUTH-02` — đăng ký. */
-export default function Page() {
+/** `AUTH-02` — đăng ký. `?next=` chỉ được chuyển tiếp sang đường đăng nhập. */
+export default async function Page({ searchParams }: { searchParams: Promise<{ next?: string }> }) {
+  const { next } = await searchParams;
   return (
     <AuthShell
       title="Tạo tài khoản"
       description="Bạn sẽ nhận một thư xác minh trước khi đăng nhập lần đầu."
     >
-      <SignUpForm />
+      <SignUpForm next={next} />
     </AuthShell>
   );
 }

@@ -98,7 +98,7 @@ Position của task và board column dùng fractional ordering (`numeric(20,10)`
 `Idempotency-Key` bắt buộc cho các create/action mutation nhạy cảm với retry:
 
 - `POST /auth/sign-up`, `POST /auth/email/verification/resend`, `POST /auth/password/forgot`, `POST /auth/password/reset`;
-- `POST /workspaces`, `POST /workspaces/:workspaceId/members`, `DELETE /workspaces/:workspaceId/members/:userId`;
+- `POST /workspaces`, `POST /workspaces/:workspaceId/members`, `DELETE /workspaces/:workspaceId/members/:userId`, `DELETE /workspaces/:workspaceId/invitations/:invitationId`;
 - `POST /workspaces/:workspaceId/projects`, `PATCH /projects/:projectId`, `POST /projects/:projectId/members`, `PATCH /projects/:projectId/members/:userId`, `DELETE /projects/:projectId/members/:userId`;
 - `POST /projects/:projectId/columns`, `PATCH /columns/:columnId`, `POST /columns/reorder`;
 - `POST /projects/:projectId/tasks`, `PATCH /tasks/:taskId`, `POST /tasks/:taskId/move`, `POST /tasks/:taskId/comments`;
@@ -106,6 +106,8 @@ Position của task và board column dùng fractional ordering (`numeric(20,10)`
 - `POST /projects/:projectId/work-logs`, `POST /projects/:projectId/work-logs/bulk-review` in Phase 1.3;
 - `POST /projects/:projectId/sprints`, `PATCH /sprints/:sprintId`, `POST /sprints/:sprintId/activate`, `POST /sprints/:sprintId/close`, `PATCH /projects/:projectId/sprint-settings` in Phase 1.4;
 - `POST /tasks/:taskId/dependencies`, `DELETE /task-dependencies/:dependencyId` in Phase 1.5.
+
+`POST /invitations/accept` cố ý **không** trong list, cùng lý do với sign-in: điều kiện tiêu thụ token nằm trong `WHERE` của câu `UPDATE`, nên hai request cùng token không thể cùng thành công dù có key hay không. Thêm key ở đây là thêm một tầng bảo vệ cho một bất biến mà database đã cưỡng chế, và một tầng dư thì che mất tầng thật khi có người đọc lại.
 
 `POST /auth/sign-in` và `POST /auth/sign-out` cố ý theo session lifecycle thay vì required-key list: sign-in rotate sang session mới và sign-out đã semantically idempotent. Các mutation còn lại trong list phải có key, kể cả PATCH task; authorization và `expectedVersion` vẫn là điều kiện độc lập, không bị key thay thế.
 

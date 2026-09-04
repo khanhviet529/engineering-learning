@@ -1,13 +1,15 @@
-import type { Workspace, WorkspaceMemberListItem } from "@flowboard/contracts";
+import type { PendingInvitation, Workspace, WorkspaceMemberListItem } from "@flowboard/contracts";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Intent } from "../../lib/transport.ts";
 import { unwrap, toFailure } from "../../lib/query.tsx";
 import {
   inviteWorkspaceMember,
   createWorkspace,
+  listWorkspaceInvitations,
   listWorkspaceMembers,
   listWorkspaces,
   removeWorkspaceMember,
+  revokeWorkspaceInvitation,
 } from "../../lib/workspace-api.ts";
 import type { ApiFailure } from "../../lib/transport.ts";
 
@@ -116,8 +118,7 @@ export function useAddWorkspaceMember(workspaceId: string) {
     }) => unwrap(inviteWorkspaceMember(workspaceId, { email, role }, intent)),
     onSuccess: () => {
       // Mời **không** tạo membership ngay, nên danh sách thành viên không đổi.
-      // Cái đổi là danh sách lời mời đang chờ — và route đó backend chưa dựng,
-      // nên chưa có query key nào để làm mới. Đừng invalidate danh sách thành
+      // Cái đổi là danh sách lời mời đang chờ. Đừng invalidate danh sách thành
       // viên: làm vậy dạy người dùng rằng gửi lời mời là thêm được người.
       void queryClient.invalidateQueries({ queryKey: workspaceKeys.invitations(workspaceId) });
     },
@@ -131,6 +132,55 @@ export function useRemoveWorkspaceMember(workspaceId: string) {
       unwrap(removeWorkspaceMember(workspaceId, userId, intent)),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: workspaceKeys.members(workspaceId) });
+    },
+  });
+}
+
+/**
+ * Lời mời đang chờ của một workspace.
+ *
+ * `enabled` bắt buộc vì cùng lý do với danh sách thành viên: route yêu cầu
+ * `workspace:member:manage`, nên hỏi trước khi biết actor có action đó là gửi
+ * một request đã biết chắc bị từ chối, và trong lúc chờ nó thì UI đã kịp dựng
+ * khung của một bề mặt chỉ dành cho Workspace Admin.
+ */
+export function useWorkspaceInvitations(
+  workspaceId: string,
+  enabled: boolean,
+): {
+  invitations: PendingInvitation[] | undefined;
+  loading: boolean;
+  failure: ApiFailure | undefined;
+  refetch: () => void;
+} {
+  const query = useQuery({
+    queryKey: workspaceKeys.invitations(workspaceId),
+    queryFn: () => unwrap(listWorkspaceInvitations(workspaceId)),
+    enabled,
+  });
+
+  return {
+    invitations: query.data?.items,
+    loading: query.isPending,
+    failure: toFailure(query.error),
+    refetch: () => void query.refetch(),
+  };
+}
+
+/**
+ * Thu hồi một lời mời.
+ *
+ * Chỉ invalidate danh sách lời mời. Thu hồi một lời mời `pending` không đụng
+ * tới `workspace_members`, vì lời mời đó chưa từng tạo ra dòng nào ở đó — làm
+ * mới danh sách thành viên ở đây sẽ ngụ ý ngược lại.
+ */
+export function useRevokeInvitation(workspaceId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ invitationId, intent }: { invitationId: string; intent: Intent }) =>
+      unwrap(revokeWorkspaceInvitation(workspaceId, invitationId, intent)),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: workspaceKeys.invitations(workspaceId) });
     },
   });
 }

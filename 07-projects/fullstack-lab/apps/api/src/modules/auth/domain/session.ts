@@ -74,14 +74,13 @@ export function isSessionUsable(session: SessionRecord, now: Date = new Date()):
 /**
  * Token một lần cho xác minh email và reset mật khẩu.
  *
- * Cùng cách sinh và cùng cách băm với session token, vì cùng tính chất: entropy
- * cao, chỉ lưu hash, và chỉ dùng được một lần.
+ * Cơ chế sinh và băm đã chuyển sang `shared/security/one-time-token.ts` khi lời
+ * mời workspace (ADR-0013) trở thành consumer thứ hai: đồ thị phụ thuộc của
+ * ADR-0005 không có cạnh `workspaces → auth`, nên một primitive mà cả hai module
+ * cần phải ở shared. Re-export để chỗ gọi trong `auth` giữ nguyên vocabulary
+ * của mình, nhưng **định nghĩa chỉ có một**.
  */
-export function generateOneTimeToken(): string {
-  return randomBytes(SESSION_TOKEN_BYTES).toString("base64url");
-}
-
-export const hashOneTimeToken = hashSessionToken;
+export { generateOneTimeToken, hashOneTimeToken } from "../../../shared/security/one-time-token.ts";
 
 export const EMAIL_VERIFICATION_TTL_MS = 24 * 60 * 60 * 1000;
 export const PASSWORD_RESET_TTL_MS = 60 * 60 * 1000;

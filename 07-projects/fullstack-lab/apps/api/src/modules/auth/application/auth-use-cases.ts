@@ -28,11 +28,16 @@ import {
  * ranh giới đó là lý do các use case này test được mà không cần dựng server.
  */
 
-/** Cổng gửi mail. Tách thành interface để test không phải chạm SMTP thật. */
-export interface Mailer {
-  sendVerificationEmail(input: { to: string; token: string }): Promise<void>;
-  sendPasswordResetEmail(input: { to: string; token: string }): Promise<void>;
-}
+/**
+ * Cổng gửi mail nay ở `shared/mail/mailer.port.ts`.
+ *
+ * Nó chuyển đi khi module `workspaces` cần gửi thư mời: đồ thị phụ thuộc của
+ * ADR-0005 không có cạnh `workspaces → auth`, nên để port ở đây buộc phải tạo
+ * một cạnh ngoài đồ thị đã duyệt. Re-export để chỗ gọi cũ không phải đổi import
+ * — nhưng **định nghĩa** chỉ có một, ở shared.
+ */
+import type { Mailer } from "../../../shared/mail/mailer.port.ts";
+export type { Mailer };
 
 export interface AuthDeps {
   db: Database;

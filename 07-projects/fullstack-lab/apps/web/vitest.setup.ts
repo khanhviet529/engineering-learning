@@ -1,6 +1,13 @@
 import "@testing-library/jest-dom/vitest";
 import { afterEach } from "vitest";
-import { cleanup } from "@testing-library/react";
+import { cleanup, configure } from "@testing-library/react";
+
+// Cây component của M2 gồm cả app shell và `ConfigProvider` của Ant Design, nên
+// một lượt render mất hàng trăm mili-giây; khi cả bộ chạy song song thì con số
+// đó cộng thêm nữa. Mặc định 1s của `findBy*` vì vậy hết hạn vì **máy chậm**,
+// không vì giao diện sai — đúng loại thất bại chỉ xuất hiện khi chạy cả bộ và
+// biến mất khi chạy riêng. Nới ngưỡng chờ, không nới điều kiện phải đúng.
+configure({ asyncUtilTimeout: 5000 });
 
 // Testing Library chỉ tự dọn DOM khi `globals: true`, vì nó cần một `afterEach`
 // toàn cục để móc vào. Ở đây `globals: false`, nên phải đăng ký tường minh —

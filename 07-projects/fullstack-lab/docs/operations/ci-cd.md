@@ -14,12 +14,19 @@ format -> lint -> typecheck -> unit -> integration -> build -> E2E -> container 
 |---|---|---|
 | Format | Formatter kiểm tra source và config thay đổi. **Markdown nằm ngoài phạm vi**: `docs/superpowers/**` là snapshot có ngày và ADR đã `Accepted` đều bị cấm sửa nội dung, nên để máy định dạng ghi lại byte của chúng là vi phạm chính hợp đồng đang bảo vệ chúng. Tính đúng đắn của tài liệu được kiểm bằng link check và các phép đối chiếu chéo. | Block merge. |
 | Lint | Linter không có error | Block merge. |
+
 | Typecheck | Tất cả workspace typecheck thành công | Block merge. |
 | Unit | Bộ test cho domain, schema, mapper, policy và shared contract | Block merge. |
 | Integration | PostgreSQL ephemeral, migration chạy tường minh, bộ test repository, guard, transaction và idempotency | Block merge. |
 | Build | Web, API và contract/OpenAPI artifact build thành công | Block merge. |
 | E2E | Hành trình Next.js đi cùng API, gồm cả các đường then chốt về role và conflict | Block merge. |
 | Container image | Image build lại được từ commit đã review và cho kết quả như nhau; digest được ghi lại | **Block merge.** Mọi pull request phải build image thành công trước khi merge. |
+
+**Bộ test của các workspace chạy tuần tự, không song song.** `pnpm test` đặt `--workspace-concurrency=1`; mỗi bộ vẫn chạy song song **bên trong** nó. Lý do là một quan sát chứ không phải sở thích: máy dev có 8 core, năm workspace chạy cùng lúc thì mỗi bộ tự spawn worker riêng, tổng khoảng 35 worker trên 8 core. Ở mức đó các phép chờ bất đồng bộ hết hạn vì **máy chậm**, không vì code sai — và cùng một bộ test xanh khi chạy riêng.
+
+Điều đó đã làm cổng chất lượng đỏ hai lần trong bốn lượt `pnpm verify`, mỗi lần ở một suite khác nhau (`endpoint-contract-matrix` của `apps/api`, rồi `invitations` của `apps/web`), và không lần nào lặp lại khi chạy riêng. **Một cổng đỏ ngẫu nhiên không còn là bằng chứng** — nó dạy người ta chạy lại cho tới khi xanh, và đó là lúc cổng mất hết giá trị. Sau khi chuyển sang tuần tự: ba lượt liên tiếp xanh.
+
+Đánh đổi: wall time dài hơn. Chấp nhận, vì thứ đang mua là tính tất định. Ngưỡng chờ đã nới ở `apps/web` (`testTimeout` 60s, `asyncUtilTimeout` 5s) là cách chữa triệu chứng của đúng nguyên nhân này; xem lại chúng ở M5, sau khi tuần tự đã chạy đủ lâu để biết còn cần bao nhiêu.
 
 Thay đổi trên API còn bị chặn merge thêm khi một trong các việc sau thất bại: OpenAPI lint, kiểm tra path/schema/status/error envelope đã publish, phát hiện breaking change, hoặc các test phân quyền và concurrency bắt buộc. UI trong browser chạy xanh **không** miễn được yêu cầu phủ test phân quyền ở mức HTTP trực tiếp. CI chỉ nạp giá trị test dùng một lần; log và artifact phải redact giá trị secret, cookie, vật liệu CSRF, token reset/verification và body request thô.
 

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { FbDataTable, type FbDataTableColumn, type FbDataTableRow } from "@flowboard/ui";
 
 /**
  * Bảng thành viên dùng chung cho `WSP-03` và `PRM-01`.
@@ -11,9 +12,10 @@ import type { ReactNode } from "react";
  * gọi việc dùng nó cho một danh sách bất kỳ, và rồi một hôm nào đó nó mọc thêm
  * prop cho một thứ không phải thành viên.
  *
- * Nó là `<table>` thật, không phải lưới div. Screen reader đọc được quan hệ ô
- * ↔ tiêu đề cột, và người dùng bàn phím điều hướng được theo hàng và cột —
- * hai thứ mà một lưới div phải dựng lại bằng ARIA và thường dựng sai.
+ * Phần `<table>` — ngữ nghĩa bảng, tiêu đề hàng, cuộn ngang — nằm ở
+ * `FbDataTable` trong `@flowboard/ui`, vì đó là thứ không biết gì về thành
+ * viên và các màn hình khác cũng cần. Tệp này chỉ còn giữ **hình dạng một
+ * hàng thành viên**.
  */
 
 export interface MemberRow {
@@ -34,88 +36,34 @@ export interface MemberTableProps {
   renderActions?: ((row: MemberRow) => ReactNode) | undefined;
 }
 
-const CELL: React.CSSProperties = {
-  padding: "13px 14px",
-  textAlign: "left",
-  fontSize: "var(--fb-font-size-body-sm)",
-  color: "var(--fb-color-text-strong)",
-  borderTop: "1px solid var(--fb-color-border-subtle)",
-  verticalAlign: "middle",
-};
-
-const HEAD_CELL: React.CSSProperties = {
-  padding: "10px 14px",
-  textAlign: "left",
-  fontSize: "var(--fb-font-size-caption)",
-  fontWeight: "var(--fb-font-weight-bold)",
-  color: "var(--fb-color-text-muted)",
-  background: "var(--fb-color-surface-subtle)",
-  whiteSpace: "nowrap",
-};
-
 export function MemberTable({ caption, columns, rows, renderActions }: MemberTableProps) {
-  return (
-    <div style={{ overflowX: "auto" }}>
-      <table
-        style={{
-          width: "100%",
-          minWidth: 560,
-          borderCollapse: "collapse",
-          borderRadius: "var(--fb-radius-md)",
-          overflow: "hidden",
-          border: "1px solid var(--fb-color-border-default)",
-        }}
-      >
-        {/* Caption là nhãn của bảng cho screen reader. Ẩn khỏi mắt vì tiêu đề
-            khối phía trên đã nói điều đó cho người nhìn thấy. */}
-        <caption
+  const tableColumns: FbDataTableColumn[] = columns.map((header, index) => ({
+    key: `col-${String(index)}`,
+    header,
+  }));
+  if (renderActions !== undefined) tableColumns.push({ key: "actions", header: "Thao tác" });
+
+  const tableRows: FbDataTableRow[] = rows.map((row) => ({
+    id: row.id,
+    cells: [
+      <span key="who" style={{ display: "grid", gap: 2 }}>
+        {row.name}
+        <span
           style={{
-            position: "absolute",
-            width: 1,
-            height: 1,
-            overflow: "hidden",
-            clip: "rect(0 0 0 0)",
+            fontWeight: "var(--fb-font-weight-regular)",
+            color: "var(--fb-color-text-muted)",
           }}
         >
-          {caption}
-        </caption>
-        <thead>
-          <tr>
-            {columns.map((column) => (
-              <th key={column} scope="col" style={HEAD_CELL}>
-                {column}
-              </th>
-            ))}
-            {renderActions !== undefined && (
-              <th scope="col" style={HEAD_CELL}>
-                Thao tác
-              </th>
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.id}>
-              <th scope="row" style={{ ...CELL, fontWeight: "var(--fb-font-weight-semibold)" }}>
-                <span style={{ display: "grid", gap: 2 }}>
-                  {row.name}
-                  <span
-                    style={{
-                      fontWeight: "var(--fb-font-weight-regular)",
-                      color: "var(--fb-color-text-muted)",
-                    }}
-                  >
-                    {row.email}
-                  </span>
-                </span>
-              </th>
-              <td style={CELL}>{row.badge}</td>
-              <td style={{ ...CELL, color: "var(--fb-color-text-muted)" }}>{row.meta}</td>
-              {renderActions !== undefined && <td style={CELL}>{renderActions(row)}</td>}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+          {row.email}
+        </span>
+      </span>,
+      row.badge,
+      <span key="meta" style={{ color: "var(--fb-color-text-muted)" }}>
+        {row.meta}
+      </span>,
+      ...(renderActions === undefined ? [] : [renderActions(row)]),
+    ],
+  }));
+
+  return <FbDataTable caption={caption} columns={tableColumns} rows={tableRows} />;
 }

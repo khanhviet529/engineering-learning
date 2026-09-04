@@ -5,7 +5,7 @@ import { FbIcon } from "./icon.tsx";
 
 /**
  * Primitive trình bày dùng lại ở nhiều màn hình: `FbListRow`, `FbBadge`,
- * `FbToast`, `FbSkeleton` và `FbPageSection`.
+ * `FbToast`, `FbSkeleton`, `FbPageSection` và `FbDataTable`.
  *
  * Chúng không biết resource, không fetch và không kiểm quyền — nhận nội dung
  * rồi render. Cái quyết định "hàng này có hiện nút xoá không" nằm ở feature.
@@ -288,5 +288,123 @@ export function FbPageSection({ heading, description, action, children }: FbPage
       </div>
       {children}
     </section>
+  );
+}
+
+export interface FbDataTableColumn {
+  /** Khoá ổn định cho React; không hiển thị. */
+  key: string;
+  header: string;
+  /** Cột hành động không có nhãn nhìn thấy được thì vẫn cần tên cho screen reader. */
+  headerHidden?: boolean;
+}
+
+export interface FbDataTableRow {
+  id: string;
+  /** Đúng một ô cho mỗi cột. Ô đầu tiên là **tiêu đề hàng**. */
+  cells: readonly ReactNode[];
+}
+
+export interface FbDataTableProps {
+  /** Nhãn của bảng cho screen reader; ẩn khỏi mắt vì tiêu đề khối đã nói rồi. */
+  caption: string;
+  columns: readonly FbDataTableColumn[];
+  rows: readonly FbDataTableRow[];
+  /** Bề rộng tối thiểu trước khi bảng cuộn ngang. */
+  minWidth?: number;
+}
+
+const TABLE_CELL: CSSProperties = {
+  padding: "13px 14px",
+  textAlign: "left",
+  fontSize: "var(--fb-font-size-body-sm)",
+  color: "var(--fb-color-text-strong)",
+  borderTop: "1px solid var(--fb-color-border-subtle)",
+  verticalAlign: "middle",
+};
+
+const TABLE_HEAD_CELL: CSSProperties = {
+  padding: "10px 14px",
+  textAlign: "left",
+  fontSize: "var(--fb-font-size-caption)",
+  fontWeight: "var(--fb-font-weight-bold)",
+  color: "var(--fb-color-text-muted)",
+  background: "var(--fb-color-surface-subtle)",
+  whiteSpace: "nowrap",
+};
+
+/** Ẩn khỏi mắt nhưng vẫn đọc được bằng screen reader. */
+const VISUALLY_HIDDEN: CSSProperties = {
+  position: "absolute",
+  width: 1,
+  height: 1,
+  overflow: "hidden",
+  clip: "rect(0 0 0 0)",
+};
+
+/**
+ * Bảng dữ liệu dạng `<table>` thật.
+ *
+ * Nó là `<table>` chứ không phải lưới div vì screen reader đọc được quan hệ
+ * ô ↔ tiêu đề cột, và người dùng bàn phím điều hướng được theo hàng và cột —
+ * hai thứ mà lưới div phải dựng lại bằng ARIA và thường dựng sai.
+ *
+ * Ô đầu mỗi hàng là `<th scope="row">`: nó là thứ định danh hàng, nên khi con
+ * trỏ screen reader nhảy sang ô khác cùng hàng, nó được đọc kèm để người nghe
+ * biết đang ở hàng nào.
+ *
+ * Component này **không** biết dữ liệu là thành viên, lời mời hay việc cần làm.
+ * Quyết định "hàng này có nút nào" thuộc về feature gọi nó.
+ */
+export function FbDataTable({ caption, columns, rows, minWidth = 560 }: FbDataTableProps) {
+  return (
+    <div style={{ overflowX: "auto" }}>
+      <table
+        style={{
+          width: "100%",
+          minWidth,
+          borderCollapse: "collapse",
+          borderRadius: "var(--fb-radius-md)",
+          overflow: "hidden",
+          border: "1px solid var(--fb-color-border-default)",
+        }}
+      >
+        <caption style={VISUALLY_HIDDEN}>{caption}</caption>
+        <thead>
+          <tr>
+            {columns.map((column) => (
+              <th key={column.key} scope="col" style={TABLE_HEAD_CELL}>
+                {column.headerHidden === true ? (
+                  <span style={VISUALLY_HIDDEN}>{column.header}</span>
+                ) : (
+                  column.header
+                )}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.id}>
+              {row.cells.map((cell, index) =>
+                index === 0 ? (
+                  <th
+                    key={columns[index]?.key ?? String(index)}
+                    scope="row"
+                    style={{ ...TABLE_CELL, fontWeight: "var(--fb-font-weight-semibold)" }}
+                  >
+                    {cell}
+                  </th>
+                ) : (
+                  <td key={columns[index]?.key ?? String(index)} style={TABLE_CELL}>
+                    {cell}
+                  </td>
+                ),
+              )}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }

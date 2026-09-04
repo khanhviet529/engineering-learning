@@ -245,11 +245,13 @@ describe("PRJ-01 — danh sách dự án", () => {
 
 describe("WSP-03 — thành viên không gian", () => {
   const membersRoute = `/workspaces/${ids.workspace}/members`;
+  const invitationsRoute = `/workspaces/${ids.workspace}/invitations`;
 
   it("Workspace Admin thấy bảng thành viên", async () => {
     mockRoutes({
       "/auth/session": SESSION,
       "/workspaces": WORKSPACES,
+      [invitationsRoute]: ok({ items: [], page: { nextCursor: null, hasMore: false } }),
       [membersRoute]: ok({
         items: [
           {
@@ -266,7 +268,12 @@ describe("WSP-03 — thành viên không gian", () => {
     renderWithProviders(<WorkspaceMembersScreen workspaceId={ids.workspace} />);
 
     expect(await screen.findByText("An Tran")).toBeInTheDocument();
-    expect(screen.getByRole("table")).toBeInTheDocument();
+    expect(
+      screen.getByRole("table", { name: "Thành viên của không gian làm việc" }),
+    ).toBeInTheDocument();
+    // Khối lời mời là một khối riêng và luôn có mặt: nó nói rằng lời mời
+    // `pending` chưa cấp quyền gì, và điều đó đúng cả khi danh sách rỗng.
+    expect(await screen.findByText("Không có lời mời nào đang chờ")).toBeInTheDocument();
   });
 
   it("thiếu capability quản lý thành viên ra SYS-01 và KHÔNG gọi danh sách", async () => {
