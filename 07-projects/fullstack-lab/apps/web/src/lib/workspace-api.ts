@@ -2,9 +2,14 @@ import {
   PAGE_LIMIT_DEFAULT,
   type AcceptInvitationResponse,
   type AddProjectMemberRequest,
+  type Activity,
   type ColumnResponse,
   type ColumnsResponse,
+  type Comment,
+  type CommentResponse,
   type CreateColumnRequest,
+  type CreateCommentRequest,
+  type CreateTaskRequest,
   type InviteWorkspaceMemberRequest,
   type ListInvitationsQuery,
   type PendingInvitation,
@@ -14,8 +19,12 @@ import {
   type ProjectDetail,
   type ProjectListItem,
   type ProjectMember,
+  type MoveTaskRequest,
   type ProjectRole,
   type ReorderColumnsRequest,
+  type Task,
+  type TaskResponse,
+  type UpdateTaskRequest,
   type SessionResponse,
   type UpdateColumnRequest,
   type Workspace,
@@ -280,4 +289,82 @@ export function reorderColumns(
   intent: Intent,
 ): Promise<ApiResult<ColumnsResponse>> {
   return transport.request("/columns/reorder", { method: "POST", body, intent });
+}
+
+// ------------------------------------------------------------------- tasks
+
+/**
+ * `GET /projects/:projectId/tasks` — một trang task đã scope.
+ *
+ * Query đã được dựng sẵn bởi `features/tasks/task-filters.ts`, và nó **luôn**
+ * mang `columnId`: board phân trang theo từng cột, nên một cursor chỉ có nghĩa
+ * với đúng cột, đúng filter và đúng sort đã tạo ra nó.
+ */
+export function listTasks(
+  projectId: string,
+  params: URLSearchParams,
+): Promise<ApiResult<ListPayload<Task>>> {
+  return transport.request(`/projects/${projectId}/tasks?${params.toString()}`);
+}
+
+export function createTask(
+  projectId: string,
+  body: CreateTaskRequest,
+  intent: Intent,
+): Promise<ApiResult<TaskResponse>> {
+  return transport.request(`/projects/${projectId}/tasks`, { method: "POST", body, intent });
+}
+
+/** `GET /tasks/:taskId` — task, trang bình luận đầu tiên và capabilities. */
+export function readTask(taskId: string): Promise<
+  ApiResult<{
+    task: Task;
+    comments: { items: Comment[]; page: Page };
+    capabilities: string[];
+  }>
+> {
+  return transport.request(`/tasks/${taskId}`);
+}
+
+/**
+ * `PATCH /tasks/:taskId` — patch nội dung, luôn kèm `expectedVersion`.
+ *
+ * `409 TASK_VERSION_CONFLICT` là câu trả lời bình thường của route này, không
+ * phải sự cố: chỗ gọi phải mở `SYS-04` chứ không được gửi lại im lặng.
+ */
+export function updateTask(
+  taskId: string,
+  body: UpdateTaskRequest,
+  intent: Intent,
+): Promise<ApiResult<TaskResponse>> {
+  return transport.request(`/tasks/${taskId}`, { method: "PATCH", body, intent });
+}
+
+/**
+ * `POST /tasks/:taskId/move` — use case riêng, không phải một nhánh của update.
+ *
+ * `targetPosition` là gợi ý; `position` và `version` trong response mới là sự
+ * thật. Xem `features/tasks/position.ts`.
+ */
+export function moveTask(
+  taskId: string,
+  body: MoveTaskRequest,
+  intent: Intent,
+): Promise<ApiResult<TaskResponse>> {
+  return transport.request(`/tasks/${taskId}/move`, { method: "POST", body, intent });
+}
+
+export function createComment(
+  taskId: string,
+  body: CreateCommentRequest,
+  intent: Intent,
+): Promise<ApiResult<CommentResponse>> {
+  return transport.request(`/tasks/${taskId}/comments`, { method: "POST", body, intent });
+}
+
+export function listTaskActivity(
+  taskId: string,
+  limit = PAGE_LIMIT_DEFAULT,
+): Promise<ApiResult<ListPayload<Activity>>> {
+  return transport.request(`/tasks/${taskId}/activity?limit=${String(limit)}`);
 }

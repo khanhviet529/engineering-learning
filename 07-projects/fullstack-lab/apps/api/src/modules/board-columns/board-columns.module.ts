@@ -27,10 +27,14 @@ import {
  * mà không gì báo — và luật "không archive cột còn task" sẽ âm thầm luôn đúng,
  * đúng kiểu test xanh vì không có gì để kiểm.
  *
- * `ColumnProjectResolver` **không** được đăng ký ở đây: nó là mắt xích của chuỗi
- * guard, nên composition root truyền nó vào `buildAuthorizationWiring` cùng lúc
- * với `ActorResolver`. Đăng ký hai chỗ sẽ tạo hai instance resolver và chỉ một
+ * Resolver của chuỗi guard **không** được đăng ký ở đây: nó là mắt xích của
+ * chuỗi guard, nên composition root truyền nó vào `buildAuthorizationWiring`
+ * cùng lúc với `ActorResolver`. Đăng ký hai chỗ sẽ tạo hai instance và chỉ một
  * cái được guard dùng.
+ *
+ * Từ M4, resolver đó là `TaskProjectResolver` — nó biết cả `:columnId` lẫn
+ * `:taskId`. Bản của M3 chỉ biết `:columnId` và đã bị xoá: chuỗi guard có
+ * **một** resolver, nên một bản thứ hai nằm lại chỉ là code chờ ai đó nối nhầm.
  */
 @Module({})
 export class BoardColumnsModule {

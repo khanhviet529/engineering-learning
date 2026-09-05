@@ -9,11 +9,13 @@ import {
   activityLogs,
   authSessions,
   boardColumns,
+  comments,
   idempotencyRecords,
   projectMembers,
   projects,
   users,
   workspaceInvitations,
+  tasks,
   workspaceMembers,
   workspaces,
 } from "../shared/database/schema.ts";
@@ -31,10 +33,16 @@ import { hashPassword } from "../modules/auth/domain/password.ts";
 import { WorkspacesModule } from "../modules/workspaces/workspaces.module.ts";
 import { ProjectsModule } from "../modules/projects/projects.module.ts";
 import type { ProjectAssigneeCheck } from "../modules/projects/domain/project-membership-rules.ts";
+import { TasksModule } from "../modules/tasks/tasks.module.ts";
+import { TaskRepository } from "../modules/tasks/infrastructure/task-repository.ts";
+import { TaskProjectResolver } from "../modules/tasks/infrastructure/task-project-resolver.ts";
+import {
+  TaskColumnEmptinessCheck,
+  TaskProjectAssigneeCheck,
+} from "../modules/tasks/infrastructure/port-adapters.ts";
+import type { WorkspaceClock } from "../modules/tasks/domain/due-state.ts";
 import { BoardColumnsModule } from "../modules/board-columns/board-columns.module.ts";
-import type { ColumnEmptinessCheck } from "../modules/board-columns/domain/column-emptiness-check.ts";
 import { ColumnRepository } from "../modules/board-columns/infrastructure/column-repository.ts";
-import { ColumnProjectResolver } from "../modules/board-columns/infrastructure/column-project-resolver.ts";
 import { BoardColumnsProjectQuery } from "../modules/board-columns/infrastructure/project-columns-adapter.ts";
 import {
   ActivityQueries,
@@ -110,14 +118,24 @@ export interface Fixture {
   /** Bật/tắt kết quả của `ProjectAssigneeCheck` để kiểm bất biến của M4 từ M2. */
   setHasAssignedTasks: (value: boolean) => void;
   /**
-   * Bật/tắt kết quả của `ColumnEmptinessCheck`.
+   * Ép `ColumnEmptinessCheck` trả `true` mà không cần tạo task thật.
    *
-   * Cùng lý do với `setHasAssignedTasks`: bảng `tasks` thuộc M4, nên ở M3 không
-   * có cách nào tạo một task thật. Nhưng luật "không archive cột còn task" đã
-   * nằm trong hợp đồng, và đường đi của nó — use case hỏi port, port trả `true`,
-   * use case trả `409` — kiểm được ngay bây giờ.
+   * Từ M4, cổng này đã có adapter **thật** đọc bảng `tasks`, nên đường mặc định
+   * là đường thật. Công tắc ở lại vì test của M3 dùng nó để kiểm *đường đi* —
+   * use case hỏi port, port trả `true`, use case trả `409` — và giữ được test
+   * đó nguyên vẹn là bằng chứng rằng luật không phải viết lại khi adapter đổi.
    */
   setColumnHasTasks: (value: boolean) => void;
+  /**
+   * Ngày "hôm nay" mà server dùng để suy `dueState`.
+   *
+   * Đồng hồ của fixture **đứng yên** cho tới khi test đẩy nó: `dueState` phải
+   * theo timezone workspace, và một test đọc `new Date()` sẽ cho kết quả khác
+   * nhau giữa CI ở UTC và máy lập trình viên ở GMT+7 — một khác biệt mà chính
+   * test không nhìn thấy.
+   */
+  setToday: (date: string) => void;
+  today: () => string;
 }
 
 const CSRF_SECRET = "c".repeat(32);
@@ -160,6 +178,20 @@ class SilentMailer implements Mailer {
 }
 
 /**
+ * Đồng hồ workspace đứng yên, đẩy được từ test.
+ *
+ * `dueState` là thứ **duy nhất** trong hệ thống phụ thuộc "hôm nay", nên nó là
+ * thứ duy nhất cần một đồng hồ giả — và nó cần thật: nếu không, một test khẳng
+ * định "quá hạn" sẽ tự hỏng vào đúng ngày mà `due_date` cứng trong test trôi qua.
+ */
+class FrozenClock implements WorkspaceClock {
+  value = "2026-09-05";
+  today(): string {
+    return this.value;
+  }
+}
+
+/**
  * Adapter `ProjectAssigneeCheck` điều khiển được từ test.
  *
  * Bảng `tasks` thuộc M4, nên ở M2 không có cách nào tạo một assignment thật.
@@ -173,14 +205,6 @@ class SilentMailer implements Mailer {
 class ControllableAssigneeCheck implements ProjectAssigneeCheck {
   value = false;
   async hasAssignedTasks(): Promise<boolean> {
-    return this.value;
-  }
-}
-
-/** Cùng khuôn mẫu, cho `ColumnEmptinessCheck` của M3. */
-class ControllableEmptinessCheck implements ColumnEmptinessCheck {
-  value = false;
-  async hasTasks(): Promise<boolean> {
     return this.value;
   }
 }
@@ -214,6 +238,9 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
   const mailer = new SilentMailer();
   const limiter = new RateLimiter();
 
+  /** Công tắc của M3, giữ lại để test "archive cột còn task" khỏi phải tạo task. */
+  let columnHasTasksOverride = false;
+
   const authUseCases = new AuthUseCases({
     db,
     repository: new AuthRepository(db),
@@ -221,17 +248,30 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
     csrfSecret: CSRF_SECRET,
   });
 
-  const assigneeCheck = new ControllableAssigneeCheck();
-  const emptinessCheck = new ControllableEmptinessCheck();
+  /**
+   * M4 **thay** hai adapter điều khiển được bằng adapter thật.
+   *
+   * `ControllableAssigneeCheck` vẫn còn để test của M2 chứng minh *đường đi*
+   * (use case có hỏi port không), nhưng mặc định fixture nối bản đọc bảng
+   * `tasks` — vì từ M4 câu trả lời đúng là câu trả lời thật, và một test kiểm
+   * "gỡ member đang giữ việc" bằng một adapter giả sẽ xanh kể cả khi truy vấn
+   * thật sai.
+   */
   const activity = new DrizzleActivityRecorder();
   const columnRepository = new ColumnRepository(db);
+  const taskRepository = new TaskRepository(db);
+  const activityQueries = new ActivityQueries(db);
+  const clock = new FrozenClock();
+  const assigneeCheck = new ControllableAssigneeCheck();
+  const realAssigneeCheck = new TaskProjectAssigneeCheck(taskRepository);
+  const emptinessCheck = new TaskColumnEmptinessCheck(taskRepository);
 
   const wiring = buildAuthorizationWiring({
     db,
     actorResolver: authUseCases,
     // Cùng resolver mà `main.ts` dùng: test phải chạy đúng chuỗi guard của
     // production, không phải một chuỗi dễ hơn.
-    projectResolver: new ColumnProjectResolver(columnRepository),
+    projectResolver: new TaskProjectResolver(columnRepository, taskRepository),
   });
 
   @Module({
@@ -260,7 +300,12 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
       ProjectsModule.register({
         db,
         authorization: wiring.authorization,
-        assigneeCheck,
+        // Cổng thật, cộng một công tắc: `setHasAssignedTasks(true)` vẫn chặn
+        // được để test của M2 kiểm đường đi mà không cần dựng một task thật.
+        assigneeCheck: {
+          hasAssignedTasks: async (input) =>
+            assigneeCheck.value || (await realAssigneeCheck.hasAssignedTasks(input)),
+        },
         activity,
         columns: new BoardColumnsProjectQuery(columnRepository),
         config: { csrfSecret: CSRF_SECRET },
@@ -271,8 +316,23 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
         db,
         repository: columnRepository,
         activity,
-        emptiness: emptinessCheck,
+        emptiness: {
+          hasTasks: async (input) =>
+            columnHasTasksOverride || (await emptinessCheck.hasTasks(input)),
+        },
         config: { csrfSecret: CSRF_SECRET },
+        guards: wiring.providers,
+      }),
+      TasksModule.register({
+        db,
+        repository: taskRepository,
+        columns: columnRepository,
+        membership: wiring.membership,
+        activity,
+        activityQueries,
+        clock,
+        config: { csrfSecret: CSRF_SECRET },
+        cursorSecret: SESSION_SECRET,
         guards: wiring.providers,
       }),
     ],
@@ -413,15 +473,39 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
     outsider,
     mailer,
     limiter,
-    activity: new ActivityQueries(db),
+    activity: activityQueries,
     setHasAssignedTasks: (value: boolean) => {
       assigneeCheck.value = value;
     },
     setColumnHasTasks: (value: boolean) => {
-      emptinessCheck.value = value;
+      columnHasTasksOverride = value;
     },
+    setToday: (date: string) => {
+      clock.value = date;
+    },
+    today: () => clock.value,
     cleanup: async () => {
       await app.close();
+
+      /**
+       * Comment trỏ task, task trỏ column và membership — tất cả `RESTRICT`.
+       * Dọn sai thứ tự thì database từ chối, và đó là hành vi **đúng** của
+       * schema; chỗ phải thích ứng là cleanup.
+       */
+      const deleteTasksAndComments = async (projectIds: string[]): Promise<void> => {
+        if (projectIds.length === 0) return;
+        const taskRows = await db
+          .select({ id: tasks.id })
+          .from(tasks)
+          .where(inArray(tasks.projectId, projectIds));
+        const taskIds = taskRows.map((row) => row.id);
+        if (taskIds.length > 0) {
+          await db.delete(comments).where(inArray(comments.taskId, taskIds));
+          // Activity của task phải đi trước task: FK `activity_logs.task_id`.
+          await db.delete(activityLogs).where(inArray(activityLogs.taskId, taskIds));
+          await db.delete(tasks).where(inArray(tasks.id, taskIds));
+        }
+      };
 
       /**
        * Dọn theo **chiều ngược của foreign key**, và theo *tất cả* project mà
@@ -439,8 +523,9 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
       const projectIds = ownedProjects.map((row) => row.id);
 
       if (projectIds.length > 0) {
-        // `activity_logs` và `board_columns` trỏ `projects` bằng
-        // `ON DELETE RESTRICT`, nên chúng phải đi trước.
+        // Mọi FK là `ON DELETE RESTRICT`, nên thứ tự dọn là chiều ngược của
+        // đồ thị: comment → task → activity → column → membership → project.
+        await deleteTasksAndComments(projectIds);
         await db.delete(activityLogs).where(inArray(activityLogs.projectId, projectIds));
         await db.delete(boardColumns).where(inArray(boardColumns.projectId, projectIds));
         await db.delete(projectMembers).where(inArray(projectMembers.projectId, projectIds));
@@ -461,6 +546,7 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
           .where(eq(projects.workspaceId, id));
         if (rows.length > 0) {
           const ids = rows.map((r) => r.id);
+          await deleteTasksAndComments(ids);
           await db.delete(activityLogs).where(inArray(activityLogs.projectId, ids));
           await db.delete(boardColumns).where(inArray(boardColumns.projectId, ids));
           await db.delete(projectMembers).where(inArray(projectMembers.projectId, ids));

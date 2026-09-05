@@ -17,3 +17,6 @@ coverage/
 # Artefact của test và công cụ
 playwright-report/
 test-results/
+
+# Bảng EXPLAIN do test sinh ra mỗi lượt chạy — dẫn xuất, không phải nguồn.
+apps/api/explain-m4.generated.md

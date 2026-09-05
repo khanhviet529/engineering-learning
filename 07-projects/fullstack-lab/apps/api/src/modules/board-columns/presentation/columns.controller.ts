@@ -34,6 +34,7 @@ import {
 } from "../../../shared/http/idempotency-runner.ts";
 import { validationError } from "../../../shared/errors/app-error.ts";
 import type { Database } from "../../../shared/database/client.ts";
+import { formatPosition } from "../../../shared/ordering/position.ts";
 import type { ColumnUseCases, ColumnView } from "../application/column-use-cases.ts";
 
 /**
@@ -60,9 +61,8 @@ const columnIdParamSchema = z.object({ columnId: z.uuid() }).strict();
  * Projection column: đúng bảy field mà `boardColumnSchema` công bố.
  *
  * `position` là **string** trong hợp đồng (`numeric` giữ nguyên precision qua
- * JSON), nên nó được format với đúng 10 chữ số thập phân — cùng scale của cột.
- * Trả một `number` sẽ mất precision im lặng ở giá trị fractional sâu, đúng thứ
- * mà fractional ordering sinh ra.
+ * JSON), và nó đi từ database tới đây mà **không** qua `number` ở bất kỳ bước
+ * nào — xem `shared/ordering/position.ts`.
  */
 function toColumnProjection(column: ColumnView) {
   return {
@@ -71,7 +71,7 @@ function toColumnProjection(column: ColumnView) {
     name: column.name,
     requiresReviewer: column.requiresReviewer,
     isTerminal: column.isTerminal,
-    position: column.position.toFixed(10),
+    position: formatPosition(column.position),
     archivedAt: column.archivedAt === null ? null : column.archivedAt.toISOString(),
   };
 }

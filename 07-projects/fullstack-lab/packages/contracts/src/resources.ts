@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { capabilitiesSchema, projectRoleSchema, workspaceRoleSchema } from "./capabilities.js";
+import { pageSchema } from "./envelope.js";
 import {
   calendarDateSchema,
   dueStateSchema,
@@ -79,7 +80,12 @@ export const taskSchema = z
     reviewerId: uuidSchema.nullable(),
     title: z.string().min(1),
     description: z.string(),
-    category: taskCategorySchema,
+    // `category` **nullable**: database khai `Null = Yes`, và `other` là một
+    // category thật chứ không phải giá trị "chưa đặt" — nên không có giá trị
+    // nào trong enum diễn đạt được "bỏ trống". `priority` thì ngược lại:
+    // database khai `Null = No` với default `none`, và `none` **là** thành viên
+    // của enum, nên projection không nullable là đúng.
+    category: taskCategorySchema.nullable(),
     priority: taskPrioritySchema,
     startDate: calendarDateSchema.nullable(),
     dueDate: calendarDateSchema.nullable(),
@@ -152,6 +158,27 @@ export type Activity = z.infer<typeof activitySchema>;
  * server tính, các column đang active, các member có thể làm assignee, và một
  * trang task có giới hạn theo từng column.
  */
+/**
+ * Response của `GET /tasks/:taskId`.
+ *
+ * Trước đây không có schema nào cho nó, nên test conformance phải parse từng
+ * mảnh bằng schema rời — tức là hình dạng tổng thể **không** được kiểm, và một
+ * field thừa lọt ra ngoài projection sẽ không ai thấy. Backend báo chỗ thiếu
+ * này khi dựng M4.
+ *
+ * `comments` là trang **đầu**; các trang sau đi qua chính use case list comment
+ * với cursor, cùng lối `columns` và load-more của board.
+ */
+export const taskDetailSchema = z
+  .object({
+    task: taskSchema,
+    comments: z.object({ items: z.array(commentSchema), page: pageSchema }).strict(),
+    capabilities: capabilitiesSchema,
+  })
+  .strict();
+
+export type TaskDetail = z.infer<typeof taskDetailSchema>;
+
 export const projectDetailSchema = z
   .object({
     project: projectSchema,

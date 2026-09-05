@@ -134,20 +134,33 @@ export class ProjectRepository {
           );
 
     // Đọc dư **một** hàng để biết `hasMore` mà không cần một câu `COUNT` thứ hai.
-    return (await (tx ?? this.#db)
-      .select({
-        id: projects.id,
-        workspaceId: projects.workspaceId,
-        name: projects.name,
-        role: projectMembers.role,
-        createdAt: projects.createdAt,
-        updatedAt: projects.updatedAt,
-      })
-      .from(projectMembers)
-      .innerJoin(projects, eq(projects.id, projectMembers.projectId))
-      .where(seek === undefined ? scope : and(scope, seek))
-      .orderBy(desc(projects.createdAt), desc(projects.id))
-      .limit(limit + 1)) as ProjectListRow[];
+    return (
+      (await (tx ?? this.#db)
+        .select({
+          id: projects.id,
+          workspaceId: projects.workspaceId,
+          name: projects.name,
+          role: projectMembers.role,
+          createdAt: projects.createdAt,
+          updatedAt: projects.updatedAt,
+        })
+        .from(projectMembers)
+        .innerJoin(projects, eq(projects.id, projectMembers.projectId))
+        .where(seek === undefined ? scope : and(scope, seek))
+        /**
+         * `desc nulls last` tường minh — cùng lỗi mà `EXPLAIN` của M4 vừa bắt được
+         * ở `tasks`, và nó có sẵn ở đây từ M2.
+         *
+         * Index `projects(workspace_id, created_at DESC NULLS LAST)` chỉ phục vụ
+         * được `ORDER BY` khi thứ tự NULL khớp, còn mặc định của
+         * `ORDER BY x DESC` là **NULLS FIRST**. Lệch đó đủ để planner bỏ index và
+         * rơi về `Seq Scan` cộng `Sort`. `created_at` là `NOT NULL` nên nêu tường
+         * minh không đổi ngữ nghĩa — nó chỉ để câu truy vấn và index nói cùng một
+         * ngôn ngữ.
+         */
+        .orderBy(sql`${projects.createdAt} desc nulls last`, desc(projects.id))
+        .limit(limit + 1)) as ProjectListRow[]
+    );
   }
 
   /** Tạo project và membership Owner của creator trong **cùng** transaction. */

@@ -101,24 +101,38 @@ interface RouteResponse {
 }
 
 /**
+ * Một route: hoặc một response cố định, hoặc một hàm đọc chính request.
+ *
+ * Dạng hàm có mặt từ M4, khi `BRD-01` phân trang **theo từng cột**: cùng một
+ * đường dẫn `/projects/:id/tasks` phải trả kết quả khác nhau theo `columnId`
+ * và `cursor` trong query. Một bảng chỉ tra theo pathname không diễn đạt được
+ * điều đó, và một test không diễn đạt được nó thì không kiểm được điều quan
+ * trọng nhất: cursor của cột này không rơi sang cột kia.
+ */
+export type RouteHandler = RouteResponse | ((url: URL, init: RequestInit) => RouteResponse);
+
+/**
  * Giả lập HTTP theo **đường dẫn**.
  *
  * Test khai `"/workspaces": ok(...)` thay vì mock từng lần gọi theo thứ tự.
  * Thứ tự gọi là chi tiết cài đặt; khai theo đường dẫn khiến test không vỡ khi
  * một màn hình thêm một request song song.
  */
-export function mockRoutes(routes: Record<string, RouteResponse>): void {
+export function mockRoutes(routes: Record<string, RouteHandler>): void {
   vi.stubGlobal(
     "fetch",
-    vi.fn(async (input: string) => {
+    vi.fn(async (input: string, init: RequestInit = {}) => {
       const url = new URL(input, "http://api.test");
       const match = Object.keys(routes).find((path) => url.pathname === path);
+      const entry = match === undefined ? undefined : routes[match];
       const route =
-        match === undefined
+        entry === undefined
           ? { status: 404, body: errorFor("not-found").body, headers: {} }
-          : routes[match];
+          : typeof entry === "function"
+            ? entry(url, init)
+            : entry;
 
-      if (route === undefined || route.status === 204) {
+      if (route.status === 204) {
         return new Response(null, { status: 204, headers: { "x-request-id": "test" } });
       }
       return new Response(JSON.stringify(route.body), {

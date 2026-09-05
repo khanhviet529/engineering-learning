@@ -5,7 +5,8 @@
   "type": "module",
   "description": "HTTP boundary và product behavior phía server: NestJS trên Fastify, PostgreSQL qua Drizzle.",
   "scripts": {
-    "dev": "node --env-file-if-exists=../../.env --env-file-if-exists=../../.env.host --watch --experimental-strip-types src/main.ts",
+    "dev:build": "tsc -p tsconfig.json --watch --preserveWatchOutput",
+    "dev": "node --env-file-if-exists=../../.env --env-file-if-exists=../../.env.host --watch dist/main.js",
     "start": "node dist/main.js",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",

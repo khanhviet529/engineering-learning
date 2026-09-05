@@ -46,6 +46,21 @@ export const ACTIVITY_ACTIONS = [
   "board_column.reviewer_requirement_changed",
   "board_column.archived",
   "board_column.reordered",
+
+  // M4.
+  "task.created",
+  "task.updated",
+  "task.moved",
+  /**
+   * Rời khỏi một cột terminal — ADR-0008 mục 5.
+   *
+   * Ghi **thay cho** `task.moved`, không phải thêm vào: một move commit vẫn là
+   * đúng một dòng lịch sử. Chỉ chiều đi ra được đặt tên riêng vì đó là tín hiệu
+   * rework mà báo cáo cần phân biệt; chiều đi vào đã quan sát được qua
+   * `task.moved` cộng cột đích.
+   */
+  "task.reopened",
+  "comment.created",
 ] as const;
 
 export type ActivityAction = (typeof ACTIVITY_ACTIONS)[number];

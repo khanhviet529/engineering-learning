@@ -390,3 +390,74 @@ describe("command của board column", () => {
     expect(columnHandlers.create({ ...base, projectId: ids.projectB }).status).toBe(400);
   });
 });
+
+/**
+ * Task ở M4.
+ *
+ * Điều đáng kiểm ở đây là **hình dạng**, và đặc biệt là những field mà hợp
+ * đồng cấm client gửi: gửi chúng phải là `400`, không phải bị bỏ qua im lặng —
+ * bỏ qua im lặng biến một client sai thành một client tưởng mình đúng.
+ */
+describe("task ở M4", () => {
+  it("trang task của một cột chỉ chứa task của cột đó", () => {
+    const res = taskHandlers.listInColumn(ids.columnBacklog);
+    const parsed = listEnvelopeSchema(taskSchema).safeParse(res.body);
+    expect(parsed.success, JSON.stringify(parsed.error?.issues)).toBe(true);
+    const body = res.body as { data: { items: { columnId: string }[] } };
+    for (const item of body.data.items) expect(item.columnId).toBe(ids.columnBacklog);
+  });
+
+  it("create từ chối field do server sở hữu", () => {
+    const base = { title: "Việc mới", columnId: ids.columnBacklog };
+    expect(taskHandlers.create(base).status).toBe(201);
+    for (const forbidden of [
+      { position: "1024" },
+      { version: 1 },
+      { dueState: "overdue" },
+      { projectId: ids.projectB },
+      { createdBy: { id: ids.userOwnerB, displayName: "Mai" } },
+    ]) {
+      expect(taskHandlers.create({ ...base, ...forbidden }).status, JSON.stringify(forbidden)).toBe(
+        400,
+      );
+    }
+  });
+
+  it("update bắt buộc expectedVersion và ít nhất một field nội dung", () => {
+    expect(taskHandlers.update({ expectedVersion: 3, title: "Đổi tên" }).status).toBe(200);
+    expect(taskHandlers.update({ expectedVersion: 3 }).status).toBe(400);
+    expect(taskHandlers.update({ title: "Thiếu version" }).status).toBe(400);
+  });
+
+  it("update từ chối đổi cột — đổi cột là use case move riêng", () => {
+    expect(taskHandlers.update({ expectedVersion: 3, columnId: ids.columnReview }).status).toBe(
+      400,
+    );
+  });
+
+  it("move nhận đúng bốn field và từ chối field lạ", () => {
+    const body = {
+      destinationColumnId: ids.columnReview,
+      targetPosition: "1536.0000000000",
+      expectedVersion: 2,
+    };
+    expect(taskHandlers.move(body).status).toBe(200);
+    expect(taskHandlers.move({ ...body, reviewerId: ids.userEditorB }).status).toBe(200);
+    expect(taskHandlers.move({ ...body, position: "1024" }).status).toBe(400);
+  });
+
+  it("targetPosition phải là thập phân thường", () => {
+    const base = { destinationColumnId: ids.columnReview, expectedVersion: 2 };
+    expect(taskHandlers.move({ ...base, targetPosition: "1e3" }).status).toBe(400);
+    expect(taskHandlers.move({ ...base, targetPosition: "-5" }).status).toBe(400);
+  });
+
+  it("comment rỗng bị từ chối; comment hợp lệ trả 201", () => {
+    expect(commentHandlers.create({ body: "   " }).status).toBe(400);
+    expect(commentHandlers.create({ body: "ok" }).status).toBe(201);
+  });
+
+  it("comment không nhận field lạ — không có contentType, không có format", () => {
+    expect(commentHandlers.create({ body: "ok", format: "markdown" }).status).toBe(400);
+  });
+});

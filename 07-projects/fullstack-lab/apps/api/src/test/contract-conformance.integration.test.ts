@@ -1,16 +1,24 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   acceptedResponseSchema,
+  activitySchema,
+  capabilitiesSchema,
+  commentResponseSchema,
+  commentSchema,
   errorEnvelopeSchema,
   listEnvelopeSchema,
+  pageSchema,
   projectDetailSchema,
   projectMemberResponseSchema,
   projectResponseSchema,
   successEnvelopeSchema,
+  taskResponseSchema,
+  taskSchema,
   workspaceMemberListItemSchema,
   workspaceResponseSchema,
   workspaceSchema,
 } from "@flowboard/contracts";
+import { z } from "zod";
 import { call, createFixture, newKey, type Fixture } from "./fixture.ts";
 
 /**
@@ -206,6 +214,111 @@ describeIfDb("response khớp hợp đồng của @flowboard/contracts", () => {
     expect(denied.status).toBe(404);
   });
 
+  /**
+   * Bảy route của M4.
+   *
+   * Mỗi response được parse bằng **chính** schema mà `@flowboard/contracts`
+   * công bố, không phải một bản chép tay: một field thừa, thiếu, hay sai kiểu
+   * đều làm `.strict()` từ chối.
+   */
+  it("bảy route của M4 khớp schema của hợp đồng", async () => {
+    const project = await call(f, "POST", `/workspaces/${f.workspaceId}/projects`, {
+      actor: f.wsAdmin,
+      idempotencyKey: newKey("conf-m4-project"),
+      body: { name: `Hợp đồng M4 ${crypto.randomUUID().slice(0, 8)}` },
+    });
+    const projectId = (project.body["data"] as { project: { id: string } }).project.id;
+
+    const columnIds: string[] = [];
+    for (const name of ["Đang làm", "Đã xong"]) {
+      const column = await call(f, "POST", `/projects/${projectId}/columns`, {
+        actor: f.wsAdmin,
+        idempotencyKey: newKey("conf-m4-col"),
+        body: { name, afterColumnId: null },
+      });
+      columnIds.push((column.body["data"] as { column: { id: string } }).column.id);
+    }
+
+    // 1. POST /projects/:projectId/tasks
+    const created = await call(f, "POST", `/projects/${projectId}/tasks`, {
+      actor: f.wsAdmin,
+      idempotencyKey: newKey("conf-m4-task"),
+      body: {
+        title: "Task hợp đồng",
+        columnId: columnIds[0] as string,
+        description: "Có mô tả",
+        category: "feature",
+        priority: "medium",
+        dueDate: "2026-12-01",
+        evidenceUrl: "https://example.test/bang-chung",
+      },
+    });
+    expect(created.status).toBe(201);
+    const taskResponse = successEnvelopeSchema(taskResponseSchema);
+    expect(() => taskResponse.parse(created.body)).not.toThrow();
+    const taskId = (created.body["data"] as { task: { id: string } }).task.id;
+
+    // 2. GET /projects/:projectId/tasks
+    const list = await call(f, "GET", `/projects/${projectId}/tasks`, { actor: f.wsAdmin });
+    expect(() => listEnvelopeSchema(taskSchema).parse(list.body)).not.toThrow();
+
+    // 3. POST /tasks/:taskId/comments
+    const comment = await call(f, "POST", `/tasks/${taskId}/comments`, {
+      actor: f.wsAdmin,
+      idempotencyKey: newKey("conf-m4-comment"),
+      body: { body: "Bình luận hợp đồng" },
+    });
+    expect(comment.status).toBe(201);
+    expect(() => successEnvelopeSchema(commentResponseSchema).parse(comment.body)).not.toThrow();
+
+    /**
+     * 4. `GET /tasks/:taskId` — **hợp đồng không có schema cho response này**.
+     *
+     * `packages/contracts` công bố `taskResponseSchema` (`{ task, capabilities }`)
+     * và `commentResponseSchema`, nhưng không có schema nào cho hình dạng
+     * `{ task, comments: { items, page }, capabilities }` mà
+     * `endpoint-contracts.md` mô tả cho route này. Đây là một lỗ hổng của hợp
+     * đồng được **báo cáo**, không tự vá — `packages/contracts` không thuộc lane
+     * này. Ở đây từng mảnh được parse bằng schema có thật.
+     */
+    const detail = await call(f, "GET", `/tasks/${taskId}`, { actor: f.wsAdmin });
+    expect(detail.status).toBe(200);
+    const detailData = detail.body["data"] as {
+      task: unknown;
+      comments: { items: unknown[]; page: unknown };
+      capabilities: unknown;
+    };
+    expect(() => taskSchema.parse(detailData.task)).not.toThrow();
+    expect(() => z.array(commentSchema).parse(detailData.comments.items)).not.toThrow();
+    expect(() => pageSchema.parse(detailData.comments.page)).not.toThrow();
+    expect(() => capabilitiesSchema.parse(detailData.capabilities)).not.toThrow();
+
+    // 5. PATCH /tasks/:taskId
+    const patched = await call(f, "PATCH", `/tasks/${taskId}`, {
+      actor: f.wsAdmin,
+      idempotencyKey: newKey("conf-m4-patch"),
+      body: { title: "Đã đổi tên", expectedVersion: 1 },
+    });
+    expect(() => taskResponse.parse(patched.body)).not.toThrow();
+
+    // 6. POST /tasks/:taskId/move
+    const moved = await call(f, "POST", `/tasks/${taskId}/move`, {
+      actor: f.wsAdmin,
+      idempotencyKey: newKey("conf-m4-move"),
+      body: {
+        destinationColumnId: columnIds[1] as string,
+        targetPosition: "1024.0000000000",
+        expectedVersion: 2,
+      },
+    });
+    expect(moved.status).toBe(200);
+    expect(() => taskResponse.parse(moved.body)).not.toThrow();
+
+    // 7. GET /tasks/:taskId/activity
+    const activity = await call(f, "GET", `/tasks/${taskId}/activity`, { actor: f.wsAdmin });
+    expect(() => listEnvelopeSchema(activitySchema).parse(activity.body)).not.toThrow();
+  });
+
   describe("envelope lỗi", () => {
     /**
      * Envelope lỗi có một `refine` riêng: chỉ `VALIDATION_FAILED` được mang
@@ -265,6 +378,43 @@ describeIfDb("response khớp hợp đồng của @flowboard/contracts", () => {
           } finally {
             f.setColumnHasTasks(false);
           }
+        },
+      },
+      {
+        /**
+         * `TASK_VERSION_CONFLICT` là code **duy nhất còn lại** được mang
+         * `details`, và `details` của nó là object `{ currentVersion }` chứ
+         * không phải field-error array. Envelope có một `refine` cưỡng chế đúng
+         * điều đó, nên một `details` sai hình dạng chỉ lộ ra ở đây.
+         */
+        name: "409 TASK_VERSION_CONFLICT mang object currentVersion",
+        run: async () => {
+          const project = await call(f, "POST", `/workspaces/${f.workspaceId}/projects`, {
+            actor: f.wsAdmin,
+            idempotencyKey: newKey("conf-vc-project"),
+            body: { name: `Xung đột version ${crypto.randomUUID().slice(0, 8)}` },
+          });
+          const projectId = (project.body["data"] as { project: { id: string } }).project.id;
+
+          const column = await call(f, "POST", `/projects/${projectId}/columns`, {
+            actor: f.wsAdmin,
+            idempotencyKey: newKey("conf-vc-col"),
+            body: { name: "Cần làm", afterColumnId: null },
+          });
+          const columnId = (column.body["data"] as { column: { id: string } }).column.id;
+
+          const task = await call(f, "POST", `/projects/${projectId}/tasks`, {
+            actor: f.wsAdmin,
+            idempotencyKey: newKey("conf-vc-task"),
+            body: { title: "Việc", columnId, description: null },
+          });
+          const taskId = (task.body["data"] as { task: { id: string } }).task.id;
+
+          return await call(f, "PATCH", `/tasks/${taskId}`, {
+            actor: f.wsAdmin,
+            idempotencyKey: newKey("conf-vc-patch"),
+            body: { title: "Sai version", expectedVersion: 99 },
+          });
         },
       },
       {

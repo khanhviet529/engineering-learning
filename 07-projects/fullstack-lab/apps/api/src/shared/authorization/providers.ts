@@ -33,6 +33,15 @@ export interface AuthorizationDeps {
 
 export interface AuthorizationWiring {
   authorization: AuthorizationService;
+  /**
+   * Bộ đọc membership đã dựng.
+   *
+   * Trả ra ngoài để composition root nối lại cho module cần đọc vai trò project
+   * — `tasks` phải xác nhận assignee/reviewer là ProjectMember. Dựng một
+   * `MembershipReader` thứ hai cũng chạy, nhưng khi đó "ai đọc bảng membership"
+   * không còn trả lời được bằng một chỗ.
+   */
+  membership: MembershipReader;
   providers: Provider[];
 }
 
@@ -43,6 +52,7 @@ export function buildAuthorizationWiring(deps: AuthorizationDeps): Authorization
 
   return {
     authorization,
+    membership,
     providers: [
       // Giá trị cho từng token.
       { provide: AUTHZ_TOKENS.actorResolver, useValue: deps.actorResolver },

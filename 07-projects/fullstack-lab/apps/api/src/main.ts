@@ -12,15 +12,22 @@ import { generateRequestId, normalizeRequestId } from "./shared/observability/re
 import { ErrorFilter } from "./shared/errors/error.filter.ts";
 import { AuthModule } from "./modules/auth/auth.module.ts";
 import { WorkspacesModule } from "./modules/workspaces/workspaces.module.ts";
-import { ProjectsModule, NoTasksYetAssigneeCheck } from "./modules/projects/projects.module.ts";
-import {
-  BoardColumnsModule,
-  NoTasksYetEmptinessCheck,
-} from "./modules/board-columns/board-columns.module.ts";
+import { ProjectsModule } from "./modules/projects/projects.module.ts";
+import { BoardColumnsModule } from "./modules/board-columns/board-columns.module.ts";
 import { ColumnRepository } from "./modules/board-columns/infrastructure/column-repository.ts";
 import { BoardColumnsProjectQuery } from "./modules/board-columns/infrastructure/project-columns-adapter.ts";
-import { ColumnProjectResolver } from "./modules/board-columns/infrastructure/column-project-resolver.ts";
-import { DrizzleActivityRecorder } from "./modules/activity/infrastructure/activity-repository.ts";
+import { TasksModule } from "./modules/tasks/tasks.module.ts";
+import { TaskRepository } from "./modules/tasks/infrastructure/task-repository.ts";
+import { TaskProjectResolver } from "./modules/tasks/infrastructure/task-project-resolver.ts";
+import {
+  TaskColumnEmptinessCheck,
+  TaskProjectAssigneeCheck,
+} from "./modules/tasks/infrastructure/port-adapters.ts";
+import { ConfiguredWorkspaceClock } from "./modules/tasks/domain/due-state.ts";
+import {
+  ActivityQueries,
+  DrizzleActivityRecorder,
+} from "./modules/activity/infrastructure/activity-repository.ts";
 import { buildAuthorizationWiring } from "./shared/authorization/index.ts";
 import { AuthRepository } from "./modules/auth/infrastructure/auth-repository.ts";
 import { AuthUseCases } from "./modules/auth/application/auth-use-cases.ts";
@@ -48,6 +55,8 @@ function buildRootModule(deps: {
   db: Parameters<typeof WorkspacesModule.register>[0]["db"];
   cursorSecret: string;
   csrfSecret: string;
+  /** Timezone dùng để suy `dueState` — xem `tasks/domain/due-state.ts`. */
+  timeZone: string;
 }) {
   /**
    * `activity` là module leaf và **không có route nào ở M3**, nên nó không cần
@@ -64,16 +73,27 @@ function buildRootModule(deps: {
    */
   const columnRepository = new ColumnRepository(deps.db);
 
+  /**
+   * `TaskRepository` cũng dùng chung cho bốn chỗ: use case của `tasks`,
+   * resolver của chuỗi guard, và **hai adapter port** mà M2 và M3 đã hứa —
+   * `ColumnEmptinessCheck` cho archive cột, `ProjectAssigneeCheck` cho gỡ
+   * member. M4 là mốc trả cả hai lời hứa đó.
+   */
+  const taskRepository = new TaskRepository(deps.db);
+  const activityQueries = new ActivityQueries(deps.db);
+  const workspaceClock = new ConfiguredWorkspaceClock(deps.timeZone);
+
   const wiring = buildAuthorizationWiring({
     db: deps.db,
     // `AuthUseCases.resolveSession` khớp đúng hình dạng của `ActorResolver`.
     actorResolver: deps.authUseCases,
     /**
-     * M3 thay resolver mặc định: chuỗi guard giờ phải resolve được `:columnId`
-     * và `projectId` trong body của `POST /columns/reorder`, không chỉ
-     * `:projectId` trên path.
+     * M4 mở rộng resolver thêm một lần nữa: chuỗi guard giờ phải resolve được
+     * `:taskId` bên cạnh `:projectId`, `:columnId` và `projectId` trong body của
+     * `POST /columns/reorder`. Chuỗi guard có **một** resolver, nên đây là một
+     * lớp thay thế chứ không phải một lớp thứ hai đứng cạnh.
      */
-    projectResolver: new ColumnProjectResolver(columnRepository),
+    projectResolver: new TaskProjectResolver(columnRepository, taskRepository),
   });
 
   @Module({
@@ -93,8 +113,8 @@ function buildRootModule(deps: {
       ProjectsModule.register({
         db: deps.db,
         authorization: wiring.authorization,
-        // M4 thay bằng adapter thật của module `tasks`.
-        assigneeCheck: new NoTasksYetAssigneeCheck(),
+        // Adapter thật, có từ M4: đọc `tasks.assignee_id`.
+        assigneeCheck: new TaskProjectAssigneeCheck(taskRepository),
         activity,
         columns: new BoardColumnsProjectQuery(columnRepository),
         config: { csrfSecret: deps.csrfSecret },
@@ -105,9 +125,21 @@ function buildRootModule(deps: {
         db: deps.db,
         repository: columnRepository,
         activity,
-        // M4 thay bằng adapter thật của module `tasks`.
-        emptiness: new NoTasksYetEmptinessCheck(),
+        // Adapter thật, có từ M4: đếm task trong cột.
+        emptiness: new TaskColumnEmptinessCheck(taskRepository),
         config: { csrfSecret: deps.csrfSecret },
+        guards: wiring.providers,
+      }),
+      TasksModule.register({
+        db: deps.db,
+        repository: taskRepository,
+        columns: columnRepository,
+        membership: wiring.membership,
+        activity,
+        activityQueries,
+        clock: workspaceClock,
+        config: { csrfSecret: deps.csrfSecret },
+        cursorSecret: deps.cursorSecret,
         guards: wiring.providers,
       }),
     ],
@@ -160,6 +192,7 @@ async function bootstrap(): Promise<void> {
       authUseCases,
       cursorSecret: env.SESSION_SECRET,
       csrfSecret: env.CSRF_SECRET,
+      timeZone: env.APP_TIMEZONE,
       auth: {
         db: database.db,
         mailer,

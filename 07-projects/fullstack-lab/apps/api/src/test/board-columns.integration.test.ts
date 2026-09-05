@@ -2,6 +2,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { and, eq, sql } from "drizzle-orm";
 import { columnResponseSchema, columnsResponseSchema } from "@flowboard/contracts";
 import { createDatabase } from "../shared/database/client.ts";
+import { formatPosition, parsePosition } from "../shared/ordering/position.ts";
 import { boardColumns } from "../shared/database/schema.ts";
 import { ColumnRepository } from "../modules/board-columns/infrastructure/column-repository.ts";
 import { call, createFixture, newKey, type Fixture, type TestActor } from "./fixture.ts";
@@ -93,7 +94,7 @@ describeIfDb("board column", () => {
 
   /** Hàng thật trong database, kể cả archived. */
   async function rowsOf(projectId: string) {
-    return await f.db
+    const rows = await f.db
       .select({
         id: boardColumns.id,
         name: boardColumns.name,
@@ -106,6 +107,10 @@ describeIfDb("board column", () => {
       .from(boardColumns)
       .where(eq(boardColumns.projectId, projectId))
       .orderBy(boardColumns.position);
+
+    // `position` là chuỗi thập phân của `numeric(20,10)`; test so sánh nó dưới
+    // dạng số nguyên đã tỉ lệ, đúng cách phần còn lại của hệ thống làm.
+    return rows.map((row) => ({ ...row, position: parsePosition(row.position) }));
   }
 
   /* ---------------------------------------------------------------------- *
@@ -301,7 +306,7 @@ describeIfDb("board column", () => {
             {
               projectId,
               name: "Của t1",
-              position: 2048,
+              position: parsePosition("2048"),
               isTerminal: false,
               requiresReviewer: false,
             },
@@ -340,7 +345,7 @@ describeIfDb("board column", () => {
             {
               projectId,
               name: "Của t3",
-              position: 3072,
+              position: parsePosition("3072"),
               isTerminal: false,
               requiresReviewer: false,
             },
@@ -467,12 +472,12 @@ describeIfDb("board column", () => {
       // Sau rebalance dãy vẫn tăng nghiêm ngặt và khe đã rộng trở lại.
       const positions = after.map((row) => row.position);
       for (let i = 1; i < positions.length; i++) {
-        expect(positions[i] as number).toBeGreaterThan(positions[i - 1] as number);
+        expect(positions[i] as bigint).toBeGreaterThan(positions[i - 1] as bigint);
       }
-      const smallestGap = Math.min(
-        ...positions.slice(1).map((p, i) => p - (positions[i] as number)),
-      );
-      expect(smallestGap).toBeGreaterThan(1e-6);
+      const gaps = positions.slice(1).map((p, i) => p - (positions[i] as bigint));
+      const smallestGap = gaps.reduce((a, b) => (b < a ? b : a));
+      // Ngưỡng 10⁻⁶ là 10⁴ đơn vị đã tỉ lệ theo 10¹⁰.
+      expect(smallestGap > 10n ** 4n).toBe(true);
     }, 180_000);
 
     /**
@@ -498,10 +503,10 @@ describeIfDb("board column", () => {
       const c = columnOf(await createColumn(projectId, "C")).id;
 
       // Đảo thứ tự: C→1024, B→2048, A→3072.
-      const reversal: [string, number][] = [
-        [c, 1024],
-        [b, 2048],
-        [a, 3072],
+      const reversal: [string, string][] = [
+        [c, formatPosition(parsePosition("1024"))],
+        [b, formatPosition(parsePosition("2048"))],
+        [a, formatPosition(parsePosition("3072"))],
       ];
 
       await expect(
@@ -520,7 +525,7 @@ describeIfDb("board column", () => {
 
         await tx
           .update(boardColumns)
-          .set({ position: 1024 })
+          .set({ position: formatPosition(parsePosition("1024")) })
           .where(eq(boardColumns.id, reversal[0]?.[0] as string));
 
         // Đúng chỗ này, hai row của cùng project cùng mang position 1024.
@@ -792,8 +797,8 @@ describeIfDb("board column", () => {
       expect((await reorder(projectId, active)).status).toBe(200);
 
       const byId = new Map((await rowsOf(projectId)).map((row) => [row.id, row]));
-      expect(byId.get(active[0] as string)?.position).toBe(1024);
-      expect(byId.get(active[1] as string)?.position).toBe(2048);
+      expect(byId.get(active[0] as string)?.position).toBe(parsePosition("1024"));
+      expect(byId.get(active[1] as string)?.position).toBe(parsePosition("2048"));
       // Cột archive không nằm trong tập active nên không được chạm.
       expect(byId.get(archivedId)).toEqual(archivedBefore);
     });

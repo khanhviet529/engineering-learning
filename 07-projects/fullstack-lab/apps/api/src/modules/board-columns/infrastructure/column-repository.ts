@@ -1,7 +1,11 @@
 import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import type { Database, Transaction } from "../../../shared/database/client.ts";
 import { boardColumns } from "../../../shared/database/schema.ts";
-import type { PositionedItem } from "../domain/ordering.ts";
+import {
+  formatPosition,
+  parsePosition,
+  type PositionedItem,
+} from "../../../shared/ordering/position.ts";
 
 /**
  * Repository của module `board-columns`.
@@ -20,7 +24,7 @@ export interface ColumnRow {
   name: string;
   requiresReviewer: boolean;
   isTerminal: boolean;
-  position: number;
+  position: bigint;
   archivedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
@@ -37,6 +41,20 @@ const columnProjection = {
   createdAt: boardColumns.createdAt,
   updatedAt: boardColumns.updatedAt,
 } as const;
+
+/** Hàng thô của driver: `position` là chuỗi thập phân, đúng như PostgreSQL trả. */
+type RawColumnRow = Omit<ColumnRow, "position"> & { position: string };
+
+/**
+ * Đổi `position` sang `bigint` **ngay tại ranh giới database**.
+ *
+ * Chuyển đổi ở đúng một chỗ, và không có `number` nào ở giữa: xem
+ * `shared/ordering/position.ts` để biết vì sao `double` không dùng được ở dải
+ * giá trị của M4.
+ */
+function toRow(raw: RawColumnRow): ColumnRow {
+  return { ...raw, position: parsePosition(raw.position) };
+}
 
 export class ColumnRepository {
   readonly #db: Database;
@@ -72,11 +90,13 @@ export class ColumnRepository {
 
   /** Cột **active** của một project, theo thứ tự board. */
   async findActiveColumns(projectId: string, tx?: Executor): Promise<ColumnRow[]> {
-    return (await (tx ?? this.#db)
-      .select(columnProjection)
-      .from(boardColumns)
-      .where(and(eq(boardColumns.projectId, projectId), isNull(boardColumns.archivedAt)))
-      .orderBy(asc(boardColumns.position), asc(boardColumns.id))) as ColumnRow[];
+    return (
+      (await (tx ?? this.#db)
+        .select(columnProjection)
+        .from(boardColumns)
+        .where(and(eq(boardColumns.projectId, projectId), isNull(boardColumns.archivedAt)))
+        .orderBy(asc(boardColumns.position), asc(boardColumns.id))) as RawColumnRow[]
+    ).map(toRow);
   }
 
   /**
@@ -94,12 +114,14 @@ export class ColumnRepository {
    * đổi giữa lúc đọc và lúc ghi.
    */
   async lockActiveColumns(projectId: string, tx: Executor): Promise<ColumnRow[]> {
-    return (await tx
-      .select(columnProjection)
-      .from(boardColumns)
-      .where(and(eq(boardColumns.projectId, projectId), isNull(boardColumns.archivedAt)))
-      .orderBy(asc(boardColumns.position), asc(boardColumns.id))
-      .for("update")) as ColumnRow[];
+    return (
+      (await tx
+        .select(columnProjection)
+        .from(boardColumns)
+        .where(and(eq(boardColumns.projectId, projectId), isNull(boardColumns.archivedAt)))
+        .orderBy(asc(boardColumns.position), asc(boardColumns.id))
+        .for("update")) as RawColumnRow[]
+    ).map(toRow);
   }
 
   /** Một cột theo ID, **scope theo project** đã được authorize. */
@@ -112,7 +134,7 @@ export class ColumnRepository {
       .select(columnProjection)
       .from(boardColumns)
       .where(and(eq(boardColumns.id, columnId), eq(boardColumns.projectId, projectId)));
-    return row as ColumnRow | undefined;
+    return row === undefined ? undefined : toRow(row as RawColumnRow);
   }
 
   /**
@@ -133,14 +155,17 @@ export class ColumnRepository {
     input: {
       projectId: string;
       name: string;
-      position: number;
+      position: bigint;
       isTerminal: boolean;
       requiresReviewer: boolean;
     },
     tx: Executor,
   ): Promise<ColumnRow> {
-    const [row] = await tx.insert(boardColumns).values(input).returning(columnProjection);
-    return row as ColumnRow;
+    const [row] = await tx
+      .insert(boardColumns)
+      .values({ ...input, position: formatPosition(input.position) })
+      .returning(columnProjection);
+    return toRow(row as RawColumnRow);
   }
 
   /**
@@ -164,7 +189,7 @@ export class ColumnRepository {
     for (const item of positions) {
       await tx
         .update(boardColumns)
-        .set({ position: item.position })
+        .set({ position: formatPosition(item.position) })
         .where(eq(boardColumns.id, item.id));
     }
   }
@@ -179,7 +204,7 @@ export class ColumnRepository {
       .set({ name: input.name, updatedAt: input.now })
       .where(and(eq(boardColumns.id, input.columnId), eq(boardColumns.projectId, input.projectId)))
       .returning(columnProjection);
-    return row as ColumnRow | undefined;
+    return row === undefined ? undefined : toRow(row as RawColumnRow);
   }
 
   /**
@@ -198,7 +223,7 @@ export class ColumnRepository {
       .set({ isTerminal: input.isTerminal, updatedAt: input.now })
       .where(and(eq(boardColumns.id, input.columnId), eq(boardColumns.projectId, input.projectId)))
       .returning(columnProjection);
-    return row as ColumnRow | undefined;
+    return row === undefined ? undefined : toRow(row as RawColumnRow);
   }
 
   /**
@@ -217,7 +242,7 @@ export class ColumnRepository {
       .set({ requiresReviewer: input.requiresReviewer, updatedAt: input.now })
       .where(and(eq(boardColumns.id, input.columnId), eq(boardColumns.projectId, input.projectId)))
       .returning(columnProjection);
-    return row as ColumnRow | undefined;
+    return row === undefined ? undefined : toRow(row as RawColumnRow);
   }
 
   /** Archive: đặt `archived_at`. Row được giữ cho lịch sử, không delete. */
@@ -236,6 +261,6 @@ export class ColumnRepository {
         ),
       )
       .returning(columnProjection);
-    return row as ColumnRow | undefined;
+    return row === undefined ? undefined : toRow(row as RawColumnRow);
   }
 }

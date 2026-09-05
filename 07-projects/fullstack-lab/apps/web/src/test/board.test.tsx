@@ -30,6 +30,7 @@ import { BoardScreen } from "../features/board/board-screen.tsx";
 const BOARD_PATH = `/du-an/${ids.projectB}/bang-cong-viec`;
 const DETAIL_PATH = `/projects/${ids.projectB}`;
 const CREATE_PATH = `/projects/${ids.projectB}/columns`;
+const TASKS_PATH = `/projects/${ids.projectB}/tasks`;
 const REORDER_PATH = "/columns/reorder";
 
 const SESSION = ok({ actor: actors.ownerB, csrfToken: "csrf" });
@@ -58,6 +59,10 @@ function boardRoutes(
     [DETAIL_PATH]: detail(),
     [CREATE_PATH]: ok({ column: columns[0] }, 201),
     [REORDER_PATH]: ok({ columns }),
+    // Từ M4 mỗi cột tự nạp trang task của nó. Bộ kiểm của `BRD-02` không quan
+    // tâm tới task, nhưng nếu không khai route thì mỗi cột sẽ hiện lỗi và che
+    // mất thứ đang được kiểm.
+    [TASKS_PATH]: ok({ items: [], page: { nextCursor: null, hasMore: false } }),
     ...patchRoutes,
     ...overrides,
   });
@@ -150,7 +155,13 @@ describe("BRD-01 — khung board", () => {
 
     await screen.findByRole("heading", { name: "Backlog", level: 3 });
     // Bốn cột, bốn chỗ chứa công việc còn trống — nhưng board thì **không** rỗng.
-    expect(screen.getAllByText("Chưa có công việc nào ở cột này")).toHaveLength(columns.length);
+    // `findAllBy`: từ M4 mỗi cột nạp task bằng một request riêng, nên tiêu đề
+    // cột có mặt trước nội dung của nó.
+    // `waitFor`, không phải `findAllBy`: `findAllBy` trả về ngay khi có **một**
+    // phần tử khớp, mà bốn cột nạp xong ở bốn thời điểm khác nhau.
+    await waitFor(() => {
+      expect(screen.getAllByText("Chưa có công việc nào ở cột này")).toHaveLength(columns.length);
+    });
     expect(screen.queryByText("Bảng công việc chưa có cột nào")).not.toBeInTheDocument();
   });
 

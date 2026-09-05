@@ -46,6 +46,7 @@ import type {
   ProjectView,
 } from "../application/project-use-cases.ts";
 import type { ProjectColumnView } from "../domain/project-columns-port.ts";
+import { formatPosition } from "../../../shared/ordering/position.ts";
 
 /**
  * Controller của module `projects`.
@@ -103,7 +104,8 @@ function toProjectListProjection(project: ProjectListView) {
  *
  * `position` là **string**: `numeric(20,10)` giữ nguyên precision qua JSON chỉ
  * khi nó không đi qua một JSON number. Cùng phép format với controller của
- * module `board-columns`, vì cùng một hợp đồng.
+ * module `board-columns`, vì cùng một hợp đồng — và cùng một hàm, để hai chỗ
+ * không thể trôi khỏi nhau.
  */
 function toColumnProjection(column: ProjectColumnView) {
   return {
@@ -112,7 +114,7 @@ function toColumnProjection(column: ProjectColumnView) {
     name: column.name,
     requiresReviewer: column.requiresReviewer,
     isTerminal: column.isTerminal,
-    position: column.position.toFixed(10),
+    position: formatPosition(column.position),
     archivedAt: column.archivedAt === null ? null : column.archivedAt.toISOString(),
   };
 }

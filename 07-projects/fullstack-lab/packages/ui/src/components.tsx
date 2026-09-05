@@ -262,6 +262,89 @@ export function FbPasswordField(props: FbFieldProps) {
   );
 }
 
+export interface FbTextAreaProps extends FbFieldProps {
+  rows?: number;
+  placeholder?: string | undefined;
+  /** Giới hạn ký tự của hợp đồng; hiện số đã dùng để người viết biết trước khi bị từ chối. */
+  maxLength?: number | undefined;
+}
+
+/**
+ * Ô nhập nhiều dòng cho mô tả task và ô soạn bình luận.
+ *
+ * Nó dùng `Input.TextArea` của Ant Design chứ không tự vẽ, vì đó cùng một họ
+ * primitive với `FbTextField` — cùng seed màu đã khai trong `theme.ts`, nên
+ * không mở thêm bề mặt token nào chưa được đo.
+ */
+export function FbTextArea(props: FbTextAreaProps) {
+  const { id, label, value, onChange, error, hint, required, rows = 4, placeholder } = props;
+  const disabled = props.disabled ?? false;
+  const maxLength = props.maxLength;
+
+  return (
+    <Field id={id} label={label} error={error} hint={hint} required={required}>
+      <Input.TextArea
+        id={id}
+        value={value}
+        rows={rows}
+        onChange={(event) => onChange(event.target.value)}
+        aria-invalid={error !== undefined}
+        disabled={disabled}
+        {...(placeholder === undefined ? {} : { placeholder })}
+        {...(maxLength === undefined ? {} : { maxLength })}
+        {...optionalInputProps(props)}
+      />
+    </Field>
+  );
+}
+
+/**
+ * Ngày theo lịch, **không có giờ**.
+ *
+ * Nó là `<input type="date">` gốc, không phải `DatePicker` của Ant Design. Ba
+ * lý do, theo thứ tự quan trọng: hợp đồng chỉ có `YYYY-MM-DD` nên một picker
+ * mang theo giờ và múi giờ là thừa và dễ sai; `DatePicker` kéo theo một lớp
+ * popup với hàng chục token dẫn xuất mà `theme.test.ts` **không** canh được —
+ * nó chỉ canh những seed ta khai; và input gốc đã có sẵn bàn phím, định dạng
+ * theo locale của máy và bộ chọn của từng nền tảng.
+ */
+export function FbDateField(props: FbFieldProps) {
+  const { id, label, value, onChange, error, hint, required } = props;
+  const disabled = props.disabled ?? false;
+  const described = describedBy(id, hint, error);
+
+  return (
+    <Field id={id} label={label} error={error} hint={hint} required={required}>
+      <input
+        id={id}
+        type="date"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        disabled={disabled}
+        aria-invalid={error !== undefined}
+        {...(described === undefined ? {} : { "aria-describedby": described })}
+        style={{
+          width: "100%",
+          minHeight: 40,
+          padding: "0 var(--fb-space-3)",
+          borderRadius: "var(--fb-radius-md)",
+          border: `1px solid ${
+            error === undefined
+              ? "var(--fb-color-border-default)"
+              : "var(--fb-color-intent-danger-text)"
+          }`,
+          background: disabled
+            ? "var(--fb-color-state-disabled-surface)"
+            : "var(--fb-color-surface-raised)",
+          color: disabled ? "var(--fb-color-state-disabled-text)" : "var(--fb-color-text-primary)",
+          fontSize: "var(--fb-font-size-body)",
+          fontFamily: "inherit",
+        }}
+      />
+    </Field>
+  );
+}
+
 export interface FbSelectOption {
   value: string;
   label: string;

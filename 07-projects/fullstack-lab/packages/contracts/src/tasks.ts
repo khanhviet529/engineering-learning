@@ -100,8 +100,12 @@ export type CreateTaskRequest = z.infer<typeof createTaskRequestSchema>;
  * nội dung. Patch rỗng bị từ chối — nó không phải no-op vô hại, nó là dấu hiệu
  * client đang gửi thứ mình không định gửi.
  *
- * `sprintId` (Phase 1.4) và `parentTaskId` (Phase 1.5) đã có chỗ trong hợp đồng
- * từ bây giờ để client không phải đoán khi phase đó bật.
+ * `sprintId` (Phase 1.4) và `parentTaskId` (Phase 1.5) **không** có ở đây, dù
+ * `taskSchema` vẫn trả `sprintId` (luôn `null` ở MVP). Bất đối xứng đó có chủ ý:
+ * giữ chỗ trong **response** là một field chỉ đọc, vô hại; giữ chỗ trong
+ * **request** là một lời hứa server không giữ được — cột chưa tồn tại, nên mọi
+ * client gửi chúng đều nhận `400`. Một schema nhận field mà server luôn từ chối
+ * là một schema nói sai. Thêm lại khi phase bật là additive.
  */
 const updateTaskFields = z
   .object({
@@ -114,8 +118,6 @@ const updateTaskFields = z
     dueDate: calendarDateSchema.nullable(),
     reviewerId: uuidSchema.nullable(),
     evidenceUrl: evidenceUrlSchema.nullable(),
-    sprintId: uuidSchema.nullable(),
-    parentTaskId: uuidSchema.nullable(),
   })
   .partial();
 

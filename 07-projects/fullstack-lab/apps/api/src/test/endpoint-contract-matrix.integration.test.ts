@@ -28,7 +28,7 @@ describeIfDb("ma trận endpoint ↔ hợp đồng", () => {
     await f.cleanup();
   });
 
-  it("14 endpoint trả đúng status thành công đã công bố", async () => {
+  it("21 endpoint trả đúng status thành công đã công bố", async () => {
     f.limiter.reset();
 
     /**
@@ -227,7 +227,86 @@ describeIfDb("ma trận endpoint ↔ hợp đồng", () => {
         }),
     );
 
-    // 14. DELETE /workspaces/:id/members/:userId — 204
+    // 14. POST /projects/:projectId/tasks — 201
+    let matrixTaskId = "";
+    await record("POST /projects/:projectId/tasks", 201, async () => {
+      const response = await call(f, "POST", `/projects/${matrixProjectId}/tasks`, {
+        actor: f.wsAdmin,
+        idempotencyKey: newKey("m-task"),
+        body: { title: "Ma trận task", columnId: matrixColumnId, description: null },
+      });
+      matrixTaskId = (response.body["data"] as { task: { id: string } }).task.id;
+      return response;
+    });
+
+    // 15. GET /projects/:projectId/tasks — 200
+    await record(
+      "GET /projects/:projectId/tasks",
+      200,
+      async () => await call(f, "GET", `/projects/${matrixProjectId}/tasks`, { actor: f.wsAdmin }),
+    );
+
+    // 16. GET /tasks/:taskId — 200
+    await record(
+      "GET /tasks/:taskId",
+      200,
+      async () => await call(f, "GET", `/tasks/${matrixTaskId}`, { actor: f.wsAdmin }),
+    );
+
+    // 17. PATCH /tasks/:taskId — 200
+    await record(
+      "PATCH /tasks/:taskId",
+      200,
+      async () =>
+        await call(f, "PATCH", `/tasks/${matrixTaskId}`, {
+          actor: f.wsAdmin,
+          idempotencyKey: newKey("m-task-patch"),
+          body: { title: "Ma trận task đã đổi tên", expectedVersion: 1 },
+        }),
+    );
+
+    /**
+     * 18. POST /tasks/:taskId/move — **200**, không phải `201`.
+     *
+     * Cùng lý do với `POST /columns/reorder`: move không tạo resource mới, nên
+     * `201` là lời khai sai với mọi client đọc status — và `@HttpCode(200)` bị
+     * quên trông y hệt `@HttpCode(200)` đúng.
+     */
+    await record(
+      "POST /tasks/:taskId/move",
+      200,
+      async () =>
+        await call(f, "POST", `/tasks/${matrixTaskId}/move`, {
+          actor: f.wsAdmin,
+          idempotencyKey: newKey("m-task-move"),
+          body: {
+            destinationColumnId: matrixColumnId2,
+            targetPosition: "1024.0000000000",
+            expectedVersion: 2,
+          },
+        }),
+    );
+
+    // 19. POST /tasks/:taskId/comments — 201
+    await record(
+      "POST /tasks/:taskId/comments",
+      201,
+      async () =>
+        await call(f, "POST", `/tasks/${matrixTaskId}/comments`, {
+          actor: f.wsAdmin,
+          idempotencyKey: newKey("m-comment"),
+          body: { body: "Bình luận của ma trận" },
+        }),
+    );
+
+    // 20. GET /tasks/:taskId/activity — 200
+    await record(
+      "GET /tasks/:taskId/activity",
+      200,
+      async () => await call(f, "GET", `/tasks/${matrixTaskId}/activity`, { actor: f.wsAdmin }),
+    );
+
+    // 21. DELETE /workspaces/:id/members/:userId — 204
     await record(
       "DELETE /workspaces/:workspaceId/members/:userId",
       204,
@@ -242,7 +321,7 @@ describeIfDb("ma trận endpoint ↔ hợp đồng", () => {
     expect(mismatched).toEqual([]);
     // Con số này là bản đếm tay có chủ ý: nó là thứ duy nhất báo động khi ai đó
     // **thêm** một route vào hợp đồng mà quên thêm dòng đo tương ứng ở đây.
-    expect(results).toHaveLength(14);
+    expect(results).toHaveLength(21);
   });
 
   it("mọi route project trả 404 (không phải 403) cho actor ngoài project", async () => {
@@ -268,6 +347,15 @@ describeIfDb("ma trận endpoint ↔ hợp đồng", () => {
     expect(columnCreated.status).toBe(201);
     const columnId = (columnCreated.body["data"] as { column: { id: string } }).column.id;
 
+    /** Một task thật của Project B — cùng lý do với cột: `:taskId` là locator. */
+    const taskCreated = await call(f, "POST", `/projects/${f.projectBId}/tasks`, {
+      actor: f.owner,
+      idempotencyKey: newKey("probe-task"),
+      body: { title: "Task của Project B", columnId, description: null },
+    });
+    expect(taskCreated.status).toBe(201);
+    const taskId = (taskCreated.body["data"] as { task: { id: string } }).task.id;
+
     const routes: { method: "GET" | "PATCH" | "POST" | "DELETE"; path: string; body?: unknown }[] =
       [
         { method: "GET", path: `/projects/${f.projectBId}` },
@@ -289,6 +377,25 @@ describeIfDb("ma trận endpoint ↔ hợp đồng", () => {
           body: { name: "Cột chen ngang", afterColumnId: null },
         },
         { method: "PATCH", path: `/columns/${columnId}`, body: { name: "Đổi tên trộm" } },
+        { method: "GET", path: `/projects/${f.projectBId}/tasks` },
+        {
+          method: "POST",
+          path: `/projects/${f.projectBId}/tasks`,
+          body: { title: "Task chen ngang", columnId, description: null },
+        },
+        { method: "GET", path: `/tasks/${taskId}` },
+        { method: "PATCH", path: `/tasks/${taskId}`, body: { title: "X", expectedVersion: 1 } },
+        {
+          method: "POST",
+          path: `/tasks/${taskId}/move`,
+          body: {
+            destinationColumnId: columnId,
+            targetPosition: "1024.0000000000",
+            expectedVersion: 1,
+          },
+        },
+        { method: "POST", path: `/tasks/${taskId}/comments`, body: { body: "X" } },
+        { method: "GET", path: `/tasks/${taskId}/activity` },
         {
           method: "POST",
           path: "/columns/reorder",

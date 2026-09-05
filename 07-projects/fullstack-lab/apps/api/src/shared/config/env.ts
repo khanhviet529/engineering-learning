@@ -37,6 +37,21 @@ export const envSchema = z
     SMTP_PORT: portSchema,
 
     LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
+
+    /**
+     * Timezone dùng để suy `dueState` và đọc ngày lịch.
+     *
+     * Năm tài liệu nói `due_date` và `dueState` theo **timezone workspace**,
+     * nhưng bảng `workspaces` **không có cột timezone** — cùng loại thiếu khớp
+     * mà ADR-0008 đã phải mở ra để vá cho `is_terminal`. Thêm một cột là tự
+     * phát minh hợp đồng, nên tầng hiện thực làm điều nhỏ nhất khiến hành vi đã
+     * đặc tả chạy được: **một** timezone cho toàn ứng dụng.
+     *
+     * Mặc định `Asia/Ho_Chi_Minh` khớp đúng thứ artifact thiết kế đang hiển thị
+     * ("Theo không gian làm việc: Asia/Ho_Chi_Minh (GMT+7)"). Optional để không
+     * biến một lỗ hổng hợp đồng thành một biến bắt buộc mới cho mọi môi trường.
+     */
+    APP_TIMEZONE: z.string().min(1).default("Asia/Ho_Chi_Minh"),
   })
   .strict();
 

@@ -21,7 +21,7 @@ export interface ProjectColumnView {
   name: string;
   requiresReviewer: boolean;
   isTerminal: boolean;
-  position: number;
+  position: bigint;
   archivedAt: Date | null;
 }
 

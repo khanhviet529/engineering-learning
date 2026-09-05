@@ -10,7 +10,7 @@ import {
   assertValidAnchor,
 } from "../domain/column-rules.ts";
 import type { ColumnEmptinessCheck } from "../domain/column-emptiness-check.ts";
-import { planInsert, reorderedPositions } from "../domain/ordering.ts";
+import { planInsert, reorderedPositions } from "../../../shared/ordering/position.ts";
 import type { ColumnRepository, ColumnRow } from "../infrastructure/column-repository.ts";
 
 /**
@@ -38,7 +38,7 @@ export interface ColumnView {
   name: string;
   requiresReviewer: boolean;
   isTerminal: boolean;
-  position: number;
+  position: bigint;
   archivedAt: Date | null;
 }
 

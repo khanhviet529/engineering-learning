@@ -3,33 +3,36 @@ import {
   type ResolveContext,
   type ResourceProjectResolver,
 } from "../../../shared/authorization/index.ts";
-import type { ColumnRepository } from "./column-repository.ts";
+import type { ColumnRepository } from "../../board-columns/infrastructure/column-repository.ts";
+import type { TaskRepository } from "./task-repository.ts";
 
 /**
- * Resolver của M3: ba hình dạng route, ba đường tìm project sở hữu.
+ * Resolver của M4: bốn hình dạng route, bốn đường tìm project sở hữu.
  *
  * | Route | Resource nằm ở | Cách resolve |
  * |---|---|---|
- * | `POST /projects/:projectId/columns` | path `:projectId` | chính nó |
+ * | `.../projects/:projectId/...` | path `:projectId` | chính nó |
  * | `PATCH /columns/:columnId` | path `:columnId` | tra `board_columns` |
+ * | `GET|PATCH|POST /tasks/:taskId/...` | path `:taskId` | tra `tasks` |
  * | `POST /columns/reorder` | body `projectId` | chính nó |
  *
- * Điều giữ nguyên qua cả ba: **chủ sở hữu được đọc từ chính resource**, và
- * `:columnId` là một *locator* chứ không phải bằng chứng quyền. Một người đoán
- * trúng `columnId` của project khác vẫn chỉ nhận `404`, vì resolver trả về
- * project **thật sự** sở hữu cột đó và guard sẽ thấy actor không có membership
- * ở đó.
+ * Điều giữ nguyên qua cả bốn: **chủ sở hữu được đọc từ chính resource**, và
+ * `:taskId` là một *locator* chứ không phải bằng chứng quyền. Một người đoán
+ * trúng `taskId` của project khác vẫn chỉ nhận `404`, vì resolver trả về project
+ * **thật sự** sở hữu task đó và guard sẽ thấy actor không có membership ở đó.
  *
- * Adapter này sống trong `board-columns` — module sở hữu bảng — chứ không trong
- * `shared/authorization`. Kernel authorization chỉ được đọc membership/role;
- * đó là ngoại lệ hẹp mà ADR-0005 ghi nhận, và đọc thêm `board_columns` sẽ nới
- * ngoại lệ đó thành một thói quen.
+ * Resolver này thay thế `ColumnProjectResolver` của M3 chứ không đứng cạnh nó:
+ * chuỗi guard có **một** resolver, và hai cái đăng ký cùng token nghĩa là một
+ * cái bị bỏ qua im lặng. Nó bao trọn cả bốn route vì đó là chỗ duy nhất biết đủ
+ * bốn đường.
  */
-export class ColumnProjectResolver implements ResourceProjectResolver {
+export class TaskProjectResolver implements ResourceProjectResolver {
   readonly #columns: ColumnRepository;
+  readonly #tasks: TaskRepository;
 
-  constructor(columns: ColumnRepository) {
+  constructor(columns: ColumnRepository, tasks: TaskRepository) {
     this.#columns = columns;
+    this.#tasks = tasks;
   }
 
   async resolveProjectId(context: ResolveContext): Promise<string | undefined> {
@@ -41,6 +44,11 @@ export class ColumnProjectResolver implements ResourceProjectResolver {
       // Cột không tồn tại ⇒ `undefined` ⇒ guard trả `404`, đúng cùng một
       // response với "tồn tại nhưng bạn không phải member".
       return await this.#columns.findOwningProjectId(columnId);
+    }
+
+    const taskId = requireResourceUuid(context.params["taskId"], "taskId");
+    if (taskId !== undefined) {
+      return await this.#tasks.findOwningProjectId(taskId);
     }
 
     /**

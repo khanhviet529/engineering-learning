@@ -148,6 +148,28 @@ const PAIRS: { where: string; fg: string; bg: string; large?: boolean }[] = [
     bg: "--fb-color-surface-raised",
   },
 
+  // Task, bình luận và tab (M4).
+  {
+    where: "TSK-02 · tab đang chọn",
+    fg: "--fb-color-brand-text",
+    bg: "--fb-color-surface-raised",
+  },
+  {
+    where: "bình luận · liên kết trong Markdown",
+    fg: "--fb-color-brand-text",
+    bg: "--fb-color-surface-raised",
+  },
+  {
+    where: "bình luận · khối code",
+    fg: "--fb-color-text-primary",
+    bg: "--fb-color-surface-subtle",
+  },
+  {
+    where: "task card · nhóm công việc",
+    fg: "--fb-color-text-muted",
+    bg: "--fb-color-surface-raised",
+  },
+
   // Badge — sáu tone
   { where: "badge brand", fg: "--fb-color-brand-text", bg: "--fb-color-brand-subtle" },
   { where: "badge neutral", fg: "--fb-color-text-secondary", bg: "--fb-color-surface-muted" },

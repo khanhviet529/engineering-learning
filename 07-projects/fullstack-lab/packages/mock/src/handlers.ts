@@ -397,6 +397,24 @@ export const taskHandlers = {
     return okList(tasks, { nextCursor: "mock-cursor", hasMore: true });
   },
 
+  /**
+   * `GET /projects/:projectId/tasks?columnId=…` — trang task của **một** cột.
+   *
+   * Board phân trang theo từng cột, nên mock cũng phải trả theo từng cột: một
+   * handler trả cả bảng sẽ khiến frontend trông như chạy đúng trong khi nó
+   * chưa từng gửi `columnId`, và lỗi đó chỉ lộ ra khi gặp server thật.
+   *
+   * Mock **không** phân trang thật: nó không giữ trạng thái, nên `cursor` chỉ
+   * quyết định trang đầu hay trang rỗng kế tiếp. Đừng kết luận gì về cursor
+   * thật từ đây.
+   */
+  listInColumn(columnId: string, ctx: HandlerContext = {}): MockResponse<unknown> {
+    const failed = guard(ctx);
+    if (failed) return failed;
+    const items = tasks.filter((task) => task.columnId === columnId);
+    return okList(items, { nextCursor: null, hasMore: false });
+  },
+
   detail(ctx: HandlerContext = {}): MockResponse<unknown> {
     const failed = guard(ctx);
     if (failed) return failed;

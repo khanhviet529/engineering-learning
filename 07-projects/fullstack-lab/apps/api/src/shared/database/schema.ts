@@ -1,7 +1,10 @@
 import {
   boolean,
   check,
+  date,
+  foreignKey,
   index,
+  integer,
   jsonb,
   numeric,
   pgTable,
@@ -397,13 +400,20 @@ export const boardColumns = pgTable(
     /**
      * Thứ tự fractional, `numeric(20,10)`.
      *
-     * `mode: "number"` để tầng ứng dụng tính trung điểm bằng số học thường.
+     * `mode: "string"`, **không** phải `"number"`.
+     *
+     * M3 đọc cột này bằng `number` và ghi nhận đó là nợ; M4 trả nợ vì task đẩy
+     * position lên dải 10⁷, nơi `double` không còn giữ nổi 10 chữ số thập phân
+     * — `"99999999.9999999999"` quay về thành `"100000000.0000000000"`. Số học
+     * ordering sống ở `shared/ordering/position.ts` và làm việc trên `bigint`
+     * đã tỉ lệ theo 10¹⁰, đúng như database lưu.
+     *
      * Precision 10 chữ số thập phân là biên: từ gap 1024, chia đôi liên tiếp
      * cùng một khe khoảng 43 lần thì midpoint tròn về trùng neighbor. Ngưỡng
      * rebalance 10⁻⁶ dừng trước đó ~13 lần chia đôi, nên cạn precision không
      * còn là chế độ hỏng đạt tới được.
      */
-    position: numeric("position", { precision: 20, scale: 10, mode: "number" }).notNull(),
+    position: numeric("position", { precision: 20, scale: 10, mode: "string" }).notNull(),
 
     /** `NULL` nghĩa active. Archive là transition một chiều của MVP. */
     archivedAt: utc("archived_at"),
@@ -500,5 +510,222 @@ export const activityLogs = pgTable(
       table.taskId,
       table.createdAt.desc(),
     ),
+  ],
+);
+
+/* ------------------------------------------------------------------------- *
+ * M4 — `tasks` và `comments`
+ *
+ * Bước cuối của thứ tự migration: sau `board_columns` và `project_members`, vì
+ * `tasks` trỏ composite foreign key tới cả hai.
+ *
+ * `activity_logs.task_id` nhận foreign key ở **cùng migration này** bằng
+ * `ALTER TABLE ... ADD CONSTRAINT`: M3 cố ý tạo cột nullable không FK vì bảng
+ * `tasks` chưa tồn tại, và mọi event của M3 để `task_id` là `NULL` nên không có
+ * dữ liệu nào phải backfill.
+ * ------------------------------------------------------------------------- */
+
+export const tasks = pgTable(
+  "tasks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "restrict" }),
+
+    /**
+     * Không có `.references()` đơn lẻ: khoá thật là **composite**
+     * `(project_id, column_id) → board_columns(project_id, id)`, khai ở phần
+     * constraint bên dưới. Một FK chỉ trên `column_id` sẽ cho phép task trỏ
+     * sang cột của project khác — đúng thứ mà composite key sinh ra để chặn.
+     */
+    columnId: uuid("column_id").notNull(),
+
+    createdByUserId: uuid("created_by_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+
+    /** Composite FK tới `project_members(project_id, user_id)`; `NULL` là hợp lệ. */
+    assigneeId: uuid("assignee_id"),
+
+    /**
+     * Reviewer, cũng là ProjectMember cùng project.
+     *
+     * Chỉ **bắt buộc** khi cột đích có `requires_reviewer = true`, và luôn phải
+     * khác assignee. Luật thứ hai database diễn đạt được bằng `CHECK`; luật thứ
+     * nhất thì không — nó phụ thuộc một hàng ở bảng khác.
+     */
+    reviewerId: uuid("reviewer_id"),
+
+    title: text("title").notNull(),
+
+    /** Không có nội dung nghĩa là chuỗi rỗng, **không** phải `NULL`. */
+    description: text("description").notNull().default(""),
+
+    category: text("category"),
+    priority: text("priority").notNull().default("none"),
+
+    /**
+     * Thứ tự fractional trong **một cột**, `numeric(20,10)`.
+     *
+     * `mode: "string"` vì cùng lý do với `board_columns.position`, và ở đây lý
+     * do nặng hơn: một cột có thể chứa hàng nghìn task nên position bò tới dải
+     * mà `double` không giữ nổi 10 chữ số thập phân. Xem
+     * `shared/ordering/position.ts`.
+     */
+    position: numeric("position", { precision: 20, scale: 10, mode: "string" }).notNull(),
+
+    /** Optimistic concurrency cho **nội dung** client sửa được, và cho move. */
+    version: integer("version").notNull().default(1),
+
+    /** Ngày lịch theo timezone workspace, không có giờ trong ngày. */
+    startDate: date("start_date"),
+    dueDate: date("due_date"),
+
+    /**
+     * Một liên kết bằng chứng, `https` bắt buộc, tối đa 2048 ký tự.
+     *
+     * **Server không bao giờ fetch URL này** — không preview, không unfurl,
+     * không resolve redirect. Fetch biến một field do người dùng nhập thành
+     * SSRF vector nhắm vào mạng nội bộ (ADR-0009). Không index: nó không phải
+     * filter, không phải sort, không search.
+     */
+    evidenceUrl: text("evidence_url"),
+
+    createdAt: utc("created_at").notNull().defaultNow(),
+    updatedAt: utc("updated_at").notNull().defaultNow(),
+  },
+  (table) => [
+    /**
+     * `UNIQUE (project_id, column_id, position)` — **`DEFERRABLE INITIALLY
+     * IMMEDIATE`**, thêm bằng tay trong migration vì Drizzle không khai được
+     * thuộc tính đó. Cùng lý do với `board_columns`: rebalance ghi lại position
+     * của N row trong một transaction và trạng thái trung gian được phép trùng.
+     */
+    unique("tasks_project_column_position_uniq").on(
+      table.projectId,
+      table.columnId,
+      table.position,
+    ),
+
+    /** Target cho composite FK của Phase 1.5 (`parent_task_id`) và của sprint. */
+    unique("tasks_project_id_uniq").on(table.projectId, table.id),
+
+    /** Task thuộc cột **cùng project** — database cưỡng chế, không phải use case hứa. */
+    foreignKey({
+      name: "tasks_project_column_fk",
+      columns: [table.projectId, table.columnId],
+      foreignColumns: [boardColumns.projectId, boardColumns.id],
+    }).onDelete("restrict"),
+
+    /** Assignee phải là ProjectMember **cùng project**; `NULL` không bị ràng buộc. */
+    foreignKey({
+      name: "tasks_project_assignee_fk",
+      columns: [table.projectId, table.assigneeId],
+      foreignColumns: [projectMembers.projectId, projectMembers.userId],
+    }).onDelete("restrict"),
+
+    foreignKey({
+      name: "tasks_project_reviewer_fk",
+      columns: [table.projectId, table.reviewerId],
+      foreignColumns: [projectMembers.projectId, projectMembers.userId],
+    }).onDelete("restrict"),
+
+    check(
+      "tasks_category_check",
+      sql`${table.category} is null or ${table.category} in ('feature', 'bug', 'design', 'research', 'operations', 'other')`,
+    ),
+    check(
+      "tasks_priority_check",
+      sql`${table.priority} in ('none', 'low', 'medium', 'high', 'urgent')`,
+    ),
+    check("tasks_version_check", sql`${table.version} > 0`),
+
+    /**
+     * `start_date <= due_date` được cưỡng chế ở **cả hai** tầng.
+     *
+     * Application validation cho ra `400` có field-error đọc được; `CHECK` là
+     * lưới cuối cho mọi đường ghi khác — migration, script, một use case tương
+     * lai quên kiểm. Hai tầng không thừa: chúng trả lời hai câu hỏi khác nhau.
+     */
+    check(
+      "tasks_date_order_check",
+      sql`${table.startDate} is null or ${table.dueDate} is null or ${table.startDate} <= ${table.dueDate}`,
+    ),
+
+    /** Reviewer khác assignee — bất biến duy nhất của review mà `CHECK` nói được. */
+    check(
+      "tasks_reviewer_not_assignee_check",
+      sql`${table.reviewerId} is null or ${table.assigneeId} is null or ${table.reviewerId} <> ${table.assigneeId}`,
+    ),
+
+    /** Thứ tự mặc định của danh sách task: `created_at DESC, id DESC`. */
+    index("tasks_project_created_at_idx").on(
+      table.projectId,
+      table.createdAt.desc(),
+      table.id.desc(),
+    ),
+
+    /** Filter/sort theo `dueDate` với tie-breaker cho seek. */
+    index("tasks_project_due_date_idx").on(table.projectId, table.dueDate, table.id),
+
+    /** Sort `updatedAt` (nằm trong allowlist), kèm tie-breaker. */
+    index("tasks_project_updated_at_idx").on(
+      table.projectId,
+      table.updatedAt.desc(),
+      table.id.desc(),
+    ),
+
+    index("tasks_project_assignee_updated_at_idx").on(
+      table.projectId,
+      table.assigneeId,
+      table.updatedAt.desc(),
+    ),
+    index("tasks_project_created_by_updated_at_idx").on(
+      table.projectId,
+      table.createdByUserId,
+      table.updatedAt.desc(),
+    ),
+    index("tasks_project_reviewer_updated_at_idx").on(
+      table.projectId,
+      table.reviewerId,
+      table.updatedAt.desc(),
+    ),
+  ],
+);
+
+/**
+ * Comment: **bất biến**.
+ *
+ * Không `updated_at`, không delete marker, không revision. MVP cố ý không có
+ * route sửa hay xoá, nên một cột `updated_at` ở đây sẽ là một lời hứa mà không
+ * đường code nào giữ.
+ */
+export const comments = pgTable(
+  "comments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+
+    taskId: uuid("task_id")
+      .notNull()
+      .references(() => tasks.id, { onDelete: "restrict" }),
+
+    authorUserId: uuid("author_user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "restrict" }),
+
+    /**
+     * Plain text **đúng như người dùng gõ**: không normalize, không
+     * sanitize-rồi-lưu, không chuyển sang HTML (ADR-0009). Cú pháp Markdown
+     * trong body là quy ước trình bày do client render theo allowlist đóng.
+     */
+    body: text("body").notNull(),
+
+    createdAt: utc("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    // Danh sách comment của một task, khớp thứ tự và seek `createdAt, id`.
+    index("comments_task_created_at_idx").on(table.taskId, table.createdAt, table.id),
   ],
 );

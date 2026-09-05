@@ -48,3 +48,15 @@ if (typeof globalThis.window.matchMedia !== "function") {
     }),
   });
 }
+
+// jsdom không hiện thực `ResizeObserver`, mà `Input.TextArea` của Ant Design —
+// dùng ở mô tả công việc và ô soạn bình luận — quan sát kích thước để tự giãn.
+// Thiếu nó thì mọi test có `TSK-01` hay tab Bình luận đều ném ngay lúc mount,
+// và thông báo lỗi không hề nhắc tới component nào gây ra.
+if (typeof globalThis.ResizeObserver !== "function") {
+  globalThis.ResizeObserver = class {
+    observe(): void {}
+    unobserve(): void {}
+    disconnect(): void {}
+  } as unknown as typeof ResizeObserver;
+}
