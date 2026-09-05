@@ -3431,16 +3431,6 @@
                           "fontFamily": "$fb.font.family.base",
                           "fontSize": 28,
                           "fontWeight": "700"
-                        },
-                        {
-                          "type": "text",
-                          "id": "l5kd5c",
-                          "name": "Chỉ số Hoàn thành Biến động",
-                          "fill": "$fb.color.text.muted",
-                          "content": "+12% so với tuần trước",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 11,
-                          "fontWeight": "600"
                         }
                       ]
                     },
@@ -3483,51 +3473,6 @@
                           "name": "Chỉ số Sắp quá hạn Biến động",
                           "fill": "$fb.color.text.muted",
                           "content": "2 việc chưa hoàn thành",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 11,
-                          "fontWeight": "600"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "UHOkH",
-                      "name": "Chỉ số Đang bị chặn",
-                      "width": "fill_container",
-                      "fill": "$fb.color.surface.raised",
-                      "cornerRadius": 12,
-                      "stroke": "$fb.color.border.default",
-                      "strokeWidth": 1,
-                      "layout": "vertical",
-                      "gap": 8,
-                      "padding": 18,
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "G6rXV",
-                          "name": "Chỉ số Đang bị chặn Nhãn",
-                          "fill": "$fb.color.text.muted",
-                          "content": "Đang bị chặn",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 12,
-                          "fontWeight": "700"
-                        },
-                        {
-                          "type": "text",
-                          "id": "vFBK9",
-                          "name": "Chỉ số Đang bị chặn Giá trị",
-                          "fill": "$fb.color.intent.danger.text",
-                          "content": "1",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 28,
-                          "fontWeight": "700"
-                        },
-                        {
-                          "type": "text",
-                          "id": "orxw2",
-                          "name": "Chỉ số Đang bị chặn Biến động",
-                          "fill": "$fb.color.text.muted",
-                          "content": "Cần Owner xem ngay",
                           "fontFamily": "$fb.font.family.base",
                           "fontSize": 11,
                           "fontWeight": "600"
@@ -3958,16 +3903,6 @@
                                   "height": 8
                                 }
                               ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "NkVpS",
-                              "name": "Tải công việc Minh Nguyen ghi chú",
-                              "fill": "$fb.color.text.muted",
-                              "content": "Có thể nhận thêm 2",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
                             }
                           ]
                         },
@@ -4053,16 +3988,6 @@
                                   "height": 8
                                 }
                               ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "nIkuo",
-                              "name": "Tải công việc An Tran ghi chú",
-                              "fill": "$fb.color.intent.danger.text",
-                              "content": "Đang đầy tải",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
                             }
                           ]
                         },
@@ -4148,16 +4073,6 @@
                                   "height": 8
                                 }
                               ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "ydMWH",
-                              "name": "Tải công việc Quynh Le ghi chú",
-                              "fill": "$fb.color.text.muted",
-                              "content": "Có thể nhận thêm 5",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
                             }
                           ]
                         }
@@ -4325,225 +4240,178 @@
                           "fontWeight": "700"
                         }
                       ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "n0Cqk",
-                      "name": "Việc của tôi thao tác",
-                      "gap": 8,
-                      "children": [
-                        {
-                          "type": "frame",
-                          "id": "yNIPq",
-                          "name": "Việc của tôi chuyển Danh sách",
-                          "fill": "$fb.color.surface.raised",
-                          "cornerRadius": 8,
-                          "stroke": "$fb.color.border.default",
-                          "strokeWidth": 1,
-                          "padding": [
-                            9,
-                            12
-                          ],
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "QyZ8s",
-                              "name": "Việc của tôi nhãn Danh sách",
-                              "fill": "$fb.color.text.muted",
-                              "content": "Danh sách",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 12,
-                              "fontWeight": "700"
-                            }
-                          ]
-                        },
-                        {
-                          "type": "frame",
-                          "id": "y1v0G8",
-                          "name": "Việc của tôi chuyển Lịch",
-                          "fill": "$fb.color.brand.surface",
-                          "cornerRadius": 8,
-                          "padding": [
-                            9,
-                            12
-                          ],
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "qbWWK",
-                              "name": "Việc của tôi nhãn Lịch",
-                              "fill": "$fb.color.text.on-solid",
-                              "content": "Lịch",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 12,
-                              "fontWeight": "700"
-                            }
-                          ]
-                        }
-                      ]
                     }
                   ]
                 },
                 {
                   "type": "frame",
-                  "id": "LIiHI",
-                  "name": "Việc của tôi chỉ số",
+                  "id": "WjX1M",
+                  "name": "Việc của tôi bộ lọc hạn",
                   "width": "fill_container",
-                  "gap": 14,
+                  "gap": 8,
+                  "alignItems": "center",
                   "children": [
                     {
+                      "type": "text",
+                      "id": "g7vFfO",
+                      "name": "Việc của tôi bộ lọc hạn nhãn",
+                      "fill": "$fb.color.text.muted",
+                      "content": "Lọc theo hạn",
+                      "fontFamily": "$fb.font.family.base",
+                      "fontSize": 12,
+                      "fontWeight": "700"
+                    },
+                    {
                       "type": "frame",
-                      "id": "Pm9t6",
-                      "name": "Việc của tôi Hôm nay",
-                      "width": "fill_container",
-                      "fill": "$fb.color.intent.danger.subtle",
-                      "cornerRadius": 10,
-                      "gap": 12,
-                      "padding": 14,
+                      "id": "jHV0j",
+                      "name": "Việc của tôi chip Tất cả",
+                      "fill": "$fb.color.brand.surface",
+                      "cornerRadius": 8,
+                      "padding": [
+                        9,
+                        12
+                      ],
                       "alignItems": "center",
                       "children": [
                         {
                           "type": "text",
-                          "id": "Ppf0I",
-                          "name": "Việc của tôi Hôm nay giá trị",
-                          "fill": "$fb.color.intent.danger.text",
-                          "content": "3",
+                          "id": "Kf6qa",
+                          "name": "Việc của tôi chip Tất cả nhãn",
+                          "fill": "$fb.color.text.on-solid",
+                          "content": "Tất cả",
                           "fontFamily": "$fb.font.family.base",
-                          "fontSize": 24,
+                          "fontSize": 12,
                           "fontWeight": "700"
-                        },
-                        {
-                          "type": "frame",
-                          "id": "hpcu2",
-                          "name": "Việc của tôi Hôm nay nội dung",
-                          "layout": "vertical",
-                          "gap": 3,
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "UBZBV",
-                              "name": "Việc của tôi Hôm nay nhãn",
-                              "fill": "$fb.color.text.primary",
-                              "content": "Hôm nay",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 13,
-                              "fontWeight": "700"
-                            },
-                            {
-                              "type": "text",
-                              "id": "Yvwd2",
-                              "name": "Việc của tôi Hôm nay ghi chú",
-                              "fill": "$fb.color.text.secondary",
-                              "content": "1 việc quá hạn",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
-                            }
-                          ]
                         }
                       ]
                     },
                     {
                       "type": "frame",
-                      "id": "W9PIE",
-                      "name": "Việc của tôi Tuần này",
-                      "width": "fill_container",
-                      "fill": "$fb.color.brand.subtle",
-                      "cornerRadius": 10,
-                      "gap": 12,
-                      "padding": 14,
+                      "id": "wJ392",
+                      "name": "Việc của tôi chip Quá hạn",
+                      "fill": "$fb.color.surface.raised",
+                      "cornerRadius": 8,
+                      "stroke": "$fb.color.border.default",
+                      "strokeWidth": 1,
+                      "padding": [
+                        9,
+                        12
+                      ],
                       "alignItems": "center",
                       "children": [
                         {
                           "type": "text",
-                          "id": "hs42t",
-                          "name": "Việc của tôi Tuần này giá trị",
-                          "fill": "$fb.color.brand.text",
-                          "content": "8",
+                          "id": "PaJj5",
+                          "name": "Việc của tôi chip Quá hạn nhãn",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Quá hạn",
                           "fontFamily": "$fb.font.family.base",
-                          "fontSize": 24,
+                          "fontSize": 12,
                           "fontWeight": "700"
-                        },
-                        {
-                          "type": "frame",
-                          "id": "K7UNF",
-                          "name": "Việc của tôi Tuần này nội dung",
-                          "layout": "vertical",
-                          "gap": 3,
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "sEw6q",
-                              "name": "Việc của tôi Tuần này nhãn",
-                              "fill": "$fb.color.text.primary",
-                              "content": "Tuần này",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 13,
-                              "fontWeight": "700"
-                            },
-                            {
-                              "type": "text",
-                              "id": "O97aGl",
-                              "name": "Việc của tôi Tuần này ghi chú",
-                              "fill": "$fb.color.text.secondary",
-                              "content": "3 việc đang thực hiện",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
-                            }
-                          ]
                         }
                       ]
                     },
                     {
                       "type": "frame",
-                      "id": "K5sGeU",
-                      "name": "Việc của tôi Đã hoàn thành",
-                      "width": "fill_container",
-                      "fill": "$fb.color.intent.success.subtle",
-                      "cornerRadius": 10,
-                      "gap": 12,
-                      "padding": 14,
+                      "id": "dbd2f",
+                      "name": "Việc của tôi chip Hạn hôm nay",
+                      "fill": "$fb.color.surface.raised",
+                      "cornerRadius": 8,
+                      "stroke": "$fb.color.border.default",
+                      "strokeWidth": 1,
+                      "padding": [
+                        9,
+                        12
+                      ],
                       "alignItems": "center",
                       "children": [
                         {
                           "type": "text",
-                          "id": "JH9WO",
-                          "name": "Việc của tôi Đã hoàn thành giá trị",
-                          "fill": "$fb.color.intent.success.text",
-                          "content": "12",
+                          "id": "B5y0TW",
+                          "name": "Việc của tôi chip Hạn hôm nay nhãn",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Hạn hôm nay",
                           "fontFamily": "$fb.font.family.base",
-                          "fontSize": 24,
+                          "fontSize": 12,
                           "fontWeight": "700"
-                        },
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "UnYiT",
+                      "name": "Việc của tôi chip Sắp đến hạn",
+                      "fill": "$fb.color.surface.raised",
+                      "cornerRadius": 8,
+                      "stroke": "$fb.color.border.default",
+                      "strokeWidth": 1,
+                      "padding": [
+                        9,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
                         {
-                          "type": "frame",
-                          "id": "c8vURh",
-                          "name": "Việc của tôi Đã hoàn thành nội dung",
-                          "layout": "vertical",
-                          "gap": 3,
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "cIB28",
-                              "name": "Việc của tôi Đã hoàn thành nhãn",
-                              "fill": "$fb.color.text.primary",
-                              "content": "Đã hoàn thành",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 13,
-                              "fontWeight": "700"
-                            },
-                            {
-                              "type": "text",
-                              "id": "w2IHc",
-                              "name": "Việc của tôi Đã hoàn thành ghi chú",
-                              "fill": "$fb.color.text.secondary",
-                              "content": "58% kế hoạch",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
-                            }
-                          ]
+                          "type": "text",
+                          "id": "h3bbS",
+                          "name": "Việc của tôi chip Sắp đến hạn nhãn",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Sắp đến hạn",
+                          "fontFamily": "$fb.font.family.base",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "a0HZmG",
+                      "name": "Việc của tôi chip Đã lên lịch",
+                      "fill": "$fb.color.surface.raised",
+                      "cornerRadius": 8,
+                      "stroke": "$fb.color.border.default",
+                      "strokeWidth": 1,
+                      "padding": [
+                        9,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "F4Md0",
+                          "name": "Việc của tôi chip Đã lên lịch nhãn",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Đã lên lịch",
+                          "fontFamily": "$fb.font.family.base",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Y3VwF4",
+                      "name": "Việc của tôi chip Không có hạn",
+                      "fill": "$fb.color.surface.raised",
+                      "cornerRadius": 8,
+                      "stroke": "$fb.color.border.default",
+                      "strokeWidth": 1,
+                      "padding": [
+                        9,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "MBvYq",
+                          "name": "Việc của tôi chip Không có hạn nhãn",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Không có hạn",
+                          "fontFamily": "$fb.font.family.base",
+                          "fontSize": 12,
+                          "fontWeight": "700"
                         }
                       ]
                     }
@@ -4552,15 +4420,15 @@
                 {
                   "type": "frame",
                   "id": "yUR8k",
-                  "name": "Việc của tôi bố cục lịch",
+                  "name": "Việc của tôi bố cục",
                   "width": "fill_container",
                   "height": "fill_container",
                   "gap": 20,
                   "children": [
                     {
                       "type": "frame",
-                      "id": "TUqgJ",
-                      "name": "Lịch công việc tuần",
+                      "id": "ARXIF",
+                      "name": "Việc của tôi danh sách theo hạn",
                       "width": "fill_container",
                       "height": "fill_container",
                       "fill": "$fb.color.surface.raised",
@@ -4568,530 +4436,239 @@
                       "stroke": "$fb.color.border.default",
                       "strokeWidth": 1,
                       "layout": "vertical",
+                      "gap": 14,
                       "padding": 18,
                       "children": [
                         {
                           "type": "frame",
-                          "id": "zfcIT",
-                          "name": "Lịch công việc tiêu đề",
+                          "id": "Irozx",
+                          "name": "Việc của tôi danh sách tiêu đề",
                           "width": "fill_container",
-                          "padding": [
-                            0,
-                            0,
-                            14,
-                            0
-                          ],
                           "justifyContent": "space_between",
                           "alignItems": "center",
                           "children": [
                             {
                               "type": "text",
-                              "id": "GCyeb",
-                              "name": "Lịch công việc tuần nhãn",
+                              "id": "Q0P9yP",
+                              "name": "Việc của tôi danh sách tiêu đề chính",
                               "fill": "$fb.color.text.primary",
-                              "content": "26 Tháng 8 – 1 Tháng 9",
+                              "content": "Task được giao cho tôi",
                               "fontFamily": "$fb.font.family.base",
-                              "fontSize": 15,
+                              "fontSize": 16,
                               "fontWeight": "700"
                             },
                             {
-                              "type": "frame",
-                              "id": "Gfhgw",
-                              "name": "Lịch công việc điều hướng",
-                              "gap": 8,
-                              "children": [
-                                {
-                                  "type": "icon",
-                                  "id": "p1SpF",
-                                  "name": "Lịch công việc chevron-left",
-                                  "width": 18,
-                                  "height": 18,
-                                  "icon": "chevron-left",
-                                  "library": "lucide",
-                                  "fill": "$fb.color.text.muted"
-                                },
-                                {
-                                  "type": "icon",
-                                  "id": "xeOQ7",
-                                  "name": "Lịch công việc chevron-right",
-                                  "width": 18,
-                                  "height": 18,
-                                  "icon": "chevron-right",
-                                  "library": "lucide",
-                                  "fill": "$fb.color.text.muted"
-                                }
-                              ]
+                              "type": "text",
+                              "id": "b1SgB",
+                              "name": "Việc của tôi danh sách sắp xếp",
+                              "fill": "$fb.color.text.muted",
+                              "content": "Sắp theo hạn gần nhất",
+                              "fontFamily": "$fb.font.family.base",
+                              "fontSize": 12,
+                              "fontWeight": "600"
                             }
                           ]
                         },
                         {
                           "type": "frame",
-                          "id": "Mdjpl",
-                          "name": "Lịch công việc tuần nhiều ngày",
-                          "clip": true,
-                          "width": 750,
-                          "height": 560,
-                          "fill": "$fb.color.surface.raised",
-                          "cornerRadius": 8,
-                          "stroke": "$fb.color.border.default",
-                          "strokeWidth": 1,
-                          "layout": "none",
+                          "id": "N91AZ7",
+                          "name": "Việc của tôi nhóm QUÁ HẠN",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 8,
                           "children": [
                             {
-                              "type": "frame",
-                              "id": "ocZ8V",
-                              "x": 0,
-                              "y": 0,
-                              "name": "Lịch nhiều ngày cột T2",
-                              "width": 100,
-                              "height": 560,
-                              "fill": "$fb.color.surface.subtle",
-                              "stroke": "$fb.color.border.default",
-                              "strokeWidth": {
-                                "right": 1
-                              },
-                              "layout": "none",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "WpMpT",
-                                  "x": 12,
-                                  "y": 12,
-                                  "name": "Lịch nhiều ngày T2 nhãn",
-                                  "fill": "$fb.color.text.muted",
-                                  "content": "T2",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "700"
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "mKOHk",
-                                  "x": 12,
-                                  "y": 30,
-                                  "name": "Lịch nhiều ngày 26 số",
-                                  "fill": "$fb.color.text.primary",
-                                  "content": "26",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 18,
-                                  "fontWeight": "700"
-                                }
-                              ]
+                              "type": "text",
+                              "id": "w1nYPW",
+                              "name": "Việc của tôi nhóm QUÁ HẠN nhãn",
+                              "fill": "$fb.color.intent.danger.text",
+                              "content": "QUÁ HẠN",
+                              "fontFamily": "$fb.font.family.base",
+                              "fontSize": 11,
+                              "fontWeight": "700"
                             },
                             {
-                              "type": "frame",
-                              "id": "mQz1I",
-                              "x": 108,
-                              "y": 0,
-                              "name": "Lịch nhiều ngày cột T3",
-                              "width": 100,
-                              "height": 560,
-                              "fill": "$fb.color.surface.subtle",
-                              "stroke": "$fb.color.border.default",
-                              "strokeWidth": {
-                                "right": 1
-                              },
-                              "layout": "none",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "X1wei",
-                                  "x": 12,
-                                  "y": 12,
-                                  "name": "Lịch nhiều ngày T3 nhãn",
-                                  "fill": "$fb.color.text.muted",
-                                  "content": "T3",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "700"
+                              "id": "hMck4",
+                              "type": "ref",
+                              "ref": "LCsDX",
+                              "name": "Việc của tôi dòng Tạo dữ liệu mẫu cho môi trường thử",
+                              "width": "fill_container",
+                              "descendants": {
+                                "aJH2N": {
+                                  "content": "Tạo dữ liệu mẫu cho môi trường thử"
                                 },
-                                {
-                                  "type": "text",
-                                  "id": "Y0sKv",
-                                  "x": 12,
-                                  "y": 30,
-                                  "name": "Lịch nhiều ngày 27 số",
-                                  "fill": "$fb.color.text.primary",
-                                  "content": "27",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 18,
-                                  "fontWeight": "700"
+                                "JezhQ": {
+                                  "content": "Ứng dụng nội bộ · Hạn 3 Th9"
                                 }
-                              ]
+                              }
                             },
                             {
-                              "type": "frame",
-                              "id": "MkfP9",
-                              "x": 216,
-                              "y": 0,
-                              "name": "Lịch nhiều ngày cột T4",
-                              "width": 100,
-                              "height": 560,
-                              "fill": "$fb.color.surface.subtle",
-                              "stroke": "$fb.color.border.default",
-                              "strokeWidth": {
-                                "right": 1
-                              },
-                              "layout": "none",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "MP0wo",
-                                  "x": 12,
-                                  "y": 12,
-                                  "name": "Lịch nhiều ngày T4 nhãn",
-                                  "fill": "$fb.color.text.muted",
-                                  "content": "T4",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "700"
+                              "id": "RSQp3",
+                              "type": "ref",
+                              "ref": "LCsDX",
+                              "name": "Việc của tôi dòng Cập nhật tài liệu API",
+                              "width": "fill_container",
+                              "descendants": {
+                                "aJH2N": {
+                                  "content": "Cập nhật tài liệu API"
                                 },
-                                {
-                                  "type": "text",
-                                  "id": "Ro2qm",
-                                  "x": 12,
-                                  "y": 30,
-                                  "name": "Lịch nhiều ngày 28 số",
-                                  "fill": "$fb.color.text.primary",
-                                  "content": "28",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 18,
-                                  "fontWeight": "700"
+                                "JezhQ": {
+                                  "content": "Làm mới website · Hạn 4 Th9"
                                 }
-                              ]
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "rK4U9",
+                          "name": "Việc của tôi nhóm HẠN HÔM NAY",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 8,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "YwZyQ",
+                              "name": "Việc của tôi nhóm HẠN HÔM NAY nhãn",
+                              "fill": "$fb.color.intent.danger.text",
+                              "content": "HẠN HÔM NAY",
+                              "fontFamily": "$fb.font.family.base",
+                              "fontSize": 11,
+                              "fontWeight": "700"
                             },
                             {
-                              "type": "frame",
-                              "id": "f9wcN",
-                              "x": 324,
-                              "y": 0,
-                              "name": "Lịch nhiều ngày cột T5",
-                              "width": 100,
-                              "height": 560,
-                              "fill": "$fb.color.brand.subtle",
-                              "stroke": "$fb.color.border.default",
-                              "strokeWidth": {
-                                "right": 1
-                              },
-                              "layout": "none",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "LITIY",
-                                  "x": 12,
-                                  "y": 12,
-                                  "name": "Lịch nhiều ngày T5 nhãn",
-                                  "fill": "$fb.color.text.secondary",
-                                  "content": "T5",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "700"
+                              "id": "eb748",
+                              "type": "ref",
+                              "ref": "LCsDX",
+                              "name": "Việc của tôi dòng Rà soát chỉ mục dữ liệu",
+                              "width": "fill_container",
+                              "descendants": {
+                                "aJH2N": {
+                                  "content": "Rà soát chỉ mục dữ liệu"
                                 },
-                                {
-                                  "type": "text",
-                                  "id": "aOAqn",
-                                  "x": 12,
-                                  "y": 30,
-                                  "name": "Lịch nhiều ngày 29 số",
-                                  "fill": "$fb.color.brand.text",
-                                  "content": "29",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 18,
-                                  "fontWeight": "700"
+                                "JezhQ": {
+                                  "content": "Làm mới website · Hạn 5 Th9"
                                 }
-                              ]
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "RmL7n",
+                          "name": "Việc của tôi nhóm SẮP ĐẾN HẠN",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 8,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "TWtpt",
+                              "name": "Việc của tôi nhóm SẮP ĐẾN HẠN nhãn",
+                              "fill": "$fb.color.intent.warning.text",
+                              "content": "SẮP ĐẾN HẠN",
+                              "fontFamily": "$fb.font.family.base",
+                              "fontSize": 11,
+                              "fontWeight": "700"
                             },
                             {
-                              "type": "frame",
-                              "id": "QHAJO",
-                              "x": 432,
-                              "y": 0,
-                              "name": "Lịch nhiều ngày cột T6",
-                              "width": 100,
-                              "height": 560,
-                              "fill": "$fb.color.surface.subtle",
-                              "stroke": "$fb.color.border.default",
-                              "strokeWidth": {
-                                "right": 1
-                              },
-                              "layout": "none",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "R0bz2",
-                                  "x": 12,
-                                  "y": 12,
-                                  "name": "Lịch nhiều ngày T6 nhãn",
-                                  "fill": "$fb.color.text.muted",
-                                  "content": "T6",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "700"
+                              "id": "B5RZH",
+                              "type": "ref",
+                              "ref": "LCsDX",
+                              "name": "Việc của tôi dòng Thiết lập quyền truy cập dự án",
+                              "width": "fill_container",
+                              "descendants": {
+                                "aJH2N": {
+                                  "content": "Thiết lập quyền truy cập dự án"
                                 },
-                                {
-                                  "type": "text",
-                                  "id": "uckXB",
-                                  "x": 12,
-                                  "y": 30,
-                                  "name": "Lịch nhiều ngày 30 số",
-                                  "fill": "$fb.color.text.primary",
-                                  "content": "30",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 18,
-                                  "fontWeight": "700"
+                                "JezhQ": {
+                                  "content": "Làm mới website · Hạn 6 Th9"
                                 }
-                              ]
+                              }
                             },
                             {
-                              "type": "frame",
-                              "id": "XPlmh",
-                              "x": 540,
-                              "y": 0,
-                              "name": "Lịch nhiều ngày cột T7",
-                              "width": 100,
-                              "height": 560,
-                              "fill": "$fb.color.surface.subtle",
-                              "stroke": "$fb.color.border.default",
-                              "strokeWidth": {
-                                "right": 1
-                              },
-                              "layout": "none",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "n7Qmi",
-                                  "x": 12,
-                                  "y": 12,
-                                  "name": "Lịch nhiều ngày T7 nhãn",
-                                  "fill": "$fb.color.text.muted",
-                                  "content": "T7",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "700"
+                              "id": "Kumdb",
+                              "type": "ref",
+                              "ref": "LCsDX",
+                              "name": "Việc của tôi dòng Thiết kế chi tiết công việc",
+                              "width": "fill_container",
+                              "descendants": {
+                                "aJH2N": {
+                                  "content": "Thiết kế chi tiết công việc"
                                 },
-                                {
-                                  "type": "text",
-                                  "id": "WSEgD",
-                                  "x": 12,
-                                  "y": 30,
-                                  "name": "Lịch nhiều ngày 31 số",
-                                  "fill": "$fb.color.text.primary",
-                                  "content": "31",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 18,
-                                  "fontWeight": "700"
+                                "JezhQ": {
+                                  "content": "Ứng dụng nội bộ · Hạn 7 Th9"
                                 }
-                              ]
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "x1lrZC",
+                          "name": "Việc của tôi nhóm ĐÃ LÊN LỊCH",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 8,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "xGxqz",
+                              "name": "Việc của tôi nhóm ĐÃ LÊN LỊCH nhãn",
+                              "fill": "$fb.color.text.muted",
+                              "content": "ĐÃ LÊN LỊCH",
+                              "fontFamily": "$fb.font.family.base",
+                              "fontSize": 11,
+                              "fontWeight": "700"
                             },
                             {
-                              "type": "frame",
-                              "id": "OT3l8",
-                              "x": 648,
-                              "y": 0,
-                              "name": "Lịch nhiều ngày cột CN",
-                              "width": 100,
-                              "height": 560,
-                              "fill": "$fb.color.surface.subtle",
-                              "stroke": "$fb.color.border.default",
-                              "layout": "none",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "ZU4Mx",
-                                  "x": 12,
-                                  "y": 12,
-                                  "name": "Lịch nhiều ngày CN nhãn",
-                                  "fill": "$fb.color.text.muted",
-                                  "content": "CN",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "700"
+                              "id": "giHkP",
+                              "type": "ref",
+                              "ref": "LCsDX",
+                              "name": "Việc của tôi dòng Chuẩn bị ghi chú phát hành",
+                              "width": "fill_container",
+                              "descendants": {
+                                "aJH2N": {
+                                  "content": "Chuẩn bị ghi chú phát hành"
                                 },
-                                {
-                                  "type": "text",
-                                  "id": "y84Ok",
-                                  "x": 12,
-                                  "y": 30,
-                                  "name": "Lịch nhiều ngày 1 số",
-                                  "fill": "$fb.color.text.primary",
-                                  "content": "1",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 18,
-                                  "fontWeight": "700"
+                                "JezhQ": {
+                                  "content": "Ứng dụng nội bộ · Hạn 12 Th9"
                                 }
-                              ]
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "F4CXq",
+                          "name": "Việc của tôi danh sách tải thêm",
+                          "width": "fill_container",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "id": "i6N4Ui",
+                              "type": "ref",
+                              "ref": "bmQYf",
+                              "name": "Việc của tôi nút Tải thêm",
+                              "descendants": {
+                                "d9bGWx": {
+                                  "content": "Tải thêm"
+                                }
+                              }
                             },
                             {
                               "type": "text",
-                              "id": "poXa8",
-                              "x": 12,
-                              "y": 62,
-                              "name": "Lịch nhiều ngày nhãn cả ngày",
-                              "fill": "$fb.color.text.muted",
-                              "content": "CẢ NGÀY",
+                              "id": "gRsxl",
+                              "name": "Việc của tôi danh sách ghi chú trang",
+                              "fill": "$fb.color.text.subtle",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Trang kế tiếp lấy theo page.hasMore. Hợp đồng không trả tổng số nên màn hình không hiện số đếm.",
                               "fontFamily": "$fb.font.family.base",
                               "fontSize": 11,
-                              "fontWeight": "700",
-                              "letterSpacing": 0.5
-                            },
-                            {
-                              "type": "frame",
-                              "id": "TLI6c",
-                              "x": 136,
-                              "y": 84,
-                              "name": "Lịch nhiều ngày công việc kéo dài 3 ngày",
-                              "width": 400,
-                              "height": 34,
-                              "fill": "$fb.color.brand.surface",
-                              "cornerRadius": 6,
-                              "padding": [
-                                0,
-                                10
-                              ],
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "GNB7f",
-                                  "name": "Lịch nhiều ngày công việc kéo dài nhãn",
-                                  "fill": "$fb.color.text.on-solid",
-                                  "content": "Thiết lập quyền truy cập dự án · 27–29/08",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "700"
-                                }
-                              ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "H8rMJ",
-                              "x": 12,
-                              "y": 142,
-                              "name": "Lịch nhiều ngày nhãn công việc trong ngày",
-                              "fill": "$fb.color.text.muted",
-                              "content": "CÔNG VIỆC TRONG NGÀY",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "700",
-                              "letterSpacing": 0.5
-                            },
-                            {
-                              "type": "frame",
-                              "id": "i5Yuj",
-                              "x": 8,
-                              "y": 168,
-                              "name": "Lịch nhiều ngày Chuẩn bị ghi chú phát hành",
-                              "width": 112,
-                              "height": 52,
-                              "fill": "$fb.color.surface.raised",
-                              "cornerRadius": 6,
-                              "stroke": "$fb.color.border.default",
-                              "strokeWidth": 1,
-                              "layout": "vertical",
-                              "gap": 4,
-                              "padding": 8,
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "l3PWb",
-                                  "name": "Lịch nhiều ngày Chuẩn bị ghi chú phát hành nhãn",
-                                  "fill": "$fb.color.text.secondary-alt",
-                                  "textGrowth": "fixed-width",
-                                  "width": 96,
-                                  "content": "Chuẩn bị ghi chú phát hành",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "700"
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "GBDGp",
-                                  "name": "Lịch nhiều ngày Chuẩn bị ghi chú phát hành giờ",
-                                  "fill": "$fb.color.text.muted",
-                                  "content": "09:00",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "600"
-                                }
-                              ]
-                            },
-                            {
-                              "type": "frame",
-                              "id": "dCdaM",
-                              "x": 280,
-                              "y": 168,
-                              "name": "Lịch nhiều ngày Rà soát chỉ mục",
-                              "width": 112,
-                              "height": 52,
-                              "fill": "$fb.color.intent.danger.subtle",
-                              "cornerRadius": 6,
-                              "stroke": "$fb.color.border.default",
-                              "layout": "vertical",
-                              "gap": 4,
-                              "padding": 8,
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "n1KmH",
-                                  "name": "Lịch nhiều ngày Rà soát chỉ mục nhãn",
-                                  "fill": "$fb.color.intent.danger.text",
-                                  "textGrowth": "fixed-width",
-                                  "width": 96,
-                                  "content": "Rà soát chỉ mục",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "700"
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "J4d8W",
-                                  "name": "Lịch nhiều ngày Rà soát chỉ mục giờ",
-                                  "fill": "$fb.color.text.secondary",
-                                  "content": "09:00",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "600"
-                                }
-                              ]
-                            },
-                            {
-                              "type": "frame",
-                              "id": "ftXT2",
-                              "x": 552,
-                              "y": 168,
-                              "name": "Lịch nhiều ngày Tạo dữ liệu mẫu",
-                              "width": 112,
-                              "height": 52,
-                              "fill": "$fb.color.intent.success.subtle",
-                              "cornerRadius": 6,
-                              "stroke": "$fb.color.border.default",
-                              "layout": "vertical",
-                              "gap": 4,
-                              "padding": 8,
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "tztOc",
-                                  "name": "Lịch nhiều ngày Tạo dữ liệu mẫu nhãn",
-                                  "fill": "$fb.color.intent.success.text",
-                                  "textGrowth": "fixed-width",
-                                  "width": 96,
-                                  "content": "Tạo dữ liệu mẫu",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "700"
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "JSA7R",
-                                  "name": "Lịch nhiều ngày Tạo dữ liệu mẫu giờ",
-                                  "fill": "$fb.color.text.secondary",
-                                  "content": "09:00",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "600"
-                                }
-                              ]
+                              "fontWeight": "600"
                             }
                           ]
                         }
@@ -21574,16 +21151,6 @@
                           "fontFamily": "$fb.font.family.base",
                           "fontSize": 28,
                           "fontWeight": "700"
-                        },
-                        {
-                          "type": "text",
-                          "id": "xroEy",
-                          "name": "Chỉ số Hoàn thành Biến động",
-                          "fill": "$fb.color.text.muted",
-                          "content": "+12% so với tuần trước",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 11,
-                          "fontWeight": "600"
                         }
                       ]
                     },
@@ -21626,51 +21193,6 @@
                           "name": "Chỉ số Sắp quá hạn Biến động",
                           "fill": "$fb.color.text.muted",
                           "content": "2 việc chưa hoàn thành",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 11,
-                          "fontWeight": "600"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "GrcLV",
-                      "name": "Chỉ số Đang bị chặn",
-                      "width": "fill_container",
-                      "fill": "$fb.color.surface.raised",
-                      "cornerRadius": 12,
-                      "stroke": "$fb.color.border.default",
-                      "strokeWidth": 1,
-                      "layout": "vertical",
-                      "gap": 8,
-                      "padding": 18,
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "EnqIB",
-                          "name": "Chỉ số Đang bị chặn Nhãn",
-                          "fill": "$fb.color.text.muted",
-                          "content": "Đang bị chặn",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 12,
-                          "fontWeight": "700"
-                        },
-                        {
-                          "type": "text",
-                          "id": "k9hC3B",
-                          "name": "Chỉ số Đang bị chặn Giá trị",
-                          "fill": "$fb.color.intent.danger.text",
-                          "content": "1",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 28,
-                          "fontWeight": "700"
-                        },
-                        {
-                          "type": "text",
-                          "id": "yALcf",
-                          "name": "Chỉ số Đang bị chặn Biến động",
-                          "fill": "$fb.color.text.muted",
-                          "content": "Cần Owner xem ngay",
                           "fontFamily": "$fb.font.family.base",
                           "fontSize": 11,
                           "fontWeight": "600"
@@ -22101,16 +21623,6 @@
                                   "height": 8
                                 }
                               ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "dyx6P",
-                              "name": "Tải công việc Minh Nguyen ghi chú",
-                              "fill": "$fb.color.text.muted",
-                              "content": "Có thể nhận thêm 2",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
                             }
                           ]
                         },
@@ -22196,16 +21708,6 @@
                                   "height": 8
                                 }
                               ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "Fw9vz",
-                              "name": "Tải công việc An Tran ghi chú",
-                              "fill": "$fb.color.intent.danger.text",
-                              "content": "Đang đầy tải",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
                             }
                           ]
                         },
@@ -22291,16 +21793,6 @@
                                   "height": 8
                                 }
                               ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "eR1EG",
-                              "name": "Tải công việc Quynh Le ghi chú",
-                              "fill": "$fb.color.text.muted",
-                              "content": "Có thể nhận thêm 5",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
                             }
                           ]
                         }
@@ -22468,225 +21960,178 @@
                           "fontWeight": "700"
                         }
                       ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "lzGjd",
-                      "name": "Việc của tôi thao tác",
-                      "gap": 8,
-                      "children": [
-                        {
-                          "type": "frame",
-                          "id": "vww6j",
-                          "name": "Việc của tôi chuyển Danh sách",
-                          "fill": "$fb.color.surface.raised",
-                          "cornerRadius": 8,
-                          "stroke": "$fb.color.border.default",
-                          "strokeWidth": 1,
-                          "padding": [
-                            9,
-                            12
-                          ],
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "mO4Yp",
-                              "name": "Việc của tôi nhãn Danh sách",
-                              "fill": "$fb.color.text.muted",
-                              "content": "Danh sách",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 12,
-                              "fontWeight": "700"
-                            }
-                          ]
-                        },
-                        {
-                          "type": "frame",
-                          "id": "f3jfz",
-                          "name": "Việc của tôi chuyển Lịch",
-                          "fill": "$fb.color.brand.surface",
-                          "cornerRadius": 8,
-                          "padding": [
-                            9,
-                            12
-                          ],
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "LjXkm",
-                              "name": "Việc của tôi nhãn Lịch",
-                              "fill": "$fb.color.text.on-solid",
-                              "content": "Lịch",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 12,
-                              "fontWeight": "700"
-                            }
-                          ]
-                        }
-                      ]
                     }
                   ]
                 },
                 {
                   "type": "frame",
-                  "id": "Wb5wq",
-                  "name": "Việc của tôi chỉ số",
+                  "id": "ryZsQ",
+                  "name": "Việc của tôi bộ lọc hạn",
                   "width": "fill_container",
-                  "gap": 14,
+                  "gap": 8,
+                  "alignItems": "center",
                   "children": [
                     {
+                      "type": "text",
+                      "id": "u5xUB",
+                      "name": "Việc của tôi bộ lọc hạn nhãn",
+                      "fill": "$fb.color.text.muted",
+                      "content": "Lọc theo hạn",
+                      "fontFamily": "$fb.font.family.base",
+                      "fontSize": 12,
+                      "fontWeight": "700"
+                    },
+                    {
                       "type": "frame",
-                      "id": "ilpdx",
-                      "name": "Việc của tôi Hôm nay",
-                      "width": "fill_container",
-                      "fill": "$fb.color.intent.danger.subtle",
-                      "cornerRadius": 10,
-                      "gap": 12,
-                      "padding": 14,
+                      "id": "Aty2H",
+                      "name": "Việc của tôi chip Tất cả",
+                      "fill": "$fb.color.brand.surface",
+                      "cornerRadius": 8,
+                      "padding": [
+                        9,
+                        12
+                      ],
                       "alignItems": "center",
                       "children": [
                         {
                           "type": "text",
-                          "id": "cabIh",
-                          "name": "Việc của tôi Hôm nay giá trị",
-                          "fill": "$fb.color.intent.danger.text",
-                          "content": "3",
+                          "id": "L1mCR3",
+                          "name": "Việc của tôi chip Tất cả nhãn",
+                          "fill": "$fb.color.text.on-solid",
+                          "content": "Tất cả",
                           "fontFamily": "$fb.font.family.base",
-                          "fontSize": 24,
+                          "fontSize": 12,
                           "fontWeight": "700"
-                        },
-                        {
-                          "type": "frame",
-                          "id": "Q462i",
-                          "name": "Việc của tôi Hôm nay nội dung",
-                          "layout": "vertical",
-                          "gap": 3,
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "itAgq",
-                              "name": "Việc của tôi Hôm nay nhãn",
-                              "fill": "$fb.color.intent.danger.text",
-                              "content": "Hôm nay",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 13,
-                              "fontWeight": "700"
-                            },
-                            {
-                              "type": "text",
-                              "id": "mnjvb",
-                              "name": "Việc của tôi Hôm nay ghi chú",
-                              "fill": "$fb.color.intent.danger.text",
-                              "content": "1 việc quá hạn",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
-                            }
-                          ]
                         }
                       ]
                     },
                     {
                       "type": "frame",
-                      "id": "F8IvW",
-                      "name": "Việc của tôi Tuần này",
-                      "width": "fill_container",
-                      "fill": "$fb.color.brand.subtle",
-                      "cornerRadius": 10,
-                      "gap": 12,
-                      "padding": 14,
+                      "id": "lsyJn",
+                      "name": "Việc của tôi chip Quá hạn",
+                      "fill": "$fb.color.surface.raised",
+                      "cornerRadius": 8,
+                      "stroke": "$fb.color.border.default",
+                      "strokeWidth": 1,
+                      "padding": [
+                        9,
+                        12
+                      ],
                       "alignItems": "center",
                       "children": [
                         {
                           "type": "text",
-                          "id": "c1aERc",
-                          "name": "Việc của tôi Tuần này giá trị",
-                          "fill": "$fb.color.brand.text",
-                          "content": "8",
+                          "id": "sMRZM",
+                          "name": "Việc của tôi chip Quá hạn nhãn",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Quá hạn",
                           "fontFamily": "$fb.font.family.base",
-                          "fontSize": 24,
+                          "fontSize": 12,
                           "fontWeight": "700"
-                        },
-                        {
-                          "type": "frame",
-                          "id": "moOhv",
-                          "name": "Việc của tôi Tuần này nội dung",
-                          "layout": "vertical",
-                          "gap": 3,
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "Cmzvx",
-                              "name": "Việc của tôi Tuần này nhãn",
-                              "fill": "$fb.color.brand.text",
-                              "content": "Tuần này",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 13,
-                              "fontWeight": "700"
-                            },
-                            {
-                              "type": "text",
-                              "id": "rU5Z2",
-                              "name": "Việc của tôi Tuần này ghi chú",
-                              "fill": "$fb.color.brand.text",
-                              "content": "3 việc đang thực hiện",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
-                            }
-                          ]
                         }
                       ]
                     },
                     {
                       "type": "frame",
-                      "id": "zldcu",
-                      "name": "Việc của tôi Đã hoàn thành",
-                      "width": "fill_container",
-                      "fill": "$fb.color.intent.success.subtle",
-                      "cornerRadius": 10,
-                      "gap": 12,
-                      "padding": 14,
+                      "id": "zgDwC",
+                      "name": "Việc của tôi chip Hạn hôm nay",
+                      "fill": "$fb.color.surface.raised",
+                      "cornerRadius": 8,
+                      "stroke": "$fb.color.border.default",
+                      "strokeWidth": 1,
+                      "padding": [
+                        9,
+                        12
+                      ],
                       "alignItems": "center",
                       "children": [
                         {
                           "type": "text",
-                          "id": "Ie5VS",
-                          "name": "Việc của tôi Đã hoàn thành giá trị",
-                          "fill": "$fb.color.intent.success.text",
-                          "content": "12",
+                          "id": "s7Rxb3",
+                          "name": "Việc của tôi chip Hạn hôm nay nhãn",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Hạn hôm nay",
                           "fontFamily": "$fb.font.family.base",
-                          "fontSize": 24,
+                          "fontSize": 12,
                           "fontWeight": "700"
-                        },
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "bnfn3",
+                      "name": "Việc của tôi chip Sắp đến hạn",
+                      "fill": "$fb.color.surface.raised",
+                      "cornerRadius": 8,
+                      "stroke": "$fb.color.border.default",
+                      "strokeWidth": 1,
+                      "padding": [
+                        9,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
                         {
-                          "type": "frame",
-                          "id": "RGcxd",
-                          "name": "Việc của tôi Đã hoàn thành nội dung",
-                          "layout": "vertical",
-                          "gap": 3,
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "OH85v",
-                              "name": "Việc của tôi Đã hoàn thành nhãn",
-                              "fill": "$fb.color.intent.success.text",
-                              "content": "Đã hoàn thành",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 13,
-                              "fontWeight": "700"
-                            },
-                            {
-                              "type": "text",
-                              "id": "xq9e9",
-                              "name": "Việc của tôi Đã hoàn thành ghi chú",
-                              "fill": "$fb.color.intent.success.text",
-                              "content": "58% kế hoạch",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
-                            }
-                          ]
+                          "type": "text",
+                          "id": "KMaTB",
+                          "name": "Việc của tôi chip Sắp đến hạn nhãn",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Sắp đến hạn",
+                          "fontFamily": "$fb.font.family.base",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Emrn2",
+                      "name": "Việc của tôi chip Đã lên lịch",
+                      "fill": "$fb.color.surface.raised",
+                      "cornerRadius": 8,
+                      "stroke": "$fb.color.border.default",
+                      "strokeWidth": 1,
+                      "padding": [
+                        9,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "PTAaA",
+                          "name": "Việc của tôi chip Đã lên lịch nhãn",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Đã lên lịch",
+                          "fontFamily": "$fb.font.family.base",
+                          "fontSize": 12,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "TEK7T",
+                      "name": "Việc của tôi chip Không có hạn",
+                      "fill": "$fb.color.surface.raised",
+                      "cornerRadius": 8,
+                      "stroke": "$fb.color.border.default",
+                      "strokeWidth": 1,
+                      "padding": [
+                        9,
+                        12
+                      ],
+                      "alignItems": "center",
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "jOmq7",
+                          "name": "Việc của tôi chip Không có hạn nhãn",
+                          "fill": "$fb.color.text.secondary",
+                          "content": "Không có hạn",
+                          "fontFamily": "$fb.font.family.base",
+                          "fontSize": 12,
+                          "fontWeight": "700"
                         }
                       ]
                     }
@@ -22695,15 +22140,15 @@
                 {
                   "type": "frame",
                   "id": "WFc5F",
-                  "name": "Việc của tôi bố cục lịch",
+                  "name": "Việc của tôi bố cục",
                   "width": "fill_container",
                   "height": "fill_container",
                   "gap": 20,
                   "children": [
                     {
                       "type": "frame",
-                      "id": "FvtYw",
-                      "name": "Lịch công việc tuần",
+                      "id": "O0r9x",
+                      "name": "Việc của tôi danh sách theo hạn",
                       "width": "fill_container",
                       "height": "fill_container",
                       "fill": "$fb.color.surface.raised",
@@ -22711,528 +22156,239 @@
                       "stroke": "$fb.color.border.default",
                       "strokeWidth": 1,
                       "layout": "vertical",
+                      "gap": 14,
                       "padding": 18,
                       "children": [
                         {
                           "type": "frame",
-                          "id": "j9N6zA",
-                          "name": "Lịch công việc tiêu đề",
+                          "id": "FrABF",
+                          "name": "Việc của tôi danh sách tiêu đề",
                           "width": "fill_container",
-                          "padding": [
-                            0,
-                            0,
-                            14,
-                            0
-                          ],
                           "justifyContent": "space_between",
                           "alignItems": "center",
                           "children": [
                             {
                               "type": "text",
-                              "id": "inPgF",
-                              "name": "Lịch công việc tuần nhãn",
+                              "id": "PS2B2",
+                              "name": "Việc của tôi danh sách tiêu đề chính",
                               "fill": "$fb.color.text.primary",
-                              "content": "26 Tháng 8 – 1 Tháng 9",
+                              "content": "Task được giao cho tôi",
                               "fontFamily": "$fb.font.family.base",
-                              "fontSize": 15,
+                              "fontSize": 16,
                               "fontWeight": "700"
                             },
                             {
-                              "type": "frame",
-                              "id": "iHjDb",
-                              "name": "Lịch công việc điều hướng",
-                              "gap": 8,
-                              "children": [
-                                {
-                                  "type": "icon",
-                                  "id": "ZH2NR",
-                                  "name": "Lịch công việc chevron-left",
-                                  "width": 18,
-                                  "height": 18,
-                                  "icon": "chevron-left",
-                                  "library": "lucide",
-                                  "fill": "$fb.color.text.muted"
-                                },
-                                {
-                                  "type": "icon",
-                                  "id": "Sl2a8",
-                                  "name": "Lịch công việc chevron-right",
-                                  "width": 18,
-                                  "height": 18,
-                                  "icon": "chevron-right",
-                                  "library": "lucide",
-                                  "fill": "$fb.color.text.muted"
-                                }
-                              ]
+                              "type": "text",
+                              "id": "SY0XF",
+                              "name": "Việc của tôi danh sách sắp xếp",
+                              "fill": "$fb.color.text.muted",
+                              "content": "Sắp theo hạn gần nhất",
+                              "fontFamily": "$fb.font.family.base",
+                              "fontSize": 12,
+                              "fontWeight": "600"
                             }
                           ]
                         },
                         {
                           "type": "frame",
-                          "id": "Z7OsbY",
-                          "name": "Lịch công việc tuần nhiều ngày",
-                          "clip": true,
-                          "width": 750,
-                          "height": 560,
-                          "fill": "$fb.color.surface.raised",
-                          "cornerRadius": 8,
-                          "stroke": "$fb.color.border.default",
-                          "strokeWidth": 1,
-                          "layout": "none",
+                          "id": "Bkw5s",
+                          "name": "Việc của tôi nhóm QUÁ HẠN",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 8,
                           "children": [
                             {
-                              "type": "frame",
-                              "id": "x4sOtT",
-                              "x": 0,
-                              "y": 0,
-                              "name": "Lịch nhiều ngày cột T2",
-                              "width": 100,
-                              "height": 560,
-                              "fill": "$fb.color.surface.subtle",
-                              "stroke": "$fb.color.border.default",
-                              "strokeWidth": {
-                                "right": 1
-                              },
-                              "layout": "none",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "G3DdmR",
-                                  "x": 12,
-                                  "y": 12,
-                                  "name": "Lịch nhiều ngày T2 nhãn",
-                                  "fill": "$fb.color.text.muted",
-                                  "content": "T2",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "700"
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "gK436",
-                                  "x": 12,
-                                  "y": 30,
-                                  "name": "Lịch nhiều ngày 26 số",
-                                  "fill": "$fb.color.text.primary",
-                                  "content": "26",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 18,
-                                  "fontWeight": "700"
-                                }
-                              ]
+                              "type": "text",
+                              "id": "gy70R",
+                              "name": "Việc của tôi nhóm QUÁ HẠN nhãn",
+                              "fill": "$fb.color.intent.danger.text",
+                              "content": "QUÁ HẠN",
+                              "fontFamily": "$fb.font.family.base",
+                              "fontSize": 11,
+                              "fontWeight": "700"
                             },
                             {
-                              "type": "frame",
-                              "id": "Lpynk",
-                              "x": 108,
-                              "y": 0,
-                              "name": "Lịch nhiều ngày cột T3",
-                              "width": 100,
-                              "height": 560,
-                              "fill": "$fb.color.surface.subtle",
-                              "stroke": "$fb.color.border.default",
-                              "strokeWidth": {
-                                "right": 1
-                              },
-                              "layout": "none",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "ZSpnP",
-                                  "x": 12,
-                                  "y": 12,
-                                  "name": "Lịch nhiều ngày T3 nhãn",
-                                  "fill": "$fb.color.text.muted",
-                                  "content": "T3",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "700"
+                              "id": "wTi94",
+                              "type": "ref",
+                              "ref": "LCsDX",
+                              "name": "Việc của tôi dòng Tạo dữ liệu mẫu cho môi trường thử",
+                              "width": "fill_container",
+                              "descendants": {
+                                "aJH2N": {
+                                  "content": "Tạo dữ liệu mẫu cho môi trường thử"
                                 },
-                                {
-                                  "type": "text",
-                                  "id": "NMDa5",
-                                  "x": 12,
-                                  "y": 30,
-                                  "name": "Lịch nhiều ngày 27 số",
-                                  "fill": "$fb.color.text.primary",
-                                  "content": "27",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 18,
-                                  "fontWeight": "700"
+                                "JezhQ": {
+                                  "content": "Ứng dụng nội bộ · Hạn 3 Th9"
                                 }
-                              ]
+                              }
                             },
                             {
-                              "type": "frame",
-                              "id": "X1q1q",
-                              "x": 216,
-                              "y": 0,
-                              "name": "Lịch nhiều ngày cột T4",
-                              "width": 100,
-                              "height": 560,
-                              "fill": "$fb.color.surface.subtle",
-                              "stroke": "$fb.color.border.default",
-                              "strokeWidth": {
-                                "right": 1
-                              },
-                              "layout": "none",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "jaRZl",
-                                  "x": 12,
-                                  "y": 12,
-                                  "name": "Lịch nhiều ngày T4 nhãn",
-                                  "fill": "$fb.color.text.muted",
-                                  "content": "T4",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "700"
+                              "id": "A7UtG",
+                              "type": "ref",
+                              "ref": "LCsDX",
+                              "name": "Việc của tôi dòng Cập nhật tài liệu API",
+                              "width": "fill_container",
+                              "descendants": {
+                                "aJH2N": {
+                                  "content": "Cập nhật tài liệu API"
                                 },
-                                {
-                                  "type": "text",
-                                  "id": "HyuI6",
-                                  "x": 12,
-                                  "y": 30,
-                                  "name": "Lịch nhiều ngày 28 số",
-                                  "fill": "$fb.color.text.primary",
-                                  "content": "28",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 18,
-                                  "fontWeight": "700"
+                                "JezhQ": {
+                                  "content": "Làm mới website · Hạn 4 Th9"
                                 }
-                              ]
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "KFn6X",
+                          "name": "Việc của tôi nhóm HẠN HÔM NAY",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 8,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "ccPky",
+                              "name": "Việc của tôi nhóm HẠN HÔM NAY nhãn",
+                              "fill": "$fb.color.intent.danger.text",
+                              "content": "HẠN HÔM NAY",
+                              "fontFamily": "$fb.font.family.base",
+                              "fontSize": 11,
+                              "fontWeight": "700"
                             },
                             {
-                              "type": "frame",
-                              "id": "n6K78",
-                              "x": 324,
-                              "y": 0,
-                              "name": "Lịch nhiều ngày cột T5",
-                              "width": 100,
-                              "height": 560,
-                              "fill": "$fb.color.surface.alt",
-                              "stroke": "$fb.color.brand.border-soft",
-                              "strokeWidth": 2,
-                              "layout": "none",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "B4Mrmy",
-                                  "x": 12,
-                                  "y": 12,
-                                  "name": "Lịch nhiều ngày T5 nhãn",
-                                  "fill": "$fb.color.text.muted",
-                                  "content": "T5",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "700"
+                              "id": "V5UQe",
+                              "type": "ref",
+                              "ref": "LCsDX",
+                              "name": "Việc của tôi dòng Rà soát chỉ mục dữ liệu",
+                              "width": "fill_container",
+                              "descendants": {
+                                "aJH2N": {
+                                  "content": "Rà soát chỉ mục dữ liệu"
                                 },
-                                {
-                                  "type": "text",
-                                  "id": "jqSeP",
-                                  "x": 12,
-                                  "y": 30,
-                                  "name": "Lịch nhiều ngày 29 số",
-                                  "fill": "$fb.color.text.on-solid",
-                                  "content": "29",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 18,
-                                  "fontWeight": "700"
+                                "JezhQ": {
+                                  "content": "Làm mới website · Hạn 5 Th9"
                                 }
-                              ]
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "AEMQa",
+                          "name": "Việc của tôi nhóm SẮP ĐẾN HẠN",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 8,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "qiCFK",
+                              "name": "Việc của tôi nhóm SẮP ĐẾN HẠN nhãn",
+                              "fill": "$fb.color.intent.warning.text",
+                              "content": "SẮP ĐẾN HẠN",
+                              "fontFamily": "$fb.font.family.base",
+                              "fontSize": 11,
+                              "fontWeight": "700"
                             },
                             {
-                              "type": "frame",
-                              "id": "UAiKD",
-                              "x": 432,
-                              "y": 0,
-                              "name": "Lịch nhiều ngày cột T6",
-                              "width": 100,
-                              "height": 560,
-                              "fill": "$fb.color.surface.subtle",
-                              "stroke": "$fb.color.border.default",
-                              "strokeWidth": {
-                                "right": 1
-                              },
-                              "layout": "none",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "ncqNT",
-                                  "x": 12,
-                                  "y": 12,
-                                  "name": "Lịch nhiều ngày T6 nhãn",
-                                  "fill": "$fb.color.text.muted",
-                                  "content": "T6",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "700"
+                              "id": "nU8fe",
+                              "type": "ref",
+                              "ref": "LCsDX",
+                              "name": "Việc của tôi dòng Thiết lập quyền truy cập dự án",
+                              "width": "fill_container",
+                              "descendants": {
+                                "aJH2N": {
+                                  "content": "Thiết lập quyền truy cập dự án"
                                 },
-                                {
-                                  "type": "text",
-                                  "id": "It0T0",
-                                  "x": 12,
-                                  "y": 30,
-                                  "name": "Lịch nhiều ngày 30 số",
-                                  "fill": "$fb.color.text.primary",
-                                  "content": "30",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 18,
-                                  "fontWeight": "700"
+                                "JezhQ": {
+                                  "content": "Làm mới website · Hạn 6 Th9"
                                 }
-                              ]
+                              }
                             },
                             {
-                              "type": "frame",
-                              "id": "tgKla",
-                              "x": 540,
-                              "y": 0,
-                              "name": "Lịch nhiều ngày cột T7",
-                              "width": 100,
-                              "height": 560,
-                              "fill": "$fb.color.surface.subtle",
-                              "stroke": "$fb.color.border.default",
-                              "strokeWidth": {
-                                "right": 1
-                              },
-                              "layout": "none",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "zJl9S",
-                                  "x": 12,
-                                  "y": 12,
-                                  "name": "Lịch nhiều ngày T7 nhãn",
-                                  "fill": "$fb.color.text.muted",
-                                  "content": "T7",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "700"
+                              "id": "Q8bpie",
+                              "type": "ref",
+                              "ref": "LCsDX",
+                              "name": "Việc của tôi dòng Thiết kế chi tiết công việc",
+                              "width": "fill_container",
+                              "descendants": {
+                                "aJH2N": {
+                                  "content": "Thiết kế chi tiết công việc"
                                 },
-                                {
-                                  "type": "text",
-                                  "id": "VuehN",
-                                  "x": 12,
-                                  "y": 30,
-                                  "name": "Lịch nhiều ngày 31 số",
-                                  "fill": "$fb.color.text.primary",
-                                  "content": "31",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 18,
-                                  "fontWeight": "700"
+                                "JezhQ": {
+                                  "content": "Ứng dụng nội bộ · Hạn 7 Th9"
                                 }
-                              ]
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "P0goyy",
+                          "name": "Việc của tôi nhóm ĐÃ LÊN LỊCH",
+                          "width": "fill_container",
+                          "layout": "vertical",
+                          "gap": 8,
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "ssaR6",
+                              "name": "Việc của tôi nhóm ĐÃ LÊN LỊCH nhãn",
+                              "fill": "$fb.color.text.muted",
+                              "content": "ĐÃ LÊN LỊCH",
+                              "fontFamily": "$fb.font.family.base",
+                              "fontSize": 11,
+                              "fontWeight": "700"
                             },
                             {
-                              "type": "frame",
-                              "id": "Ibe1e",
-                              "x": 648,
-                              "y": 0,
-                              "name": "Lịch nhiều ngày cột CN",
-                              "width": 100,
-                              "height": 560,
-                              "fill": "$fb.color.surface.subtle",
-                              "stroke": "$fb.color.border.default",
-                              "layout": "none",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "NbQQA",
-                                  "x": 12,
-                                  "y": 12,
-                                  "name": "Lịch nhiều ngày CN nhãn",
-                                  "fill": "$fb.color.text.muted",
-                                  "content": "CN",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "700"
+                              "id": "isNgZ",
+                              "type": "ref",
+                              "ref": "LCsDX",
+                              "name": "Việc của tôi dòng Chuẩn bị ghi chú phát hành",
+                              "width": "fill_container",
+                              "descendants": {
+                                "aJH2N": {
+                                  "content": "Chuẩn bị ghi chú phát hành"
                                 },
-                                {
-                                  "type": "text",
-                                  "id": "cEapF",
-                                  "x": 12,
-                                  "y": 30,
-                                  "name": "Lịch nhiều ngày 1 số",
-                                  "fill": "$fb.color.text.primary",
-                                  "content": "1",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 18,
-                                  "fontWeight": "700"
+                                "JezhQ": {
+                                  "content": "Ứng dụng nội bộ · Hạn 12 Th9"
                                 }
-                              ]
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "type": "frame",
+                          "id": "BV4yp",
+                          "name": "Việc của tôi danh sách tải thêm",
+                          "width": "fill_container",
+                          "gap": 12,
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "id": "F6oHtj",
+                              "type": "ref",
+                              "ref": "bmQYf",
+                              "name": "Việc của tôi nút Tải thêm",
+                              "descendants": {
+                                "d9bGWx": {
+                                  "content": "Tải thêm"
+                                }
+                              }
                             },
                             {
                               "type": "text",
-                              "id": "AxTZd",
-                              "x": 12,
-                              "y": 62,
-                              "name": "Lịch nhiều ngày nhãn cả ngày",
-                              "fill": "$fb.color.text.muted",
-                              "content": "CẢ NGÀY",
+                              "id": "rkQfa",
+                              "name": "Việc của tôi danh sách ghi chú trang",
+                              "fill": "$fb.color.text.subtle",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Trang kế tiếp lấy theo page.hasMore. Hợp đồng không trả tổng số nên màn hình không hiện số đếm.",
                               "fontFamily": "$fb.font.family.base",
                               "fontSize": 11,
-                              "fontWeight": "700",
-                              "letterSpacing": 0.5
-                            },
-                            {
-                              "type": "frame",
-                              "id": "bUHS4",
-                              "x": 136,
-                              "y": 84,
-                              "name": "Lịch nhiều ngày công việc kéo dài 3 ngày",
-                              "width": 400,
-                              "height": 34,
-                              "fill": "$fb.color.brand.surface",
-                              "cornerRadius": 6,
-                              "padding": [
-                                0,
-                                10
-                              ],
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "IdtJg",
-                                  "name": "Lịch nhiều ngày công việc kéo dài nhãn",
-                                  "fill": "$fb.color.text.on-solid",
-                                  "content": "Thiết lập quyền truy cập dự án · 27–29/08",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "700"
-                                }
-                              ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "M7k46t",
-                              "x": 12,
-                              "y": 142,
-                              "name": "Lịch nhiều ngày nhãn công việc trong ngày",
-                              "fill": "$fb.color.text.muted",
-                              "content": "CÔNG VIỆC TRONG NGÀY",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "700",
-                              "letterSpacing": 0.5
-                            },
-                            {
-                              "type": "frame",
-                              "id": "c5zUD",
-                              "x": 8,
-                              "y": 168,
-                              "name": "Lịch nhiều ngày Chuẩn bị ghi chú phát hành",
-                              "width": 112,
-                              "height": 52,
-                              "fill": "$fb.color.surface.raised",
-                              "cornerRadius": 6,
-                              "stroke": "$fb.color.border.default",
-                              "strokeWidth": 1,
-                              "layout": "vertical",
-                              "gap": 4,
-                              "padding": 8,
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "nIHQI",
-                                  "name": "Lịch nhiều ngày Chuẩn bị ghi chú phát hành nhãn",
-                                  "fill": "$fb.color.text.faint-inverse",
-                                  "textGrowth": "fixed-width",
-                                  "width": 96,
-                                  "content": "Chuẩn bị ghi chú phát hành",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "700"
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "szS0z",
-                                  "name": "Lịch nhiều ngày Chuẩn bị ghi chú phát hành giờ",
-                                  "fill": "$fb.color.text.muted",
-                                  "content": "09:00",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "600"
-                                }
-                              ]
-                            },
-                            {
-                              "type": "frame",
-                              "id": "VYb1q",
-                              "x": 280,
-                              "y": 168,
-                              "name": "Lịch nhiều ngày Rà soát chỉ mục",
-                              "width": 112,
-                              "height": 52,
-                              "fill": "$fb.color.intent.danger.subtle",
-                              "cornerRadius": 6,
-                              "stroke": "$fb.color.border.default",
-                              "layout": "vertical",
-                              "gap": 4,
-                              "padding": 8,
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "Nx0WJ",
-                                  "name": "Lịch nhiều ngày Rà soát chỉ mục nhãn",
-                                  "fill": "$fb.color.intent.danger.text",
-                                  "textGrowth": "fixed-width",
-                                  "width": 96,
-                                  "content": "Rà soát chỉ mục",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "700"
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "uDdOQ",
-                                  "name": "Lịch nhiều ngày Rà soát chỉ mục giờ",
-                                  "fill": "$fb.color.intent.danger.text",
-                                  "content": "09:00",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "600"
-                                }
-                              ]
-                            },
-                            {
-                              "type": "frame",
-                              "id": "NBkzn",
-                              "x": 552,
-                              "y": 168,
-                              "name": "Lịch nhiều ngày Tạo dữ liệu mẫu",
-                              "width": 112,
-                              "height": 52,
-                              "fill": "$fb.color.intent.success.subtle",
-                              "cornerRadius": 6,
-                              "stroke": "$fb.color.border.default",
-                              "layout": "vertical",
-                              "gap": 4,
-                              "padding": 8,
-                              "children": [
-                                {
-                                  "type": "text",
-                                  "id": "dwHNW",
-                                  "name": "Lịch nhiều ngày Tạo dữ liệu mẫu nhãn",
-                                  "fill": "$fb.color.intent.success.text",
-                                  "textGrowth": "fixed-width",
-                                  "width": 96,
-                                  "content": "Tạo dữ liệu mẫu",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "700"
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "QOk9z",
-                                  "name": "Lịch nhiều ngày Tạo dữ liệu mẫu giờ",
-                                  "fill": "$fb.color.intent.success.text",
-                                  "content": "09:00",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "600"
-                                }
-                              ]
+                              "fontWeight": "600"
                             }
                           ]
                         }
@@ -40094,16 +39250,6 @@
                               "fontFamily": "$fb.font.family.base",
                               "fontSize": 28,
                               "fontWeight": "700"
-                            },
-                            {
-                              "type": "text",
-                              "id": "dhKUB",
-                              "name": "Chỉ số Hoàn thành Biến động",
-                              "fill": "$fb.color.text.muted",
-                              "content": "+12% so với tuần trước",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
                             }
                           ]
                         },
@@ -40146,51 +39292,6 @@
                               "name": "Chỉ số Sắp quá hạn Biến động",
                               "fill": "$fb.color.text.muted",
                               "content": "2 việc chưa hoàn thành",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
-                            }
-                          ]
-                        },
-                        {
-                          "type": "frame",
-                          "id": "dVbvO",
-                          "name": "Chỉ số Đang bị chặn",
-                          "width": "fill_container",
-                          "fill": "$fb.color.surface.raised",
-                          "cornerRadius": 12,
-                          "stroke": "$fb.color.border.default",
-                          "strokeWidth": 1,
-                          "layout": "vertical",
-                          "gap": 8,
-                          "padding": 18,
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "O50WFA",
-                              "name": "Chỉ số Đang bị chặn Nhãn",
-                              "fill": "$fb.color.text.muted",
-                              "content": "Đang bị chặn",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 12,
-                              "fontWeight": "700"
-                            },
-                            {
-                              "type": "text",
-                              "id": "BZYrf",
-                              "name": "Chỉ số Đang bị chặn Giá trị",
-                              "fill": "$fb.color.intent.danger.text",
-                              "content": "1",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 28,
-                              "fontWeight": "700"
-                            },
-                            {
-                              "type": "text",
-                              "id": "Y8q8Js",
-                              "name": "Chỉ số Đang bị chặn Biến động",
-                              "fill": "$fb.color.text.muted",
-                              "content": "Cần Owner xem ngay",
                               "fontFamily": "$fb.font.family.base",
                               "fontSize": 11,
                               "fontWeight": "600"
@@ -40621,16 +39722,6 @@
                                       "height": 8
                                     }
                                   ]
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "LIQn7",
-                                  "name": "Tải công việc Minh Nguyen ghi chú",
-                                  "fill": "$fb.color.text.muted",
-                                  "content": "Có thể nhận thêm 2",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "600"
                                 }
                               ]
                             },
@@ -40716,16 +39807,6 @@
                                       "height": 8
                                     }
                                   ]
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "LRot5",
-                                  "name": "Tải công việc An Tran ghi chú",
-                                  "fill": "$fb.color.intent.danger.text",
-                                  "content": "Đang đầy tải",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "600"
                                 }
                               ]
                             },
@@ -40811,16 +39892,6 @@
                                       "height": 8
                                     }
                                   ]
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "SUDwP",
-                                  "name": "Tải công việc Quynh Le ghi chú",
-                                  "fill": "$fb.color.text.muted",
-                                  "content": "Có thể nhận thêm 5",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "600"
                                 }
                               ]
                             }
@@ -41348,16 +40419,6 @@
                               "fontFamily": "$fb.font.family.base",
                               "fontSize": 28,
                               "fontWeight": "700"
-                            },
-                            {
-                              "type": "text",
-                              "id": "cSjQz",
-                              "name": "Chỉ số Hoàn thành Biến động",
-                              "fill": "$fb.color.text.muted",
-                              "content": "+12% so với tuần trước",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
                             }
                           ]
                         },
@@ -41400,51 +40461,6 @@
                               "name": "Chỉ số Sắp quá hạn Biến động",
                               "fill": "$fb.color.text.muted",
                               "content": "2 việc chưa hoàn thành",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
-                            }
-                          ]
-                        },
-                        {
-                          "type": "frame",
-                          "id": "eeF7f",
-                          "name": "Chỉ số Đang bị chặn",
-                          "width": "fill_container",
-                          "fill": "$fb.color.surface.raised",
-                          "cornerRadius": 12,
-                          "stroke": "$fb.color.border.default",
-                          "strokeWidth": 1,
-                          "layout": "vertical",
-                          "gap": 8,
-                          "padding": 18,
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "b1qHFy",
-                              "name": "Chỉ số Đang bị chặn Nhãn",
-                              "fill": "$fb.color.text.muted",
-                              "content": "Đang bị chặn",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 12,
-                              "fontWeight": "700"
-                            },
-                            {
-                              "type": "text",
-                              "id": "wQo4u",
-                              "name": "Chỉ số Đang bị chặn Giá trị",
-                              "fill": "$fb.color.intent.danger.text",
-                              "content": "1",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 28,
-                              "fontWeight": "700"
-                            },
-                            {
-                              "type": "text",
-                              "id": "V5YtX",
-                              "name": "Chỉ số Đang bị chặn Biến động",
-                              "fill": "$fb.color.text.muted",
-                              "content": "Cần Owner xem ngay",
                               "fontFamily": "$fb.font.family.base",
                               "fontSize": 11,
                               "fontWeight": "600"
@@ -41875,16 +40891,6 @@
                                       "height": 8
                                     }
                                   ]
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "WNIs0",
-                                  "name": "Tải công việc Minh Nguyen ghi chú",
-                                  "fill": "$fb.color.text.muted",
-                                  "content": "Có thể nhận thêm 2",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "600"
                                 }
                               ]
                             },
@@ -41970,16 +40976,6 @@
                                       "height": 8
                                     }
                                   ]
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "rSafo",
-                                  "name": "Tải công việc An Tran ghi chú",
-                                  "fill": "$fb.color.intent.danger.text",
-                                  "content": "Đang đầy tải",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "600"
                                 }
                               ]
                             },
@@ -42065,16 +41061,6 @@
                                       "height": 8
                                     }
                                   ]
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "gZwhb",
-                                  "name": "Tải công việc Quynh Le ghi chú",
-                                  "fill": "$fb.color.text.muted",
-                                  "content": "Có thể nhận thêm 5",
-                                  "fontFamily": "$fb.font.family.base",
-                                  "fontSize": 11,
-                                  "fontWeight": "600"
                                 }
                               ]
                             }
@@ -73467,16 +72453,6 @@
                           "fontFamily": "$fb.font.family.base",
                           "fontSize": 28,
                           "fontWeight": "700"
-                        },
-                        {
-                          "type": "text",
-                          "id": "jjJNp",
-                          "name": "Chỉ số Hoàn thành Biến động",
-                          "fill": "$fb.color.text.muted",
-                          "content": "+12% so với tuần trước",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 11,
-                          "fontWeight": "600"
                         }
                       ]
                     },
@@ -73519,51 +72495,6 @@
                           "name": "Chỉ số Sắp quá hạn Biến động",
                           "fill": "$fb.color.text.muted",
                           "content": "2 việc chưa hoàn thành",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 11,
-                          "fontWeight": "600"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "E1YjB",
-                      "name": "Chỉ số Đang bị chặn",
-                      "width": "fill_container",
-                      "fill": "$fb.color.surface.raised",
-                      "cornerRadius": 12,
-                      "stroke": "$fb.color.border.default",
-                      "strokeWidth": 1,
-                      "layout": "vertical",
-                      "gap": 8,
-                      "padding": 18,
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "lFN6A",
-                          "name": "Chỉ số Đang bị chặn Nhãn",
-                          "fill": "$fb.color.text.muted",
-                          "content": "Đang bị chặn",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 12,
-                          "fontWeight": "700"
-                        },
-                        {
-                          "type": "text",
-                          "id": "YHJcI",
-                          "name": "Chỉ số Đang bị chặn Giá trị",
-                          "fill": "$fb.color.intent.danger.text",
-                          "content": "1",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 28,
-                          "fontWeight": "700"
-                        },
-                        {
-                          "type": "text",
-                          "id": "dHWtx",
-                          "name": "Chỉ số Đang bị chặn Biến động",
-                          "fill": "$fb.color.text.muted",
-                          "content": "Cần Owner xem ngay",
                           "fontFamily": "$fb.font.family.base",
                           "fontSize": 11,
                           "fontWeight": "600"
@@ -73994,16 +72925,6 @@
                                   "height": 8
                                 }
                               ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "D8SMC",
-                              "name": "Tải công việc Minh Nguyen ghi chú",
-                              "fill": "$fb.color.text.muted",
-                              "content": "Có thể nhận thêm 2",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
                             }
                           ]
                         },
@@ -74089,16 +73010,6 @@
                                   "height": 8
                                 }
                               ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "DkhxU",
-                              "name": "Tải công việc An Tran ghi chú",
-                              "fill": "$fb.color.intent.danger.text",
-                              "content": "Đang đầy tải",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
                             }
                           ]
                         },
@@ -74184,16 +73095,6 @@
                                   "height": 8
                                 }
                               ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "byY79",
-                              "name": "Tải công việc Quynh Le ghi chú",
-                              "fill": "$fb.color.text.muted",
-                              "content": "Có thể nhận thêm 5",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
                             }
                           ]
                         }
@@ -74545,16 +73446,6 @@
                           "fontFamily": "$fb.font.family.base",
                           "fontSize": 28,
                           "fontWeight": "700"
-                        },
-                        {
-                          "type": "text",
-                          "id": "n2Ird",
-                          "name": "Chỉ số Hoàn thành Biến động",
-                          "fill": "$fb.color.text.muted",
-                          "content": "+12% so với tuần trước",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 11,
-                          "fontWeight": "600"
                         }
                       ]
                     },
@@ -74597,51 +73488,6 @@
                           "name": "Chỉ số Sắp quá hạn Biến động",
                           "fill": "$fb.color.text.muted",
                           "content": "2 việc chưa hoàn thành",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 11,
-                          "fontWeight": "600"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "G2uqE",
-                      "name": "Chỉ số Đang bị chặn",
-                      "width": "fill_container",
-                      "fill": "$fb.color.surface.raised",
-                      "cornerRadius": 12,
-                      "stroke": "$fb.color.border.default",
-                      "strokeWidth": 1,
-                      "layout": "vertical",
-                      "gap": 8,
-                      "padding": 18,
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "lgrI9",
-                          "name": "Chỉ số Đang bị chặn Nhãn",
-                          "fill": "$fb.color.text.muted",
-                          "content": "Đang bị chặn",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 12,
-                          "fontWeight": "700"
-                        },
-                        {
-                          "type": "text",
-                          "id": "ASNo6",
-                          "name": "Chỉ số Đang bị chặn Giá trị",
-                          "fill": "$fb.color.intent.danger.text",
-                          "content": "1",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 28,
-                          "fontWeight": "700"
-                        },
-                        {
-                          "type": "text",
-                          "id": "O9fxlb",
-                          "name": "Chỉ số Đang bị chặn Biến động",
-                          "fill": "$fb.color.text.muted",
-                          "content": "Cần Owner xem ngay",
                           "fontFamily": "$fb.font.family.base",
                           "fontSize": 11,
                           "fontWeight": "600"
@@ -75072,16 +73918,6 @@
                                   "height": 8
                                 }
                               ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "u2A7GG",
-                              "name": "Tải công việc Minh Nguyen ghi chú",
-                              "fill": "$fb.color.text.muted",
-                              "content": "Có thể nhận thêm 2",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
                             }
                           ]
                         },
@@ -75167,16 +74003,6 @@
                                   "height": 8
                                 }
                               ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "DOFmv",
-                              "name": "Tải công việc An Tran ghi chú",
-                              "fill": "$fb.color.intent.danger.text",
-                              "content": "Đang đầy tải",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
                             }
                           ]
                         },
@@ -75262,16 +74088,6 @@
                                   "height": 8
                                 }
                               ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "Ud99D",
-                              "name": "Tải công việc Quynh Le ghi chú",
-                              "fill": "$fb.color.text.muted",
-                              "content": "Có thể nhận thêm 5",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
                             }
                           ]
                         }
@@ -86048,7 +84864,12 @@
                       "name": "col",
                       "width": "fill_container",
                       "fill": "$fb.color.state.drop-target-surface",
-                      "stroke": "$fb.color.brand.border"
+                      "stroke": "$fb.color.brand.border",
+                      "descendants": {
+                        "wXFeZ": {
+                          "fill": "$fb.color.text.secondary"
+                        }
+                      }
                     }
                   ]
                 },
@@ -88499,7 +87320,8 @@
                       ]
                     },
                     "wXFeZ": {
-                      "content": "Đã nạp 6 · còn nữa"
+                      "content": "Đã nạp 6 · còn nữa",
+                      "fill": "$fb.color.text.secondary"
                     }
                   }
                 },
@@ -89336,7 +88158,8 @@
                       ]
                     },
                     "wXFeZ": {
-                      "content": "Đã nạp 6 · còn nữa"
+                      "content": "Đã nạp 6 · còn nữa",
+                      "fill": "$fb.color.text.secondary"
                     }
                   }
                 },
@@ -94492,7 +93315,7 @@
                           "type": "text",
                           "id": "qTCjE",
                           "name": "Tiêu đề required",
-                          "fill": "$fb.color.intent.danger.text-solid",
+                          "fill": "$fb.color.intent.danger.text",
                           "content": "*",
                           "fontFamily": "Inter",
                           "fontSize": 12,
@@ -94962,7 +93785,7 @@
                       "type": "text",
                       "id": "dKhdQ",
                       "name": "Date validation icon",
-                      "fill": "$fb.color.intent.danger.text-solid",
+                      "fill": "$fb.color.intent.danger.text",
                       "content": "⊘",
                       "fontFamily": "Inter",
                       "fontSize": 14,
@@ -94972,7 +93795,7 @@
                       "type": "text",
                       "id": "LJ5yk",
                       "name": "Date validation text",
-                      "fill": "$fb.color.intent.danger.text-solid",
+                      "fill": "$fb.color.intent.danger.text",
                       "content": "Ngày kết thúc phải sau hoặc bằng ngày bắt đầu.",
                       "fontFamily": "Inter",
                       "fontSize": 12,
@@ -96398,16 +95221,6 @@
                           "fontFamily": "$fb.font.family.base",
                           "fontSize": 28,
                           "fontWeight": "700"
-                        },
-                        {
-                          "type": "text",
-                          "id": "w1yfey",
-                          "name": "Chỉ số Hoàn thành Biến động",
-                          "fill": "$fb.color.text.muted",
-                          "content": "+12% so với tuần trước",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 11,
-                          "fontWeight": "600"
                         }
                       ]
                     },
@@ -96450,51 +95263,6 @@
                           "name": "Chỉ số Sắp quá hạn Biến động",
                           "fill": "$fb.color.text.muted",
                           "content": "2 việc chưa hoàn thành",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 11,
-                          "fontWeight": "600"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "kwByG",
-                      "name": "Chỉ số Đang bị chặn",
-                      "width": "fill_container",
-                      "fill": "$fb.color.surface.raised",
-                      "cornerRadius": 12,
-                      "stroke": "$fb.color.border.default",
-                      "strokeWidth": 1,
-                      "layout": "vertical",
-                      "gap": 8,
-                      "padding": 18,
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "AnLeQ",
-                          "name": "Chỉ số Đang bị chặn Nhãn",
-                          "fill": "$fb.color.text.muted",
-                          "content": "Đang bị chặn",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 12,
-                          "fontWeight": "700"
-                        },
-                        {
-                          "type": "text",
-                          "id": "f9GHUX",
-                          "name": "Chỉ số Đang bị chặn Giá trị",
-                          "fill": "$fb.color.intent.danger.text",
-                          "content": "1",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 28,
-                          "fontWeight": "700"
-                        },
-                        {
-                          "type": "text",
-                          "id": "q2tFJ",
-                          "name": "Chỉ số Đang bị chặn Biến động",
-                          "fill": "$fb.color.text.muted",
-                          "content": "Cần Owner xem ngay",
                           "fontFamily": "$fb.font.family.base",
                           "fontSize": 11,
                           "fontWeight": "600"
@@ -96925,16 +95693,6 @@
                                   "height": 8
                                 }
                               ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "WtRfg",
-                              "name": "Tải công việc Minh Nguyen ghi chú",
-                              "fill": "$fb.color.text.muted",
-                              "content": "Có thể nhận thêm 2",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
                             }
                           ]
                         },
@@ -97020,16 +95778,6 @@
                                   "height": 8
                                 }
                               ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "PVe8u",
-                              "name": "Tải công việc An Tran ghi chú",
-                              "fill": "$fb.color.intent.danger.text",
-                              "content": "Đang đầy tải",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
                             }
                           ]
                         },
@@ -97115,16 +95863,6 @@
                                   "height": 8
                                 }
                               ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "CCR7R",
-                              "name": "Tải công việc Quynh Le ghi chú",
-                              "fill": "$fb.color.text.muted",
-                              "content": "Có thể nhận thêm 5",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
                             }
                           ]
                         }
@@ -97517,16 +96255,6 @@
                           "fontFamily": "$fb.font.family.base",
                           "fontSize": 28,
                           "fontWeight": "700"
-                        },
-                        {
-                          "type": "text",
-                          "id": "G8ZU8",
-                          "name": "Chỉ số Hoàn thành Biến động",
-                          "fill": "$fb.color.text.muted",
-                          "content": "+12% so với tuần trước",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 11,
-                          "fontWeight": "600"
                         }
                       ]
                     },
@@ -97569,51 +96297,6 @@
                           "name": "Chỉ số Sắp quá hạn Biến động",
                           "fill": "$fb.color.text.muted",
                           "content": "2 việc chưa hoàn thành",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 11,
-                          "fontWeight": "600"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "frame",
-                      "id": "xK2AQ",
-                      "name": "Chỉ số Đang bị chặn",
-                      "width": "fill_container",
-                      "fill": "$fb.color.surface.raised",
-                      "cornerRadius": 12,
-                      "stroke": "$fb.color.border.default",
-                      "strokeWidth": 1,
-                      "layout": "vertical",
-                      "gap": 8,
-                      "padding": 18,
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "CxdOw",
-                          "name": "Chỉ số Đang bị chặn Nhãn",
-                          "fill": "$fb.color.text.muted",
-                          "content": "Đang bị chặn",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 12,
-                          "fontWeight": "700"
-                        },
-                        {
-                          "type": "text",
-                          "id": "Fm0sn",
-                          "name": "Chỉ số Đang bị chặn Giá trị",
-                          "fill": "$fb.color.intent.danger.text",
-                          "content": "1",
-                          "fontFamily": "$fb.font.family.base",
-                          "fontSize": 28,
-                          "fontWeight": "700"
-                        },
-                        {
-                          "type": "text",
-                          "id": "GUhSF",
-                          "name": "Chỉ số Đang bị chặn Biến động",
-                          "fill": "$fb.color.text.muted",
-                          "content": "Cần Owner xem ngay",
                           "fontFamily": "$fb.font.family.base",
                           "fontSize": 11,
                           "fontWeight": "600"
@@ -98044,16 +96727,6 @@
                                   "height": 8
                                 }
                               ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "ndsm1",
-                              "name": "Tải công việc Minh Nguyen ghi chú",
-                              "fill": "$fb.color.text.muted",
-                              "content": "Có thể nhận thêm 2",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
                             }
                           ]
                         },
@@ -98139,16 +96812,6 @@
                                   "height": 8
                                 }
                               ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "YkIhe",
-                              "name": "Tải công việc An Tran ghi chú",
-                              "fill": "$fb.color.intent.danger.text",
-                              "content": "Đang đầy tải",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
                             }
                           ]
                         },
@@ -98234,16 +96897,6 @@
                                   "height": 8
                                 }
                               ]
-                            },
-                            {
-                              "type": "text",
-                              "id": "DSqTu",
-                              "name": "Tải công việc Quynh Le ghi chú",
-                              "fill": "$fb.color.text.muted",
-                              "content": "Có thể nhận thêm 5",
-                              "fontFamily": "$fb.font.family.base",
-                              "fontSize": 11,
-                              "fontWeight": "600"
                             }
                           ]
                         }
@@ -105795,7 +104448,12 @@
                       "name": "col",
                       "width": "fill_container",
                       "fill": "$fb.color.state.drop-target-surface",
-                      "stroke": "$fb.color.brand.border"
+                      "stroke": "$fb.color.brand.border",
+                      "descendants": {
+                        "wXFeZ": {
+                          "fill": "$fb.color.text.secondary"
+                        }
+                      }
                     }
                   ]
                 },
@@ -121037,7 +119695,7 @@
                           "fill": "$fb.color.intent.warning.text"
                         },
                         "eCSlK": {
-                          "content": "Lời mời này gửi tới khanh@micace.com. Bạn đang đăng nhập bằng phong@micace.com nên không nhận được.",
+                          "content": "Lời mời này thuộc về một địa chỉ email khác. Bạn đang đăng nhập bằng phong@micace.com.",
                           "fill": "$fb.color.intent.warning.text"
                         }
                       }
@@ -121073,7 +119731,7 @@
                       "fill": "$fb.color.text.muted",
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "Đây là ngoại lệ duy nhất trong hợp đồng nơi thông điệp nói rõ địa chỉ: actor đang giữ token lấy từ chính hộp thư đó nên đã biết địa chỉ, còn nói mơ hồ thì họ không biết phải đăng nhập bằng tài khoản nào (ADR-0016 mục 4). Token được giữ qua bước đăng xuất/đăng nhập.",
+                      "content": "Frame không nêu địa chỉ được mời: response cố ý không mang nó. Người cầm token đã biết địa chỉ đó, nhưng nếu token bị chuyển tiếp hoặc dán nhầm thì màn hình này không được là chỗ đọc ra nó. Địa chỉ hiển thị là của phiên đang đăng nhập, lấy từ session. Token vẫn giữ qua bước đăng xuất/đăng nhập.",
                       "lineHeight": 1.5,
                       "fontFamily": "Inter",
                       "fontSize": 12,
@@ -121263,7 +119921,7 @@
                           "fill": "$fb.color.intent.warning.text"
                         },
                         "eCSlK": {
-                          "content": "Lời mời này gửi tới khanh@micace.com. Bạn đang đăng nhập bằng phong@micace.com nên không nhận được.",
+                          "content": "Lời mời này thuộc về một địa chỉ email khác. Bạn đang đăng nhập bằng phong@micace.com.",
                           "fill": "$fb.color.intent.warning.text"
                         }
                       }
@@ -121299,7 +119957,7 @@
                       "fill": "$fb.color.text.muted",
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "Đây là ngoại lệ duy nhất trong hợp đồng nơi thông điệp nói rõ địa chỉ: actor đang giữ token lấy từ chính hộp thư đó nên đã biết địa chỉ, còn nói mơ hồ thì họ không biết phải đăng nhập bằng tài khoản nào (ADR-0016 mục 4). Token được giữ qua bước đăng xuất/đăng nhập.",
+                      "content": "Frame không nêu địa chỉ được mời: response cố ý không mang nó. Người cầm token đã biết địa chỉ đó, nhưng nếu token bị chuyển tiếp hoặc dán nhầm thì màn hình này không được là chỗ đọc ra nó. Địa chỉ hiển thị là của phiên đang đăng nhập, lấy từ session. Token vẫn giữ qua bước đăng xuất/đăng nhập.",
                       "lineHeight": 1.5,
                       "fontFamily": "Inter",
                       "fontSize": 12,
@@ -121387,7 +120045,7 @@
                   "fill": "$fb.color.intent.warning.text"
                 },
                 "eCSlK": {
-                  "content": "Lời mời này gửi tới khanh@micace.com. Bạn đang đăng nhập bằng phong@micace.com nên không nhận được.",
+                  "content": "Lời mời này thuộc về một địa chỉ email khác. Bạn đang đăng nhập bằng phong@micace.com.",
                   "fill": "$fb.color.intent.warning.text"
                 }
               }
@@ -121423,7 +120081,7 @@
               "fill": "$fb.color.text.muted",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "Đây là ngoại lệ duy nhất trong hợp đồng nơi thông điệp nói rõ địa chỉ: actor đang giữ token lấy từ chính hộp thư đó nên đã biết địa chỉ, còn nói mơ hồ thì họ không biết phải đăng nhập bằng tài khoản nào (ADR-0016 mục 4). Token được giữ qua bước đăng xuất/đăng nhập.",
+              "content": "Frame không nêu địa chỉ được mời: response cố ý không mang nó. Người cầm token đã biết địa chỉ đó, nhưng nếu token bị chuyển tiếp hoặc dán nhầm thì màn hình này không được là chỗ đọc ra nó. Địa chỉ hiển thị là của phiên đang đăng nhập, lấy từ session. Token vẫn giữ qua bước đăng xuất/đăng nhập.",
               "lineHeight": 1.5,
               "fontFamily": "Inter",
               "fontSize": 12,
@@ -121507,7 +120165,7 @@
                   "fill": "$fb.color.intent.warning.text"
                 },
                 "eCSlK": {
-                  "content": "Lời mời này gửi tới khanh@micace.com. Bạn đang đăng nhập bằng phong@micace.com nên không nhận được.",
+                  "content": "Lời mời này thuộc về một địa chỉ email khác. Bạn đang đăng nhập bằng phong@micace.com.",
                   "fill": "$fb.color.intent.warning.text"
                 }
               }
@@ -121543,7 +120201,7 @@
               "fill": "$fb.color.text.muted",
               "textGrowth": "fixed-width",
               "width": "fill_container",
-              "content": "Đây là ngoại lệ duy nhất trong hợp đồng nơi thông điệp nói rõ địa chỉ: actor đang giữ token lấy từ chính hộp thư đó nên đã biết địa chỉ, còn nói mơ hồ thì họ không biết phải đăng nhập bằng tài khoản nào (ADR-0016 mục 4). Token được giữ qua bước đăng xuất/đăng nhập.",
+              "content": "Frame không nêu địa chỉ được mời: response cố ý không mang nó. Người cầm token đã biết địa chỉ đó, nhưng nếu token bị chuyển tiếp hoặc dán nhầm thì màn hình này không được là chỗ đọc ra nó. Địa chỉ hiển thị là của phiên đang đăng nhập, lấy từ session. Token vẫn giữ qua bước đăng xuất/đăng nhập.",
               "lineHeight": 1.5,
               "fontFamily": "Inter",
               "fontSize": 12,
@@ -121909,7 +120567,7 @@
       "type": "color",
       "value": [
         {
-          "value": "#94A3B8",
+          "value": "#6B7280",
           "theme": {
             "mode": "light"
           }

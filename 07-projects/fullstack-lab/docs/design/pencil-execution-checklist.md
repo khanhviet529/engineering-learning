@@ -96,3 +96,21 @@ Artifact **không có khái niệm page**: `.pen` là một canvas phẳng, mọ
   **`WSP-05` Invitation Accept — 16 frame**, thêm theo [ADR-0013](../decisions/ADR-0013-workspace-member-invitation.md): 10 desktop (`guest - loading`, `any - accepted`, `any - token-unusable`, `any - error`, `guest - sign-in-required`, mỗi trạng thái một cặp Light/Dark) và 6 mobile 390 (accepted, token-unusable, sign-in-required). Hai tính chất hợp đồng đã giữ: một thông điệp duy nhất cho token invalid/expired/used, và token sống sót qua bước đăng nhập/đăng ký. `error` tách khỏi `token-unusable` vì lỗi mạng thì token **chưa** bị tiêu — gộp hai cái sẽ nói với người dùng rằng lời mời đã mất trong khi nó còn nguyên.
 
   **Vẫn chưa đóng:** `noOpaqueBg 22` — 22 node không có nền đục để so, nên contrast của chúng không xác định. `contrastChecked 3093 | below 0` là số tự khai của agent design; tôi không dựng lại engine để kiểm. Đừng đọc `below 0` thành "không có vấn đề contrast".
+
+- [x] **Freeze Pencil v0.4 — 05/09/2026.** Blob `d8837022`, đã kiểm **trên đĩa sau khi save**. Vòng này đóng bốn mục backlog từ M4/M5 và sửa hai lỗi tương phản không nằm trong lệnh.
+
+  **Số đo đã xác minh độc lập** (chia hai khối 106 root, vì một lượt quét cả cây trả `InternalError: interrupted` — artifact nay đủ lớn để vượt ngân sách một lượt `execute`): `nodes 8607`, `depth0 212`, `reusableComponents 28`, `refInstances 697 thô + 38 ẩn`, `textNodes 3202`, `fontSizeUnder11 0`, `variables 171` toàn bộ prefix `fb.`, `themes {mode: [light, dark]}`, `zeroBothColumns 0`, `clippedNodes 54` (48 specimen sidebar trong REF-15, 4 focus ring và card đang kéo, 2 báo `R+-210` tức không tràn thật).
+
+  **Bốn mục đã đóng.** `fb.color.text.subtle` sáng đổi `#94A3B8` → `#6B7280`, nay đạt ≥ 4,5:1 trên cả ba surface sáng. `WSP-05` email-mismatch thôi nêu địa chỉ **được mời** — chỉ còn địa chỉ actor đang đăng nhập, vì response cố ý không mang địa chỉ kia. `MYT-01` bỏ ba stat tile, lưới lịch tuần, sáu node `09:00` và bộ chuyển view; thay bằng chip lọc và nhóm theo `dueState`. `PRJ-04` bỏ 30 node trên 6 biến thể — delta tuần-so-tuần, tile `Đang bị chặn`, ba câu hạn mức workload.
+
+  **Hai lỗi tương phản tìm thấy ngoài lệnh và đã sửa.** Caption `Đã nạp N · còn nữa` trên nền drop-target cho 4,19 sáng — cột bình thường thì đạt 4,81, **chỉ lúc kéo thả** nền đổi và rơi xuống dưới ngưỡng, tức là một trạng thái phép đo tĩnh không chạm tới. Và `TSK-01 · Dark · error-summary` dùng `intent.danger.text-solid` (một giá trị, không theo theme) làm màu chữ trên nền tối, cho 3,04.
+
+  **Còn mở, chuyển sang v0.5.** `REF-15` vẽ focus ring bọc **cả component** ở 8 cell field (`FbTextField`, `FbPasswordField`, `FbSelect`, `FbDateField` × 2 theme), nên vòng ring ôm luôn label và helper — trong khi 10 cell còn lại bọc đúng phần tử focus được. Chủ dự án phát hiện. Xem mục dưới.
+
+  **Vẫn chưa đóng:** `noOpaqueBg 22` — vẫn là lỗ hổng đã công bố, không đọc thành "không có vấn đề". Và `fb.color.text.subtle` sau khi sửa nằm ở luminance ~0,167 trong khi `text.muted` ở ~0,161: bậc chữ thứ tư **tồn tại trên giấy nhưng mắt không phân biệt được** ở theme sáng — nợ riêng, xem [kế hoạch triển khai](../implementation-plan.md).
+
+- [ ] **Backlog v0.5 — focus ring vẽ sai chỗ ở `REF-15`.** Ring hiện bọc cả `ref` của field, tức ôm `Label Row` và `Helper`; phần tử focus được chỉ là `Input`/`Control`. Đo được: **8 cell sai, 10 cell đúng, cùng một sheet**.
+
+  Ba lý do nó đáng sửa, không phải chuyện thẩm mỹ. Một sheet dạy **một** quy ước ("ring bọc ref") mà quy ước đó đúng cho button và sai cho field, nên người đọc học đúng một nửa. Code **không dựng lại được bằng đường native**: `:focus-visible` của trình duyệt vẽ outline lên `<input>`, nên muốn ra đúng hình phải bọc thêm wrapper — và khi đó có **hai** vòng lồng nhau, hoặc phải tự tay tắt outline native rồi dựng lại. Và ring nói sai về vùng tương tác: bao quanh label là nói label thuộc vùng đó, trong khi bấm label chỉ chuyển focus đi nơi khác.
+
+  Đây đúng loại lỗi mà chính `REF-15` dựng ra để chống — cell `FbSelect` ngay bên dưới ghi *"select gốc, không phải dropdown tự dựng, vì UI chọn dùng nền tảng"*. Cùng lập luận áp cho focus ring.
