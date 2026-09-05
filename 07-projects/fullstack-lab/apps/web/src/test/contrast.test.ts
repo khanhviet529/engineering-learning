@@ -318,3 +318,136 @@ describe("tương phản của mọi cặp token M2 dùng, ở CẢ HAI theme", 
     expect(ratio("#000000", "#FFFFFF")).toBe(21);
   });
 });
+
+/**
+ * Đóng `noOpaqueBg 22`.
+ *
+ * Ba vòng freeze liên tiếp báo `noOpaqueBg: 22` mà không ai đóng: 22 text node
+ * trong artifact **không có tổ tiên nào mang nền đục**, nên phép đo tương phản
+ * của chúng không xác định — và `below: 0` vì vậy không có nghĩa là "không có
+ * vấn đề".
+ *
+ * Đo lại trên `flowboard.pen` cho đúng 22 node, và cả 22 nằm trong **frame
+ * component** của `packages/ui`: `FbBrandMark`, `FbLink`, `FbTextField`,
+ * `FbPasswordField`, `FbChecklistRow`, `FbSelect`, `FbDateField`,
+ * `FbActivityItem`, `FbPageSection` và `FbNavGroupTimeTracking`. Đó là kết quả
+ * **đúng** cho canvas: một component tồn tại để được đặt lên một bề mặt, nên
+ * bản thân nó không mang nền.
+ *
+ * Nên cách đóng không phải là gán nền cho từng component — làm vậy sẽ dán một
+ * hình chữ nhật đục vào mọi chỗ đặt chúng. Cách đóng là **chứng minh chúng
+ * luôn rơi xuống một nền đã được đo**: trong ứng dụng chỉ có ba bề mặt chứa
+ * nội dung, và bài kiểm dưới đây đo từng màu chữ của 22 node đó với **cả ba**.
+ * Đặt ở đâu cũng đọc được thì "không xác định" biến mất.
+ */
+
+/** Ba bề mặt đục duy nhất mà nội dung của ứng dụng nằm lên. */
+const CONTENT_SURFACES = [
+  "--fb-color-surface-canvas",
+  "--fb-color-surface-raised",
+  "--fb-color-surface-subtle",
+] as const;
+
+/**
+ * 22 node, gom theo màu chữ. Tên node giữ nguyên như trong artifact để đối
+ * chiếu được, vì đây là bằng chứng đóng một con số đã đứng ba vòng.
+ */
+const NO_OPAQUE_BG_NODES: { fg: string; nodes: string[]; large?: boolean }[] = [
+  {
+    fg: "--fb-color-text-primary",
+    nodes: ["FbBrandMark · Wordmark", "FbPageSection · Section title"],
+    // 18px bold ⇒ ngưỡng 3:1 theo hệ thống thiết kế.
+    large: true,
+  },
+  { fg: "--fb-color-brand-text", nodes: ["FbLink · Label"] },
+  {
+    fg: "--fb-color-text-strong",
+    nodes: [
+      "FbTextField · Label",
+      "FbPasswordField · Label",
+      "FbSelect · Label",
+      "FbDateField · Label",
+    ],
+  },
+  {
+    fg: "--fb-color-intent-danger-text",
+    nodes: [
+      "FbTextField · Required Mark",
+      "FbPasswordField · Required Mark",
+      "FbSelect · Required Mark",
+      "FbDateField · Required Mark",
+    ],
+  },
+  {
+    fg: "--fb-color-text-muted",
+    nodes: [
+      "FbTextField · Helper",
+      "FbSelect · Helper",
+      "FbDateField · Helper",
+      "FbActivityItem · Activity meta",
+      "FbPageSection · Section description",
+    ],
+  },
+  {
+    fg: "--fb-color-text-secondary",
+    nodes: [
+      "FbChecklistRow · Criterion",
+      "FbActivityItem · Activity message",
+      "FbNavGroupTimeTracking · Nav Nhật ký giờ",
+      "FbNavGroupTimeTracking · Nav Phê duyệt giờ",
+      "FbNavGroupTimeTracking · Nav Báo cáo giờ",
+    ],
+  },
+  { fg: "--fb-color-text-subtle", nodes: ["FbNavGroupTimeTracking · Group Label"] },
+];
+
+/**
+ * Màu chữ **không** đạt ngưỡng trên cả ba bề mặt.
+ *
+ * Danh sách này là một **phát hiện đã báo**, không phải một sự chấp nhận. Nó
+ * được ghim bằng một phép so bằng chính xác, nên nó đỏ theo cả hai chiều: thêm
+ * một token hỏng thì đỏ, mà sửa được token này cũng đỏ — và lần đỏ thứ hai là
+ * lời nhắc xoá dòng đi.
+ *
+ * `--fb-color-text-subtle` chỉ xuất hiện ở `FbNavGroupTimeTracking`, một
+ * component của Phase 1.3 **chưa được dựng** trong `packages/ui`. Vì vậy nó
+ * không có bề mặt nào để sửa trong code hôm nay; việc sửa thuộc vòng design.
+ */
+const KNOWN_UNREADABLE: Record<Theme, string[]> = {
+  // `#94A3B8` trên ba nền sáng: khoảng 2,6–2,8:1. Ở theme tối cùng token đó
+  // lại đạt, nên đây là lỗi **của bảng màu sáng**, không phải của component.
+  light: ["--fb-color-text-subtle"],
+  dark: [],
+};
+
+describe("noOpaqueBg 22 — 22 node không có nền đục trong artifact", () => {
+  const tokens = readTokens();
+
+  it("đếm đủ 22 node, không nhiều không ít", () => {
+    // Con số phải khớp với báo cáo freeze. Lệch nghĩa là artifact đã đổi và
+    // phép đóng này không còn nói về cùng một tập node.
+    const total = NO_OPAQUE_BG_NODES.reduce((sum, group) => sum + group.nodes.length, 0);
+    expect(total).toBe(22);
+  });
+
+  for (const theme of ["light", "dark"] as const) {
+    it(`theme ${theme}: mọi màu chữ đọc được trên CẢ BA bề mặt`, () => {
+      const unreadable: string[] = [];
+
+      for (const group of NO_OPAQUE_BG_NODES) {
+        const fg = tokens[theme].get(group.fg);
+        expect(fg, `${group.fg} thiếu ở theme ${theme}`).toBeDefined();
+        const threshold = group.large === true ? 3 : 4.5;
+
+        const failed = CONTENT_SURFACES.filter((surface) => {
+          const bg = tokens[theme].get(surface);
+          expect(bg, `${surface} thiếu ở theme ${theme}`).toBeDefined();
+          return ratio(fg as string, bg as string) < threshold;
+        });
+        if (failed.length > 0) unreadable.push(group.fg);
+      }
+
+      expect(unreadable).toEqual(KNOWN_UNREADABLE[theme]);
+    });
+  }
+});

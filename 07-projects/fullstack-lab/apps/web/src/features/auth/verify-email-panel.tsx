@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { FbAlert, FbButtonPrimary, FbButtonSecondary, FbLink } from "@flowboard/ui";
 import { resendVerification, verifyEmail } from "../../lib/api.ts";
 import { Intent, type ApiFailure } from "../../lib/transport.ts";
+import { messageFor } from "../system/messages.ts";
+import { VERIFY_EMAIL_ERROR } from "./messages.ts";
 
 type Phase = "pending" | "verifying" | "verified" | "link-expired" | "awaiting-user";
 
@@ -81,7 +83,11 @@ export function VerifyEmailPanel({
       {phase === "link-expired" && (
         <FbAlert
           intent="error"
-          title={failure?.message ?? "Liên kết không hợp lệ hoặc đã hết hạn."}
+          title={
+            failure === undefined
+              ? VERIFY_EMAIL_ERROR.fallback
+              : messageFor(VERIFY_EMAIL_ERROR, failure)
+          }
           description="Gửi lại thư để nhận một liên kết mới."
         />
       )}

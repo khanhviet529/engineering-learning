@@ -1,3 +1,4 @@
+import type { KeyRing } from "../security/key-ring.ts";
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { AppError, validationError } from "../errors/app-error.ts";
 
@@ -84,7 +85,7 @@ export function encodeCursor(payload: CursorPayload, fingerprint: string, secret
  * cho **cùng một** `400 VALIDATION_FAILED`. Phân biệt chúng trong response là
  * kể cho client biết cách sửa một cursor giả cho hợp lệ.
  */
-export function decodeCursor(cursor: string, fingerprint: string, secret: string): CursorPayload {
+export function decodeCursor(cursor: string, fingerprint: string, keys: KeyRing): CursorPayload {
   const invalid = () =>
     validationError([
       {
@@ -100,11 +101,19 @@ export function decodeCursor(cursor: string, fingerprint: string, secret: string
   const encoded = cursor.slice(0, separator);
   const signature = cursor.slice(separator + 1);
 
-  const expected = sign(encoded, secret);
-  const a = Buffer.from(expected, "utf8");
+  /**
+   * Thử **cả** key hiện hành lẫn key của thế hệ trước.
+   *
+   * Cursor ký bằng key cũ vẫn dùng được trong cửa sổ xoay; không có nó thì mọi
+   * người đang cuộn giữa chừng bị đá về trang đầu ngay khoảnh khắc key đổi.
+   * So sánh vẫn theo thời gian hằng định ở **mỗi** lần thử.
+   */
   const b = Buffer.from(signature, "utf8");
-  // So sánh theo thời gian hằng định, cùng lý do với CSRF token.
-  if (a.length !== b.length || !timingSafeEqual(a, b)) throw invalid();
+  const accepted = keys.verify((key) => {
+    const a = Buffer.from(sign(encoded, key), "utf8");
+    return a.length === b.length && timingSafeEqual(a, b);
+  });
+  if (!accepted) throw invalid();
 
   let body: EncodedCursor;
   try {
@@ -141,7 +150,7 @@ export function buildPage<T>(
   rows: T[],
   limit: number,
   fingerprint: string,
-  secret: string,
+  keys: KeyRing,
   toCursor: (row: T) => CursorPayload,
 ): PageResult<T> {
   const hasMore = rows.length > limit;
@@ -151,8 +160,11 @@ export function buildPage<T>(
   return {
     items,
     hasMore,
+    // **Ký bằng key hiện hành**, luôn luôn: cửa sổ xoay chỉ nới phía verify.
     nextCursor:
-      hasMore && last !== undefined ? encodeCursor(toCursor(last), fingerprint, secret) : null,
+      hasMore && last !== undefined
+        ? encodeCursor(toCursor(last), fingerprint, keys.signingKey)
+        : null,
   };
 }
 

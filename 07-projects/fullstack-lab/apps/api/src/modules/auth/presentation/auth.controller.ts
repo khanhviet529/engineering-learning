@@ -1,3 +1,4 @@
+import type { KeyRing } from "../../../shared/security/key-ring.ts";
 import { Body, Controller, Get, HttpCode, Inject, Post, Req, Res } from "@nestjs/common";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import {
@@ -32,7 +33,7 @@ export const AUTH_TOKENS = {
 
 export interface AuthConfig {
   nodeEnv: string;
-  csrfSecret: string;
+  csrfSecret: KeyRing;
   cookieSecure: boolean;
   cookieMaxAgeSeconds: number;
 }
@@ -165,7 +166,7 @@ export class AuthController {
 
     return ok(request, {
       actor,
-      csrfToken: deriveCsrfToken(sessionToken, this.config.csrfSecret),
+      csrfToken: deriveCsrfToken(sessionToken, this.config.csrfSecret.signingKey),
     });
   }
 

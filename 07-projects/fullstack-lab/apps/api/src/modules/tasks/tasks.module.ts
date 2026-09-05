@@ -1,3 +1,4 @@
+import type { KeyRing } from "../../shared/security/key-ring.ts";
 import { Module, type DynamicModule, type Provider } from "@nestjs/common";
 import type { Database } from "../../shared/database/client.ts";
 import type { MembershipReader } from "../../shared/authorization/index.ts";
@@ -9,6 +10,8 @@ import { CommentRepository } from "./infrastructure/comment-repository.ts";
 import type { TaskRepository } from "./infrastructure/task-repository.ts";
 import { TaskUseCases } from "./application/task-use-cases.ts";
 import { CommentUseCases } from "./application/comment-use-cases.ts";
+import { OverviewUseCases } from "./application/overview-use-cases.ts";
+import { OverviewRepository } from "./infrastructure/overview-repository.ts";
 import {
   TASK_TOKENS,
   TasksController,
@@ -39,10 +42,14 @@ export class TasksModule {
     activityQueries: ActivityQueries;
     clock: WorkspaceClock;
     config: TaskHttpConfig;
-    cursorSecret: string;
+    cursorSecret: KeyRing;
     guards: Provider[];
   }): DynamicModule {
     const comments = new CommentRepository(deps.db);
+    const overview = new OverviewUseCases({
+      repository: new OverviewRepository(deps.db),
+      clock: deps.clock,
+    });
 
     const tasks = new TaskUseCases({
       db: deps.db,
@@ -69,6 +76,7 @@ export class TasksModule {
       providers: [
         ...deps.guards,
         { provide: TASK_TOKENS.tasks, useValue: tasks },
+        { provide: TASK_TOKENS.overview, useValue: overview },
         { provide: TASK_TOKENS.comments, useValue: commentUseCases },
         { provide: TASK_TOKENS.config, useValue: deps.config },
         { provide: TASK_TOKENS.db, useValue: deps.db },

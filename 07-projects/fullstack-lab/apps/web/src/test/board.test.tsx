@@ -170,8 +170,10 @@ describe("BRD-01 — khung board", () => {
     renderWithProviders(<BoardScreen projectId={ids.projectB} />);
 
     await screen.findByRole("heading", { name: "Done", level: 3 });
-    expect(screen.getByText("Cột kết thúc")).toBeInTheDocument();
-    expect(screen.getByText("Cần người duyệt")).toBeInTheDocument();
+    // Hai chip cờ ở header cột, thay cho badge đếm đã bỏ: chúng nói cột **hành
+    // xử khác ra sao**, thứ người dùng cần biết trước khi kéo.
+    expect(screen.getByText("Kết thúc")).toBeInTheDocument();
+    expect(screen.getByText("Cần rà soát")).toBeInTheDocument();
   });
 
   it("Error cho một đường thử lại", async () => {
@@ -454,12 +456,30 @@ describe("BRD-02 — thứ tự cột", () => {
       // Không để giao diện khoe một thứ tự mà server vừa từ chối.
       expect(renderedOrder()).toEqual(["Backlog", "In progress", "Review", "Done"]);
     });
-    expect(
-      await screen.findByText(/Danh sách đã trở lại thứ tự đang lưu trên máy chủ/),
-    ).toBeInTheDocument();
+    // Câu theo frame `E1elhl`: nói rõ bản nháp đã mất, không phải "thử lại".
+    // Nó xuất hiện **hai** lần có chủ đích — một ở alert cho người nhìn thấy,
+    // một ở live region cho người dùng screen reader, và frame ghi rõ live
+    // region phải đọc đúng câu đó chứ không phải một bản rút gọn.
+    const said = await screen.findAllByText(/bản nháp bạn vừa kéo đã mất/);
+    expect(said).toHaveLength(2);
+    // Vùng công bố là một trong các `role="status"` trên trang; tìm đúng cái
+    // mang `aria-live` thay vì giả định chỉ có một.
+    expect(said.some((node) => node.closest("[aria-live]") !== null)).toBe(true);
+    expect(screen.queryByRole("button", { name: /Thử lại/ })).not.toBeInTheDocument();
   });
 
   it("Idempotency-Key giữ nguyên khi gửi lại y nguyên, xoay khi thứ tự đổi", async () => {
+    // Từ M5, trong lúc gửi thì cả hàng cột bị khoá và nút lưu đổi nhãn. Nên
+    // mỗi lần gửi phải chờ **kết quả** trước khi bấm lần kế, và tín hiệu đáng
+    // tin là chính câu thất bại — nó chỉ hiện khi mutation đã settle.
+    let seen = 0;
+    const settled = async () => {
+      seen += 1;
+      await waitFor(() => {
+        expect(screen.getAllByText(/bản nháp bạn vừa kéo đã mất/).length).toBeGreaterThan(0);
+      });
+      expect(seen).toBeGreaterThan(0);
+    };
     const actor = user();
     let attempts = 0;
     vi.stubGlobal(
@@ -487,6 +507,7 @@ describe("BRD-02 — thứ tự cột", () => {
     await waitFor(() => {
       expect(attempts).toBe(1);
     });
+    await settled();
 
     // Lần 2: sắp lại **đúng** thứ tự đó rồi gửi lại. Đây là retry vì lỗi vận
     // chuyển — cùng payload, nên phải cùng key.
@@ -495,6 +516,7 @@ describe("BRD-02 — thứ tự cột", () => {
     await waitFor(() => {
       expect(attempts).toBe(2);
     });
+    await settled();
 
     // Lần 3: một thứ tự **khác**. Ý định khác ⇒ key mới. Giữ key ở đây là cách
     // lần gửi thứ ba nhận lại kết quả đã lưu của lần thứ nhất.
@@ -507,6 +529,7 @@ describe("BRD-02 — thứ tự cột", () => {
     await waitFor(() => {
       expect(attempts).toBe(3);
     });
+    await settled();
 
     const keys = requestsTo((p) => p === REORDER_PATH, "POST").map(keyOf);
     expect(keys).toHaveLength(3);

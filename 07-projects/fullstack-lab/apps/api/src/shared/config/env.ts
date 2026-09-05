@@ -28,30 +28,36 @@ export const envSchema = z
     /** Kết nối PostgreSQL. API là consumer duy nhất của credential này. */
     DATABASE_URL: z.string().min(1),
 
-    /** Vật liệu ký session và CSRF. Bắt buộc đủ dài để không bị đoán. */
+    /**
+     * Vật liệu ký. Bắt buộc đủ dài để không bị đoán.
+     *
+     * Tên `SESSION_SECRET` là di sản: nó **không** ký session (session token là
+     * 32 byte ngẫu nhiên và database chỉ giữ SHA-256 của nó). Thứ nó ký là
+     * **cursor phân trang**. Đổi tên biến là một thay đổi vận hành cho mọi môi
+     * trường đang chạy, nên nó được **báo cáo** chứ không tự đổi ở đây.
+     */
     SESSION_SECRET: z.string().min(32),
     CSRF_SECRET: z.string().min(32),
+
+    /**
+     * Key của **thế hệ trước**, chỉ có mặt trong cửa sổ xoay.
+     *
+     * Ký luôn bằng key hiện hành; hai biến này chỉ nới phía **verify**, để một
+     * cursor hoặc một CSRF token cấp trước lúc xoay vẫn dùng được cho tới khi
+     * client lấy giá trị mới. Không đặt chúng thì hành vi y hệt trước đây.
+     *
+     * Đóng cửa sổ xoay là một **bước con người**: xoá biến. `KeyRing` đếm số
+     * lần key cũ cứu một request để trả lời đúng câu hỏi khiến người ta do dự —
+     * "đóng được chưa?". Xem `shared/security/key-ring.ts`.
+     */
+    SESSION_SECRET_PREVIOUS: z.string().min(32).optional(),
+    CSRF_SECRET_PREVIOUS: z.string().min(32).optional(),
 
     /** SMTP local (Mailpit). Không relay ra Internet. */
     SMTP_HOST: z.string().min(1),
     SMTP_PORT: portSchema,
 
     LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
-
-    /**
-     * Timezone dùng để suy `dueState` và đọc ngày lịch.
-     *
-     * Năm tài liệu nói `due_date` và `dueState` theo **timezone workspace**,
-     * nhưng bảng `workspaces` **không có cột timezone** — cùng loại thiếu khớp
-     * mà ADR-0008 đã phải mở ra để vá cho `is_terminal`. Thêm một cột là tự
-     * phát minh hợp đồng, nên tầng hiện thực làm điều nhỏ nhất khiến hành vi đã
-     * đặc tả chạy được: **một** timezone cho toàn ứng dụng.
-     *
-     * Mặc định `Asia/Ho_Chi_Minh` khớp đúng thứ artifact thiết kế đang hiển thị
-     * ("Theo không gian làm việc: Asia/Ho_Chi_Minh (GMT+7)"). Optional để không
-     * biến một lỗ hổng hợp đồng thành một biến bắt buộc mới cho mọi môi trường.
-     */
-    APP_TIMEZONE: z.string().min(1).default("Asia/Ho_Chi_Minh"),
   })
   .strict();
 

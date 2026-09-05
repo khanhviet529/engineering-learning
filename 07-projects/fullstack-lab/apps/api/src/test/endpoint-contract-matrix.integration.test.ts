@@ -28,7 +28,7 @@ describeIfDb("ma trận endpoint ↔ hợp đồng", () => {
     await f.cleanup();
   });
 
-  it("21 endpoint trả đúng status thành công đã công bố", async () => {
+  it("23 endpoint trả đúng status thành công đã công bố", async () => {
     f.limiter.reset();
 
     /**
@@ -306,7 +306,22 @@ describeIfDb("ma trận endpoint ↔ hợp đồng", () => {
       async () => await call(f, "GET", `/tasks/${matrixTaskId}/activity`, { actor: f.wsAdmin }),
     );
 
-    // 21. DELETE /workspaces/:id/members/:userId — 204
+    // 21. GET /projects/:projectId/overview — 200
+    await record(
+      "GET /projects/:projectId/overview",
+      200,
+      async () =>
+        await call(f, "GET", `/projects/${matrixProjectId}/overview`, { actor: f.wsAdmin }),
+    );
+
+    // 22. GET /workspaces/:workspaceId/tasks — 200
+    await record(
+      "GET /workspaces/:workspaceId/tasks",
+      200,
+      async () => await call(f, "GET", `/workspaces/${f.workspaceId}/tasks`, { actor: f.wsAdmin }),
+    );
+
+    // 23. DELETE /workspaces/:id/members/:userId — 204
     await record(
       "DELETE /workspaces/:workspaceId/members/:userId",
       204,
@@ -321,7 +336,7 @@ describeIfDb("ma trận endpoint ↔ hợp đồng", () => {
     expect(mismatched).toEqual([]);
     // Con số này là bản đếm tay có chủ ý: nó là thứ duy nhất báo động khi ai đó
     // **thêm** một route vào hợp đồng mà quên thêm dòng đo tương ứng ở đây.
-    expect(results).toHaveLength(21);
+    expect(results).toHaveLength(23);
   });
 
   it("mọi route project trả 404 (không phải 403) cho actor ngoài project", async () => {
@@ -396,6 +411,7 @@ describeIfDb("ma trận endpoint ↔ hợp đồng", () => {
         },
         { method: "POST", path: `/tasks/${taskId}/comments`, body: { body: "X" } },
         { method: "GET", path: `/tasks/${taskId}/activity` },
+        { method: "GET", path: `/projects/${f.projectBId}/overview` },
         {
           method: "POST",
           path: "/columns/reorder",

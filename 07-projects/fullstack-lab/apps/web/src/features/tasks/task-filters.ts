@@ -93,3 +93,29 @@ export function taskQueryParams(
   if (cursor !== undefined) params.set("cursor", cursor);
   return params;
 }
+
+/**
+ * Query cho `GET /workspaces/:workspaceId/tasks`.
+ *
+ * Cùng allowlist với list cấp project **trừ `columnId`**: column thuộc về một
+ * project, nên nó vô nghĩa khi phạm vi là cả workspace. Vì lý do đó
+ * `sort=position:*` cũng không dùng được ở đây, và hàm này loại nó thay vì gửi
+ * lên để nhận `400` — người dùng không chọn được nó ở giao diện, nhưng một
+ * filter còn sót từ board thì có thể trôi sang.
+ */
+export function workspaceTaskQueryParams(
+  filters: BoardFilters,
+  limit: number,
+  cursor?: string,
+): URLSearchParams {
+  const params = new URLSearchParams({ limit: String(limit) });
+  const canonical = canonicalFilters(filters);
+  for (const key of KEYS) {
+    const value = canonical[key];
+    if (value === undefined) continue;
+    if (key === "sort" && String(value).startsWith("position:")) continue;
+    params.set(key, String(value));
+  }
+  if (cursor !== undefined) params.set("cursor", cursor);
+  return params;
+}

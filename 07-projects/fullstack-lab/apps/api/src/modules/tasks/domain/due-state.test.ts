@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
-  ConfiguredWorkspaceClock,
   DUE_SOON_WINDOW_DAYS,
+  addDays,
   daysBetween,
   deriveDueState,
+  isValidTimeZone,
   toCalendarDate,
 } from "./due-state.ts";
 
@@ -45,14 +46,30 @@ describe("toCalendarDate", () => {
   });
 });
 
-describe("ConfiguredWorkspaceClock", () => {
-  it("đọc ngày theo timezone đã cấu hình, không theo giờ máy", () => {
-    const instant = new Date("2026-09-04T17:30:00Z");
+describe("isValidTimeZone", () => {
+  /**
+   * Hỏi `Intl` thay vì giữ một danh sách chép tay.
+   *
+   * Danh sách IANA đổi theo bản tzdata; một bản chép sẽ lệch khỏi runtime ngay
+   * lần cập nhật đầu tiên, và lệch theo hướng tệ nhất — nó nói "hợp lệ" cho một
+   * tên mà `Intl` sẽ ném khi đọc.
+   */
+  it("nhận tên IANA thật và từ chối tên bịa", () => {
+    for (const zone of ["UTC", "Asia/Ho_Chi_Minh", "America/Los_Angeles", "Europe/Berlin"]) {
+      expect(isValidTimeZone(zone), zone).toBe(true);
+    }
+    for (const zone of ["", "Khong/Ton_Tai", "GMT+7 giờ", "Asia/Hanoi_City"]) {
+      expect(isValidTimeZone(zone), zone).toBe(false);
+    }
+  });
+});
 
-    expect(new ConfiguredWorkspaceClock("Asia/Ho_Chi_Minh", () => instant).today()).toBe(
-      "2026-09-05",
-    );
-    expect(new ConfiguredWorkspaceClock("UTC", () => instant).today()).toBe("2026-09-04");
+describe("addDays", () => {
+  it("cộng ngày lịch, qua cả ranh giới tháng và năm", () => {
+    expect(addDays("2026-09-05", 0)).toBe("2026-09-05");
+    expect(addDays("2026-09-05", 3)).toBe("2026-09-08");
+    expect(addDays("2026-09-01", -1)).toBe("2026-08-31");
+    expect(addDays("2026-12-31", 1)).toBe("2027-01-01");
   });
 });
 

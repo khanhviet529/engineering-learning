@@ -1,3 +1,4 @@
+import type { KeyRing } from "../../../shared/security/key-ring.ts";
 import type { ProjectRole } from "@flowboard/contracts";
 import type { Database } from "../../../shared/database/client.ts";
 import { AppError, validationError } from "../../../shared/errors/app-error.ts";
@@ -48,7 +49,7 @@ export interface ProjectDeps {
   /** Đọc board column cho `GET /projects/:projectId` — xem port để biết vì sao. */
   columns: ProjectColumnsQuery;
   /** Secret ký cursor. Cursor phải chống sửa đổi, không chỉ opaque. */
-  cursorSecret: string;
+  cursorSecret: KeyRing;
   now?: () => Date;
 }
 

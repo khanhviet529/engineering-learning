@@ -1,3 +1,4 @@
+import type { KeyRing } from "../../../shared/security/key-ring.ts";
 import type { Database } from "../../../shared/database/client.ts";
 import { AppError } from "../../../shared/errors/app-error.ts";
 import type { Actor } from "../../../shared/authorization/index.ts";
@@ -29,7 +30,7 @@ export interface CommentDeps {
   tasks: TaskRepository;
   activity: ActivityRecorder;
   activityQueries: ActivityQueries;
-  cursorSecret: string;
+  cursorSecret: KeyRing;
 }
 
 export interface CommentView {

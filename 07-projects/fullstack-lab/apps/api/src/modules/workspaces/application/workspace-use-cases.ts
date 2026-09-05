@@ -1,3 +1,4 @@
+import type { KeyRing } from "../../../shared/security/key-ring.ts";
 import type { WorkspaceRole } from "@flowboard/contracts";
 import type { Database } from "../../../shared/database/client.ts";
 import type { RecordOutcome } from "../../../shared/http/idempotency-runner.ts";
@@ -42,7 +43,7 @@ export interface WorkspaceDeps {
   repository: WorkspaceRepository;
   authorization: AuthorizationService;
   /** Secret ký cursor. Cursor phải chống sửa đổi, không chỉ opaque. */
-  cursorSecret: string;
+  cursorSecret: KeyRing;
 }
 
 export interface WorkspaceSummary {

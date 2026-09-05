@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { FbAlert, FbButtonPrimary, FbLink, FbPasswordField, FbTextField } from "@flowboard/ui";
 import { signIn } from "../../lib/api.ts";
 import { fieldError, type ApiFailure } from "../../lib/transport.ts";
+import { messageFor } from "../system/messages.ts";
+import { SIGN_IN_ERROR } from "./messages.ts";
 import { DEFAULT_RETURN_PATH, safeReturnPath } from "../../lib/safe-return.ts";
 
 /**
@@ -68,7 +70,7 @@ export function SignInForm({ next }: { next?: string | undefined } = {}) {
           title={
             rateLimited && retryAfter !== undefined
               ? `Bạn đã thử quá nhiều lần. Vui lòng chờ ${String(retryAfter)} giây.`
-              : failure.message
+              : messageFor(SIGN_IN_ERROR, failure)
           }
           description={
             // `requestId` hiện ra để người dùng báo lại được, không phải để trang trí.

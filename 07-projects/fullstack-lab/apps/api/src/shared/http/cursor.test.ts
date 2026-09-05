@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { AppError } from "../errors/app-error.ts";
 import { buildPage, decodeCursor, encodeCursor, queryFingerprint } from "./cursor.ts";
+import { KeyRing } from "../security/key-ring.ts";
 
 /**
  * Cursor là bề mặt mà client chạm vào được, nên nó là bề mặt tấn công.
@@ -11,6 +12,15 @@ import { buildPage, decodeCursor, encodeCursor, queryFingerprint } from "./curso
  */
 
 const secret = "s".repeat(32);
+
+/**
+ * `decodeCursor` và `buildPage` nhận **bộ key**, không phải một chuỗi.
+ *
+ * Chữ ký đổi ở M5 để cursor ký bằng key cũ vẫn dùng được trong cửa sổ xoay. Test
+ * ở đây phần lớn chỉ cần một key, nên `keys` là bộ một phần tử — chính là hình
+ * dạng của một hệ thống chưa xoay bao giờ.
+ */
+const keys = KeyRing.single("test", secret);
 const fingerprint = queryFingerprint({ scope: "user-1", sort: "createdAt:desc" });
 
 function expectRejected(fn: () => unknown): void {
@@ -31,7 +41,7 @@ describe("mã hoá và giải mã", () => {
       fingerprint,
       secret,
     );
-    expect(decodeCursor(cursor, fingerprint, secret)).toEqual({
+    expect(decodeCursor(cursor, fingerprint, keys)).toEqual({
       sortKey: "2026-09-04T00:00:00.000Z",
       id: "abc",
     });
@@ -53,18 +63,18 @@ describe("chống sửa đổi", () => {
     const cursor = encodeCursor({ sortKey: "k", id: "id-1" }, fingerprint, secret);
     const [body, signature] = cursor.split(".");
     const tampered = `${(body as string).slice(0, -1)}A.${signature as string}`;
-    expectRejected(() => decodeCursor(tampered, fingerprint, secret));
+    expectRejected(() => decodeCursor(tampered, fingerprint, keys));
   });
 
   it("cursor ký bằng secret khác bị từ chối", () => {
     const cursor = encodeCursor({ sortKey: "k", id: "id-1" }, fingerprint, "t".repeat(32));
-    expectRejected(() => decodeCursor(cursor, fingerprint, secret));
+    expectRejected(() => decodeCursor(cursor, fingerprint, keys));
   });
 
   it("chuỗi tự bịa bị từ chối", () => {
-    expectRejected(() => decodeCursor("khong-phai-cursor", fingerprint, secret));
-    expectRejected(() => decodeCursor("", fingerprint, secret));
-    expectRejected(() => decodeCursor(".", fingerprint, secret));
+    expectRejected(() => decodeCursor("khong-phai-cursor", fingerprint, keys));
+    expectRejected(() => decodeCursor("", fingerprint, keys));
+    expectRejected(() => decodeCursor(".", fingerprint, keys));
   });
 
   it("payload hợp lệ nhưng không phải JSON bị từ chối", () => {
@@ -72,7 +82,7 @@ describe("chống sửa đổi", () => {
     // Ký đúng nhưng nội dung hỏng: chữ ký không cứu được cấu trúc sai.
     const cursor = encodeCursor({ sortKey: "x", id: "y" }, fingerprint, secret);
     const signature = cursor.split(".")[1] as string;
-    expectRejected(() => decodeCursor(`${encoded}.${signature}`, fingerprint, secret));
+    expectRejected(() => decodeCursor(`${encoded}.${signature}`, fingerprint, keys));
   });
 });
 
@@ -80,13 +90,13 @@ describe("fingerprint gắn cursor với đúng một truy vấn", () => {
   it("cursor của truy vấn khác bị từ chối", () => {
     const other = queryFingerprint({ scope: "user-1", sort: "createdAt:asc" });
     const cursor = encodeCursor({ sortKey: "k", id: "id-1" }, fingerprint, secret);
-    expectRejected(() => decodeCursor(cursor, other, secret));
+    expectRejected(() => decodeCursor(cursor, other, keys));
   });
 
   it("cursor của actor khác bị từ chối — không đọc sang scope khác", () => {
     const otherActor = queryFingerprint({ scope: "user-2", sort: "createdAt:desc" });
     const cursor = encodeCursor({ sortKey: "k", id: "id-1" }, fingerprint, secret);
-    expectRejected(() => decodeCursor(cursor, otherActor, secret));
+    expectRejected(() => decodeCursor(cursor, otherActor, keys));
   });
 
   it("fingerprint không phụ thuộc thứ tự khai báo field", () => {
@@ -109,29 +119,29 @@ describe("dựng trang", () => {
   const toCursor = (row: { id: string; key: string }) => ({ sortKey: row.key, id: row.id });
 
   it("đọc dư một hàng thì hasMore đúng và hàng dư bị cắt", () => {
-    const page = buildPage(rows, 4, fingerprint, secret, toCursor);
+    const page = buildPage(rows, 4, fingerprint, keys, toCursor);
     expect(page.items).toHaveLength(4);
     expect(page.hasMore).toBe(true);
     expect(page.nextCursor).not.toBeNull();
   });
 
   it("trang cuối không có cursor — `null`, không phải chuỗi rỗng", () => {
-    const page = buildPage(rows.slice(0, 3), 4, fingerprint, secret, toCursor);
+    const page = buildPage(rows.slice(0, 3), 4, fingerprint, keys, toCursor);
     expect(page.items).toHaveLength(3);
     expect(page.hasMore).toBe(false);
     expect(page.nextCursor).toBeNull();
   });
 
   it("cursor trỏ đúng hàng cuối của trang đã cắt, không phải hàng dư", () => {
-    const page = buildPage(rows, 4, fingerprint, secret, toCursor);
-    expect(decodeCursor(page.nextCursor as string, fingerprint, secret)).toEqual({
+    const page = buildPage(rows, 4, fingerprint, keys, toCursor);
+    expect(decodeCursor(page.nextCursor as string, fingerprint, keys)).toEqual({
       sortKey: "k-3",
       id: "id-3",
     });
   });
 
   it("tập rỗng cho trang rỗng, không ném lỗi", () => {
-    const page = buildPage([], 25, fingerprint, secret, toCursor);
+    const page = buildPage([], 25, fingerprint, keys, toCursor);
     expect(page).toEqual({ items: [], hasMore: false, nextCursor: null });
   });
 });

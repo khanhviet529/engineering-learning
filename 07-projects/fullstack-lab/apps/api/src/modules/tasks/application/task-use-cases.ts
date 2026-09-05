@@ -1,7 +1,9 @@
+import type { KeyRing } from "../../../shared/security/key-ring.ts";
 import type {
   CreateTaskRequest,
   DueState,
   ListTasksQuery,
+  ListWorkspaceTasksQuery,
   MoveTaskRequest,
   TaskSort,
   UpdateTaskRequest,
@@ -61,7 +63,7 @@ export interface TaskDeps {
   activity: ActivityRecorder;
   clock: WorkspaceClock;
   /** Secret ký cursor. Cursor phải chống sửa đổi, không chỉ opaque. */
-  cursorSecret: string;
+  cursorSecret: KeyRing;
   now?: () => Date;
 }
 
@@ -128,7 +130,7 @@ export class TaskUseCases {
     query: ListTasksQuery,
   ): Promise<PageResult<TaskView>> {
     const sort: TaskSort = query.sort ?? defaultSort(query.columnId);
-    const today = this.#deps.clock.today();
+    const today = await this.#deps.clock.todayForProject(projectId);
 
     /**
      * Fingerprint bind **toàn bộ** filter canonical, cộng sort và scope.
@@ -192,11 +194,96 @@ export class TaskUseCases {
     return { ...page, items: page.items.map((row) => this.#toView(row, today)) };
   }
 
+  /**
+   * `GET /workspaces/:workspaceId/tasks`.
+   *
+   * Phạm vi là **giao** của hai điều kiện — task thuộc project trong workspace
+   * này, **và** actor có `project_members` row ở chính project đó. Cả hai nằm
+   * trong câu SQL (xem `findWorkspaceTasks`); ở đây là phần cursor.
+   */
+  async listWorkspaceTasks(
+    actor: Actor,
+    workspaceId: string,
+    query: ListWorkspaceTasksQuery,
+  ): Promise<PageResult<TaskView> & { projects: { id: string; name: string }[] }> {
+    // Không có `columnId` ở phạm vi này, nên sort mặc định là danh sách theo
+    // thời gian — board order không có nghĩa khi cắt ngang nhiều project.
+    const sort: TaskSort = query.sort ?? "createdAt:desc";
+    const today = await this.#deps.clock.todayForWorkspace(workspaceId);
+
+    /**
+     * Fingerprint bind cả **phạm vi actor nhìn thấy được**, không chỉ filter.
+     *
+     * Membership project đổi giữa hai trang thì cursor cũ không còn mô tả cùng
+     * một tập, và trả tiếp trên nó sẽ hoặc bỏ sót hoặc lặp. Danh sách project
+     * mà actor thấy được vì vậy là **một phần của truy vấn**, đúng như hợp đồng
+     * nói — và nó được đọc lại ở mỗi trang, nên một lần bị gỡ khỏi project sẽ
+     * làm cursor cũ chết bằng `400` thay vì trả một trang lệch âm thầm.
+     */
+    const visible = await this.#deps.repository.visibleProjectIds(workspaceId, actor.id);
+
+    const fingerprint = queryFingerprint({
+      list: "workspace-tasks",
+      actor: actor.id,
+      workspace: workspaceId,
+      // Nội dung phạm vi, không phải chỉ số lượng: mất một project và được thêm
+      // một project khác cho cùng một con số nhưng khác hẳn tập kết quả.
+      scope: visible.join(","),
+      assignee: query.assigneeId ?? null,
+      createdBy: query.createdById ?? null,
+      reviewer: query.reviewerId ?? null,
+      category: query.category ?? null,
+      priority: query.priority ?? null,
+      dueState: query.dueState ?? null,
+      dueFrom: query.dueFrom ?? null,
+      dueTo: query.dueTo ?? null,
+      search: query.search ?? null,
+      sort,
+    });
+
+    const after =
+      query.cursor === undefined
+        ? undefined
+        : (() => {
+            const decoded = decodeCursor(query.cursor, fingerprint, this.#deps.cursorSecret);
+            return { sortKey: decoded.sortKey, id: decoded.id };
+          })();
+
+    const rows = await this.#deps.repository.findWorkspaceTasks({
+      workspaceId,
+      actorId: actor.id,
+      sort,
+      limit: query.limit,
+      today,
+      ...(after === undefined ? {} : { after }),
+      ...(query.assigneeId === undefined ? {} : { assigneeId: query.assigneeId }),
+      ...(query.createdById === undefined ? {} : { createdById: query.createdById }),
+      ...(query.reviewerId === undefined ? {} : { reviewerId: query.reviewerId }),
+      ...(query.category === undefined ? {} : { category: query.category }),
+      ...(query.priority === undefined ? {} : { priority: query.priority }),
+      ...(query.dueState === undefined ? {} : { dueState: query.dueState }),
+      ...(query.dueFrom === undefined ? {} : { dueFrom: query.dueFrom }),
+      ...(query.dueTo === undefined ? {} : { dueTo: query.dueTo }),
+      ...(query.search === undefined ? {} : { search: query.search }),
+    });
+
+    const page = buildPage(rows, query.limit, fingerprint, this.#deps.cursorSecret, (row) => ({
+      sortKey: taskSortKey(sort, row),
+      id: row.id,
+    }));
+
+    // Bảng tra cứu cho **đúng** trang này, không phải mọi project của workspace.
+    const projectIds = [...new Set(page.items.map((row) => row.projectId))];
+    const projects = await this.#deps.repository.findProjectRefs(projectIds);
+
+    return { ...page, items: page.items.map((row) => this.#toView(row, today)), projects };
+  }
+
   /** Một task, đã scope theo project đã authorize. */
   async getTask(projectId: string, taskId: string): Promise<TaskView> {
     const row = await this.#deps.repository.findTaskInProject(projectId, taskId);
     if (row === undefined) throw new AppError("NOT_FOUND");
-    return this.#toView(row, this.#deps.clock.today());
+    return this.#toView(row, await this.#deps.clock.todayForProject(projectId));
   }
 
   /* ---------------------------------------------------------------------- *
@@ -217,7 +304,7 @@ export class TaskUseCases {
     recordOutcome?: RecordOutcome,
     toOutcomeBody?: (task: TaskView) => unknown,
   ): Promise<TaskView> {
-    const today = this.#deps.clock.today();
+    const today = await this.#deps.clock.todayForProject(projectId);
 
     return await this.#deps.db.transaction(async (tx) => {
       const column = await this.#deps.columns.findColumnInProject(projectId, input.columnId, tx);
@@ -305,7 +392,7 @@ export class TaskUseCases {
     recordOutcome?: RecordOutcome,
     toOutcomeBody?: (task: TaskView) => unknown,
   ): Promise<TaskView> {
-    const today = this.#deps.clock.today();
+    const today = await this.#deps.clock.todayForProject(projectId);
 
     return await this.#deps.db.transaction(async (tx) => {
       const current = await this.#deps.repository.findTaskInProject(projectId, taskId, tx);
@@ -391,7 +478,7 @@ export class TaskUseCases {
     recordOutcome?: RecordOutcome,
     toOutcomeBody?: (task: TaskView) => unknown,
   ): Promise<TaskView> {
-    const today = this.#deps.clock.today();
+    const today = await this.#deps.clock.todayForProject(projectId);
 
     return await this.#deps.db.transaction(async (tx) => {
       const current = await this.#deps.repository.findTaskInProject(projectId, taskId, tx);

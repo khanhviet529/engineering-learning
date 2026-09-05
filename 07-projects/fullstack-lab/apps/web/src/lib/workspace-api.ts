@@ -20,11 +20,13 @@ import {
   type ProjectListItem,
   type ProjectMember,
   type MoveTaskRequest,
+  type ProjectOverview,
   type ProjectRole,
   type ReorderColumnsRequest,
   type Task,
   type TaskResponse,
   type UpdateTaskRequest,
+  type WorkspaceTaskProjectRef,
   type SessionResponse,
   type UpdateColumnRequest,
   type Workspace,
@@ -367,4 +369,45 @@ export function listTaskActivity(
   limit = PAGE_LIMIT_DEFAULT,
 ): Promise<ApiResult<ListPayload<Activity>>> {
   return transport.request(`/tasks/${taskId}/activity?limit=${String(limit)}`);
+}
+
+// ---------------------------------------------------------------- M5 · MYT-01
+
+/**
+ * `GET /workspaces/:workspaceId/tasks` — task cấp workspace.
+ *
+ * **Một** cursor cho cả workspace, không phải N cursor gộp lại. Đó là toàn bộ
+ * lý do endpoint này tồn tại: fan-out qua từng project trả N trang đầu độc
+ * lập, và phần đầu của danh sách gộp có thể sai thứ tự — một danh sách "hạn
+ * gần nhất" sai tệ hơn không có, vì người dùng tin nó.
+ *
+ * `projects` là **bảng tra cứu** cho đúng trang này, không phải dữ liệu lồng
+ * trong từng task.
+ */
+export function listWorkspaceTasks(
+  workspaceId: string,
+  params: URLSearchParams,
+): Promise<ApiResult<{ items: Task[]; projects: WorkspaceTaskProjectRef[]; page: Page }>> {
+  return transport.request(`/workspaces/${workspaceId}/tasks?${params.toString()}`);
+}
+
+// ---------------------------------------------------------------- M5 · PRJ-04
+
+/**
+ * `GET /projects/:projectId/overview` — aggregate chỉ đọc.
+ *
+ * Server trả **số đếm**; phần trăm do client tính. Trả cả hai là hai nguồn cho
+ * cùng một sự thật, và chúng lệch ngay ở lần làm tròn đầu tiên.
+ *
+ * Không phân trang: kết quả bị chặn bởi số column và số member của một project.
+ */
+export function readProjectOverview(
+  projectId: string,
+  query: { from?: string; to?: string } = {},
+): Promise<ApiResult<ProjectOverview>> {
+  const params = new URLSearchParams();
+  if (query.from !== undefined) params.set("from", query.from);
+  if (query.to !== undefined) params.set("to", query.to);
+  const suffix = params.toString();
+  return transport.request(`/projects/${projectId}/overview${suffix === "" ? "" : `?${suffix}`}`);
 }

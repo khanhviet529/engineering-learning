@@ -90,7 +90,10 @@ describe("mục cấp project theo capability, không theo role", () => {
         project: { id: "p1", capabilities: ["project:update"] },
       }),
     );
-    expect(items).toEqual(["workspaces", "projects", "project-settings"]);
+    // `my-tasks` không gác bằng capability project nào: `MYT-01` là màn cấp
+    // workspace, và endpoint của nó chỉ đòi membership workspace. Ai thấy được
+    // workspace này thì đã có điều kiện đó.
+    expect(items).toEqual(["workspaces", "projects", "my-tasks", "project-settings"]);
   });
 });
 

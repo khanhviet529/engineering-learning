@@ -1,3 +1,4 @@
+import type { KeyRing } from "../../../shared/security/key-ring.ts";
 import {
   Body,
   Controller,
@@ -70,7 +71,7 @@ export const WORKSPACE_TOKENS = {
 } as const;
 
 export interface WorkspaceHttpConfig {
-  csrfSecret: string;
+  csrfSecret: KeyRing;
 }
 
 /** UUID trong path phải hợp lệ trước khi chạm database. */

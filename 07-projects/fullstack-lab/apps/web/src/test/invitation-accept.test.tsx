@@ -297,9 +297,7 @@ describe("WSP-05 — đăng nhập bằng email khác", () => {
     // Token chưa bị tiêu, nên nó phải còn nguyên cho lần đăng nhập đúng địa chỉ.
     expect(window.location.search).toContain(`token=${TOKEN}`);
 
-    await actor.click(
-      screen.getByRole("button", { name: "Đăng xuất rồi đăng nhập bằng địa chỉ được mời" }),
-    );
+    await actor.click(screen.getByRole("button", { name: "Đăng xuất rồi đăng nhập lại" }));
     await waitFor(() => {
       expect(navigation.pushed).toContain(
         `/dang-nhap?next=${encodeURIComponent(`/loi-moi/chap-nhan?token=${TOKEN}`)}`,

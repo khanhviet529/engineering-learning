@@ -4,6 +4,8 @@ import { useMemo, useRef, useState } from "react";
 import { FbAlert, FbButtonPrimary, FbChecklistRow, FbLink, FbPasswordField } from "@flowboard/ui";
 import { resetPassword } from "../../lib/api.ts";
 import { Intent, fieldError, type ApiFailure } from "../../lib/transport.ts";
+import { messageFor } from "../system/messages.ts";
+import { RESET_PASSWORD_ERROR } from "./messages.ts";
 import { checklistSatisfied, passwordChecklist } from "./password-checklist.ts";
 
 /**
@@ -83,7 +85,7 @@ export function ResetPasswordForm({ token }: { token: string | undefined }) {
       {failure !== undefined && (
         <FbAlert
           intent="error"
-          title={fieldError(failure, "token") ?? failure.message}
+          title={fieldError(failure, "token") ?? messageFor(RESET_PASSWORD_ERROR, failure)}
           description={
             fieldError(failure, "token") === undefined ? undefined : (
               <FbLink href="/quen-mat-khau">Yêu cầu liên kết mới</FbLink>

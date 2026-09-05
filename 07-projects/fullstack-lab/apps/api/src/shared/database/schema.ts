@@ -161,6 +161,21 @@ export const idempotencyRecords = pgTable(
 export const workspaces = pgTable("workspaces", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
+
+  /**
+   * Timezone IANA của workspace — nợ của M4, trả ở M5.
+   *
+   * Năm tài liệu nói `due_date` và `dueState` theo **timezone workspace**, nhưng
+   * cột này không tồn tại cho tới bây giờ; M4 đã chạy tạm bằng một timezone cho
+   * cả ứng dụng, đặt sau cổng `WorkspaceClock` đúng để chỗ này chỉ phải đổi một
+   * lần. Giá trị mặc định trùng đúng thứ artifact thiết kế đang hiển thị.
+   *
+   * Không `CHECK` liệt kê tên timezone: danh sách IANA thay đổi theo bản
+   * tzdata, và một `CHECK` ở đây sẽ biến mỗi lần cập nhật tzdata thành một
+   * migration. Giá trị được validate ở tầng ứng dụng, nơi `Intl` là nguồn sự
+   * thật thật sự — nó là thứ sẽ đọc giá trị này.
+   */
+  timezone: text("timezone").notNull().default("Asia/Ho_Chi_Minh"),
   createdAt: utc("created_at").notNull().defaultNow(),
   updatedAt: utc("updated_at").notNull().defaultNow(),
 });

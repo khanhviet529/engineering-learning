@@ -18,6 +18,8 @@ import { FailureState, SystemState } from "../system/failure-state.tsx";
 import { can } from "../authorization/can.ts";
 import { Intent, fieldError } from "../../lib/transport.ts";
 import { toFailure } from "../../lib/query.tsx";
+import { messageFor } from "../system/messages.ts";
+import { PROJECT_MEMBER_ERROR } from "./messages.ts";
 import {
   useAddProjectMember,
   useChangeProjectMemberRole,
@@ -219,7 +221,7 @@ function MemberActions({
             failure !== undefined && (
               <FbAlert
                 intent="error"
-                title={failure.message}
+                title={messageFor(PROJECT_MEMBER_ERROR, failure)}
                 description={`Mã tra cứu: ${failure.requestId}`}
               />
             )
@@ -335,7 +337,7 @@ function AddProjectMemberDialog({
         {failure !== undefined && failure.code !== "VALIDATION_FAILED" && (
           <FbAlert
             intent="error"
-            title={failure.message}
+            title={messageFor(PROJECT_MEMBER_ERROR, failure)}
             description={`Mã tra cứu: ${failure.requestId}`}
           />
         )}

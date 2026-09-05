@@ -11,6 +11,8 @@ import {
 } from "@flowboard/ui";
 import { signUp } from "../../lib/api.ts";
 import { Intent, fieldError, type ApiFailure } from "../../lib/transport.ts";
+import { messageFor } from "../system/messages.ts";
+import { SIGN_UP_ERROR } from "./messages.ts";
 import { DEFAULT_RETURN_PATH, safeReturnPath } from "../../lib/safe-return.ts";
 import { checklistSatisfied, passwordChecklist } from "./password-checklist.ts";
 
@@ -96,7 +98,9 @@ export function SignUpForm({ next }: { next?: string | undefined } = {}) {
 
   return (
     <form onSubmit={handleSubmit} style={{ display: "grid", gap: "var(--fb-space-4)" }} noValidate>
-      {failure !== undefined && <FbAlert intent="error" title={failure.message} />}
+      {failure !== undefined && (
+        <FbAlert intent="error" title={messageFor(SIGN_UP_ERROR, failure)} />
+      )}
 
       <FbTextField
         id="email"

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { FbAlert, FbButtonPrimary, FbButtonSecondary, FbModal, FbTextField } from "@flowboard/ui";
 import { Intent, fieldError } from "../../lib/transport.ts";
 import { toFailure } from "../../lib/query.tsx";
+import { messageFor } from "../system/messages.ts";
+import { PROJECT_CREATE_ERROR } from "./messages.ts";
 import { useCreateProject } from "./queries.ts";
 
 /**
@@ -96,7 +98,7 @@ export function CreateProjectDialog({
         {failure !== undefined && failure.code !== "VALIDATION_FAILED" && (
           <FbAlert
             intent="error"
-            title={failure.message}
+            title={messageFor(PROJECT_CREATE_ERROR, failure)}
             description={`Mã tra cứu: ${failure.requestId}`}
           />
         )}

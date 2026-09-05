@@ -1,3 +1,4 @@
+import type { KeyRing } from "../../../shared/security/key-ring.ts";
 import type { WorkspaceRole } from "@flowboard/contracts";
 import type { Database } from "../../../shared/database/client.ts";
 import { AppError } from "../../../shared/errors/app-error.ts";
@@ -35,7 +36,7 @@ export interface InvitationDeps {
   invitations: InvitationRepository;
   workspaces: WorkspaceRepository;
   mailer: Mailer;
-  cursorSecret: string;
+  cursorSecret: KeyRing;
   now?: () => Date;
 }
 

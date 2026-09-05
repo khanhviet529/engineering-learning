@@ -13,6 +13,8 @@ import {
 import type { BoardColumn } from "@flowboard/contracts";
 import { Intent, fieldError, type ApiFailure } from "../../lib/transport.ts";
 import { toFailure } from "../../lib/query.tsx";
+import { messageFor } from "../system/messages.ts";
+import { COLUMN_COMMAND_ERROR, COLUMN_CREATE_ERROR, COLUMN_REORDER_ERROR } from "./messages.ts";
 import { useCreateColumn, useReorderColumns, useUpdateColumn } from "./queries.ts";
 import { activeColumns, moveColumn, reconcileOrder, sameOrder } from "./column-order.ts";
 
@@ -41,6 +43,22 @@ const TERMINAL_HINT =
 
 const REVIEWER_HINT =
   "Yêu cầu người duyệt chỉ áp cho các lần tạo và chuyển công việc sau đó. Công việc đang ở trong cột giữ nguyên, kể cả khi chưa có người duyệt.";
+
+/**
+ * Câu duy nhất cho một lần lưu thứ tự thất bại, theo frame `E1elhl`.
+ *
+ * Nó cố ý **không** nói "thử lại". Người dùng cần biết hai điều đã xảy ra:
+ * danh sách đã bị đặt lại theo máy chủ, và bản nháp họ vừa kéo **đã mất**.
+ * Một lời "thử lại" mơ hồ để họ tự đoán xem thao tác có đi được nửa đường
+ * không — và với một lệnh ghi thì đoán là thứ tệ nhất.
+ */
+const REORDER_FAILED =
+  "Không lưu được thứ tự cột. Danh sách đã được đặt lại theo thứ tự trên máy chủ — bản nháp bạn vừa kéo đã mất, không có thay đổi nào được ghi.";
+
+const REORDER_PENDING = "Đang lưu thứ tự cột";
+
+/** Nhãn nút khi đang gửi, đúng chữ trên frame `sZbYu`. */
+const REORDER_PENDING_LABEL = "Đang lưu thứ tự…";
 
 const ARCHIVE_BLOCKED =
   "Không thể lưu trữ cột còn công việc. Hãy chuyển hoặc hoàn tất các công việc trước.";
@@ -159,6 +177,7 @@ function ColumnEditorForm({
       reorderIntent.current.rotate();
     }
     lastSubmitted.current = [...order];
+    announce(REORDER_PENDING);
 
     reorder.mutate(
       { orderedColumnIds: [...order], intent: reorderIntent.current },
@@ -166,9 +185,10 @@ function ColumnEditorForm({
         onSuccess: () => announce("Đã lưu thứ tự cột."),
         onError: () => {
           // Không để giao diện hiển thị một thứ tự server đã từ chối: quay về
-          // thứ tự server đang giữ, rồi nói ra điều đó.
+          // thứ tự server đang giữ, rồi nói ra **đúng** điều đã xảy ra. Live
+          // region đọc cùng câu với alert, không phải một bản rút gọn.
           setOrder(serverIds);
-          announce("Không lưu được thứ tự cột. Danh sách đã trở lại thứ tự đang lưu trên máy chủ.");
+          announce(REORDER_FAILED);
         },
       },
     );
@@ -205,8 +225,10 @@ function ColumnEditorForm({
             <FbButtonSecondary onClick={requestClose} disabled={reorder.isPending}>
               Hủy
             </FbButtonSecondary>
-            <FbButtonPrimary onClick={submitOrder} disabled={!dirty} loading={reorder.isPending}>
-              Lưu thứ tự cột
+            {/* Không dùng `loading`: nhãn đã nói trạng thái, và một spinner
+                cạnh chữ "Đang lưu thứ tự…" là hai lần nói cùng một điều. */}
+            <FbButtonPrimary onClick={submitOrder} disabled={!dirty || reorder.isPending}>
+              {reorder.isPending ? REORDER_PENDING_LABEL : "Lưu thứ tự cột"}
             </FbButtonPrimary>
           </>
         )
@@ -235,11 +257,19 @@ function ColumnEditorForm({
           />
         )}
 
-        {reorderFailure !== undefined && (
+        {reorder.isPending && (
+          <FbAlert
+            intent="info"
+            title={`${REORDER_PENDING}…`}
+            description="Danh sách đang khoá: không kéo, không đổi tên, không lưu trữ cho tới khi có kết quả."
+          />
+        )}
+
+        {reorderFailure !== undefined && !reorder.isPending && (
           <FbAlert
             intent="error"
-            title={reorderFailure.message}
-            description={`Mã tra cứu: ${reorderFailure.requestId}`}
+            title={REORDER_FAILED}
+            description={`${messageFor(COLUMN_REORDER_ERROR, reorderFailure)} · Mã tra cứu: ${reorderFailure.requestId}`}
           />
         )}
 
@@ -273,6 +303,7 @@ function ColumnEditorForm({
                   index={index}
                   total={order.length}
                   lifted={lifted === id}
+                  locked={reorder.isPending}
                   onToggleLift={() => toggleLift(id)}
                   onCancelLift={() => cancelLift(id)}
                   onMove={(to) => applyMove(index, to)}
@@ -299,6 +330,7 @@ function ColumnRow({
   index,
   total,
   lifted,
+  locked,
   onToggleLift,
   onCancelLift,
   onMove,
@@ -308,6 +340,15 @@ function ColumnRow({
   index: number;
   total: number;
   lifted: boolean;
+  /**
+   * Cả hàng bị khoá vì một lệnh sắp thứ tự đang bay.
+   *
+   * Không phải để trang trí: `POST /columns/reorder` gửi **toàn bộ** danh sách
+   * ID, nên một lần lưu trữ hay một lần thêm cột xen vào giữa sẽ làm payload
+   * đang bay không còn khớp tập cột của dự án — và server trả `400` cho một
+   * thứ người dùng không hề làm sai.
+   */
+  locked: boolean;
   onToggleLift: () => void;
   onCancelLift: () => void;
   onMove: (to: number) => void;
@@ -381,6 +422,7 @@ function ColumnRow({
           type="button"
           aria-label={`Sắp xếp cột ${column.name}, vị trí ${String(index + 1)} trên ${String(total)}`}
           aria-pressed={lifted}
+          disabled={locked}
           onClick={onToggleLift}
           onKeyDown={(event) => {
             if (event.key === "Escape" && lifted) {
@@ -421,7 +463,7 @@ function ColumnRow({
             label={`Tên cột ${String(index + 1)}`}
             value={name}
             onChange={setName}
-            disabled={rename.isPending}
+            disabled={rename.isPending || locked}
             error={renameFailure === undefined ? undefined : fieldError(renameFailure, "name")}
           />
         </div>
@@ -429,7 +471,7 @@ function ColumnRow({
         <FbButtonSecondary
           onClick={submitRename}
           loading={rename.isPending}
-          disabled={name.trim() === "" || name.trim() === column.name}
+          disabled={locked || name.trim() === "" || name.trim() === column.name}
         >
           Đổi tên
         </FbButtonSecondary>
@@ -448,7 +490,7 @@ function ColumnRow({
           label="Cột kết thúc"
           hint={TERMINAL_HINT}
           checked={column.isTerminal}
-          disabled={terminal.isPending}
+          disabled={terminal.isPending || locked}
           onChange={(next) => {
             terminalIntent.current.rotate();
             terminal.mutate({
@@ -463,7 +505,7 @@ function ColumnRow({
           label="Cần người duyệt"
           hint={REVIEWER_HINT}
           checked={column.requiresReviewer}
-          disabled={reviewer.isPending}
+          disabled={reviewer.isPending || locked}
           onChange={(next) => {
             reviewerIntent.current.rotate();
             reviewer.mutate({
@@ -498,7 +540,10 @@ function ColumnRow({
               </FbButtonPrimary>
             </>
           ) : (
-            <FbButtonSecondary onClick={() => setConfirmingArchive(true)} disabled={archiveBlocked}>
+            <FbButtonSecondary
+              onClick={() => setConfirmingArchive(true)}
+              disabled={archiveBlocked || locked}
+            >
               Lưu trữ
             </FbButtonSecondary>
           )}
@@ -521,7 +566,7 @@ function ColumnRow({
         rowFailure.code !== "VALIDATION_FAILED" && (
           <FbAlert
             intent="error"
-            title={rowFailure.message}
+            title={messageFor(COLUMN_COMMAND_ERROR, rowFailure)}
             description={`Mã tra cứu: ${rowFailure.requestId}`}
           />
         )
@@ -603,7 +648,7 @@ function AddColumnForm({
       {failure !== undefined && failure.code !== "VALIDATION_FAILED" && (
         <FbAlert
           intent="error"
-          title={failure.message}
+          title={messageFor(COLUMN_CREATE_ERROR, failure)}
           description={`Mã tra cứu: ${failure.requestId}`}
         />
       )}

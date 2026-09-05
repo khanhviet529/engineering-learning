@@ -106,7 +106,7 @@ Cột `Trạng thái` phân biệt route **đã dựng** với route còn là d�
 | Column editor | `/du-an/:projectId/bang-cong-viec?panel=columns` | `BRD-02` | Dự kiến — M3 | Là lớp phủ chỉ Owner trên board. |
 | Task detail | `/du-an/:projectId/bang-cong-viec?task=:taskId` | `TSK-02` | Dự kiến — M4 | Mở drawer/modal trên board; deep link phải tải lại và kiểm tra cả project lẫn task. |
 | Task form | `?task=new` hoặc `?task=:taskId&edit=1` trên board | `TSK-01` | Dự kiến — M4 | Là lớp phủ; form mới không được xuất hiện cho Viewer. |
-| Việc của tôi | `/viec-cua-toi` | `MYT-01` | Dự kiến — M4 | Cấp workspace, không thuộc một project nào. |
+| Việc của tôi | `/viec-cua-toi?workspace=:workspaceId` | `MYT-01` | Đã dựng | Cấp workspace, không thuộc một project nào — nhưng endpoint **cần** một `workspaceId`, nên workspace đang xem nằm ở query key `workspace` (tiếng Anh, [ADR-0014](../decisions/ADR-0014-route-language.md)) để một liên kết dán cho đồng nghiệp mở đúng danh sách. Thiếu tham số thì mặc định là workspace đầu tiên của actor. Đây là quyết định của frontend ở M5: route đã được công bố **không** mang `workspaceId` trong khi endpoint cần một cái, và không tài liệu nào giải quyết mâu thuẫn đó. |
 | Tổng quan dự án | `/du-an/:projectId/tong-quan` | `PRJ-04` | Dự kiến — M5 | Chỉ đọc aggregate đã authorize; là nơi CTA `Xuất tiến độ` của Phase 1.1 sống. |
 | System | route đã yêu cầu hoặc context thao tác | `SYS-02`…`SYS-05` | Một phần | `Session expired`, `Error` và `Conflict` là trạng thái trên chính route đang mở, không phải route riêng. |
 

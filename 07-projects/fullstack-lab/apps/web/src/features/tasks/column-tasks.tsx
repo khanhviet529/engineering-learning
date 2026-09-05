@@ -73,9 +73,17 @@ export function ColumnTasks({
     <FbBoardColumn
       name={column.name}
       badges={
+        // Khe `Column Flags Slot` của `FbBoardColumn`, thay cho badge đếm task
+        // đã bỏ. Một con số nói *có bao nhiêu*; hai cờ này nói *cột hành xử
+        // khác ra sao* — `Cần rà soát` bật một luồng bắt buộc chọn reviewer khi
+        // move vào, `Kết thúc` đưa `dueState` về `none` và biến move-ra thành
+        // `task.reopened`. Người kéo cần biết điều đó **trước** khi kéo.
+        //
+        // Chỉ hiện khi cờ bật. Cột thường không có chip nào, và đó là trạng
+        // thái phổ biến nhất; một chip `Bình thường` chỉ thêm nhiễu.
         <span style={{ display: "flex", gap: "var(--fb-space-1)" }}>
-          {column.isTerminal && <FbBadge tone="success">Cột kết thúc</FbBadge>}
-          {column.requiresReviewer && <FbBadge tone="brand">Cần người duyệt</FbBadge>}
+          {column.requiresReviewer && <FbBadge tone="brand">Cần rà soát</FbBadge>}
+          {column.isTerminal && <FbBadge tone="success">Kết thúc</FbBadge>}
         </span>
       }
       state={

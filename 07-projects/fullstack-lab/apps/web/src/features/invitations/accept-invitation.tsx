@@ -235,14 +235,21 @@ export function AcceptInvitationScreen({ token }: { token: string | undefined })
 
     case "email-mismatch":
       return (
-        <AuthShell title="Lời mời thuộc về địa chỉ email khác" description={PITCH}>
+        <AuthShell title="Lời mời thuộc địa chỉ khác" description={PITCH}>
           <div style={{ display: "grid", gap: "var(--fb-space-4)" }}>
-            {/* Đây là **ngoại lệ duy nhất** của nguyên tắc "một thông điệp cho
-                mọi token không dùng được": người đang giữ token đã đọc được
-                hộp thư đó, nên họ đã biết địa chỉ rồi. Nói mơ hồ ở đây không
-                giấu được gì, chỉ làm họ không biết phải đăng nhập bằng tài
-                khoản nào. Vì vậy hiện đúng thông điệp của server. */}
+            {/* adr-0016-exception: FORBIDDEN của POST /invitations/accept.
+                Đây là **ngoại lệ duy nhất** có tên trong ADR-0016 mục 4, và là
+                chỗ duy nhất trong cả frontend hiển thị `failure.message` của
+                server. Lý do hẹp: người đang giữ token đã đọc được hộp thư
+                nhận thư mời, nên nói rõ không lộ gì với họ — còn nói mơ hồ thì
+                họ không biết phải đăng nhập bằng tài khoản nào. */}
             <FbAlert intent="warning" title={stage.failure.message} />
+
+            {/* Frame `MHf89` nêu **đích danh hai địa chỉ**. Client chỉ biết một
+                — địa chỉ đang đăng nhập, lấy từ phiên. Địa chỉ **được mời**
+                không có trong response: `invitationEmailMismatch()` của server
+                cố ý không nhắc lại nó. Sai lệch này đã được báo; ở đây nói
+                đúng phần biết chắc thay vì bịa nốt phần kia. */}
             <p
               style={{
                 margin: 0,
@@ -251,9 +258,10 @@ export function AcceptInvitationScreen({ token }: { token: string | undefined })
               }}
             >
               {actor === undefined
-                ? "Lời mời vẫn còn hiệu lực."
-                : `Bạn đang đăng nhập bằng ${actor.email}. Lời mời vẫn còn hiệu lực — nó chưa bị dùng.`}
+                ? "Lời mời vẫn còn hiệu lực và chưa bị dùng."
+                : `Bạn đang đăng nhập bằng ${actor.email}, nên không nhận được lời mời này. Nó vẫn còn hiệu lực và chưa bị dùng.`}
             </p>
+
             <FbButtonPrimary
               block
               onClick={() => {
@@ -265,8 +273,14 @@ export function AcceptInvitationScreen({ token }: { token: string | undefined })
                 });
               }}
             >
-              Đăng xuất rồi đăng nhập bằng địa chỉ được mời
+              Đăng xuất rồi đăng nhập lại
             </FbButtonPrimary>
+
+            {/* Đường thoát thứ hai theo frame: người dùng có thể đang đúng tài
+                khoản họ muốn dùng, và chỉ cần rời khỏi lời mời này. */}
+            <FbButtonSecondary block onClick={() => router.push("/khong-gian-lam-viec")}>
+              Về không gian làm việc hiện tại
+            </FbButtonSecondary>
           </div>
         </AuthShell>
       );

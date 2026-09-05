@@ -1,3 +1,4 @@
+import { KeyRing } from "./shared/security/key-ring.ts";
 import "reflect-metadata";
 import { Module } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
@@ -23,7 +24,7 @@ import {
   TaskColumnEmptinessCheck,
   TaskProjectAssigneeCheck,
 } from "./modules/tasks/infrastructure/port-adapters.ts";
-import { ConfiguredWorkspaceClock } from "./modules/tasks/domain/due-state.ts";
+import { DatabaseWorkspaceClock } from "./modules/tasks/infrastructure/workspace-clock.ts";
 import {
   ActivityQueries,
   DrizzleActivityRecorder,
@@ -53,10 +54,8 @@ function buildRootModule(deps: {
   auth: Parameters<typeof AuthModule.register>[0];
   authUseCases: AuthUseCases;
   db: Parameters<typeof WorkspacesModule.register>[0]["db"];
-  cursorSecret: string;
-  csrfSecret: string;
-  /** Timezone dùng để suy `dueState` — xem `tasks/domain/due-state.ts`. */
-  timeZone: string;
+  cursorKeys: KeyRing;
+  csrfKeys: KeyRing;
 }) {
   /**
    * `activity` là module leaf và **không có route nào ở M3**, nên nó không cần
@@ -81,7 +80,13 @@ function buildRootModule(deps: {
    */
   const taskRepository = new TaskRepository(deps.db);
   const activityQueries = new ActivityQueries(deps.db);
-  const workspaceClock = new ConfiguredWorkspaceClock(deps.timeZone);
+  /**
+   * Đồng hồ đọc `workspaces.timezone` — nợ của M4, trả ở M5.
+   *
+   * **Một** instance cho cả tiến trình, nên cache timezone bên trong nó là cache
+   * cả tiến trình. Xem chú thích ở adapter cho đánh đổi đã biết.
+   */
+  const workspaceClock = new DatabaseWorkspaceClock(deps.db);
 
   const wiring = buildAuthorizationWiring({
     db: deps.db,
@@ -102,8 +107,8 @@ function buildRootModule(deps: {
       WorkspacesModule.register({
         db: deps.db,
         authorization: wiring.authorization,
-        config: { csrfSecret: deps.csrfSecret },
-        cursorSecret: deps.cursorSecret,
+        config: { csrfSecret: deps.csrfKeys },
+        cursorSecret: deps.cursorKeys,
         // Cùng instance mailer và limiter mà `auth` dùng: một tiến trình, một
         // transport SMTP, một bộ đếm rate limit.
         mailer: deps.auth.mailer,
@@ -117,8 +122,8 @@ function buildRootModule(deps: {
         assigneeCheck: new TaskProjectAssigneeCheck(taskRepository),
         activity,
         columns: new BoardColumnsProjectQuery(columnRepository),
-        config: { csrfSecret: deps.csrfSecret },
-        cursorSecret: deps.cursorSecret,
+        config: { csrfSecret: deps.csrfKeys },
+        cursorSecret: deps.cursorKeys,
         guards: wiring.providers,
       }),
       BoardColumnsModule.register({
@@ -127,7 +132,7 @@ function buildRootModule(deps: {
         activity,
         // Adapter thật, có từ M4: đếm task trong cột.
         emptiness: new TaskColumnEmptinessCheck(taskRepository),
-        config: { csrfSecret: deps.csrfSecret },
+        config: { csrfSecret: deps.csrfKeys },
         guards: wiring.providers,
       }),
       TasksModule.register({
@@ -138,8 +143,8 @@ function buildRootModule(deps: {
         activity,
         activityQueries,
         clock: workspaceClock,
-        config: { csrfSecret: deps.csrfSecret },
-        cursorSecret: deps.cursorSecret,
+        config: { csrfSecret: deps.csrfKeys },
+        cursorSecret: deps.cursorKeys,
         guards: wiring.providers,
       }),
     ],
@@ -179,20 +184,45 @@ async function bootstrap(): Promise<void> {
 
   // Dựng use case của `auth` ở đây vì hai nơi cần chính **một** instance:
   // module `auth`, và `SessionGuard` dùng nó làm `ActorResolver`.
+  /**
+   * Hai bộ key, một cho mỗi mục đích ký.
+   *
+   * Dùng chung một bộ cho cursor và CSRF sẽ làm một lần xoay vì lý do của bên
+   * này kéo theo cửa sổ xoay của bên kia — và hai bên có hậu quả rất khác nhau
+   * khi hết hiệu lực. Xem `shared/security/key-ring.ts`.
+   */
+  const csrfKeys = new KeyRing("CSRF_SECRET", {
+    current: env.CSRF_SECRET,
+    previous: env.CSRF_SECRET_PREVIOUS,
+  });
+  const cursorKeys = new KeyRing("SESSION_SECRET", {
+    current: env.SESSION_SECRET,
+    previous: env.SESSION_SECRET_PREVIOUS,
+  });
+
+  if (csrfKeys.rotating || cursorKeys.rotating) {
+    // Ghi **tên** biến, không bao giờ ghi giá trị — cùng quy tắc với ConfigError.
+    console.warn(
+      `[config] đang trong cửa sổ xoay key: ${[csrfKeys, cursorKeys]
+        .filter((ring) => ring.rotating)
+        .map((ring) => ring.label)
+        .join(", ")}`,
+    );
+  }
+
   const authUseCases = new AuthUseCases({
     db: database.db,
     repository: new AuthRepository(database.db),
     mailer,
-    csrfSecret: env.CSRF_SECRET,
+    csrfSecret: csrfKeys,
   });
 
   const app = await NestFactory.create<NestFastifyApplication>(
     buildRootModule({
       db: database.db,
       authUseCases,
-      cursorSecret: env.SESSION_SECRET,
-      csrfSecret: env.CSRF_SECRET,
-      timeZone: env.APP_TIMEZONE,
+      cursorKeys,
+      csrfKeys,
       auth: {
         db: database.db,
         mailer,
@@ -200,7 +230,7 @@ async function bootstrap(): Promise<void> {
         useCases: authUseCases,
         config: {
           nodeEnv: env.NODE_ENV,
-          csrfSecret: env.CSRF_SECRET,
+          csrfSecret: csrfKeys,
           // `Secure` bật ở mọi nơi trừ development. Nới lỏng cho local là có chủ
           // đích và **không** được rò sang build production.
           cookieSecure: env.NODE_ENV !== "development",

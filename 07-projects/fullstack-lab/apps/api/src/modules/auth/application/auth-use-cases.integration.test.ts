@@ -1,3 +1,4 @@
+import { KeyRing } from "../../../shared/security/key-ring.ts";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { eq, sql } from "drizzle-orm";
 import { createDatabase, type DatabaseHandle } from "../../../shared/database/client.ts";
@@ -50,7 +51,7 @@ describeIfDb("use case xác thực", () => {
       db: handle.db,
       repository: new AuthRepository(handle.db),
       mailer,
-      csrfSecret: "c".repeat(32),
+      csrfSecret: KeyRing.single("test", "c".repeat(32)),
     });
   });
 

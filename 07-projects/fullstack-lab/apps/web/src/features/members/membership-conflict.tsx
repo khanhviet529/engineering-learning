@@ -3,6 +3,7 @@
 import { FbAlert } from "@flowboard/ui";
 import type { ErrorCode } from "@flowboard/contracts";
 import type { ApiFailure } from "../../lib/transport.ts";
+import { MEMBERSHIP_CONFLICT_TITLE } from "./messages.ts";
 
 /**
  * Ba xung đột trạng thái của membership: `PROJECT_LAST_OWNER`,
@@ -69,7 +70,7 @@ export function MembershipConflictNotice({
   return (
     <FbAlert
       intent="warning"
-      title={failure.message}
+      title={MEMBERSHIP_CONFLICT_TITLE[failure.code]}
       description={
         <span>
           {NEXT_STEP[failure.code]}

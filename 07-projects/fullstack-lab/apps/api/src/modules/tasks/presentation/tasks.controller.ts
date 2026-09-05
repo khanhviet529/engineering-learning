@@ -1,3 +1,4 @@
+import type { KeyRing } from "../../../shared/security/key-ring.ts";
 import {
   Body,
   Controller,
@@ -17,7 +18,9 @@ import {
   createCommentRequestSchema,
   createTaskRequestSchema,
   listTasksQuerySchema,
+  listWorkspaceTasksQuerySchema,
   moveTaskRequestSchema,
+  overviewQuerySchema,
   paginationQuerySchema,
   updateTaskRequestSchema,
 } from "@flowboard/contracts";
@@ -25,6 +28,7 @@ import { z } from "zod";
 import {
   ProjectPermissionGuard,
   RequireProjectPermission,
+  RequireWorkspacePermission,
   SessionGuard,
   WorkspacePermissionGuard,
   getActor,
@@ -41,6 +45,7 @@ import type { Database } from "../../../shared/database/client.ts";
 import { AppError } from "../../../shared/errors/app-error.ts";
 import { formatPosition } from "../../../shared/ordering/position.ts";
 import type { TaskUseCases, TaskView } from "../application/task-use-cases.ts";
+import type { OverviewUseCases, OverviewView } from "../application/overview-use-cases.ts";
 import type {
   ActivityView,
   CommentUseCases,
@@ -56,17 +61,19 @@ import type {
 
 export const TASK_TOKENS = {
   tasks: Symbol("TaskUseCases"),
+  overview: Symbol("OverviewUseCases"),
   comments: Symbol("CommentUseCases"),
   config: Symbol("TaskConfig"),
   db: Symbol("TaskDatabase"),
 } as const;
 
 export interface TaskHttpConfig {
-  csrfSecret: string;
+  csrfSecret: KeyRing;
 }
 
 const projectIdParamSchema = z.object({ projectId: z.uuid() }).strict();
 const taskIdParamSchema = z.object({ taskId: z.uuid() }).strict();
+const workspaceIdParamSchema = z.object({ workspaceId: z.uuid() }).strict();
 
 /**
  * Projection task: đúng những field mà `taskSchema` công bố.
@@ -113,6 +120,32 @@ function toTaskProjection(task: TaskView) {
   };
 }
 
+/**
+ * Projection overview — đúng những field mà `projectOverviewSchema` công bố.
+ *
+ * **Không có phần trăm ở đâu cả.** `58%` suy được từ `taskCount / totals.tasks`;
+ * trả cả hai là hai nguồn cho cùng một sự thật, và chúng lệch ở lần làm tròn
+ * đầu tiên.
+ */
+function toOverviewProjection(overview: OverviewView) {
+  return {
+    window: overview.window,
+    totals: overview.totals,
+    byColumn: overview.byColumn.map((column) => ({
+      columnId: column.columnId,
+      name: column.name,
+      isTerminal: column.isTerminal,
+      taskCount: column.taskCount,
+    })),
+    byAssignee: overview.byAssignee.map((row) => ({
+      user: { id: row.userId, displayName: row.displayName },
+      taskCount: row.taskCount,
+    })),
+    unassignedCount: overview.unassignedCount,
+    dueStates: overview.dueStates,
+  };
+}
+
 function toCommentProjection(comment: CommentView) {
   return {
     id: comment.id,
@@ -145,6 +178,7 @@ function toActivityProjection(activity: ActivityView) {
 export class TasksController {
   constructor(
     @Inject(TASK_TOKENS.tasks) private readonly tasks: TaskUseCases,
+    @Inject(TASK_TOKENS.overview) private readonly overview: OverviewUseCases,
     @Inject(TASK_TOKENS.comments) private readonly comments: CommentUseCases,
     @Inject(TASK_TOKENS.config) private readonly config: TaskHttpConfig,
     @Inject(TASK_TOKENS.db) private readonly db: Database,
@@ -175,6 +209,70 @@ export class TasksController {
       nextCursor: result.nextCursor,
       hasMore: result.hasMore,
     });
+  }
+
+  /**
+   * `GET /workspaces/:workspaceId/tasks` — `200`, task cấp workspace cho `MYT-01`.
+   *
+   * Permission là `workspace:read` — cả hai vai trò workspace đều mở được màn
+   * hình này. Thứ **giới hạn kết quả** không phải một phép kiểm quyền ở đây mà
+   * là membership từng project, do repository áp trong chính câu SQL: một
+   * Workspace Admin chưa được thêm vào project nào nhận trang rỗng, không phải
+   * task của người khác.
+   *
+   * Không CSRF và không `Idempotency-Key`: đây là một lượt đọc.
+   */
+  @Get("workspaces/:workspaceId/tasks")
+  @RequireWorkspacePermission("workspace:read")
+  async listWorkspaceTasks(
+    @Req() request: FastifyRequest,
+    @Param() params: unknown,
+    @Query() query: unknown,
+  ) {
+    const actor = getActor(request);
+    const { workspaceId } = parse(workspaceIdParamSchema, params);
+    // Cùng allowlist với list cấp project **trừ `columnId`**; `sort=position:*`
+    // bị từ chối vì position chỉ có nghĩa trong một column.
+    const listQuery = parse(listWorkspaceTasksQuerySchema, query ?? {});
+
+    const result = await this.tasks.listWorkspaceTasks(actor, workspaceId, listQuery);
+
+    /**
+     * Envelope có **ba** khoá, không phải hai.
+     *
+     * `okList` dựng `{ items, page }`; ở đây còn một bảng tra cứu `projects`,
+     * nên response được dựng tường minh bằng `ok`. Nhét `projects` vào từng item
+     * sẽ là hai mươi bản sao của cùng một tên — thứ sẽ lệch nếu project được đổi
+     * tên giữa chừng.
+     */
+    return ok(request, {
+      items: result.items.map(toTaskProjection),
+      projects: result.projects,
+      page: { nextCursor: result.nextCursor, hasMore: result.hasMore },
+    });
+  }
+
+  /**
+   * `GET /projects/:projectId/overview` — `200`, aggregate cho `PRJ-04`.
+   *
+   * `task:read`, cùng quyền với việc đọc task — vì đây chính là những task đó đã
+   * được đếm. Viewer mở được, và chỉ đọc như mọi thứ khác.
+   */
+  @Get("projects/:projectId/overview")
+  @RequireProjectPermission("task:read")
+  async getOverview(
+    @Req() request: FastifyRequest,
+    @Param() params: unknown,
+    @Query() query: unknown,
+  ) {
+    const { projectId } = parse(projectIdParamSchema, params);
+    // `.strict()`: chỉ `from` và `to`. Không `groupBy`, không `metrics`, không
+    // một field nào cho client tự chọn cách tổng hợp.
+    const overviewQuery = parse(overviewQuerySchema, query ?? {});
+
+    const overview = await this.overview.getOverview(projectId, overviewQuery);
+
+    return ok(request, toOverviewProjection(overview));
   }
 
   /** `POST /projects/:projectId/tasks` — `201`. */

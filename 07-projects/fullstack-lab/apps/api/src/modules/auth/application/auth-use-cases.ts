@@ -1,3 +1,4 @@
+import type { KeyRing } from "../../../shared/security/key-ring.ts";
 import type { FieldError } from "@flowboard/contracts";
 import { AppError, validationError } from "../../../shared/errors/app-error.ts";
 import type { Database } from "../../../shared/database/client.ts";
@@ -43,7 +44,7 @@ export interface AuthDeps {
   db: Database;
   repository: AuthRepository;
   mailer: Mailer;
-  csrfSecret: string;
+  csrfSecret: KeyRing;
   now?: () => Date;
 }
 
@@ -231,7 +232,9 @@ export class AuthUseCases {
       displayName: user.displayName,
       email: user.email,
       sessionToken,
-      csrfToken: deriveCsrfToken(sessionToken, this.#deps.csrfSecret),
+      // Ký bằng **key hiện hành**: token mới luôn thuộc thế hệ mới, và cửa
+      // sổ xoay chỉ nới phía verify.
+      csrfToken: deriveCsrfToken(sessionToken, this.#deps.csrfSecret.signingKey),
     };
   }
 

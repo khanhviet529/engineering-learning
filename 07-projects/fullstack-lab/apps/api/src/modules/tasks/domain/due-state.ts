@@ -24,41 +24,53 @@ import type { DueState } from "@flowboard/contracts";
  * lựa chọn của tầng hiện thực, đặt tên ở đây để nó là **một** quyết định thấy
  * được thay vì một hằng số rải trong câu lệnh SQL — và để đổi nó là sửa một
  * dòng khi hợp đồng nói rõ con số thật.
+ *
+ * Từ M5, `GET /projects/:projectId/overview` đọc **chính** hằng số này: hợp đồng
+ * nói `dueStates` phải dùng cùng cửa sổ với list task, và cùng cửa sổ chỉ có
+ * nghĩa khi nó là cùng một giá trị.
  */
 export const DUE_SOON_WINDOW_DAYS = 3;
 
 /**
  * Ngày hôm nay theo timezone của workspace.
  *
- * ## Vì sao là một cổng, và vì sao nó chưa nhận `workspaceId`
+ * ## Cổng này đã đổi hình dạng ở M5, và đó là điều đã hẹn trước
  *
- * Năm tài liệu nói `due_date` và `dueState` theo **timezone workspace**, nhưng
- * bảng `workspaces` **không có cột timezone** — cùng loại thiếu khớp mà ADR-0008
- * đã phải mở ra để vá cho `is_terminal`. Thêm một cột ở đây là tự phát minh hợp
- * đồng, nên tầng hiện thực làm điều nhỏ nhất khiến hành vi đã được đặc tả chạy
- * được: **một timezone cho toàn ứng dụng**, lấy từ cấu hình.
+ * M4 khai `today()` không tham số, vì bảng `workspaces` chưa có cột timezone và
+ * tầng hiện thực chạy tạm bằng **một** timezone cho cả ứng dụng. Ghi chú của M4
+ * nói rõ chữ ký sẽ nhận scope khi cột tồn tại; M5 thêm cột và đây là lần đổi đó.
  *
- * Cổng này là chỗ mà quyết định đó sẽ đổi. Khi `workspaces.timezone` tồn tại,
- * chữ ký thành `today(workspaceId)` và mọi chỗ gọi đã đi qua đây rồi.
+ * ## Vì sao **hai** method chứ không phải `today(workspaceId)`
+ *
+ * Vì hai nhóm chỗ gọi cầm hai định danh khác nhau, và cả hai đều đúng:
+ *
+ * - `GET /workspaces/:workspaceId/tasks` và mọi thứ cấp workspace cầm
+ *   `workspaceId`.
+ * - `GET /projects/:projectId/tasks`, `overview`, create/update/move task cầm
+ *   `projectId` — và **chỉ** `projectId`: chúng được authorize ở cấp project, và
+ *   bắt chúng tự tra workspace là bắt mỗi use case tự viết một đường đọc mà
+ *   chính cổng này sinh ra để giữ ở một chỗ.
+ *
+ * Ép tất cả về `today(workspaceId)` sẽ đẩy phép tra `project → workspace` ra
+ * ngoài, tới đúng những chỗ không nên biết nó — nên cổng nhận cả hai và tự biết
+ * đường đi từ mỗi cái tới timezone.
  */
 export interface WorkspaceClock {
-  /** `YYYY-MM-DD` theo timezone workspace. */
-  today(): string;
-}
-
-/** Đồng hồ thật: một timezone IANA từ cấu hình, đọc qua `Intl`. */
-export class ConfiguredWorkspaceClock implements WorkspaceClock {
-  readonly #timeZone: string;
-  readonly #now: () => Date;
-
-  constructor(timeZone: string, now: () => Date = () => new Date()) {
-    this.#timeZone = timeZone;
-    this.#now = now;
-  }
-
-  today(): string {
-    return toCalendarDate(this.#now(), this.#timeZone);
-  }
+  /** `YYYY-MM-DD` theo timezone của workspace. */
+  todayForWorkspace(workspaceId: string): Promise<string>;
+  /** `YYYY-MM-DD` theo timezone của workspace **chứa** project này. */
+  todayForProject(projectId: string): Promise<string>;
+  /**
+   * Chính tên timezone, không phải ngày.
+   *
+   * `overview` cần nó để quy `tasks.created_at` — một `timestamptz` — về **ngày
+   * lịch trong timezone workspace** trước khi so với cửa sổ. So bằng UTC sẽ đếm
+   * nhầm mọi task tạo trong bảy giờ đầu ngày ở GMT+7.
+   *
+   * Nó ở cùng cổng với `today*` vì cùng một nguồn sự thật; tách ra thành cổng
+   * thứ hai nghĩa là hai chỗ đọc `workspaces.timezone` và hai chỗ có thể trôi.
+   */
+  timeZoneForProject(projectId: string): Promise<string>;
 }
 
 /**
@@ -82,6 +94,22 @@ export function toCalendarDate(instant: Date, timeZone: string): string {
   return `${get("year")}-${get("month")}-${get("day")}`;
 }
 
+/**
+ * Một tên timezone có dùng được không?
+ *
+ * `Intl.DateTimeFormat` ném `RangeError` với tên lạ. Hỏi nó là hỏi **chính thứ
+ * sẽ đọc giá trị** — an toàn hơn một danh sách chép tay, thứ sẽ lệch khỏi bản
+ * tzdata của runtime ngay lần cập nhật đầu tiên.
+ */
+export function isValidTimeZone(timeZone: string): boolean {
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** Số ngày từ `from` tới `to`, cả hai là `YYYY-MM-DD`. */
 export function daysBetween(from: string, to: string): number {
   const MS_PER_DAY = 86_400_000;
@@ -90,6 +118,12 @@ export function daysBetween(from: string, to: string): number {
   const a = Date.parse(`${from}T00:00:00Z`);
   const b = Date.parse(`${to}T00:00:00Z`);
   return Math.round((b - a) / MS_PER_DAY);
+}
+
+/** Cộng `days` ngày lịch vào `date` (`YYYY-MM-DD`). */
+export function addDays(date: string, days: number): string {
+  const shifted = new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000);
+  return toCalendarDate(shifted, "UTC");
 }
 
 /**

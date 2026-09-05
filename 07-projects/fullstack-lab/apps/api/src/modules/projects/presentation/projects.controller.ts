@@ -1,3 +1,4 @@
+import type { KeyRing } from "../../../shared/security/key-ring.ts";
 import {
   Body,
   Controller,
@@ -64,7 +65,7 @@ export const PROJECT_TOKENS = {
 } as const;
 
 export interface ProjectHttpConfig {
-  csrfSecret: string;
+  csrfSecret: KeyRing;
 }
 
 const workspaceIdParamSchema = z.object({ workspaceId: z.uuid() }).strict();

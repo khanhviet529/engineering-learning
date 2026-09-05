@@ -1,3 +1,4 @@
+import type { KeyRing } from "../../shared/security/key-ring.ts";
 import { Module, type DynamicModule } from "@nestjs/common";
 import type { Database } from "../../shared/database/client.ts";
 import type { Provider } from "@nestjs/common";
@@ -27,7 +28,7 @@ export class WorkspacesModule {
     db: Database;
     authorization: AuthorizationService;
     config: WorkspaceHttpConfig;
-    cursorSecret: string;
+    cursorSecret: KeyRing;
     mailer: Mailer;
     limiter: RateLimiter;
     guards: Provider[];

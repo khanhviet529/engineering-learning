@@ -60,6 +60,18 @@ export function navItemsFor(context: NavContext): FbSidebarItem[] {
       active: pathname === projectsHref,
     });
 
+    // `MYT-01` là màn **cấp workspace nhưng không thuộc project nào**, nên nó
+    // đứng cạnh `Dự án` chứ không trong nhóm project. Không có capability
+    // riêng để gác: endpoint chỉ đòi membership workspace, và ai thấy được
+    // workspace này thì đã có nó.
+    items.push({
+      id: "my-tasks",
+      label: "Việc của tôi",
+      icon: "calendar-days",
+      href: `/viec-cua-toi?workspace=${workspaceId}`,
+      active: pathname === "/viec-cua-toi",
+    });
+
     if (can("workspace:member:manage", workspaceHolder)) {
       const href = `${projectsHref}/thanh-vien`;
       items.push({
@@ -84,6 +96,20 @@ export function navItemsFor(context: NavContext): FbSidebarItem[] {
   }
 
   if (project !== undefined) {
+    // `PRJ-04` chỉ đọc aggregate đã được authorize, nên nó mở cho cả ba vai
+    // trò project — cùng quyền với việc đọc task, vì đó chính là những task đó
+    // đã được đếm.
+    if (can("task:read", projectHolder)) {
+      const href = `/du-an/${project.id}/tong-quan`;
+      items.push({
+        id: "project-overview",
+        label: "Tổng quan",
+        icon: "gauge",
+        href,
+        active: pathname === href,
+      });
+    }
+
     // Đọc board là `project:read`, không phải `board-column:*`: Viewer thấy
     // bảng, chỉ không cấu hình được cột. Gắn mục nav vào quyền quản lý cột sẽ
     // giấu cả bảng khỏi hai trong ba vai trò.

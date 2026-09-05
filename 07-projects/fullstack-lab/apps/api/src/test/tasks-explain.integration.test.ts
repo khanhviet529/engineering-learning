@@ -36,8 +36,13 @@ interface PlanCheck {
 
 const checks: PlanCheck[] = [];
 
-/** Bảng EXPLAIN được ghi ra đây sau mỗi lượt chạy, để đưa vào báo cáo mốc. */
-const EXPLAIN_TABLE_PATH = "explain-m4.generated.md";
+/**
+ * Bảng EXPLAIN được ghi ra đây sau mỗi lượt chạy, để đưa vào báo cáo mốc.
+ *
+ * Tên không mang số mốc: file này đã phủ cả truy vấn của M4 lẫn truy vấn cắt
+ * ngang workspace của M5, và một cái tên gắn số mốc sẽ sai ngay ở mốc sau.
+ */
+const EXPLAIN_TABLE_PATH = "explain.generated.md";
 
 describeIfDb("EXPLAIN — index của M4 thật sự được dùng", () => {
   let handle: DatabaseHandle;
@@ -116,6 +121,35 @@ describeIfDb("EXPLAIN — index của M4 thật sự được dùng", () => {
           select p.id, u.id, 'editor'
           from projects p cross join users u
           where p.name like 'Explain M4 project %' and u.email like 'explain-m4-%'`);
+
+        /**
+         * Một actor **hẹp**: thành viên của đúng **một** project trong năm.
+         *
+         * Mọi user khác của seed thuộc tất cả project, và với một actor như thế
+         * thì truy vấn cấp workspace đọc gần như cả bảng — ở tỉ lệ đó `Seq Scan`
+         * thật sự **là** plan rẻ hơn, và phép đo không nói gì về index. Hình
+         * dạng thật của `MYT-01` là ngược lại: một người tham gia vài project
+         * trong một workspace có nhiều project.
+         *
+         * Đây là bài học đã lặp lại lần thứ ba trong file này: phép đo phải đo
+         * hình dạng của sản phẩm, không phải hình dạng của seed.
+         */
+        await tx.execute(sql`
+          insert into users (id, email, display_name, password_hash, email_verified_at)
+          values (gen_random_uuid(), 'explain-m4-narrow@example.test', 'Nguoi dung hep',
+                  '$argon2id$v=19$m=19456,t=2,p=1$explainseed$explainseedexplainseedexplainseed', now())`);
+
+        await tx.execute(sql`
+          insert into workspace_members (workspace_id, user_id, role)
+          select w.id, u.id, 'workspace_member'
+          from workspaces w cross join users u
+          where w.name = 'Explain M4 workspace' and u.email = 'explain-m4-narrow@example.test'`);
+
+        await tx.execute(sql`
+          insert into project_members (project_id, user_id, role)
+          select p.id, u.id, 'viewer'
+          from projects p cross join users u
+          where p.name = 'Explain M4 project 1' and u.email = 'explain-m4-narrow@example.test'`);
 
         await tx.execute(sql`
           insert into board_columns (id, project_id, name, position, is_terminal)
@@ -221,13 +255,15 @@ describeIfDb("EXPLAIN — index của M4 thật sự được dùng", () => {
           reviewer_id: string;
           creator_id: string;
           task_id: string;
+          narrow_id: string;
         }>(sql`
           select p.id as project_id,
                  (select id from board_columns where project_id = p.id order by position limit 1) as column_id,
                  (select assignee_id from tasks where project_id = p.id and assignee_id is not null limit 1) as assignee_id,
                  (select reviewer_id from tasks where project_id = p.id and reviewer_id is not null limit 1) as reviewer_id,
                  (select created_by_user_id from tasks where project_id = p.id limit 1) as creator_id,
-                 (select id from tasks where project_id = p.id order by position limit 1) as task_id
+                 (select id from tasks where project_id = p.id order by position limit 1) as task_id,
+                 (select id from users where email = 'explain-m4-narrow@example.test') as narrow_id
           from projects p where p.name = 'Explain M4 project 1'`);
 
         const probe = ids as {
@@ -237,6 +273,8 @@ describeIfDb("EXPLAIN — index của M4 thật sự được dùng", () => {
           reviewer_id: string;
           creator_id: string;
           task_id: string;
+          /** Actor chỉ thuộc một project — hình dạng thật của `MYT-01`. */
+          narrow_id: string;
         };
 
         /* ------------------------------- Đo ------------------------------- */
@@ -388,6 +426,40 @@ ${dueDesc}`,
               order by created_at desc nulls last, id desc nulls last limit 26`,
         );
         expectIndex(search, "tasks_search_idx", "search");
+
+        /**
+         * Truy vấn **cắt ngang nhiều project** — `GET /workspaces/:workspaceId/tasks`.
+         *
+         * Hình dạng khác hẳn list cấp project: điểm vào không còn là một
+         * `project_id` cố định mà là **membership của actor**. Với một actor
+         * thuộc vài project trong một workspace nhiều project, đường rẻ nhất là
+         * đi từ `project_members(user_id, project_id)` rồi mới tới task — và đó
+         * chính là index mà M2 dựng cho `GET /workspaces/:id/projects`.
+         *
+         * Điều phải đúng: **không** seq scan trên `tasks`, và membership là một
+         * phần của kế hoạch chứ không phải một bộ lọc chạy sau.
+         */
+        const workspaceScoped = await explain(
+          "Task cấp workspace (giao membership)",
+          "project_members",
+          sql`select t.id, t.title
+              from tasks t
+              join board_columns c on c.id = t.column_id and c.project_id = t.project_id
+              join users u on u.id = t.created_by_user_id
+              join projects p on p.id = t.project_id
+              join project_members pm on pm.project_id = t.project_id and pm.user_id = ${probe.narrow_id}
+              where p.workspace_id = (select workspace_id from projects where id = ${probe.project_id})
+              order by t.created_at desc nulls last, t.id desc nulls last
+              limit 26`,
+        );
+        expect(
+          workspaceScoped,
+          `task cấp workspace: rơi về seq scan trên tasks\n${workspaceScoped}`,
+        ).not.toMatch(/Seq Scan on tasks/);
+        expect(
+          workspaceScoped,
+          `task cấp workspace: membership không nằm trong plan\n${workspaceScoped}`,
+        ).toContain("project_members");
 
         const commentPage = await explain(
           "Comment của một task",

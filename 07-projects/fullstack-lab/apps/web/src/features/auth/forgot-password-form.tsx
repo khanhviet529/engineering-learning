@@ -4,6 +4,8 @@ import { useRef, useState } from "react";
 import { FbAlert, FbButtonPrimary, FbLink, FbTextField } from "@flowboard/ui";
 import { forgotPassword } from "../../lib/api.ts";
 import { Intent, type ApiFailure } from "../../lib/transport.ts";
+import { messageFor } from "../system/messages.ts";
+import { FORGOT_PASSWORD_ERROR } from "./messages.ts";
 
 /**
  * `AUTH-03` — quên mật khẩu.
@@ -46,7 +48,9 @@ export function ForgotPasswordForm() {
 
   return (
     <form onSubmit={handleSubmit} style={{ display: "grid", gap: "var(--fb-space-4)" }} noValidate>
-      {failure !== undefined && <FbAlert intent="error" title={failure.message} />}
+      {failure !== undefined && (
+        <FbAlert intent="error" title={messageFor(FORGOT_PASSWORD_ERROR, failure)} />
+      )}
 
       <FbTextField
         id="email"

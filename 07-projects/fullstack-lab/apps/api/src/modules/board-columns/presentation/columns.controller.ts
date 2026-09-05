@@ -1,3 +1,4 @@
+import type { KeyRing } from "../../../shared/security/key-ring.ts";
 import {
   Body,
   Controller,
@@ -51,7 +52,7 @@ export const COLUMN_TOKENS = {
 } as const;
 
 export interface ColumnHttpConfig {
-  csrfSecret: string;
+  csrfSecret: KeyRing;
 }
 
 const projectIdParamSchema = z.object({ projectId: z.uuid() }).strict();

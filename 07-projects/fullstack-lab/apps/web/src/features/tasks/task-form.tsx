@@ -20,6 +20,8 @@ import type {
 } from "@flowboard/contracts";
 import { Intent, fieldError, type ApiFailure } from "../../lib/transport.ts";
 import { toFailure } from "../../lib/query.tsx";
+import { messageFor } from "../system/messages.ts";
+import { TASK_SAVE_ERROR } from "./messages.ts";
 import { useCreateTask, useUpdateTask } from "./queries.ts";
 import { CATEGORY_OPTIONS, PRIORITY_OPTIONS } from "./task-labels.ts";
 
@@ -334,7 +336,7 @@ export function TaskFormPanel({
           failure.code !== "TASK_VERSION_CONFLICT" && (
             <FbAlert
               intent="error"
-              title={failure.message}
+              title={messageFor(TASK_SAVE_ERROR, failure)}
               description={`Mã tra cứu: ${failure.requestId}`}
             />
           )}

@@ -15,6 +15,8 @@ import type { PendingInvitation, WorkspaceRole } from "@flowboard/contracts";
 import { AsyncSection } from "../system/async-section.tsx";
 import { Intent } from "../../lib/transport.ts";
 import { toFailure } from "../../lib/query.tsx";
+import { messageFor } from "../system/messages.ts";
+import { INVITATION_REVOKE_ERROR } from "./messages.ts";
 import { useRevokeInvitation, useWorkspaceInvitations } from "./queries.ts";
 
 /**
@@ -174,7 +176,7 @@ function RevokeInvitationButton({
           {failure !== undefined && (
             <FbAlert
               intent="error"
-              title={failure.message}
+              title={messageFor(INVITATION_REVOKE_ERROR, failure)}
               description={`Mã tra cứu: ${failure.requestId}`}
             />
           )}

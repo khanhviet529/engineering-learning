@@ -18,6 +18,8 @@ import { FailureState, SystemState } from "../system/failure-state.tsx";
 import { can } from "../authorization/can.ts";
 import { Intent, fieldError } from "../../lib/transport.ts";
 import { toFailure } from "../../lib/query.tsx";
+import { messageFor } from "../system/messages.ts";
+import { WORKSPACE_INVITE_ERROR, WORKSPACE_MEMBER_REMOVE_ERROR } from "./messages.ts";
 import {
   useAddWorkspaceMember,
   useRemoveWorkspaceMember,
@@ -225,7 +227,7 @@ function RemoveMemberButton({ workspaceId, row }: { workspaceId: string; row: Me
             failure !== undefined && (
               <FbAlert
                 intent="error"
-                title={failure.message}
+                title={messageFor(WORKSPACE_MEMBER_REMOVE_ERROR, failure)}
                 description={`Mã tra cứu: ${failure.requestId}`}
               />
             )
@@ -319,7 +321,7 @@ function AddWorkspaceMemberDialog({
         {failure !== undefined && failure.code !== "VALIDATION_FAILED" && (
           <FbAlert
             intent="error"
-            title={failure.message}
+            title={messageFor(WORKSPACE_INVITE_ERROR, failure)}
             description={`Mã tra cứu: ${failure.requestId}`}
           />
         )}

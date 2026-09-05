@@ -6,6 +6,8 @@ import { FbAlert, FbButtonPrimary, FbButtonSecondary, FbModal, FbTextField } fro
 import { Intent } from "../../lib/transport.ts";
 import { fieldError } from "../../lib/transport.ts";
 import { toFailure } from "../../lib/query.tsx";
+import { messageFor } from "../system/messages.ts";
+import { WORKSPACE_CREATE_ERROR } from "./messages.ts";
 import { useCreateWorkspace } from "./queries.ts";
 
 /**
@@ -91,7 +93,7 @@ export function CreateWorkspaceDialog({ onClose }: { onClose: () => void }) {
         {failure !== undefined && failure.code !== "VALIDATION_FAILED" && (
           <FbAlert
             intent="error"
-            title={failure.message}
+            title={messageFor(WORKSPACE_CREATE_ERROR, failure)}
             description={`Mã tra cứu: ${failure.requestId}`}
           />
         )}

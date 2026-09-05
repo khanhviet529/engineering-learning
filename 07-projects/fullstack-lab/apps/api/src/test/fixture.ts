@@ -22,6 +22,7 @@ import {
 import { ErrorFilter } from "../shared/errors/error.filter.ts";
 import { RateLimiter } from "../shared/http/rate-limit.ts";
 import { deriveCsrfToken } from "../shared/http/csrf.ts";
+import { KeyRing } from "../shared/security/key-ring.ts";
 import { SESSION_COOKIE_NAME } from "../shared/http/session-cookie.ts";
 import { generateRequestId, normalizeRequestId } from "../shared/observability/request-id.ts";
 import { buildAuthorizationWiring } from "../shared/authorization/index.ts";
@@ -41,6 +42,7 @@ import {
   TaskProjectAssigneeCheck,
 } from "../modules/tasks/infrastructure/port-adapters.ts";
 import type { WorkspaceClock } from "../modules/tasks/domain/due-state.ts";
+import { DatabaseWorkspaceClock } from "../modules/tasks/infrastructure/workspace-clock.ts";
 import { BoardColumnsModule } from "../modules/board-columns/board-columns.module.ts";
 import { ColumnRepository } from "../modules/board-columns/infrastructure/column-repository.ts";
 import { BoardColumnsProjectQuery } from "../modules/board-columns/infrastructure/project-columns-adapter.ts";
@@ -127,19 +129,41 @@ export interface Fixture {
    */
   setColumnHasTasks: (value: boolean) => void;
   /**
-   * Ngày "hôm nay" mà server dùng để suy `dueState`.
+   * Đẩy đồng hồ của server tới một **ngày** (giữa trưa UTC của ngày đó).
    *
-   * Đồng hồ của fixture **đứng yên** cho tới khi test đẩy nó: `dueState` phải
-   * theo timezone workspace, và một test đọc `new Date()` sẽ cho kết quả khác
-   * nhau giữa CI ở UTC và máy lập trình viên ở GMT+7 — một khác biệt mà chính
-   * test không nhìn thấy.
+   * Đồng hồ của fixture đứng yên cho tới khi test đẩy nó: `dueState` phải theo
+   * timezone workspace, và một test đọc `new Date()` sẽ cho kết quả khác nhau
+   * giữa CI ở UTC và máy lập trình viên ở GMT+7 — một khác biệt mà chính test
+   * không nhìn thấy.
    */
   setToday: (date: string) => void;
-  today: () => string;
+  /** Đẩy tới một **instant** cụ thể — dùng khi test cần biên nửa đêm. */
+  setInstant: (instant: Date) => void;
+
+  /**
+   * Hai bộ key mà app đang chạy với.
+   *
+   * Test xoay key đọc `previousKeyHits` để khẳng định key cũ **thật sự** là thứ
+   * cứu request — không có nó, một test gửi token cũ và nhận `200` không phân
+   * biệt được "key cũ được chấp nhận" với "phép kiểm không chạy".
+   */
+  csrfKeys: KeyRing;
+  cursorKeys: KeyRing;
 }
 
 const CSRF_SECRET = "c".repeat(32);
 const SESSION_SECRET = "s".repeat(32);
+
+/**
+ * Key của **thế hệ trước**, chỉ dùng cho test xoay key.
+ *
+ * Fixture luôn dựng bộ key ở trạng thái "đang xoay". Đó không phải để tiện: một
+ * cửa sổ xoay chỉ chứng minh được điều gì khi mọi test khác **vẫn xanh** trong
+ * lúc nó mở — nếu chỉ bật lúc cần thì không ai biết nó có làm hỏng đường thường
+ * hay không.
+ */
+export const CSRF_SECRET_PREVIOUS = "p".repeat(32);
+export const SESSION_SECRET_PREVIOUS = "q".repeat(32);
 
 /**
  * Mailer của test: không gửi gì ra ngoài, nhưng **ghi lại** thư mời.
@@ -178,16 +202,39 @@ class SilentMailer implements Mailer {
 }
 
 /**
- * Đồng hồ workspace đứng yên, đẩy được từ test.
+ * Đồng hồ workspace **đứng yên ở một instant**, đẩy được từ test.
  *
- * `dueState` là thứ **duy nhất** trong hệ thống phụ thuộc "hôm nay", nên nó là
- * thứ duy nhất cần một đồng hồ giả — và nó cần thật: nếu không, một test khẳng
- * định "quá hạn" sẽ tự hỏng vào đúng ngày mà `due_date` cứng trong test trôi qua.
+ * ## Vì sao đóng băng một *instant* chứ không đóng băng một *ngày*
+ *
+ * Ở M4 lớp này trả thẳng một chuỗi `YYYY-MM-DD`, nên timezone không tham gia gì
+ * cả — đủ khi mọi workspace dùng chung một timezone. Từ M5, `workspaces.timezone`
+ * tồn tại và hợp đồng nói hai workspace ở hai múi giờ phải thấy `dueState` khác
+ * nhau cho **cùng** một task. Một đồng hồ trả chuỗi cứng không diễn đạt được
+ * điều đó: nó cho cùng một ngày ở mọi timezone, và test sẽ xanh mà không kiểm
+ * được gì.
+ *
+ * Nên nó đóng băng một **instant** và quy đổi qua timezone thật của workspace,
+ * đúng cách `DatabaseWorkspaceClock` làm. Phần khác duy nhất là nguồn thời gian.
  */
 class FrozenClock implements WorkspaceClock {
-  value = "2026-09-05";
-  today(): string {
-    return this.value;
+  /** Instant đứng yên. Mặc định là giữa trưa UTC để không nằm sát biên ngày. */
+  instant = new Date("2026-09-05T12:00:00Z");
+  readonly #real: DatabaseWorkspaceClock;
+
+  constructor(db: Database) {
+    this.#real = new DatabaseWorkspaceClock(db, () => this.instant);
+  }
+
+  async todayForWorkspace(workspaceId: string): Promise<string> {
+    return await this.#real.todayForWorkspace(workspaceId);
+  }
+
+  async todayForProject(projectId: string): Promise<string> {
+    return await this.#real.todayForProject(projectId);
+  }
+
+  async timeZoneForProject(projectId: string): Promise<string> {
+    return await this.#real.timeZoneForProject(projectId);
   }
 }
 
@@ -238,6 +285,15 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
   const mailer = new SilentMailer();
   const limiter = new RateLimiter();
 
+  const csrfKeys = new KeyRing("CSRF_SECRET", {
+    current: CSRF_SECRET,
+    previous: CSRF_SECRET_PREVIOUS,
+  });
+  const cursorKeys = new KeyRing("SESSION_SECRET", {
+    current: SESSION_SECRET,
+    previous: SESSION_SECRET_PREVIOUS,
+  });
+
   /** Công tắc của M3, giữ lại để test "archive cột còn task" khỏi phải tạo task. */
   let columnHasTasksOverride = false;
 
@@ -245,7 +301,7 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
     db,
     repository: new AuthRepository(db),
     mailer,
-    csrfSecret: CSRF_SECRET,
+    csrfSecret: csrfKeys,
   });
 
   /**
@@ -261,7 +317,7 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
   const columnRepository = new ColumnRepository(db);
   const taskRepository = new TaskRepository(db);
   const activityQueries = new ActivityQueries(db);
-  const clock = new FrozenClock();
+  const clock = new FrozenClock(db);
   const assigneeCheck = new ControllableAssigneeCheck();
   const realAssigneeCheck = new TaskProjectAssigneeCheck(taskRepository);
   const emptinessCheck = new TaskColumnEmptinessCheck(taskRepository);
@@ -283,7 +339,7 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
         useCases: authUseCases,
         config: {
           nodeEnv: "test",
-          csrfSecret: CSRF_SECRET,
+          csrfSecret: csrfKeys,
           cookieSecure: true,
           cookieMaxAgeSeconds: 3600,
         },
@@ -291,8 +347,8 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
       WorkspacesModule.register({
         db,
         authorization: wiring.authorization,
-        config: { csrfSecret: CSRF_SECRET },
-        cursorSecret: SESSION_SECRET,
+        config: { csrfSecret: csrfKeys },
+        cursorSecret: cursorKeys,
         mailer,
         limiter,
         guards: wiring.providers,
@@ -308,8 +364,8 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
         },
         activity,
         columns: new BoardColumnsProjectQuery(columnRepository),
-        config: { csrfSecret: CSRF_SECRET },
-        cursorSecret: SESSION_SECRET,
+        config: { csrfSecret: csrfKeys },
+        cursorSecret: cursorKeys,
         guards: wiring.providers,
       }),
       BoardColumnsModule.register({
@@ -320,7 +376,7 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
           hasTasks: async (input) =>
             columnHasTasksOverride || (await emptinessCheck.hasTasks(input)),
         },
-        config: { csrfSecret: CSRF_SECRET },
+        config: { csrfSecret: csrfKeys },
         guards: wiring.providers,
       }),
       TasksModule.register({
@@ -331,8 +387,8 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
         activity,
         activityQueries,
         clock,
-        config: { csrfSecret: CSRF_SECRET },
-        cursorSecret: SESSION_SECRET,
+        config: { csrfSecret: csrfKeys },
+        cursorSecret: cursorKeys,
         guards: wiring.providers,
       }),
     ],
@@ -481,9 +537,13 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
       columnHasTasksOverride = value;
     },
     setToday: (date: string) => {
-      clock.value = date;
+      clock.instant = new Date(`${date}T12:00:00Z`);
     },
-    today: () => clock.value,
+    setInstant: (instant: Date) => {
+      clock.instant = instant;
+    },
+    csrfKeys,
+    cursorKeys,
     cleanup: async () => {
       await app.close();
 

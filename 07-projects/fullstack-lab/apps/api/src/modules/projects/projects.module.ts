@@ -1,3 +1,4 @@
+import type { KeyRing } from "../../shared/security/key-ring.ts";
 import { Module, type DynamicModule } from "@nestjs/common";
 import type { Database } from "../../shared/database/client.ts";
 import type { Provider } from "@nestjs/common";
@@ -41,7 +42,7 @@ export class ProjectsModule {
     activity: ActivityRecorder;
     columns: ProjectColumnsQuery;
     config: ProjectHttpConfig;
-    cursorSecret: string;
+    cursorSecret: KeyRing;
     guards: Provider[];
   }): DynamicModule {
     const useCases = new ProjectUseCases({

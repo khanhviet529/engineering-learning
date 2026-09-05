@@ -18,6 +18,8 @@ import { FailureState } from "../system/failure-state.tsx";
 import { can } from "../authorization/can.ts";
 import { Intent } from "../../lib/transport.ts";
 import { toFailure } from "../../lib/query.tsx";
+import { messageFor } from "../system/messages.ts";
+import { COMMENT_ERROR } from "./messages.ts";
 import { useCreateComment, useTaskActivity, useTaskDetail } from "./queries.ts";
 import { renderCommentBody, safeLinkHref } from "./markdown.tsx";
 import {
@@ -374,7 +376,7 @@ function CommentsPanel({
           {failure !== undefined && (
             <FbAlert
               intent="error"
-              title={failure.message}
+              title={messageFor(COMMENT_ERROR, failure)}
               description={`Mã tra cứu: ${failure.requestId}`}
             />
           )}

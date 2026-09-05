@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   useInfiniteQuery,
   useMutation,
@@ -13,23 +14,31 @@ import {
   type Comment,
   type CreateTaskRequest,
   type MoveTaskRequest,
+  type ProjectOverview,
   type Task,
   type UpdateTaskRequest,
 } from "@flowboard/contracts";
 import type { ApiFailure, Intent } from "../../lib/transport.ts";
-import { toFailure, unwrap } from "../../lib/query.tsx";
+import { ApiError, toFailure, unwrap } from "../../lib/query.tsx";
 import {
   createComment,
   createTask,
   listTaskActivity,
   listTasks,
+  listWorkspaceTasks,
   moveTask,
+  readProjectOverview,
   readTask,
   updateTask,
 } from "../../lib/workspace-api.ts";
 import { projectKeys } from "../projects/queries.ts";
 import { applyLedger, applyLedgerToTask, rememberTask } from "./task-ledger.ts";
-import { filterFingerprint, taskQueryParams, type BoardFilters } from "./task-filters.ts";
+import {
+  filterFingerprint,
+  taskQueryParams,
+  workspaceTaskQueryParams,
+  type BoardFilters,
+} from "./task-filters.ts";
 
 /**
  * Query key và mutation của feature Task.
@@ -236,4 +245,115 @@ export function useCreateComment(taskId: string) {
 /** Dùng khi capability của project có thể đã đổi cùng một mutation task. */
 export function invalidateProjectDetail(client: QueryClient, projectId: string): void {
   void client.invalidateQueries({ queryKey: projectKeys.detail(projectId) });
+}
+
+// ---------------------------------------------------------------- M5 · MYT-01
+
+export const workspaceTaskKeys = {
+  all: ["workspace-tasks"] as const,
+  list: (workspaceId: string, filters: BoardFilters) =>
+    [...workspaceTaskKeys.all, workspaceId, filterFingerprint(filters)] as const,
+};
+
+export interface MyTasksPage {
+  tasks: Task[];
+  /** Bảng tra cứu tên project, gộp từ mọi trang đã nạp. */
+  projectName: (projectId: string) => string | undefined;
+  loading: boolean;
+  loadingMore: boolean;
+  hasMore: boolean;
+  failure: ApiFailure | undefined;
+  /** `true` khi cursor cũ chết vì phạm vi đổi; danh sách đã tự về trang đầu. */
+  scopeChanged: boolean;
+  loadMore: () => void;
+  retry: () => void;
+}
+
+/**
+ * `MYT-01` — task được giao cho actor, cắt ngang mọi project trong workspace.
+ *
+ * Hai điều hợp đồng buộc, và cả hai đều nằm ở đây:
+ *
+ * 1. **`projects` là bảng tra cứu.** Tên project không lặp vào từng task, nên
+ *    hook gộp bảng của mọi trang đã nạp thành một `Map` và trả về một hàm tra.
+ * 2. **Cursor bind cả phạm vi actor nhìn thấy được.** Membership đổi giữa hai
+ *    trang thì cursor cũ trả `400` — và đó **không** phải một lỗi hệ thống. Nó
+ *    nghĩa là danh sách đã đổi dưới chân người dùng. Hook bỏ các trang đã nạp,
+ *    quay về trang đầu với đúng filter canonical, và bật `scopeChanged` để màn
+ *    hình nói ra điều đó.
+ */
+export function useMyTasks(workspaceId: string, filters: BoardFilters): MyTasksPage {
+  const client = useQueryClient();
+  const [scopeChanged, setScopeChanged] = useState(false);
+  const queryKey = workspaceTaskKeys.list(workspaceId, filters);
+
+  const query = useInfiniteQuery({
+    queryKey,
+    initialPageParam: null as string | null,
+    queryFn: async ({ pageParam }) => {
+      const params = workspaceTaskQueryParams(filters, PAGE_LIMIT_DEFAULT, pageParam ?? undefined);
+      const result = await listWorkspaceTasks(workspaceId, params);
+
+      if (!result.ok) {
+        // Cursor chết vì phạm vi đổi: `400` **chỉ** khi đang xin trang tiếp.
+        // Trang đầu không mang cursor nên một `400` ở đó là chuyện khác hẳn —
+        // gộp hai ca lại sẽ biến một filter sai thành "danh sách đã đổi".
+        if (result.code === "VALIDATION_FAILED" && pageParam !== null) {
+          setScopeChanged(true);
+          client.setQueryData(queryKey, undefined);
+          return { items: [], projects: [], page: { nextCursor: null, hasMore: false } };
+        }
+        throw new ApiError(result);
+      }
+      return { ...result.data, items: applyLedger(client, result.data.items) };
+    },
+    getNextPageParam: (last) => last.page.nextCursor,
+    enabled: workspaceId !== "",
+  });
+
+  const pages = query.data?.pages ?? [];
+  const names = new Map<string, string>();
+  for (const page of pages) {
+    for (const project of page.projects) names.set(project.id, project.name);
+  }
+
+  return {
+    tasks: pages.flatMap((page) => page.items),
+    projectName: (projectId) => names.get(projectId),
+    loading: query.isPending,
+    loadingMore: query.isFetchingNextPage,
+    hasMore: query.hasNextPage,
+    failure: toFailure(query.error),
+    scopeChanged,
+    loadMore: () => void query.fetchNextPage(),
+    retry: () => {
+      setScopeChanged(false);
+      void query.refetch();
+    },
+  };
+}
+
+// ---------------------------------------------------------------- M5 · PRJ-04
+
+export const overviewKeys = {
+  detail: (projectId: string) => ["project-overview", projectId] as const,
+};
+
+export function useProjectOverview(projectId: string): {
+  overview: ProjectOverview | undefined;
+  loading: boolean;
+  failure: ApiFailure | undefined;
+  refetch: () => void;
+} {
+  const query = useQuery({
+    queryKey: overviewKeys.detail(projectId),
+    queryFn: () => unwrap(readProjectOverview(projectId)),
+  });
+
+  return {
+    overview: query.data,
+    loading: query.isPending,
+    failure: toFailure(query.error),
+    refetch: () => void query.refetch(),
+  };
 }
