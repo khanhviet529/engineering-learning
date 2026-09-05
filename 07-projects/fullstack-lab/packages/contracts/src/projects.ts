@@ -127,9 +127,14 @@ export const projectOverviewSchema = z
     /** Cùng `WorkspaceClock` và cùng `DUE_SOON_WINDOW_DAYS` với list task. */
     dueStates: z
       .object({
+        // **Năm** khoá, đúng bằng năm thành viên `DUE_STATES`. Bản đầu chỉ có
+        // bốn và gộp `scheduled` vào `none`, nên `none` ở đây không bằng số
+        // task lọc `dueState=none` — cùng một tên mang hai nghĩa ở hai
+        // endpoint. Tổng năm khoá bằng `totals.tasks`.
         overdue: z.int().nonnegative(),
         dueToday: z.int().nonnegative(),
         dueSoon: z.int().nonnegative(),
+        scheduled: z.int().nonnegative(),
         none: z.int().nonnegative(),
       })
       .strict(),

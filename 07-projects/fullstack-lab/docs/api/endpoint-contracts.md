@@ -222,9 +222,11 @@ Yêu cầu `task:update` và khi đổi `assigneeId` thì `task:assign`, CSRF v�
 
 ### Timezone và cửa sổ `due_soon`
 
-`dueState` được suy theo **timezone của workspace**, nhưng bảng `workspaces` **chưa có cột timezone** — năm chỗ trong tài liệu nói tới nó và không chỗ nào tạo nó. Backend phát hiện khi dựng M4 và **không tự thêm cột**, vì thêm cột là tự phát minh hợp đồng.
+`dueState` được suy theo **timezone của workspace**, và `workspaces.timezone` tồn tại từ M5 (`text NOT NULL DEFAULT 'Asia/Ho_Chi_Minh'`). Biến `APP_TIMEZONE` đã bị bỏ.
 
-Cho tới khi cột đó tồn tại: một port `WorkspaceClock` cộng biến `APP_TIMEZONE` (optional, mặc định `Asia/Ho_Chi_Minh` — đúng thứ artifact thiết kế đang hiển thị). Mọi chỗ suy `dueState` đã đi qua cổng đó, nên khi cột thật xuất hiện thì chữ ký đổi thành `today(workspaceId)` và không use case nào phải sửa. Cùng khuôn mẫu với `ColumnEmptinessCheck` và `ProjectAssigneeCheck`: một port cho phép viết luật đúng ở mốc này trong khi thứ hiện thực nó còn chưa tồn tại.
+Mọi chỗ suy `dueState` đi qua port `WorkspaceClock`. Port đó có **ba** method — `todayForWorkspace`, `todayForProject`, `timeZoneForProject` — chứ không phải một `today(workspaceId)` như bản kế hoạch ban đầu nói: `overview`, list task cấp project và create/update/move đều cầm **`projectId` và chỉ `projectId`**, vì chúng được authorize ở cấp project. Ép tất cả về `workspaceId` sẽ đẩy phép tra project → workspace ra ngoài, tới đúng những use case mà cổng này sinh ra để chúng khỏi phải biết. Thứ phải rộng ra là chữ ký của port, không phải chỗ gọi.
+
+Timezone được **cache theo tiến trình**: đổi `workspaces.timezone` chỉ có hiệu lực sau khi restart. MVP không có endpoint đổi nó, nên đánh đổi này chưa chạm ai; khi có endpoint đó thì cache phải bị vô hiệu hoặc bỏ.
 
 Cửa sổ `due_soon` là **3 ngày** (`DUE_SOON_WINDOW_DAYS`). Không tài liệu nào từng định nghĩa nó; con số này được chọn ở M4 và ghi lại ở đây để nó có đúng một nguồn.
 
@@ -283,7 +285,7 @@ Yêu cầu `task:read` — cùng quyền với việc đọc task, vì đây ch�
   "byColumn": [{ "columnId": "…", "name": "Chờ thực hiện", "isTerminal": false, "taskCount": 6 }],
   "byAssignee": [{ "user": { "id": "…", "displayName": "Minh Nguyen" }, "taskCount": 8 }],
   "unassignedCount": 2,
-  "dueStates": { "overdue": 2, "dueToday": 1, "dueSoon": 3, "none": 18 }
+  "dueStates": { "overdue": 2, "dueToday": 1, "dueSoon": 3, "scheduled": 12, "none": 6 }
 }
 ```
 
@@ -293,7 +295,13 @@ Yêu cầu `task:read` — cùng quyền với việc đọc task, vì đây ch�
 
 `unassignedCount` tách riêng thay vì một mục `null` trong `byAssignee`: một danh sách người mà một phần tử không phải người là chỗ mọi client đều phải viết một nhánh đặc biệt.
 
+`dueStates` có **năm** khoá, đúng bằng năm thành viên của `DUE_STATES`: `overdue`, `dueToday`, `dueSoon`, `scheduled`, `none`. Bản đầu của hợp đồng này chỉ có bốn và gộp `scheduled` vào `none` — backend phát hiện khi dựng, vì `dueStates.none` khi đó **không** bằng số task lọc `dueState=none`, tức là cùng một tên mang hai nghĩa ở hai endpoint. Tổng năm khoá bằng `totals.tasks`.
+
 `dueStates` dùng đúng `WorkspaceClock` và cùng cửa sổ `DUE_SOON_WINDOW_DAYS` như `GET /projects/:projectId/tasks`. Hai chỗ suy `dueState` bằng hai đường là hai kết quả sẽ lệch lúc nửa đêm.
+
+**Cửa sổ mặc định là tuần hiện tại, bắt đầu thứ Hai** (ISO-8601, và cũng là quy ước lịch Việt Nam). Client gửi **một** đầu thì server suy đầu còn lại bằng bảy ngày, để `window` luôn là một khoảng đóng — response echo lại nó, và một đầu rỗng sẽ buộc client tự đoán server đã tính tới đâu.
+
+`byAssignee` sắp **tất định**: nhiều việc trước, rồi tên hiển thị, rồi `id`. Không định nghĩa thứ tự thì hai lần gọi liên tiếp có thể đảo hai người cùng số việc, và người đọc tưởng có gì đó vừa đổi.
 
 Endpoint không phân trang: kết quả bị chặn bởi số column và số member của **một** project, cả hai đều nhỏ và đều đã có giới hạn ở tầng khác. Nó cũng không có side effect và không ghi activity.
 

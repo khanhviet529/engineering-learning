@@ -66,7 +66,19 @@ Cùng một tên biến có **hai giá trị đúng khác nhau**, tuỳ process 
 Cơ chế đọc config ở trên là đúng hình cho production. Cách **giữ secret** thì chưa, và ghi lại ở đây để không bị phát hiện lúc deploy — xem bảng nợ ở [kế hoạch triển khai](../implementation-plan.md):
 
 1. `SESSION_SECRET`, `CSRF_SECRET` và mật khẩu database đang là **plaintext trong `.env` trên đĩa**. `.gitignore` chặn được việc commit, không chặn được việc file tồn tại và bị đọc.
-2. **Không có cửa sổ rotate.** Đổi `SESSION_SECRET` là vô hiệu mọi session đang mở, vì tất cả đang ký bằng key cũ. Rotate được mà không đá ai ra cần **hai** key trong một khoảng thời gian: ký bằng key mới, verify bằng cả hai. Đó là thiết kế, không phải cấu hình.
+2. ~~Không có cửa sổ rotate.~~ **Đã có từ 05/09/2026** — `KeyRing` với `SESSION_SECRET_PREVIOUS` và `CSRF_SECRET_PREVIOUS`: ký bằng key hiện hành, verify bằng cả hai.
+
+   Bản trước của mục này nói sai bài toán, và cách nó sai đáng giữ lại: *"đổi `SESSION_SECRET` là vô hiệu mọi session"*. Không đúng — session token là `randomBytes(32)`, **không ký bằng gì**, database giữ SHA-256 của nó, nên không key nào vô hiệu được nó. Ba secret ký ba thứ khác nhau:
+
+   | Secret | Ký gì | Xoay thì sao |
+   |---|---|---|
+   | `SESSION_SECRET` (tên là di sản) | **Cursor phân trang** | Cursor đang mở chết → `400`, client về trang đầu |
+   | `CSRF_SECRET` | CSRF token (HMAC của session token) | **Mọi mutation từ tab đang mở hỏng `403`** |
+   | — | Session token | Không ký gì cả |
+
+   Đường thật sự đau là `CSRF_SECRET`. Một thiết kế dựa trên tiền đề sai sẽ giải một bài toán không tồn tại và bỏ qua bài toán có thật.
+
+   Key cũ còn hiệu lực đúng bằng khoảng thời gian người vận hành để biến `*_PREVIOUS` lại — **không cơ chế nào tự đóng cửa sổ**. `KeyRing` đếm số lần key cũ cứu một request, để trả lời đúng câu khiến người ta do dự: *đóng cửa sổ được chưa?* Bằng không trong vài giờ nghĩa là được.
 3. **Chưa có kiểm tự động nào** khẳng định `start` không nạp file. Hôm nay nó đúng vì có người viết đúng; một lint rule hoặc một test đọc `package.json` sẽ làm nó đúng vì không thể sai.
 
 Template environment chỉ liệt kê **tên**, mô tả, required/optional và safe example không-secret. API phải đặt cookie `Secure` ngoài local development; local relaxation không được leak sang build/deploy production. CORS/origin allowlist, cookie domain và public URL dùng config được validate, không lấy từ client request.
