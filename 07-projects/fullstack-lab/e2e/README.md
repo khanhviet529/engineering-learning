@@ -22,6 +22,10 @@ pnpm --filter @flowboard/e2e test
 Mailpit ở `8026`, PostgreSQL ở `5433`. Ghi đè bằng `E2E_WEB_URL`, `E2E_API_URL`,
 `E2E_MAILPIT_URL`, `E2E_POSTGRES_CONTAINER` khi topology khác.
 
+`E2E_SIGN_UP_BUDGET` (mặc định `4`) phải đi **cùng cặp** với `RATE_LIMIT_OVERRIDES` của server.
+Mặc định khớp bảng production — `auth.sign-up` là 5 lần mỗi phút mỗi IP — nên chạy cục bộ không cần
+đặt gì. Job CI nới cả hai lên `200`; nới một phía thôi thì phía kia vẫn là nút thắt.
+
 ## Vì sao nó **không** nằm trong `pnpm verify`
 
 `verify` phải chạy được trên một máy không có Docker. Một cổng đòi hạ tầng sẽ bị tắt ngay lần đầu
@@ -48,6 +52,9 @@ Chỗ đúng của nó là một job CI riêng, sau `integration`. Xem mục đ�
 - **Đăng ký được giữ nhịp.** `POST /auth/sign-up` giới hạn 5 lần mỗi phút mỗi IP; bộ này cần khoảng
   mười tài khoản. `paceSignUp` mô phỏng đúng xô token đó và chờ **trước** khi gửi, thay vì bấm lại
   rồi tiêu thêm token.
+- **Không có lệnh nào chặn vô hạn.** `src/db.ts` gọi `docker exec` bằng `execFileSync`, thứ chặn cả
+  event loop của Node — một Docker daemon kẹt sẽ treo luôn đồng hồ của Playwright, và spec đứng im
+  thay vì đỏ. Vì vậy lệnh đó có `timeout` và một câu ném đọc được.
 - **Lối tắt phải có chú thích.** Chỗ nào không đi qua giao diện được thì hàm đó nói ra lý do ngay
   tại chỗ. Xem `lookupUserId` trong `specs/golden-path.spec.ts`.
 

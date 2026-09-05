@@ -69,6 +69,29 @@ export const PRIORITY_OPTIONS = TASK_PRIORITIES.map((value) => ({
 }));
 
 /**
+ * Thu hẹp một `string` của DOM về đúng enum của hợp đồng.
+ *
+ * Một `<select>` luôn trả `string`, còn `CreateTaskRequest.category` là
+ * `TaskCategory | null`. Khoảng cách đó từng được lấp bằng `as never` — và
+ * `as never` **gán được vào mọi kiểu**, nên nó không thu hẹp gì cả: nó tắt phép
+ * kiểm ở đúng chỗ duy nhất phép kiểm có việc để làm. Chính chỗ đó đã giữ im
+ * một lỗi thật khi hợp đồng còn nhận `null` cho `priority`.
+ *
+ * Hai hàm dưới đây là **type predicate**, nên chúng thu hẹp thật: đằng sau
+ * `if`, TypeScript biết giá trị thuộc enum, và một giá trị lạ đi tiếp bằng
+ * nhánh `else` mà tác giả phải viết ra. Danh sách so sánh lấy thẳng từ
+ * `@flowboard/contracts`, cùng nguồn đã sinh ra hai bảng tuỳ chọn ở trên —
+ * thêm một giá trị vào enum thì cả ba chỗ đi cùng nhau.
+ */
+export function isTaskCategory(value: string): value is TaskCategory {
+  return TASK_CATEGORIES.some((candidate) => candidate === value);
+}
+
+export function isTaskPriority(value: string): value is TaskPriority {
+  return TASK_PRIORITIES.some((candidate) => candidate === value);
+}
+
+/**
  * Icon của một dòng hoạt động.
  *
  * `action` là chuỗi tự do trong hợp đồng (`activitySchema.action` là

@@ -30,3 +30,15 @@ export const MAILPIT_URL = fromEnv("E2E_MAILPIT_URL", "http://localhost:8026");
 export const POSTGRES_CONTAINER = fromEnv("E2E_POSTGRES_CONTAINER", "flowboard-postgres-1");
 export const POSTGRES_USER = fromEnv("E2E_POSTGRES_USER", "flowboard");
 export const POSTGRES_DB = fromEnv("E2E_POSTGRES_DB", "flowboard");
+
+/**
+ * Ngân sách đăng ký mà bộ kiểm tự cho phép mình tiêu trong một cửa sổ.
+ *
+ * Mặc định `4` khớp bảng production của server (`auth.sign-up`: 5 lần mỗi 60
+ * giây mỗi IP), chừa một token cho người khác. CI nới **cả hai phía cùng lúc**:
+ * `RATE_LIMIT_OVERRIDES` cho server và biến này cho client. Nới một phía thôi
+ * thì phía kia vẫn là nút thắt — và đó chính là lỗi làm lượt chạy M5.5 mất
+ * mười bảy phút.
+ */
+export const SIGN_UP_BUDGET = Number.parseInt(fromEnv("E2E_SIGN_UP_BUDGET", "4"), 10);
+export const SIGN_UP_WINDOW_MS = Number.parseInt(fromEnv("E2E_SIGN_UP_WINDOW_MS", "60000"), 10);

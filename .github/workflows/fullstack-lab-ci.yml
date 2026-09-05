@@ -142,6 +142,95 @@ jobs:
       - name: Integration test
         run: pnpm --filter @flowboard/api test
 
+  e2e:
+    name: E2E qua browser trên stack Compose
+    runs-on: ubuntu-latest
+    # `needs` là một quyết định về **thứ tự thông tin**, không phải về tốc độ.
+    # E2E là cổng đắt nhất ở đây: nó dựng bốn container rồi lái một trình duyệt
+    # thật. Chạy nó khi format, lint, typecheck hay integration còn đỏ chỉ tạo
+    # thêm một màu đỏ thứ hai cho cùng một nguyên nhân, và người đọc phải đoán
+    # cái nào là gốc.
+    needs: [quality, integration]
+    # Bộ này **không** nằm trong `pnpm verify`: `verify` phải chạy được trên một
+    # máy không có Docker, và một cổng đòi hạ tầng sẽ bị tắt ở lần đầu nó cản
+    # đường ai đó. Gốc `package.json` loại nó tường minh
+    # (`--filter=!@flowboard/e2e`), còn `lint` và `typecheck` vẫn phủ nó.
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: 07-projects/fullstack-lab/.nvmrc
+
+      - run: corepack enable
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build workspace package trước, vì bước migration resolve qua `dist`
+        # `drizzle-kit migrate` nạp `apps/api/drizzle.config.ts`, và từ đó là
+        # schema của `apps/api` — cây import ấy chạm `@flowboard/contracts`, một
+        # package trỏ `main` vào `./dist`. Trên runner sạch `dist` không tồn
+        # tại. Đây là **lần thứ tư** cùng một nguyên nhân trong dự án này
+        # (`web.Dockerfile`, job `integration`, job `quality`), nên nó được viết
+        # ra thay vì được hy vọng.
+        run: pnpm --filter "./packages/**" build
+
+      - name: Chuẩn bị `.env` cho Compose
+        # `.env.example` là bản mẫu được version; giá trị thật không nằm trong
+        # Git. Ở CI, secret là chuỗi dùng một lần cho một stack sống vài phút
+        # rồi biến mất cùng runner.
+        #
+        # `RATE_LIMIT_OVERRIDES` nới **đúng hai route đã đặt tên**, và chỉ ở
+        # đây. Không có giá trị nào nghĩa là "không giới hạn": bảng production
+        # vẫn nguyên vẹn cho mọi route khác, và một tên route gõ sai làm API
+        # chết lúc khởi động chứ không bị bỏ qua im lặng. Lý do cần nó: cả bộ
+        # E2E đi ra từ **một** IP và cần khoảng mười tài khoản, trong khi hạn
+        # mức thật là 5 lần mỗi phút — không nới thì hai phần ba thời gian chạy
+        # là thời gian chờ, và chờ là nguồn chập chờn lớn nhất.
+        run: |
+          cp .env.example .env
+          {
+            echo "SESSION_SECRET=ci-session-secret-$(openssl rand -hex 24)"
+            echo "CSRF_SECRET=ci-csrf-secret-$(openssl rand -hex 24)"
+            echo 'RATE_LIMIT_OVERRIDES={"auth.sign-up":{"limit":200,"windowMs":60000},"auth.sign-in":{"limit":200,"windowMs":60000}}'
+          } >> .env
+
+      - name: Dựng bốn service và chờ chúng khoẻ
+        run: docker compose -f infra/compose/compose.yaml --env-file .env up -d --build --wait
+
+      - name: Chạy migration tường minh, không dùng schema push
+        # Cùng một command với job `integration` và với máy dev: schema của môi
+        # trường E2E không được đi một đường khác với schema của production.
+        run: pnpm --filter @flowboard/api exec drizzle-kit migrate
+        env:
+          DATABASE_URL: postgres://flowboard:doi-gia-tri-nay@localhost:5433/flowboard
+
+      - name: Cài Chromium cho Playwright
+        run: pnpm --filter @flowboard/e2e exec playwright install --with-deps chromium
+
+      - name: E2E
+        run: pnpm --filter @flowboard/e2e test
+        env:
+          # Nới phía client đúng bằng lượng đã nới phía server. Nới một phía
+          # thôi thì phía kia vẫn giữ nhịp cũ và không nhanh hơn chút nào.
+          E2E_SIGN_UP_BUDGET: "200"
+
+      - name: Log của container khi E2E đỏ
+        # Một bài E2E đỏ mà không biết server nói gì thì phải chạy lại để biết —
+        # và "chạy lại để biết" là bước đầu của "chạy lại cho tới khi xanh".
+        if: failure()
+        run: docker compose -f infra/compose/compose.yaml --env-file .env logs --no-color --tail 200
+
+      - name: Giữ lại report và trace
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            07-projects/fullstack-lab/e2e/playwright-report
+            07-projects/fullstack-lab/e2e/test-results
+          retention-days: 7
+
   docs:
     name: Liên kết tài liệu
     runs-on: ubuntu-latest

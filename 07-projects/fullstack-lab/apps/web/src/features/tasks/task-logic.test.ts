@@ -5,6 +5,12 @@ import { canonicalFilters, filterFingerprint, taskQueryParams } from "./task-fil
 import { positionForIndex, positionHint } from "./position.ts";
 import { neighbourColumn, projectColumn, type DragState } from "./board-dnd.ts";
 import { newerOf } from "./task-ledger.ts";
+import {
+  CATEGORY_OPTIONS,
+  PRIORITY_OPTIONS,
+  isTaskCategory,
+  isTaskPriority,
+} from "./task-labels.ts";
 
 /**
  * Phần thuần của M4, kiểm trực tiếp.
@@ -187,5 +193,36 @@ describe("version guard", () => {
 
   it("chưa có gì trong sổ thì dùng luôn bản vừa nhận", () => {
     expect(newerOf(first, undefined)).toBe(first);
+  });
+});
+
+/**
+ * Hai predicate này thay cho hai cast `as never` đã bị gỡ.
+ *
+ * `as never` gán được vào **mọi** kiểu, nên nó không thu hẹp gì — nó chỉ tắt
+ * phép kiểm, và chính chỗ tắt đó đã giữ im một lỗi thật khi hợp đồng còn nhận
+ * `null` cho `priority`. Bộ kiểm ở đây canh điều mà cast không bao giờ canh
+ * được: một chuỗi lạ **bị từ chối**, và mọi giá trị của hợp đồng **được nhận**.
+ */
+describe("thu hẹp enum ở ranh giới DOM", () => {
+  it("nhận đúng mọi giá trị mà hợp đồng công bố", () => {
+    // Duyệt chính danh sách sinh ra các `<option>`: thêm một giá trị vào enum
+    // mà quên dạy predicate sẽ đỏ ở đây, không im lặng rơi vào nhánh `else`.
+    for (const option of CATEGORY_OPTIONS) expect(isTaskCategory(option.value)).toBe(true);
+    for (const option of PRIORITY_OPTIONS) expect(isTaskPriority(option.value)).toBe(true);
+  });
+
+  it("từ chối chuỗi không thuộc enum, kể cả chuỗi rỗng", () => {
+    for (const foreign of ["", "urgentt", "Feature", "null", "undefined", " none"]) {
+      expect(isTaskCategory(foreign)).toBe(false);
+      expect(isTaskPriority(foreign)).toBe(false);
+    }
+  });
+
+  it("`none` là giá trị thật của priority, không phải ô trống", () => {
+    // Đây là lý do `priority` trong hợp đồng không nullable: enum đã có sẵn
+    // cách nói "chưa đặt", nên `null` là một giá trị thứ hai cho cùng một nghĩa.
+    expect(isTaskPriority("none")).toBe(true);
+    expect(isTaskCategory("none")).toBe(false);
   });
 });

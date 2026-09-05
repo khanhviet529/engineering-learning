@@ -16,6 +16,8 @@ import type {
   CreateTaskRequest,
   ProjectMember,
   Task,
+  TaskCategory,
+  TaskPriority,
   UpdateTaskRequest,
 } from "@flowboard/contracts";
 import { Intent, fieldError, type ApiFailure } from "../../lib/transport.ts";
@@ -23,7 +25,12 @@ import { toFailure } from "../../lib/query.tsx";
 import { messageFor } from "../system/messages.ts";
 import { TASK_SAVE_ERROR } from "./messages.ts";
 import { useCreateTask, useUpdateTask } from "./queries.ts";
-import { CATEGORY_OPTIONS, PRIORITY_OPTIONS } from "./task-labels.ts";
+import {
+  CATEGORY_OPTIONS,
+  PRIORITY_OPTIONS,
+  isTaskCategory,
+  isTaskPriority,
+} from "./task-labels.ts";
 
 /**
  * `TSK-01` — biểu mẫu tạo và sửa công việc.
@@ -54,8 +61,13 @@ interface Draft {
   columnId: string;
   assigneeId: string;
   reviewerId: string;
-  category: string;
-  priority: string;
+  /**
+   * `""` là ô "Chưa phân nhóm" của `<select>`, không phải một `TaskCategory`.
+   * Hợp đồng biểu diễn nó bằng `null`; phép đổi nằm ở một chỗ, lúc gửi.
+   */
+  category: TaskCategory | "";
+  /** `none` **là** một thành viên thật của enum, nên không cần ô rỗng. */
+  priority: TaskPriority;
   startDate: string;
   dueDate: string;
   evidenceUrl: string;
@@ -200,8 +212,8 @@ export function TaskFormPanel({
         description: draft.description,
         assigneeId: orNull(draft.assigneeId),
         reviewerId: orNull(draft.reviewerId),
-        category: orNull(draft.category) as never,
-        priority: draft.priority as never,
+        category: draft.category === "" ? null : draft.category,
+        priority: draft.priority,
         startDate: orNull(draft.startDate),
         dueDate: orNull(draft.dueDate),
         evidenceUrl: orNull(draft.evidenceUrl.trim()),
@@ -227,8 +239,8 @@ export function TaskFormPanel({
       columnId: draft.columnId,
       assigneeId: orNull(draft.assigneeId),
       reviewerId: orNull(draft.reviewerId),
-      category: orNull(draft.category) as never,
-      priority: draft.priority as never,
+      category: draft.category === "" ? null : draft.category,
+      priority: draft.priority,
       startDate: orNull(draft.startDate),
       dueDate: orNull(draft.dueDate),
       evidenceUrl: orNull(draft.evidenceUrl.trim()),
@@ -397,7 +409,13 @@ export function TaskFormPanel({
           id="task-priority"
           label={FIELD_LABEL["priority"] as string}
           value={draft.priority}
-          onChange={(value) => set({ priority: value })}
+          onChange={(value) => {
+            // `<select>` trả `string`; chỉ những giá trị thuộc enum mới đi tiếp.
+            // Nhánh còn lại không tới được từ giao diện — mọi `<option>` đều
+            // sinh ra từ `PRIORITY_OPTIONS`, tức là từ chính enum đó — nhưng nó
+            // được viết ra thay vì bị một phép ép kiểu nuốt mất.
+            if (isTaskPriority(value)) set({ priority: value });
+          }}
           options={PRIORITY_OPTIONS}
           error={errorFor("priority")}
           disabled={mutation.isPending}
@@ -407,7 +425,10 @@ export function TaskFormPanel({
           id="task-category"
           label={FIELD_LABEL["category"] as string}
           value={draft.category}
-          onChange={(value) => set({ category: value })}
+          onChange={(value) => {
+            // `""` là mục "Chưa phân nhóm"; phần còn lại phải thuộc enum.
+            if (value === "" || isTaskCategory(value)) set({ category: value });
+          }}
           options={[{ value: "", label: "Chưa phân nhóm" }, ...CATEGORY_OPTIONS]}
           error={errorFor("category")}
           disabled={mutation.isPending}

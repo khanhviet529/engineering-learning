@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   useInfiniteQuery,
   useMutation,
@@ -285,7 +285,15 @@ export interface MyTasksPage {
 export function useMyTasks(workspaceId: string, filters: BoardFilters): MyTasksPage {
   const client = useQueryClient();
   const [scopeChanged, setScopeChanged] = useState(false);
+  /**
+   * Cursor vừa chết, và các trang đã nạp **chưa** bị bỏ.
+   *
+   * Cờ này sống trong `ref` chứ không trong state vì nó là một mệnh lệnh dùng
+   * một lần cho hiệu ứng bên dưới, không phải một thứ để render.
+   */
+  const cursorDied = useRef(false);
   const queryKey = workspaceTaskKeys.list(workspaceId, filters);
+  const scopeKey = queryKey.join("|");
 
   const query = useInfiniteQuery({
     queryKey,
@@ -299,8 +307,10 @@ export function useMyTasks(workspaceId: string, filters: BoardFilters): MyTasksP
         // Trang đầu không mang cursor nên một `400` ở đó là chuyện khác hẳn —
         // gộp hai ca lại sẽ biến một filter sai thành "danh sách đã đổi".
         if (result.code === "VALIDATION_FAILED" && pageParam !== null) {
+          // Chỉ **ghi nhận** ở đây. Bỏ trang phải xảy ra sau khi lần fetch này
+          // kết thúc: xem hiệu ứng bên dưới.
+          cursorDied.current = true;
           setScopeChanged(true);
-          client.setQueryData(queryKey, undefined);
           return { items: [], projects: [], page: { nextCursor: null, hasMore: false } };
         }
         throw new ApiError(result);
@@ -310,6 +320,29 @@ export function useMyTasks(workspaceId: string, filters: BoardFilters): MyTasksP
     getNextPageParam: (last) => last.page.nextCursor,
     enabled: workspaceId !== "",
   });
+
+  /**
+   * Bỏ mọi trang đã nạp rồi nạp lại từ trang đầu.
+   *
+   * Nó nằm ở hiệu ứng chứ **không** ở trong `queryFn`, và đó là cả điểm mấu
+   * chốt: một `setQueryData(key, undefined)` gọi từ bên trong `queryFn` bị
+   * chính lần fetch đang chạy ghi đè ngay sau đó — React Query lấy giá trị
+   * hàm trả về và **nối** nó vào danh sách trang. Kết quả là màn hình hiện câu
+   * "danh sách đã thay đổi" trong khi vẫn giữ nguyên năm mươi dòng cũ, trong
+   * đó có dòng của một dự án actor vừa bị gỡ khỏi.
+   *
+   * Bộ kiểm mock ở M5 không bắt được vì nó chỉ khẳng định câu thông báo có mặt
+   * và dòng của trang đầu vẫn hiện — hai điều đúng ở **cả hai** hành vi. E2E
+   * trên stack thật đọc chân danh sách (`Đã nạp …`) nên nó thấy.
+   */
+  useEffect(() => {
+    if (!cursorDied.current) return;
+    cursorDied.current = false;
+    void client.resetQueries({ queryKey: workspaceTaskKeys.list(workspaceId, filters) });
+    // `scopeChanged` nằm trong deps để hiệu ứng chạy lại đúng vào lần render
+    // ngay sau khi cờ bật; `cursorDied` mới là thứ quyết định có làm gì không,
+    // và nó tự tắt nên hiệu ứng không lặp.
+  }, [client, workspaceId, filters, scopeKey, scopeChanged]);
 
   const pages = query.data?.pages ?? [];
   const names = new Map<string, string>();

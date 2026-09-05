@@ -167,7 +167,21 @@ describe("MYT-01 — cursor bind phạm vi actor nhìn thấy được", () => {
     // Không phải `SYS-03`: không có mã lỗi hệ thống nào trên màn.
     expect(screen.queryByText("Lỗi kết nối")).not.toBeInTheDocument();
     expect(screen.queryByText("403")).not.toBeInTheDocument();
-    // Và danh sách quay về trang đầu thay vì đứng ở một trang nửa vời.
+
+    // Và danh sách **thật sự** quay về trang đầu.
+    //
+    // Bản đầu của khẳng định này chỉ hỏi "dòng của trang đầu còn đó không" —
+    // và câu trả lời là **có** ở cả hai hành vi, kể cả hành vi sai, nên nó
+    // không bao giờ đỏ được. Nó đã bỏ lọt một lỗi thật: `setQueryData(…,
+    // undefined)` gọi từ trong `queryFn` bị chính lần fetch đó ghi đè, nên màn
+    // hình nói "danh sách đã thay đổi" trong khi vẫn giữ nguyên mọi trang cũ.
+    // E2E trên stack thật bắt được vì nó đọc chân danh sách.
+    //
+    // Dấu hiệu phân biệt: sau khi về trang đầu, trang đầu **vẫn còn nữa** —
+    // nên `Tải thêm` phải quay lại. Ở hành vi sai, một trang rỗng bị nối vào
+    // cuối và `hasMore` thành `false`, nút biến mất.
+    expect(await screen.findByText("Đã nạp 1 · còn nữa")).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Tải thêm" })).toBeInTheDocument();
     await waitFor(() => {
       expect(screen.getByRole("button", { name: mine.title })).toBeInTheDocument();
     });

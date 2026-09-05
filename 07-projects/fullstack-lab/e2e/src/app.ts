@@ -1,5 +1,5 @@
 import { expect, type Page } from "@playwright/test";
-import { API_BASE_URL } from "./env.ts";
+import { API_BASE_URL, SIGN_UP_BUDGET, SIGN_UP_WINDOW_MS } from "./env.ts";
 import { waitForMailWithLink } from "./mailpit.ts";
 
 /**
@@ -115,7 +115,8 @@ export function isTransportHiccup(error: unknown): boolean {
  * Server giới hạn **5 lần mỗi 60 giây mỗi IP** (`RATE_LIMIT_RULES` ở
  * `apps/api/src/shared/http/rate-limit.ts`), và cả bộ E2E đi ra từ một IP.
  * Giới hạn đó **đúng** — nó là một biện pháp chống lạm dụng thật — nên bộ kiểm
- * phải sống chung với nó thay vì đòi nới.
+ * phải sống chung với nó thay vì đòi nới. Môi trường nào nới nó bằng
+ * `RATE_LIMIT_OVERRIDES` thì nới cả `E2E_SIGN_UP_BUDGET` ở đây; xem `env.ts`.
  *
  * Cách sai là bấm lại rồi bấm lại: mỗi lần bấm tiêu thêm một token, nên vòng
  * lặp tự bỏ đói chính nó. Đã đo được điều đó ở M5.5 — một lượt chạy 17 phút
@@ -126,11 +127,6 @@ export function isTransportHiccup(error: unknown): boolean {
  * một điều kiện giao diện — nó là phép chia thời gian theo một hạn mức đã
  * công bố, và không có tín hiệu nào để chờ thay cho nó.
  */
-const SIGN_UP_LIMIT = 5;
-const SIGN_UP_WINDOW_MS = 60_000;
-/** Chừa một token: bộ kiểm không phải người duy nhất có thể gọi route này. */
-const SIGN_UP_BUDGET = SIGN_UP_LIMIT - 1;
-
 const signUpTimes: number[] = [];
 let signUpQueue: Promise<void> = Promise.resolve();
 
@@ -491,6 +487,56 @@ export async function createTask(
       .getByRole("region", { name: input.column })
       .getByRole("button", { name: input.title, exact: true }),
   ).toBeVisible();
+}
+
+/**
+ * Tạo nhiều công việc trong **một** lượt vào trình duyệt.
+ *
+ * `apiCall` là một `page.evaluate` cho mỗi lệnh, và sáu mươi lượt như vậy tốn
+ * nhiều thời gian hơn chính sáu mươi request cộng lại. Bài kiểm cursor cần một
+ * danh sách dài để có trang thứ ba; số lượng là **điều kiện**, không phải thứ
+ * đang được đo, nên nó được dựng bằng một vòng lặp chạy trong trang.
+ *
+ * Vẫn là HTTP thật, cookie thật, `Idempotency-Key` thật, mỗi việc một key.
+ */
+export async function seedTasks(
+  page: Page,
+  input: { projectId: string; columnId: string; assigneeId: string; prefix: string; count: number },
+): Promise<void> {
+  const failures = await page.evaluate(
+    async (job): Promise<string[]> => {
+      const session = await fetch(`${job.apiBase}/auth/session`, { credentials: "include" });
+      const payload: unknown = await session.json().catch(() => null);
+      const csrf = (payload as { data?: { csrfToken?: string } } | null)?.data?.csrfToken ?? "";
+
+      const problems: string[] = [];
+      for (let index = 0; index < job.count; index += 1) {
+        const response = await fetch(`${job.apiBase}/projects/${job.projectId}/tasks`, {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "content-type": "application/json",
+            "x-csrf-token": csrf,
+            "idempotency-key": crypto.randomUUID(),
+          },
+          body: JSON.stringify({
+            title: `${job.prefix} ${String(index).padStart(2, "0")}`,
+            columnId: job.columnId,
+            assigneeId: job.assigneeId,
+          }),
+        });
+        if (response.status !== 201) {
+          problems.push(
+            `việc thứ ${String(index)}: ${String(response.status)} ${await response.text()}`,
+          );
+        }
+      }
+      return problems;
+    },
+    { apiBase: API_BASE_URL, ...input },
+  );
+
+  expect(failures, `không tạo đủ ${String(input.count)} việc`).toEqual([]);
 }
 
 /** Tên cookie phiên, đọc từ chính cookie jar sau khi đăng nhập. */

@@ -7,6 +7,7 @@ import {
   inviteToWorkspace,
   newAccount,
   register,
+  seedTasks,
   visit,
   type Account,
 } from "../src/app.ts";
@@ -28,6 +29,18 @@ import { disposeMailpit } from "../src/mailpit.ts";
  * hỏi. Chúng được tạo bằng HTTP thật, cookie thật, `Idempotency-Key` thật —
  * chỉ là không qua form, vì 55 lần điền form không kiểm thêm được gì mà bài
  * này chưa kiểm ở golden path.
+ *
+ * **Trình tự là một phần của bài kiểm.** Hợp đồng không cho gỡ một thành viên
+ * còn đang giữ việc, nên việc phải được trả lại trước — nhưng chỉ **sau** khi
+ * client đã cầm cursor của trang 3. Nếu trả việc trước khi phân trang thì
+ * không còn đủ việc để có trang thứ ba, và bài kiểm sẽ không hỏi được câu nó
+ * sinh ra để hỏi.
+ *
+ * Một điều bài kiểm này **không** tách được: sau bước trả việc, hai mươi việc
+ * của dự án phụ rời khỏi danh sách của actor vì hai lý do cùng lúc — chúng
+ * không còn được giao cho họ, **và** họ không còn ở dự án đó. Bằng chứng cho
+ * "cursor chết vì phạm vi đổi" nằm ở chính mã `400`, không ở việc các dòng đó
+ * biến mất.
  */
 
 const PAGE_LIMIT = 25;
@@ -61,6 +74,46 @@ async function addColumnViaApi(page: Page, projectId: string, name: string): Pro
   expect(result.status, `không tạo được cột ${name}`).toBe(201);
 }
 
+/**
+ * Trả mọi việc trong một dự án về `assigneeId: null`.
+ *
+ * Đây **không** phải một cách né lỗi. [Hợp đồng endpoint](../../docs/api/endpoint-contracts.md)
+ * nói `DELETE /projects/:projectId/members/:userId` chỉ trả `204` khi dự án còn
+ * tối thiểu một Owner **và** người bị gỡ không còn là assignee của việc nào
+ * trong dự án. Gỡ một người đang giữ hai mươi việc phải nhận
+ * `409 MEMBER_HAS_ASSIGNED_TASKS`, và đó là câu trả lời **đúng**.
+ *
+ * Bài kiểm này không sinh ra để kiểm bất biến đó — nó sinh ra để kiểm một
+ * cursor chết khi phạm vi đổi. Vì vậy nó phải dọn điều kiện chặn trước, bằng
+ * đúng route mà sản phẩm có, rồi mới đổi phạm vi.
+ *
+ * Thời điểm gọi là một phần của bài kiểm: nó chạy **sau** khi worker đã nạp
+ * xong trang 1 và trang 2, nên cursor cho trang 3 đã nằm trong tay client
+ * trước khi bất cứ thứ gì đổi.
+ */
+async function unassignEveryTask(page: Page, projectId: string): Promise<void> {
+  const columnId = await firstColumnId(page, projectId);
+  const list = await apiCall(
+    page,
+    "GET",
+    `/projects/${projectId}/tasks?columnId=${columnId}&limit=100`,
+  );
+  expect(list.status, "không đọc được danh sách việc để trả lại").toBe(200);
+  const items = (list.body as { data: { items: { id: string; version: number }[] } }).data.items;
+  expect(items.length, "dự án phụ phải có việc để trả lại").toBeGreaterThan(0);
+
+  for (const task of items) {
+    const patched = await apiCall(page, "PATCH", `/tasks/${task.id}`, {
+      body: { expectedVersion: task.version, assigneeId: null },
+      idempotencyKey: crypto.randomUUID(),
+    });
+    expect(
+      patched.status,
+      `không trả lại được việc ${task.id}: ${String(patched.status)} ${patched.code ?? ""}`,
+    ).toBe(200);
+  }
+}
+
 async function seedTasksThroughApi(
   page: Page,
   projectId: string,
@@ -68,14 +121,13 @@ async function seedTasksThroughApi(
   count: number,
   prefix: string,
 ): Promise<void> {
-  const columnId = await firstColumnId(page, projectId);
-  for (let index = 0; index < count; index += 1) {
-    const result = await apiCall(page, "POST", `/projects/${projectId}/tasks`, {
-      body: { title: `${prefix} ${String(index).padStart(2, "0")}`, columnId, assigneeId },
-      idempotencyKey: crypto.randomUUID(),
-    });
-    expect(result.status, `không tạo được việc thứ ${String(index)}`).toBe(201);
-  }
+  await seedTasks(page, {
+    projectId,
+    columnId: await firstColumnId(page, projectId),
+    assigneeId,
+    prefix,
+    count,
+  });
 }
 
 test("MYT-01: gỡ actor khỏi một dự án giữa chừng thì cursor chết và màn hình nói ra", async ({
@@ -126,6 +178,10 @@ test("MYT-01: gỡ actor khỏi một dự án giữa chừng thì cursor chết
   await workerPage.getByRole("button", { name: "Tải thêm" }).click();
   await expect(workerPage.getByText(`Đã nạp ${String(PAGE_LIMIT * 2)} · còn nữa`)).toBeVisible();
 
+  // Dọn điều kiện chặn của hợp đồng **sau khi** cursor trang 3 đã được phát:
+  // không ai gỡ được một thành viên còn đang giữ việc. Xem `unassignEveryTask`.
+  await unassignEveryTask(ownerPage, secondProject);
+
   // Phạm vi đổi **dưới chân người dùng**: Owner gỡ họ khỏi dự án phụ.
   const removed = await apiCall(
     ownerPage,
@@ -155,7 +211,7 @@ test("MYT-01: gỡ actor khỏi một dự án giữa chừng thì cursor chết
   await expect(workerPage.locator('[data-screen="SYS-03"]')).toHaveCount(0);
   await expect(workerPage.locator('[data-screen="SYS-01"]')).toHaveCount(0);
 
-  // Về trang đầu: đúng một trang, và không còn việc nào của dự án đã bị gỡ.
+  // Về trang đầu: đúng một trang, và danh sách chỉ còn việc của dự án chính.
   await expect(workerPage.getByText(`Đã nạp ${String(PAGE_LIMIT)} · còn nữa`)).toBeVisible();
   await expect(
     workerPage.getByRole("rowheader", { name: new RegExp(`^Phu ${stamp}`) }),
