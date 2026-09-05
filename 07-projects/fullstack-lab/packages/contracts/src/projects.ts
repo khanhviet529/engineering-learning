@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { capabilitiesSchema, projectRoleSchema } from "./capabilities.js";
 import { paginationQuerySchema } from "./envelope.js";
-import { uuidSchema } from "./fields.js";
+import { calendarDateSchema, userRefSchema, uuidSchema } from "./fields.js";
 import { projectMemberSchema, projectSchema } from "./resources.js";
 
 /**
@@ -76,3 +76,70 @@ export type ChangeProjectMemberRoleRequest = z.infer<typeof changeProjectMemberR
 
 export const projectMemberResponseSchema = z.object({ member: projectMemberSchema }).strict();
 export type ProjectMemberResponse = z.infer<typeof projectMemberResponseSchema>;
+
+/**
+ * Aggregate của `PRJ-04` — `GET /projects/:projectId/overview`.
+ *
+ * **Server trả số đếm, client tính phần trăm.** Trả cả hai là hai nguồn cho
+ * cùng một sự thật, và chúng lệch nhau ở lần làm tròn đầu tiên.
+ *
+ * Không có `page`: kết quả bị chặn bởi số column và số member của **một**
+ * project. Không có delta tuần-so-tuần và không có "đang bị chặn" — cả hai cần
+ * thứ MVP không có, lý do ghi ở hợp đồng endpoint.
+ */
+export const overviewWindowSchema = z
+  .object({ from: calendarDateSchema, to: calendarDateSchema })
+  .strict();
+
+export const overviewColumnSchema = z
+  .object({
+    columnId: uuidSchema,
+    name: z.string().min(1),
+    /** Đi kèm để client **không** phải đoán cột nào là "đã xong" từ tên cột. */
+    isTerminal: z.boolean(),
+    taskCount: z.int().nonnegative(),
+  })
+  .strict();
+
+export const overviewAssigneeSchema = z
+  .object({ user: userRefSchema, taskCount: z.int().nonnegative() })
+  .strict();
+
+export const projectOverviewSchema = z
+  .object({
+    window: overviewWindowSchema,
+    totals: z
+      .object({
+        tasks: z.int().nonnegative(),
+        /** Chỉ cần `tasks.created_at`; không cần lịch sử nào. */
+        createdInWindow: z.int().nonnegative(),
+      })
+      .strict(),
+    /** Chỉ column active, giữ nguyên thứ tự `position` của board. */
+    byColumn: z.array(overviewColumnSchema),
+    byAssignee: z.array(overviewAssigneeSchema),
+    /**
+     * Tách khỏi `byAssignee` thay vì để một phần tử `user: null`: một danh sách
+     * người mà một phần tử không phải người là chỗ mọi client phải viết một
+     * nhánh đặc biệt.
+     */
+    unassignedCount: z.int().nonnegative(),
+    /** Cùng `WorkspaceClock` và cùng `DUE_SOON_WINDOW_DAYS` với list task. */
+    dueStates: z
+      .object({
+        overdue: z.int().nonnegative(),
+        dueToday: z.int().nonnegative(),
+        dueSoon: z.int().nonnegative(),
+        none: z.int().nonnegative(),
+      })
+      .strict(),
+  })
+  .strict();
+
+export type ProjectOverview = z.infer<typeof projectOverviewSchema>;
+
+export const overviewQuerySchema = z
+  .object({ from: calendarDateSchema.optional(), to: calendarDateSchema.optional() })
+  .strict();
+
+export type OverviewQuery = z.infer<typeof overviewQuerySchema>;

@@ -48,29 +48,42 @@ export const taskSortSchema = z.enum(TASK_SORTS);
  * `position` chỉ có nghĩa **trong một column**, nên sort theo position mà không
  * có `columnId` bị từ chối thay vì trả một thứ tự vô nghĩa.
  */
+/**
+ * Trục filter dùng chung cho list task **cấp project** và **cấp workspace**.
+ *
+ * Tách riêng khỏi phần `.refine()` vì Zod không cho `.omit()` trên schema đã có
+ * refinement — và bài học đắt hơn: `.omit()` ném lúc **evaluate module**, nên
+ * `tsc` không thấy gì và chỉ `next build` (thứ thật sự chạy module) mới báo.
+ * Một `.omit()` hỏng vì vậy đi lọt qua typecheck và qua cả test không import
+ * tới nó.
+ */
+const taskFilterFields = {
+  assigneeId: uuidSchema.optional(),
+  createdById: uuidSchema.optional(),
+  reviewerId: uuidSchema.optional(),
+  category: taskCategorySchema.optional(),
+  priority: taskPrioritySchema.optional(),
+  dueState: dueStateSchema.optional(),
+  dueFrom: calendarDateSchema.optional(),
+  dueTo: calendarDateSchema.optional(),
+  sort: taskSortSchema.optional(),
+  search: z.string().trim().min(1).max(200).optional(),
+} as const;
+
+/** `dueFrom <= dueTo` áp cho **cả hai** phạm vi. */
+const dueRangeOk = (q: { dueFrom?: string | undefined; dueTo?: string | undefined }): boolean =>
+  !q.dueFrom || !q.dueTo || q.dueFrom <= q.dueTo;
+
+const dueRangeError = { message: "dueFrom phải nhỏ hơn hoặc bằng dueTo.", path: ["dueFrom"] };
+
 export const listTasksQuerySchema = paginationQuerySchema
-  .extend({
-    columnId: uuidSchema.optional(),
-    assigneeId: uuidSchema.optional(),
-    createdById: uuidSchema.optional(),
-    reviewerId: uuidSchema.optional(),
-    category: taskCategorySchema.optional(),
-    priority: taskPrioritySchema.optional(),
-    dueState: dueStateSchema.optional(),
-    dueFrom: calendarDateSchema.optional(),
-    dueTo: calendarDateSchema.optional(),
-    sort: taskSortSchema.optional(),
-    search: z.string().trim().min(1).max(200).optional(),
-  })
+  .extend({ columnId: uuidSchema.optional(), ...taskFilterFields })
   .strict()
   .refine((q) => !q.sort?.startsWith("position:") || q.columnId !== undefined, {
     message: "sort theo position yêu cầu columnId, vì position chỉ có nghĩa trong một column.",
     path: ["sort"],
   })
-  .refine((q) => !q.dueFrom || !q.dueTo || q.dueFrom <= q.dueTo, {
-    message: "dueFrom phải nhỏ hơn hoặc bằng dueTo.",
-    path: ["dueFrom"],
-  });
+  .refine(dueRangeOk, dueRangeError);
 
 export type ListTasksQuery = z.infer<typeof listTasksQuerySchema>;
 
@@ -171,3 +184,33 @@ export const taskResponseSchema = z
   .strict();
 
 export type TaskResponse = z.infer<typeof taskResponseSchema>;
+
+/**
+ * `GET /workspaces/:workspaceId/tasks` — task cấp workspace cho `MYT-01`.
+ *
+ * Cùng allowlist với list task cấp project **trừ `columnId`**: column thuộc về
+ * một project, nên nó vô nghĩa khi phạm vi là cả workspace.
+ */
+export const listWorkspaceTasksQuerySchema = paginationQuerySchema
+  .extend(taskFilterFields)
+  .strict()
+  .refine((q) => !q.sort?.startsWith("position:"), {
+    message:
+      "sort theo position không dùng được ở phạm vi workspace: position chỉ có nghĩa trong một column.",
+    path: ["sort"],
+  })
+  .refine(dueRangeOk, dueRangeError);
+export type ListWorkspaceTasksQuery = z.infer<typeof listWorkspaceTasksQuerySchema>;
+
+/**
+ * `projects` là **bảng tra cứu**, không phải dữ liệu lồng.
+ *
+ * Một task cấp workspace phải hiển thị kèm tên project của nó. Nhắc lại cùng
+ * một tên trên hai mươi dòng là hai mươi bản sao sẽ lệch nếu project được đổi
+ * tên giữa chừng. Nó chỉ chứa project xuất hiện trong `items` của **trang này**.
+ */
+export const workspaceTaskProjectRefSchema = z
+  .object({ id: uuidSchema, name: z.string().min(1) })
+  .strict();
+
+export type WorkspaceTaskProjectRef = z.infer<typeof workspaceTaskProjectRefSchema>;

@@ -30,7 +30,7 @@ Screen ID là khóa bền vững cho frame Pencil, test end-to-end, ticket front
 | TSK-02 | Task Detail — drawer/modal | Đọc task, comment và activity; cho phép ghi theo capability. | `/du-an/:projectId/bang-cong-viec?task=:taskId` | `GET /tasks/:taskId`, task/version, comment immutable, `GET /tasks/:taskId/activity`, capability | Owner, Editor, Viewer | Loading, content, comment Empty, activity Empty, Error, Forbidden, comment pending/error, edit Conflict. |
 | PRM-01 | Project Members — trang con | Để Owner quản lý membership và vai trò của project hiện tại. | `/du-an/:projectId/thanh-vien` | thành viên project/role, danh sách ứng viên đã là member workspace, capability quản lý project member | Owner | Loading, Empty, Error, Forbidden, mutation pending, điều kiện chặn “chưa là thành viên workspace”. |
 | MYT-01 | My Tasks — list/calendar | Giúp actor xem task được giao theo hạn và khoảng ngày. | `/viec-cua-toi` | task authorized có `assigneeId = actor`, start/due date, priority, dueState, cursor; workspace timezone | Owner, Editor, Viewer theo task họ được phép đọc | Loading, Empty, Error, due-state filter, multi-day span, mobile list fallback. |
-| PRJ-04 | Project Dashboard — read-only | Theo dõi aggregate tiến độ, overdue và workload project. | `/du-an/:projectId/tong-quan` | authorized project task aggregates theo column/dueState/assignee, workspace timezone | Owner, Editor, Viewer của project | Loading, Empty, Error, Forbidden; Viewer chỉ đọc. |
+| PRJ-04 | Project Dashboard — read-only | Theo dõi aggregate tiến độ, overdue và workload project. | `/du-an/:projectId/tong-quan` | `GET /projects/:projectId/overview`: `totals`, `byColumn` (kèm `isTerminal`), `byAssignee`, `unassignedCount`, `dueStates`, `window`. **Server trả số đếm, client tính phần trăm.** Không có delta tuần-so-tuần và không có `Đang bị chặn` — xem mục dưới | Owner, Editor, Viewer của project | Loading, Empty, Error, Forbidden; Viewer chỉ đọc. |
 | RPT-01 | Xuất tiến độ — CTA/panel trên Dashboard | Để Owner tạo và tải XLSX tiến độ theo filter snapshot đã được cho phép. | `PRJ-04` với `panel=progress-export` | capability `report:export`, filter canonical, `POST /projects/:projectId/reports/progress-export`, metadata export authorized | Owner trong Phase 1.1 | Default, request pending, ready/download, failed, expired, Forbidden. Editor/Viewer không thấy CTA; workspace admin không có membership không suy ra quyền. |
 | USR-01 | Hồ sơ và tùy chọn — trang | Cho actor xem hồ sơ và chọn theme cục bộ. **Không** hiển thị giá trị múi giờ cụ thể: chưa projection nào công bố nó và `workspaces` chưa có cột, nên mọi giá trị hiện ra sẽ là bịa. Múi giờ workspace là dữ liệu **có tải trọng** — `dueDate` được định nghĩa theo nó — nên nó sẽ vào schema ở mốc dựng `tasks`, và USR-01 hiển thị giá trị thật từ lúc đó. | `/tai-khoan`, vào từ khối người dùng trên topbar | actor của session, theme preference local, workspace timezone đang chọn | Actor có phiên hợp lệ | Default, local preference saving, Error khi actor/session không hợp lệ. Display name/email chỉ đọc; timezone theo workspace chỉ đọc; đổi mật khẩu đi qua flow `AUTH-03`; không có quản lý phiên trong MVP. |
 | TTS-01 | Cấu hình Time Tracking — section PRJ-03 | Owner bật/tắt, chọn mode, backfill và Editor approver. | `/du-an/:projectId/cai-dat#cham-cong` | settings/version, active Editors, capabilities | Owner | Disabled/enabled, validation, Saving, Conflict, Forbidden; không hồi tố log final. |
@@ -52,6 +52,22 @@ Screen ID là khóa bền vững cho frame Pencil, test end-to-end, ticket front
 Frontend hiển thị `Đã nạp N · còn nữa` — đúng thứ hợp đồng mang. Đây là **cùng một khuôn mẫu** với lời hứa "số task liên quan" của `BRD-02` đã bỏ ở M3: một con số đếm được ở thời điểm đọc đã cũ vào lúc người dùng nhìn, và để có nó phải chạy `COUNT` trên mỗi lần mở board.
 
 Quyết định cần cho vòng design kế tiếp: hoặc bỏ số đếm khỏi frame, hoặc mở `total` trong hợp đồng và chấp nhận cái giá đó. **Không** chọn cách thứ ba là để frame vẽ một số mà code không điền được.
+
+### `PRJ-04`: ba thứ artifact vẽ mà hợp đồng cố ý không có
+
+Hợp đồng aggregate được viết 05/09/2026 từ chính frame `PRJ-04`, và ba thứ trong frame **không dựng được trên MVP**:
+
+| Frame vẽ | Vì sao không |
+|---|---|
+| `+12% so với tuần trước` | Cần tỉ lệ hoàn thành **tại thời điểm tuần trước**, tức dựng lại lịch sử column của từng task. `is_terminal` đổi được và **không hồi tố** ([ADR-0008](../decisions/ADR-0008-terminal-column-and-task-reopen.md)), nên "đã xong hồi đó" không xác định được. Làm đúng cần bảng snapshot; đoán thì cho một con số trông chính xác mà sai |
+| `Đang bị chặn` | Phụ thuộc blocking là **Phase 1.5** ([ADR-0011](../decisions/ADR-0011-task-relations-subtask-and-dependency.md)) |
+| `Đang đầy tải` / `Có thể nhận thêm 2` | Cần một **hạn mức** cho mỗi người, và khái niệm đó không tồn tại ở đâu trong sản phẩm |
+
+`+4 tuần này` **thì có**, vì nó chỉ cần `tasks.created_at` trong cửa sổ.
+
+Ba mục này vào backlog vòng design: hoặc bỏ khỏi frame, hoặc mở khái niệm còn thiếu trong hợp đồng — riêng `Đang bị chặn` thì chờ Phase 1.5, không phải một lựa chọn.
+
+**Số đếm ở `PRJ-04` khác số đếm ở board.** M3 và M4 đã bỏ số đếm khỏi `BRD-02`, task card và header cột vì board là màn mở liên tục và mỗi lần mở phải trả tiền cho một `COUNT`. `PRJ-04` là màn người ta mở **để xem đúng những con số đó**, nên chi phí nằm đúng chỗ. Hai quyết định ngược nhau, cùng một lý do.
 
 ### `MYT-01` và `PRJ-04` không thuộc M4
 

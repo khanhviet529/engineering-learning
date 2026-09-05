@@ -248,6 +248,65 @@ Các route trong phần này không được implement, advertise hoặc đưa v
 
 Phase 1.1 chỉ hỗ trợ Owner request và download export. Phase 1.2 mới thêm Redis/BullMQ worker, bounded retry, delivery và job observability sau commit; web/API request vẫn chỉ tạo/snapshot export và trả prompt. Phase 1.2 không tạo generic report API, không tự giao file vào core MVP, và không thay permission `report:export` hay các route ở dưới.
 
+### GET /workspaces/:workspaceId/tasks — task cấp workspace cho `MYT-01`
+
+Yêu cầu session hợp lệ và membership workspace. Phạm vi là **giao** của hai điều kiện: task thuộc project **trong workspace này**, và actor có `project_members` row ở chính project đó. Workspace Admin không có membership project **không** thấy task của project đó — cùng luật với mọi chỗ khác, và `404` cho workspace không accessible.
+
+Query dùng đúng allowlist của `GET /projects/:projectId/tasks` **trừ** `columnId` (column thuộc về một project, nên nó vô nghĩa ở đây), cộng `cursor` và `limit`. `200` trả:
+
+```json
+{
+  "items": [ { "…": "task projection" } ],
+  "projects": [ { "id": "…", "name": "Làm mới website" } ],
+  "page": { "nextCursor": "…", "hasMore": true }
+}
+```
+
+`projects` là **bảng tra cứu**, không phải dữ liệu lồng: một task cấp workspace phải hiển thị kèm tên project của nó, và nhắc lại cùng một tên trên hai mươi dòng là hai mươi bản sao sẽ lệch nếu project được đổi tên giữa chừng. Nó chỉ chứa project **xuất hiện trong `items` của trang này**.
+
+**Một cursor cho cả workspace, không phải N cursor.** Đây là toàn bộ lý do endpoint này tồn tại: fan-out qua từng project trả về N trang đầu độc lập, và phần đầu của danh sách gộp lại có thể sai — một danh sách "hạn gần nhất" sai thứ tự tệ hơn không có, vì người dùng tin nó. Cursor fingerprint bind `workspaceId`, **toàn bộ** filter canonical và sort; đổi bất kỳ thứ nào là cursor cũ chết với `400 VALIDATION_FAILED`.
+
+Cursor cũng bind **phạm vi actor nhìn thấy được**. Membership project đổi giữa hai trang thì cursor cũ không còn mô tả cùng một tập, và trả tiếp trên nó sẽ hoặc bỏ sót hoặc lặp — trường hợp này trả `400` như mọi thay đổi filter khác.
+
+`dueState` dùng đúng `WorkspaceClock` và cùng `DUE_SOON_WINDOW_DAYS`. Không side effect, không activity.
+
+### GET /projects/:projectId/overview — aggregate cho `PRJ-04`
+
+Yêu cầu `task:read` — cùng quyền với việc đọc task, vì đây chính là những task đó đã được đếm. Owner, Editor và Viewer của project đều mở được; Viewer chỉ đọc như mọi thứ khác. Query chỉ `{ from?, to? }` dạng `YYYY-MM-DD` theo timezone workspace; thiếu cả hai thì cửa sổ mặc định là **tuần hiện tại**. Response echo lại cửa sổ canonical để client hiển thị đúng thứ server đã tính.
+
+`200` trả:
+
+```json
+{
+  "window": { "from": "2026-08-31", "to": "2026-09-06" },
+  "totals": { "tasks": 24, "createdInWindow": 4 },
+  "byColumn": [{ "columnId": "…", "name": "Chờ thực hiện", "isTerminal": false, "taskCount": 6 }],
+  "byAssignee": [{ "user": { "id": "…", "displayName": "Minh Nguyen" }, "taskCount": 8 }],
+  "unassignedCount": 2,
+  "dueStates": { "overdue": 2, "dueToday": 1, "dueSoon": 3, "none": 18 }
+}
+```
+
+**Server trả số đếm, client tính phần trăm.** `58%` và `25%` suy được từ `taskCount / totals.tasks`; trả cả hai là hai nguồn cho cùng một sự thật, và chúng sẽ lệch ở lần làm tròn đầu tiên.
+
+`byColumn` chỉ gồm column **active**, giữ nguyên thứ tự `position` của board — người đọc dashboard và người đọc board phải thấy cùng một trật tự. `isTerminal` đi kèm để client biết cột nào là "đã xong" mà **không** phải đoán từ tên cột; suy từ tên là đúng thứ [ADR-0008](../decisions/ADR-0008-terminal-column-and-task-reopen.md) tồn tại để loại bỏ.
+
+`unassignedCount` tách riêng thay vì một mục `null` trong `byAssignee`: một danh sách người mà một phần tử không phải người là chỗ mọi client đều phải viết một nhánh đặc biệt.
+
+`dueStates` dùng đúng `WorkspaceClock` và cùng cửa sổ `DUE_SOON_WINDOW_DAYS` như `GET /projects/:projectId/tasks`. Hai chỗ suy `dueState` bằng hai đường là hai kết quả sẽ lệch lúc nửa đêm.
+
+Endpoint không phân trang: kết quả bị chặn bởi số column và số member của **một** project, cả hai đều nhỏ và đều đã có giới hạn ở tầng khác. Nó cũng không có side effect và không ghi activity.
+
+**Ba thứ artifact vẽ mà hợp đồng này cố ý không có:**
+
+| Artifact vẽ | Vì sao không có |
+|---|---|
+| `+12% so với tuần trước` | Cần biết tỉ lệ hoàn thành **tại thời điểm tuần trước**, tức là dựng lại lịch sử column của từng task. `activity_logs` có `task.moved`, nhưng `is_terminal` đổi được và **không hồi tố** ([ADR-0008](../decisions/ADR-0008-terminal-column-and-task-reopen.md)), nên "đã xong hồi đó" không xác định được. Làm đúng cần một bảng snapshot; đoán thì cho một con số trông chính xác mà sai |
+| `Đang bị chặn` | Phụ thuộc blocking là **Phase 1.5** ([ADR-0011](../decisions/ADR-0011-task-relations-subtask-and-dependency.md)). Không có bảng, không có số |
+| `Đang đầy tải` / `Có thể nhận thêm 2` | Cần một **hạn mức** cho mỗi người, và không có khái niệm đó ở đâu trong sản phẩm. Server trả `taskCount`; nếu muốn so sánh tương đối thì đó là việc client làm trên chính con số đó, và **không** được hiển thị như một ngưỡng có thật |
+
+`+4 tuần này` **thì có**, vì nó chỉ cần `tasks.created_at` trong cửa sổ — không cần lịch sử nào.
+
 ### POST /projects/:projectId/reports/progress-export — yêu cầu export
 
 Chỉ Phase 1.1. Yêu cầu `report:export` (Owner), CSRF và `Idempotency-Key`. Body đúng shape `{ "filters" }`, trong đó `filters` là task-filter subset canonical đã allowlist và project-scoped; không raw query/table/column. `202` trả report `{ "id", "projectId", "status": "requested", "expiresAt", "createdAt" }`. Transaction snapshot validated filters, ghi `report_export.requested`, và không giữ DB transaction khi generate file. Editor/Viewer/non-member Workspace Admin không thể request.

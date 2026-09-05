@@ -475,7 +475,11 @@ Vòng lặp Owner/Editor/Viewer chạy end-to-end qua browser, gồm: Viewer g�
 
 # M5 — Hoàn thiện, ma trận quyền và vận hành
 
-**Nhận thêm từ M4 (quyết định 05/09/2026):** `MYT-01`, `PRJ-04`, và endpoint `GET /workspaces/:workspaceId/tasks` mà `MYT-01` phụ thuộc. `PRJ-04` còn cần một endpoint aggregate chưa tồn tại — total, phần trăm, workload theo assignee — vì `pageSchema` không mang `total` và §6 cấm nạp toàn bộ task để tự đếm ở client. Cả hai đều là **thiếu endpoint**, không phải thiếu công.
+**Nhận thêm từ M4 (quyết định 05/09/2026):** `MYT-01`, `PRJ-04`, và hai endpoint chúng phụ thuộc.
+
+`GET /projects/:projectId/overview` — hợp đồng **đã viết** 05/09/2026, cùng `projectOverviewSchema` trong `packages/contracts`. Server trả số đếm, client tính phần trăm. Ba thứ frame vẽ mà hợp đồng cố ý không có (delta tuần-so-tuần, `Đang bị chặn`, hạn mức workload) đã ghi lý do ở [hợp đồng endpoint](api/endpoint-contracts.md) và [danh mục màn hình](design/screen-inventory.md).
+
+`GET /workspaces/:workspaceId/tasks` — **chưa viết hợp đồng**. `MYT-01` cần nó với **một** cursor, vì fan-out N project cho N cursor không hợp nhất được đúng thứ tự. Nó có hệ quả phân quyền thật: chỉ trả task trong project mà actor có `project_members` row, và cursor phải bind toàn bộ scope đó.
 
 Mốc này không thêm feature. Nó biến thứ đang chạy được thành thứ **vận hành được và chứng minh được**.
 
