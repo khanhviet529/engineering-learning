@@ -29,7 +29,7 @@ Screen ID là khóa bền vững cho frame Pencil, test end-to-end, ticket front
 | TSK-03 | Quan hệ Task — section trong TSK-02 | Xem/sửa cha–con và phụ thuộc blocking của một task (Phase 1.5). | `TSK-02` với `panel=relations` | `parent`, `subtaskSummary`, hai danh sách có biên `blocks`/`blockedBy` kèm `columnIsTerminal`, capability `task:update` | Owner, Editor ghi; Viewer chỉ đọc | Loading, Empty, validation cycle (`409`), vượt giới hạn 50 cạnh, cảnh báo blocker chưa xong khi vào cột terminal, Error, Forbidden. |
 | TSK-02 | Task Detail — drawer/modal | Đọc task, comment và activity; cho phép ghi theo capability. | `/du-an/:projectId/bang-cong-viec?task=:taskId` | `GET /tasks/:taskId`, task/version, comment immutable, `GET /tasks/:taskId/activity`, capability | Owner, Editor, Viewer | Loading, content, comment Empty, activity Empty, Error, Forbidden, comment pending/error, edit Conflict. |
 | PRM-01 | Project Members — trang con | Để Owner quản lý membership và vai trò của project hiện tại. | `/du-an/:projectId/thanh-vien` | thành viên project/role, danh sách ứng viên đã là member workspace, capability quản lý project member | Owner | Loading, Empty, Error, Forbidden, mutation pending, điều kiện chặn “chưa là thành viên workspace”. |
-| MYT-01 | My Tasks — list/calendar | Giúp actor xem task được giao theo hạn và khoảng ngày. | `/viec-cua-toi` | task authorized có `assigneeId = actor`, start/due date, priority, dueState, cursor; workspace timezone | Owner, Editor, Viewer theo task họ được phép đọc | Loading, Empty, Error, due-state filter, multi-day span, mobile list fallback. |
+| MYT-01 | My Tasks — list | Giúp actor xem task được giao theo hạn. | `/viec-cua-toi?workspace=:workspaceId` | `GET /workspaces/:workspaceId/tasks`: **một trang** task có `assigneeId = actor`, kèm bảng tra cứu `projects`; start/due date, priority, dueState, một cursor | Owner, Editor, Viewer theo task họ được phép đọc | Loading, Empty, Error, lọc theo `dueState`, nhóm theo `dueState`, `Tải thêm` khi `hasMore`, cursor chết khi phạm vi đổi → về trang đầu. |
 | PRJ-04 | Project Dashboard — read-only | Theo dõi aggregate tiến độ, overdue và workload project. | `/du-an/:projectId/tong-quan` | `GET /projects/:projectId/overview`: `totals`, `byColumn` (kèm `isTerminal`), `byAssignee`, `unassignedCount`, `dueStates`, `window`. **Server trả số đếm, client tính phần trăm.** Không có delta tuần-so-tuần và không có `Đang bị chặn` — xem mục dưới | Owner, Editor, Viewer của project | Loading, Empty, Error, Forbidden; Viewer chỉ đọc. |
 | RPT-01 | Xuất tiến độ — CTA/panel trên Dashboard | Để Owner tạo và tải XLSX tiến độ theo filter snapshot đã được cho phép. | `PRJ-04` với `panel=progress-export` | capability `report:export`, filter canonical, `POST /projects/:projectId/reports/progress-export`, metadata export authorized | Owner trong Phase 1.1 | Default, request pending, ready/download, failed, expired, Forbidden. Editor/Viewer không thấy CTA; workspace admin không có membership không suy ra quyền. |
 | USR-01 | Hồ sơ và tùy chọn — trang | Cho actor xem hồ sơ và chọn theme cục bộ. **Không** hiển thị giá trị múi giờ cụ thể: chưa projection nào công bố nó và `workspaces` chưa có cột, nên mọi giá trị hiện ra sẽ là bịa. Múi giờ workspace là dữ liệu **có tải trọng** — `dueDate` được định nghĩa theo nó — nên nó sẽ vào schema ở mốc dựng `tasks`, và USR-01 hiển thị giá trị thật từ lúc đó. | `/tai-khoan`, vào từ khối người dùng trên topbar | actor của session, theme preference local, workspace timezone đang chọn | Actor có phiên hợp lệ | Default, local preference saving, Error khi actor/session không hợp lệ. Display name/email chỉ đọc; timezone theo workspace chỉ đọc; đổi mật khẩu đi qua flow `AUTH-03`; không có quản lý phiên trong MVP. |
@@ -52,6 +52,22 @@ Screen ID là khóa bền vững cho frame Pencil, test end-to-end, ticket front
 Frontend hiển thị `Đã nạp N · còn nữa` — đúng thứ hợp đồng mang. Đây là **cùng một khuôn mẫu** với lời hứa "số task liên quan" của `BRD-02` đã bỏ ở M3: một con số đếm được ở thời điểm đọc đã cũ vào lúc người dùng nhìn, và để có nó phải chạy `COUNT` trên mỗi lần mở board.
 
 Quyết định cần cho vòng design kế tiếp: hoặc bỏ số đếm khỏi frame, hoặc mở `total` trong hợp đồng và chấp nhận cái giá đó. **Không** chọn cách thứ ba là để frame vẽ một số mà code không điền được.
+
+### `MYT-01` không còn là lịch, và vì sao
+
+Bản đầu ghi màn này là `list/calendar` với trạng thái `multi-day span`. Cả hai đã bị bỏ ở vòng design v0.4, cùng ba stat tile và giờ trong ngày (`09:00`).
+
+Lý do không giống nhau, và cần phân biệt:
+
+- **Giờ trong ngày là bịa dữ liệu.** `due_date` là `DATE` — không có giờ để hiển thị. Đây là chỗ nặng nhất, vì người dùng sẽ lập kế hoạch theo một con số không tồn tại.
+- **Ba stat tile cần total** mà endpoint không trả — cùng khuôn mẫu ba số đếm đã bỏ ở v0.3.
+- **Lưới lịch tuần hứa sự đầy đủ.** Endpoint trả **một trang**; một lưới tuần nói ngầm rằng "đây là tất cả việc của bạn tuần này", và với một trang thì điều đó có thể sai mà người xem không biết.
+
+`multi-day span` **không** thuộc nhóm đó: `startDate` và `dueDate` đều có thật, nên một dải "cả ngày" là dựng được. Nó bị bỏ cùng lưới lịch chỉ vì nó sống trên lưới. Nếu muốn có lại thì đó là một dải trong **hàng của danh sách**, không cần lưới — mở lại được, không phải chuyện đã đóng.
+
+Thay vào đó, màn này nhóm và lọc theo **`dueState`** — trục server suy ra, và cùng trục mà chip lọc dùng. **Cả desktop lẫn mobile dùng cùng trục này**: nhóm theo ngày trong khi lọc theo `dueState` buộc người dùng dịch giữa hai trục cho một màn hình.
+
+Rail `Việc cần chú ý` bị bỏ: sau khi danh sách chính nhóm theo `dueState`, nó lặp lại đúng nhóm `HẠN HÔM NAY` và `SẮP ĐẾN HẠN`. Cùng lý do đã bỏ block activity thứ hai của `TSK-02` ở v0.3 — hai chỗ cho một danh sách là hai nguồn sẽ lệch.
 
 ### `PRJ-04`: ba thứ artifact vẽ mà hợp đồng cố ý không có
 

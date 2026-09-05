@@ -162,7 +162,7 @@ Light/dark dùng semantic token chung. Mỗi route có giao diện Light phải 
 - Compact dùng board ngang native; `fb.size.board-column-min` bảo vệ chiều rộng đọc được. Drawer/modal trở thành sheet toàn chiều cao khi cần.
 - Không tạo UI mobile-only có quy tắc sản phẩm khác desktop. Owner/Editor/Viewer, Loading/Empty/Error/Forbidden/Conflict và keyboard/focus semantics giữ nguyên.
 - Reduced motion giảm hoặc bỏ animation không thiết yếu; pending, target DnD và focus vẫn có dấu hiệu không phụ thuộc chuyển động.
-- `MYT-01` hiển thị task nhiều ngày bằng một bar span từ start đến due; khi màn hình hẹp, chuyển sang danh sách theo ngày, không co bar đến mức không đọc được.
+- `MYT-01` nhóm task theo `dueState` và lọc bằng đúng năm giá trị server-derived (`overdue`, `due_today`, `due_soon`, `scheduled`, `none`). Màn hình **không** vẽ lưới lịch tuần, giờ trong ngày hay bar span nhiều ngày: `GET /workspaces/:workspaceId/tasks` trả một trang cursor gồm ngày lịch (`startDate`/`dueDate`), không có giờ và không có tổng số, nên một lưới tuần sẽ khẳng định thứ nó không có dữ liệu để khẳng định. Khi màn hình hẹp vẫn là cùng danh sách theo nhóm, không có lưới.
 
 ## Accessibility và nội dung
 
