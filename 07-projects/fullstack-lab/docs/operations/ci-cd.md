@@ -2,6 +2,16 @@
 
 Tài liệu này xác định quality gate, deploy control, backup/recovery và security operations cho Flowboard. Nó kế thừa [testing strategy](testing-strategy.md), [local environment policy](local-development.md), [API contract process](../api/api-conventions.md) và [authorization model](../security/authorization-model.md). Chưa có runtime hoặc provider deployment được chọn; các nguyên tắc dưới đây là contract cho hạ tầng sau này.
 
+## Nơi workflow phải nằm
+
+`.github/workflows/fullstack-lab-ci.yml` — **ở gốc repository**, không phải trong thư mục lab.
+
+GitHub Actions chỉ đọc `.github/workflows/` ở gốc; một workflow nằm trong thư mục con **không bao giờ được thực thi**. Bản đầu tiên của file này nằm ở `07-projects/fullstack-lab/.github/workflows/ci.yml` và vì vậy **chưa chạy lần nào** trong sáu mốc — năm cổng dưới đây tồn tại dưới dạng văn bản suốt thời gian đó, và `container-image` lẽ ra đã chặn merge ở lỗi `web.Dockerfile` mà frontend phải tự tìm bằng tay ở M5.5.
+
+Đó là cùng một khuôn mẫu đã lặp lại nhiều lần trong dự án này, chỉ ở quy mô lớn hơn: **một quy tắc chỉ nằm trong file thì không chặn được ai.** Lần này thứ chỉ nằm trong file là cả một pipeline.
+
+`paths` giới hạn workflow vào `07-projects/fullstack-lab/**`: phần còn lại của repository là kho kiến thức riêng, và một thay đổi ở đó không được kéo theo một lượt CI dựng Docker.
+
 ## Pull-request pipeline bắt buộc
 
 Pipeline chạy theo đúng thứ tự để failure rẻ xuất hiện trước:

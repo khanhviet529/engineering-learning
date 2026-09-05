@@ -9,12 +9,30 @@
 # docs/superpowers/** là snapshot có ngày và ADR đã Accepted đều bị cấm sửa nội
 # dung. Tính đúng đắn của tài liệu do link check bảo đảm.
 
-name: CI
+name: Flowboard CI
+
+# **Vị trí của file này là một phần của hợp đồng.** GitHub Actions chỉ đọc
+# `.github/workflows/` ở **gốc repository**; một workflow nằm trong thư mục con
+# không bao giờ được thực thi. Bản gốc của file này từng nằm ở
+# `07-projects/fullstack-lab/.github/workflows/ci.yml` và vì vậy **chưa chạy
+# lần nào** — năm cổng bên dưới tồn tại dưới dạng văn bản trong suốt sáu mốc.
+# `container-image` lẽ ra đã chặn merge ở lỗi `web.Dockerfile` mà frontend phải
+# tự tìm bằng tay ở M5.5.
+#
+# `paths` giới hạn nó vào đúng thư mục lab: phần còn lại của repository là kho
+# kiến thức riêng, và một thay đổi ở đó không được kéo theo một lượt CI dựng
+# Docker.
 
 on:
   push:
     branches: [main]
+    paths:
+      - "07-projects/fullstack-lab/**"
+      - ".github/workflows/fullstack-lab-ci.yml"
   pull_request:
+    paths:
+      - "07-projects/fullstack-lab/**"
+      - ".github/workflows/fullstack-lab-ci.yml"
 
 defaults:
   run:

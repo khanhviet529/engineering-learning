@@ -218,7 +218,7 @@ Theo [CI/CD](operations/ci-cd.md), CI phải chặn merge ở: format · lint ·
 | `infra/compose` | Đúng bốn service `web`, `api`, `postgres`, `mailpit`; named volume cho dữ liệu |
 | `infra/docker` | Dockerfile multi-stage cho cả hai app |
 | `.env.example` | Chỉ tên biến, mô tả và ví dụ không-secret |
-| `.github/workflows/ci.yml` | Bốn job, tất cả chặn merge |
+| `.github/workflows/fullstack-lab-ci.yml` **ở gốc repository** | Năm job, tất cả chặn merge. Vị trí là một phần của hợp đồng: GitHub Actions chỉ đọc `.github/workflows/` ở **gốc**, nên bản cũ nằm trong `07-projects/fullstack-lab/.github/` **chưa chạy lần nào** trong suốt sáu mốc. `paths` giới hạn nó vào thư mục lab |
 | `scripts/check-doc-links.py` | Bộ kiểm liên kết tài liệu, chạy trong CI |
 
 **Liveness và readiness trả lời hai câu khác nhau**, và trộn chúng là lỗi vận hành thật. `live` không chạm dependency nào — fail nghĩa là restart process. `ready` kiểm PostgreSQL với timeout cứng — fail chỉ nghĩa là chưa phục vụ được. Healthcheck của Compose vì vậy dùng `live`: dùng `ready` sẽ khiến Compose restart API trong khi lỗi nằm ở database, mà restart không sửa được gì.
