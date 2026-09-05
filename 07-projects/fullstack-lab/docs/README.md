@@ -139,6 +139,7 @@ Task này chỉ thiết lập bản đồ. Các tài liệu theo chủ đề đ�
 
 - `design/information-architecture.md`, `design/user-flows.md` và `design/screen-inventory.md` xác định hành vi, trạng thái và phạm vi màn hình trước khi thiết kế hình ảnh.
 - `design/interaction-specifications.md`, `design/design-system.md` và `design/pencil-handoff.md` là hợp đồng bàn giao.
+- `engineering/how-defects-were-found.md` ghi chín lỗi thật đã xảy ra khi dựng dự án này, mỗi lỗi kèm **cổng nào bắt và cổng nào im lặng** — cột thứ hai mới là bài học, vì nó nói kiểu kiểm nào không bao giờ với tới lớp lỗi đó.
 - Pencil là nguồn chân lý cho thiết kế trực quan: bố cục, thành phần, biến thể, trạng thái đáp ứng và tài sản giao diện. Markdown vẫn là nguồn chân lý cho hành vi sản phẩm, kiến trúc, hợp đồng và vận hành.
 
 ## Thiết kế hệ thống (System design)
