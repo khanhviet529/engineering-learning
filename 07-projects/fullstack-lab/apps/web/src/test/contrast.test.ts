@@ -414,9 +414,17 @@ const NO_OPAQUE_BG_NODES: { fg: string; nodes: string[]; large?: boolean }[] = [
  * không có bề mặt nào để sửa trong code hôm nay; việc sửa thuộc vòng design.
  */
 const KNOWN_UNREADABLE: Record<Theme, string[]> = {
-  // `#94A3B8` trên ba nền sáng: khoảng 2,6–2,8:1. Ở theme tối cùng token đó
-  // lại đạt, nên đây là lỗi **của bảng màu sáng**, không phải của component.
-  light: ["--fb-color-text-subtle"],
+  // **Rỗng từ 06/09/2026.** `--fb-color-text-subtle` từng ở đây với `#94A3B8`
+  // — khoảng 2,6–2,8:1 trên ba nền sáng, trong khi theme tối cùng token đó lại
+  // đạt, nên nó là lỗi của **bảng màu sáng**. Vòng design v0.4 đổi sang
+  // `#6B7280` (4,84:1) và danh sách này rỗng lại.
+  //
+  // Đường đi của bản sửa đáng nhớ hơn bản sửa. Màu đúng nằm trong artifact từ
+  // vòng freeze, nhưng `tokens.css` là file **được sinh ra** và không ai chạy
+  // `pnpm tokens`, nên ứng dụng vẫn ship màu cũ qua hai commit. Cổng bắt được
+  // là bước CI `pnpm tokens && git diff --exit-code` — bước đó đã tồn tại từ
+  // lâu và **chưa từng thực thi**, vì workflow nằm sai thư mục.
+  light: [],
   dark: [],
 };
 
