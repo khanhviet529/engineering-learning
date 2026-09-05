@@ -61,6 +61,24 @@ Cùng một tên biến có **hai giá trị đúng khác nhau**, tuỳ process 
 
 `--env-file-if-exists` được chọn thay vì `--env-file` vì trong Docker **không có** `.env` cạnh code và đó là bình thường. Đánh đổi đã biết: đánh máy sai tên file cũng im lặng đi tiếp y như file không tồn tại. Chấp nhận ở `dev`; đó là thêm một lý do nữa để nó không xuất hiện ở `start`.
 
+### Email: Mailpit là đích **vĩnh viễn** của dev và CI
+
+Mailpit bắt thư lại và **không relay ra Internet**. Đó là tính chất phải giữ mãi, không phải một giai đoạn tạm: một test chạy sai không được gửi thư thật cho ai. Transport hiện tại không có `auth`, `secure: false`, `ignoreTLS: true` — đúng cho một service trong mạng nội bộ của Compose, và **sai** cho bất kỳ đích nào ngoài Internet.
+
+Ba thứ phải mở trước khi cắm được provider thật, và chúng chặn theo ba kiểu khác nhau:
+
+| Chỗ | Nếu không mở |
+|---|---|
+| `env.ts` là `.strict()`, chưa có `SMTP_USER`/`SMTP_PASSWORD` | App **từ chối khởi động** khi hai biến đó có mặt |
+| `secure: false, ignoreTLS: true` ghi cứng | Credential đi **không mã hoá**, hoặc provider từ chối kết nối |
+| `From: no-reply@flowboard.test` ghi cứng | `.test` là TLD dành riêng — **mọi** provider từ chối |
+
+Cả ba mở theo lối **optional**: không có credential thì hành vi y hệt hôm nay, nên Mailpit không đổi một dòng.
+
+**Mailpit luôn xanh, và đó là giới hạn của nó.** Nó nhận mọi thư, nên nó không nói được gì về việc thư có tới hộp thư người thật hay không — vào Inbox hay Spam, SPF/DKIM/DMARC đã đúng chưa, provider có chặn tên miền mới không, rate limit thật là bao nhiêu. Khoảng trống đó chỉ đóng bằng **một lần gửi thật tới hộp thư thật**, và nó phải xảy ra trước khi ra mắt chứ không phải sau.
+
+Tên miền thật cùng SPF/DKIM/DMARC là **hạng mục có thời gian chờ dài nhất** của đường đi production: DNS cần thời gian lan truyền và provider thường bắt xác minh tên miền trước khi cho gửi. Bắt đầu sớm hơn bạn nghĩ.
+
 ### Ba khoảng trống đã biết
 
 Cơ chế đọc config ở trên là đúng hình cho production. Cách **giữ secret** thì chưa, và ghi lại ở đây để không bị phát hiện lúc deploy — xem bảng nợ ở [kế hoạch triển khai](../implementation-plan.md):
