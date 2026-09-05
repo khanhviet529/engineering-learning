@@ -114,6 +114,14 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      - name: Build workspace package mà API import
+        # `apps/api` import `@flowboard/contracts`, và package đó trỏ `main` vào
+        # `./dist`. Trên một runner sạch `dist` **không tồn tại**, nên test đổ
+        # ngay ở lúc resolve: "Failed to resolve entry for package". Máy dev
+        # không bao giờ thấy lỗi này vì `dist` còn lại từ những lần build trước
+        # — cùng loại với lỗi `web.Dockerfile` mà M5.5 phải tìm bằng tay.
+        run: pnpm --filter @flowboard/contracts build
+
       - name: Chạy migration tường minh, không dùng schema push
         run: pnpm --filter @flowboard/api exec drizzle-kit migrate
         env:
