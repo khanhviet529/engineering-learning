@@ -78,7 +78,7 @@ describeIfDb("overview của project", () => {
     const response = await call(f, "POST", `/projects/${projectId}/tasks`, {
       actor: f.wsAdmin,
       idempotencyKey: newKey("task"),
-      body: { description: null, ...body },
+      body: { description: "", ...body },
     });
     expect(response.status).toBe(201);
     return (response.body["data"] as { task: { id: string; version: number } }).task;

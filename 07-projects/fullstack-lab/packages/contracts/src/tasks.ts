@@ -90,11 +90,11 @@ export type ListTasksQuery = z.infer<typeof listTasksQuerySchema>;
 export const createTaskRequestSchema = z
   .object({
     title: taskTitleSchema,
-    description: taskDescriptionSchema.nullable().default(null),
+    description: taskDescriptionSchema.default(""),
     columnId: uuidSchema,
     assigneeId: uuidSchema.nullable().default(null),
     category: taskCategorySchema.nullable().default(null),
-    priority: taskPrioritySchema.nullable().default(null),
+    priority: taskPrioritySchema.default("none"),
     startDate: calendarDateSchema.nullable().default(null),
     dueDate: calendarDateSchema.nullable().default(null),
     reviewerId: uuidSchema.nullable().default(null),
@@ -120,13 +120,26 @@ export type CreateTaskRequest = z.infer<typeof createTaskRequestSchema>;
  * client gửi chúng đều nhận `400`. Một schema nhận field mà server luôn từ chối
  * là một schema nói sai. Thêm lại khi phase bật là additive.
  */
+/**
+ * `description` và `priority` **không** nullable, dù mọi field khác thì có.
+ *
+ * Hai cột đó là `NOT NULL` trong database (`description DEFAULT ''`,
+ * `priority DEFAULT 'none'`), và `taskSchema` trả chúng non-nullable — nên một
+ * client đọc task rồi ghi lại **không bao giờ** sinh ra `null`. Nhận `null` ở
+ * request là nhận một giá trị không đường nào tạo ra và không cột nào lưu
+ * được: server buộc phải quy đổi thầm `null → ""`, và một phép quy đổi thầm là
+ * chỗ hợp đồng thôi mô tả đúng thứ đang xảy ra.
+ *
+ * Xoá nội dung thì gửi `""`; bỏ ưu tiên thì gửi `"none"` — `none` **là** một
+ * thành viên thật của enum, nên đã có sẵn cách nói điều đó.
+ */
 const updateTaskFields = z
   .object({
     title: taskTitleSchema,
-    description: taskDescriptionSchema.nullable(),
+    description: taskDescriptionSchema,
     assigneeId: uuidSchema.nullable(),
     category: taskCategorySchema.nullable(),
-    priority: taskPrioritySchema.nullable(),
+    priority: taskPrioritySchema,
     startDate: calendarDateSchema.nullable(),
     dueDate: calendarDateSchema.nullable(),
     reviewerId: uuidSchema.nullable(),

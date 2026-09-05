@@ -15,7 +15,7 @@
     "lint": "eslint . && node scripts/check-config-boundary.mjs",
     "typecheck": "pnpm -r --if-present typecheck",
     "build": "pnpm -r --if-present build",
-    "test": "pnpm -r --workspace-concurrency=1 --if-present test",
+    "test": "pnpm -r --workspace-concurrency=1 --if-present --filter=!@flowboard/e2e test",
     "verify": "pnpm format && pnpm lint && pnpm typecheck && pnpm build && pnpm test",
     "tokens": "node scripts/generate-tokens.mjs"
   },

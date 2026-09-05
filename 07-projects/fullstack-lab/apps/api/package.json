@@ -8,6 +8,7 @@
     "dev:build": "tsc -p tsconfig.json --watch --preserveWatchOutput",
     "dev": "node --env-file-if-exists=../../.env --env-file-if-exists=../../.env.host --watch dist/main.js",
     "start": "node dist/main.js",
+    "migrate": "node --env-file-if-exists=../../.env --env-file-if-exists=../../.env.host scripts/migrate.mjs",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run"

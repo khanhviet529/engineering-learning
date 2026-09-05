@@ -106,7 +106,7 @@ describeIfDb("task, comment và activity", () => {
     return await call(f, "POST", `/projects/${projectId}/tasks`, {
       actor,
       idempotencyKey: newKey("task"),
-      body: { description: null, ...body },
+      body: { description: "", ...body },
     });
   }
 
@@ -926,6 +926,79 @@ describeIfDb("task, comment và activity", () => {
     });
 
     /**
+     * Hai cột `NOT NULL` nhận **giá trị rỗng của chính cột**, không nhận `null`.
+     *
+     * Lịch sử của chỗ này đáng giữ. Hợp đồng từng cho gửi `null` cho
+     * `description` và `priority`; `createTask` quy đổi (`?? ""`, `?? "none"`)
+     * còn `updateTask` thì không, nên `PATCH` mang `null` đi thẳng vào `UPDATE`
+     * và nổ ở constraint — `500`, chứ không phải một lỗi hợp đồng đọc được.
+     *
+     * Không test nào bắt được vì mọi test cũ gửi chuỗi, còn browser thì **chưa
+     * bao giờ gọi tới được**: `PATCH /tasks/:taskId` là một trong bảy endpoint
+     * mà preflight CORS chặn. Bug lộ ra đúng lúc lớp CORS được sửa, ở bài E2E
+     * "hai tab cùng sửa một task".
+     *
+     * Bản sửa cuối cùng nằm ở **hợp đồng**, không ở server: hai cột đó
+     * `NOT NULL` và `taskSchema` trả chúng non-nullable, nên `null` là giá trị
+     * không đường nào tạo ra được. Frontend từng đổi `"" → null` và server đổi
+     * ngược lại — hai phép quy đổi triệt tiêu nhau. Nay `null` bị từ chối ở
+     * biên với `400`, và không ai phải quy đổi thầm nữa.
+     */
+    it("cột NOT NULL nhận giá trị rỗng của cột và từ chối `null` bằng `400`", async () => {
+      const projectId = await newProject("patch-notnull");
+      const columnId = await newColumn(projectId, "Cần làm");
+      const task = taskOf(
+        await createTask(projectId, {
+          title: "Có mô tả",
+          columnId,
+          description: "Mô tả sẽ bị xoá",
+          priority: "high",
+        }),
+      );
+
+      const response = await patch(task.id, {
+        description: "",
+        priority: "none",
+        expectedVersion: 1,
+      });
+
+      expect(response.status, JSON.stringify(response.body)).toBe(200);
+      // "Không có nội dung là chuỗi rỗng", đúng như lần tạo đã quy đổi.
+      expect(taskOf(response).description).toBe("");
+      expect(taskOf(response).priority).toBe("none");
+      expect(taskOf(response).version).toBe(2);
+
+      // Và `null` bị chặn ở biên, không đi tới database.
+      const rejected = await patch(task.id, { description: null, expectedVersion: 2 });
+      expect(rejected.status).toBe(400);
+      expect((rejected.body as { error: { code: string } }).error.code).toBe("VALIDATION_FAILED");
+    });
+
+    /** Cột nullable thật vẫn phải nhận `null` — quy đổi trên không được lan ra. */
+    it("cột nullable vẫn về `null`, không bị quy đổi lây", async () => {
+      const projectId = await newProject("patch-nullable");
+      const columnId = await newColumn(projectId, "Cần làm");
+      const task = taskOf(
+        await createTask(projectId, {
+          title: "Có hạn và phân loại",
+          columnId,
+          category: "feature",
+          dueDate: "2026-09-20",
+        }),
+      );
+
+      const response = await patch(task.id, {
+        category: null,
+        dueDate: null,
+        expectedVersion: 1,
+      });
+
+      expect(response.status, JSON.stringify(response.body)).toBe(200);
+      expect(taskOf(response).category).toBeNull();
+      expect(taskOf(response).dueDate).toBeNull();
+    });
+
+    /**
      * `sprintId` (Phase 1.4) và `parentTaskId` (Phase 1.5) có mặt trong hợp đồng
      * từ bây giờ để client không phải đoán khi phase đó bật — nhưng ở core MVP
      * hai cột đó **không tồn tại** trong database.
@@ -1557,7 +1630,7 @@ describeIfDb("task, comment và activity", () => {
 
       const create = await call(f, "POST", `/projects/${projectId}/tasks`, {
         actor: f.wsAdmin,
-        body: { title: "X", columnId, description: null },
+        body: { title: "X", columnId, description: "" },
       });
       const patch = await call(f, "PATCH", `/tasks/${task.id}`, {
         actor: f.wsAdmin,
@@ -1585,7 +1658,7 @@ describeIfDb("task, comment và activity", () => {
       const projectId = await newProject("replay");
       const columnId = await newColumn(projectId, "Cần làm");
       const key = newKey("replay");
-      const body = { title: "Chỉ một lần", columnId, description: null };
+      const body = { title: "Chỉ một lần", columnId, description: "" };
 
       const first = await call(f, "POST", `/projects/${projectId}/tasks`, {
         actor: f.wsAdmin,
@@ -1706,7 +1779,7 @@ describeIfDb("task, comment và activity", () => {
       const activityBefore = await f.activity.countForProject(projectId);
 
       const mutations = [
-        ["POST", `/projects/${projectId}/tasks`, { title: "X", columnId, description: null }],
+        ["POST", `/projects/${projectId}/tasks`, { title: "X", columnId, description: "" }],
         ["PATCH", `/tasks/${task.id}`, { title: "X", expectedVersion: 1 }],
         [
           "POST",
@@ -1767,7 +1840,7 @@ describeIfDb("task, comment và activity", () => {
 
       const routes = [
         ["GET", `/projects/${projectId}/tasks`, undefined],
-        ["POST", `/projects/${projectId}/tasks`, { title: "X", columnId, description: null }],
+        ["POST", `/projects/${projectId}/tasks`, { title: "X", columnId, description: "" }],
         ["GET", `/tasks/${task.id}`, undefined],
         ["PATCH", `/tasks/${task.id}`, { title: "X", expectedVersion: 1 }],
         [
@@ -1832,7 +1905,7 @@ describeIfDb("task, comment và activity", () => {
         actor: f.wsAdmin,
         csrf: false,
         idempotencyKey: newKey("nocsrf"),
-        body: { title: "Không CSRF", columnId, description: null },
+        body: { title: "Không CSRF", columnId, description: "" },
       });
 
       expect(response.status).toBe(403);

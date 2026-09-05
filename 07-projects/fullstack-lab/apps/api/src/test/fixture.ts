@@ -20,6 +20,7 @@ import {
   workspaces,
 } from "../shared/database/schema.ts";
 import { ErrorFilter } from "../shared/errors/error.filter.ts";
+import { buildCorsOptions } from "../shared/http/cors.ts";
 import { RateLimiter } from "../shared/http/rate-limit.ts";
 import { deriveCsrfToken } from "../shared/http/csrf.ts";
 import { KeyRing } from "../shared/security/key-ring.ts";
@@ -150,6 +151,9 @@ export interface Fixture {
   csrfKeys: KeyRing;
   cursorKeys: KeyRing;
 }
+
+/** Cùng vai trò với `WEB_ORIGIN` của production: origin duy nhất được phép. */
+export const WEB_ORIGIN = "http://localhost:3000";
 
 const CSRF_SECRET = "c".repeat(32);
 const SESSION_SECRET = "s".repeat(32);
@@ -402,6 +406,16 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
   );
   await app.register(cookie);
   app.useGlobalFilters(new ErrorFilter());
+
+  /**
+   * CORS nạp **đúng** cấu hình mà `main.ts` nạp.
+   *
+   * Trước M5.5, fixture bỏ qua bước này, nên lớp CORS không được test nào chạm
+   * tới — và hai mặc định của `@fastify/cors` sống sót qua năm mốc. Bật nó ở đây
+   * làm 700+ test chạy qua đúng cấu hình production, và cho phép một test dựng
+   * socket thật để đo preflight.
+   */
+  app.enableCors(buildCorsOptions(WEB_ORIGIN));
 
   const instance = app.getHttpAdapter().getInstance();
   instance.addHook("onRequest", (request, reply, done) => {

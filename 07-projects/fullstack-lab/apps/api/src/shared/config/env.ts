@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { RATE_LIMITED_ROUTES, type RateLimitRules } from "../http/rate-limit.ts";
 
 /**
  * Cấu hình được validate **tại lúc process khởi động**, bằng một schema hẹp —
@@ -58,6 +59,69 @@ export const envSchema = z
     SMTP_PORT: portSchema,
 
     LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
+
+    /**
+     * Nới giới hạn rate limit cho **một số route đã đặt tên**, dạng JSON.
+     *
+     * ```
+     * RATE_LIMIT_OVERRIDES='{"auth.sign-up":{"limit":1000,"windowMs":60000}}'
+     * ```
+     *
+     * Bốn ràng buộc, và cả bốn đều là ràng buộc bảo mật chứ không phải tiện
+     * dụng:
+     *
+     * 1. **Mặc định là giá trị chặt.** Thiếu biến ⇒ bảng production nguyên vẹn.
+     *    Không tồn tại giá trị nào nghĩa là "không giới hạn".
+     * 2. **Tên route phải có thật.** Một khoá lạ là `ConfigError` lúc khởi
+     *    động, không phải một dòng bị bỏ qua im lặng — gõ sai tên route mà vẫn
+     *    chạy nghĩa là người vận hành tin mình đã nới trong khi chưa.
+     * 3. **Không đọc từ bất cứ thứ gì client gửi.** Nó là biến môi trường, đọc
+     *    một lần lúc khởi động; không có endpoint nào đổi được nó.
+     * 4. `limit >= 1` và `windowMs >= 1000`: một cửa sổ dưới một giây làm
+     *    `Retry-After` luôn là `1` và biến giới hạn thành nhiễu.
+     */
+    RATE_LIMIT_OVERRIDES: z
+      .string()
+      .optional()
+      .transform((raw, ctx) => {
+        if (raw === undefined || raw.trim().length === 0) return {} as Partial<RateLimitRules>;
+
+        let parsed: unknown;
+        try {
+          parsed = JSON.parse(raw);
+        } catch {
+          ctx.addIssue({ code: "custom", message: "RATE_LIMIT_OVERRIDES không phải JSON hợp lệ." });
+          return z.NEVER;
+        }
+
+        /**
+         * `partialRecord`, **không** phải `record`.
+         *
+         * Với một khoá enum, `z.record` của Zod 4 là **exhaustive**: nó đòi đủ
+         * mọi route mới hợp lệ. Đó là ngược hẳn ý định ở đây — override chỉ nêu
+         * tên vài route, phần còn lại giữ giá trị production. Bản đầu dùng
+         * `record` và test "route được nêu đổi, route khác giữ nguyên" đỏ ngay,
+         * đúng chỗ nó phải đỏ.
+         */
+        const shape = z
+          .partialRecord(
+            z.enum(RATE_LIMITED_ROUTES as [string, ...string[]]),
+            z.object({ limit: z.int().min(1), windowMs: z.int().min(1000) }).strict(),
+          )
+          .safeParse(parsed);
+
+        if (!shape.success) {
+          ctx.addIssue({
+            code: "custom",
+            message:
+              'RATE_LIMIT_OVERRIDES sai hình dạng: cần {"<tên route>":{"limit":n,"windowMs":n}} ' +
+              "với tên route nằm trong danh mục và limit>=1, windowMs>=1000.",
+          });
+          return z.NEVER;
+        }
+
+        return shape.data as Partial<RateLimitRules>;
+      }),
   })
   .strict();
 

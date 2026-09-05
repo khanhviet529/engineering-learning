@@ -39,6 +39,19 @@ interface Bucket {
 /**
  * Giá trị khởi điểm cho các route đắt, theo hợp đồng. Chúng được tune bằng
  * telemetry và **không phải cam kết SLA**.
+ *
+ * ## Đây là **mặc định của production**, và nó là mặc định *chặt*
+ *
+ * Từ M5.5, giới hạn đọc được từ config (`RATE_LIMIT_OVERRIDES`) — nhưng bảng
+ * này vẫn là giá trị dùng khi **không** có cấu hình. Chiều đó là bắt buộc và
+ * không đảo được: thiếu cấu hình phải nhận giới hạn production, không phải
+ * không giới hạn. Một mặc định lỏng nghĩa là quên đặt biến ở một môi trường là
+ * mở toang route auth ở chính môi trường đó.
+ *
+ * Vì sao cần đọc được từ config: E2E tạo dữ liệu **qua sản phẩm** — cố ý, vì
+ * một seed ghi thẳng vào database sẽ bỏ qua đúng phần cần kiểm — và đi ra từ
+ * một IP. `auth.sign-up` 5 lần/60s là đúng cho production và **không** được
+ * nới ở đó; thứ phải nới là môi trường test.
  */
 export const RATE_LIMIT_RULES = {
   /** Auth: chống abuse và enumeration. */
@@ -68,6 +81,24 @@ export const RATE_LIMIT_RULES = {
 
 export type RateLimitedRoute = keyof typeof RATE_LIMIT_RULES;
 
+/** Bảng luật đầy đủ: mọi route đều phải có một luật, không có route "không giới hạn". */
+export type RateLimitRules = Record<RateLimitedRoute, RateLimitRule>;
+
+/** Tên route hợp lệ — dùng để validate config và **từ chối** tên lạ. */
+export const RATE_LIMITED_ROUTES = Object.keys(RATE_LIMIT_RULES) as RateLimitedRoute[];
+
+/**
+ * Trộn override lên bảng mặc định.
+ *
+ * Override chỉ **thay** luật của những route được nêu tên; route không nêu giữ
+ * nguyên giá trị production. Không có đường nào **xoá** một luật: một route
+ * không có luật là một route không giới hạn, và đó không phải trạng thái mà cấu
+ * hình được phép tạo ra.
+ */
+export function resolveRateLimitRules(overrides: Partial<RateLimitRules> = {}): RateLimitRules {
+  return { ...RATE_LIMIT_RULES, ...overrides };
+}
+
 /**
  * Limiter fixed-window.
  *
@@ -80,9 +111,17 @@ export type RateLimitedRoute = keyof typeof RATE_LIMIT_RULES;
 export class RateLimiter {
   readonly #buckets = new Map<string, Bucket>();
   readonly #now: () => number;
+  readonly #rules: RateLimitRules;
 
-  constructor(now: () => number = Date.now) {
+  /**
+   * `rules` mặc định là **bảng production**.
+   *
+   * Thứ tự tham số đặt `rules` sau `now` để mọi chỗ gọi cũ không phải sửa, và
+   * để chỗ gọi nào không nói gì thì nhận đúng giới hạn chặt.
+   */
+  constructor(now: () => number = Date.now, rules: RateLimitRules = RATE_LIMIT_RULES) {
     this.#now = now;
+    this.#rules = rules;
   }
 
   /**
@@ -93,7 +132,7 @@ export class RateLimiter {
    * gửi, vì như vậy client tự chọn được bucket của mình.
    */
   consume(route: RateLimitedRoute, subject: string): RateLimitResult {
-    const rule = RATE_LIMIT_RULES[route];
+    const rule = this.#rules[route];
     const key = `${route}:${subject}`;
     const now = this.#now();
 

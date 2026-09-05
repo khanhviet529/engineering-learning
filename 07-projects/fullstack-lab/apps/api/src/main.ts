@@ -7,10 +7,11 @@ import cookie from "@fastify/cookie";
 import { loadEnv, ConfigError, type Env } from "./shared/config/env.ts";
 import { createDatabase } from "./shared/database/client.ts";
 import { SmtpMailer } from "./shared/mail/mailer.ts";
-import { RateLimiter } from "./shared/http/rate-limit.ts";
+import { RateLimiter, resolveRateLimitRules } from "./shared/http/rate-limit.ts";
 import { LIVE_RESULT, checkReadiness } from "./shared/http/health.ts";
 import { generateRequestId, normalizeRequestId } from "./shared/observability/request-id.ts";
 import { ErrorFilter } from "./shared/errors/error.filter.ts";
+import { buildCorsOptions } from "./shared/http/cors.ts";
 import { AuthModule } from "./modules/auth/auth.module.ts";
 import { WorkspacesModule } from "./modules/workspaces/workspaces.module.ts";
 import { ProjectsModule } from "./modules/projects/projects.module.ts";
@@ -175,7 +176,20 @@ async function bootstrap(): Promise<void> {
     port: env.SMTP_PORT,
     webOrigin: env.WEB_ORIGIN,
   });
-  const limiter = new RateLimiter();
+  /**
+   * Limiter đọc giới hạn từ config; thiếu cấu hình thì nhận bảng production.
+   *
+   * `Date.now` truyền tường minh vì `rules` là tham số thứ hai — và một tham số
+   * thứ hai bị bỏ trống vì tham số thứ nhất cũng bỏ trống là chỗ dễ nhầm.
+   */
+  const limiter = new RateLimiter(Date.now, resolveRateLimitRules(env.RATE_LIMIT_OVERRIDES));
+
+  const relaxed = Object.keys(env.RATE_LIMIT_OVERRIDES);
+  if (relaxed.length > 0) {
+    // Ghi **tên route**, không ghi giá trị: một môi trường đang chạy với giới
+    // hạn khác production phải nói ra điều đó ngay ở dòng log đầu tiên.
+    console.warn(`[config] rate limit được ghi đè cho: ${relaxed.join(", ")}`);
+  }
 
   // Bucket hết hạn phải được dọn, nếu không một đợt dò email biến Map thành
   // đường rò bộ nhớ. `unref` để tiến trình vẫn thoát được khi tắt máy.
@@ -246,8 +260,15 @@ async function bootstrap(): Promise<void> {
 
   app.useGlobalFilters(new ErrorFilter());
 
-  // Origin allowlist lấy từ config đã validate, **không** từ header của request.
-  app.enableCors({ origin: env.WEB_ORIGIN, credentials: true });
+  /**
+   * Origin allowlist lấy từ config đã validate, **không** từ header của request.
+   *
+   * Toàn bộ cấu hình sống ở `shared/http/cors.ts` để fixture của test nạp đúng
+   * thứ production nạp. Một cấu hình chỉ có ở `main.ts` là một cấu hình không có
+   * test — và đó chính là cách hai mặc định của `@fastify/cors` sống sót qua
+   * năm mốc.
+   */
+  app.enableCors(buildCorsOptions(env.WEB_ORIGIN));
 
   const instance = app.getHttpAdapter().getInstance();
 

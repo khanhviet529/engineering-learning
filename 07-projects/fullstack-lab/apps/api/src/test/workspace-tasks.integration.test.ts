@@ -86,7 +86,7 @@ describeIfDb("task cấp workspace", () => {
     const response = await call(f, "POST", `/projects/${projectId}/tasks`, {
       actor: f.wsAdmin,
       idempotencyKey: newKey("task"),
-      body: { description: null, ...body },
+      body: { description: "", ...body },
     });
     expect(response.status).toBe(201);
     return (response.body["data"] as { task: { id: string } }).task;
@@ -208,7 +208,7 @@ describeIfDb("task cấp workspace", () => {
     const outside = await call(f, "POST", `/projects/${otherProjectId}/tasks`, {
       actor: f.editor,
       idempotencyKey: newKey("other-task"),
-      body: { title: "Ngoài workspace", columnId: otherColumnId, description: null },
+      body: { title: "Ngoài workspace", columnId: otherColumnId, description: "" },
     });
     const outsideId = (outside.body["data"] as { task: { id: string } }).task.id;
 
@@ -283,7 +283,7 @@ describeIfDb("task cấp workspace", () => {
       await call(fresh, "POST", `/projects/${projectId}/tasks`, {
         actor: fresh.wsAdmin,
         idempotencyKey: newKey("task"),
-        body: { title: "Việc riêng", columnId, description: null },
+        body: { title: "Việc riêng", columnId, description: "" },
       });
 
       // `owner` là member workspace nhưng **không** có membership ở project này.

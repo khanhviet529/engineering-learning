@@ -71,7 +71,7 @@ describeIfDb("thí nghiệm hỏng — M4", () => {
     const response = await call(f, "POST", `/projects/${projectId}/tasks`, {
       actor: f.wsAdmin,
       idempotencyKey: newKey("task"),
-      body: { title, columnId, description: null },
+      body: { title, columnId, description: "" },
     });
     expect(response.status).toBe(201);
     return (response.body["data"] as { task: TaskBody }).task;
@@ -629,7 +629,7 @@ describeIfDb("thí nghiệm hỏng — M4", () => {
           body: {
             title: `Việc ${String(i)}`,
             columnId: i % 2 === 0 ? columnA : columnB,
-            description: null,
+            description: "",
             priority: i % 2 === 0 ? "high" : "low",
             category: i % 2 === 0 ? "bug" : "feature",
             dueDate: `2026-09-1${String(i)}`,

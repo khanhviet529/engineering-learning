@@ -672,7 +672,34 @@ function pickPatch(input: UpdateTaskRequest): Record<string, unknown> {
     // `field in body` chứ không `body[field] !== undefined`: gửi `null` tường
     // minh là "xoá liên kết", và nó phải đi vào patch. Bỏ qua `undefined` mà
     // giữ `null` là đúng khác biệt giữa "không nhắc tới" và "đặt về rỗng".
-    if (field in body) patch[field] = body[field];
+    if (field in body) patch[field] = emptyValueForColumn(field, body[field]);
   }
   return patch;
+}
+
+/**
+ * Quy đổi "rỗng" của hợp đồng sang "rỗng" của database — đúng một chỗ.
+ *
+ * Hợp đồng cho `description` và `priority` nhận `null` ("xoá nội dung", "bỏ độ
+ * ưu tiên"), nhưng hai cột đó là `NOT NULL DEFAULT ''` và `NOT NULL DEFAULT
+ * 'none'`. `createTask` đã quy đổi từ M4; **`updateTask` thì chưa**, nên một
+ * `PATCH` mang `description: null` đi thẳng vào `UPDATE` và nổ ở constraint —
+ * `500 INTERNAL_ERROR`, không phải một lỗi hợp đồng.
+ *
+ * Vì sao chưa ai thấy: đó chính là một trong bảy endpoint mà preflight CORS
+ * chặn, nên `PATCH /tasks/:taskId` **chưa bao giờ rời được trình duyệt**. Test
+ * `inject()` của `apps/api` thì luôn gửi `description` là chuỗi, nên cũng không
+ * chạm vào nhánh này. Lỗi sống ở đúng khe mà M5.5 mở ra.
+ *
+ * Quy đổi đặt ở đây, không ở repository: repository nhận một patch đã là hình
+ * dạng của database, và một `?? ""` nằm rải trong câu `UPDATE` là chỗ lần sau
+ * thêm cột sẽ quên.
+ */
+function emptyValueForColumn(field: string, value: unknown): unknown {
+  if (value !== null) return value;
+  if (field === "description") return "";
+  if (field === "priority") return "none";
+  // Mọi field còn lại (`assigneeId`, `reviewerId`, `category`, ngày tháng,
+  // `evidenceUrl`) là cột nullable thật: `null` ở đó **là** giá trị cần ghi.
+  return null;
 }

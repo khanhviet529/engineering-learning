@@ -3,6 +3,10 @@ dist/
 build/
 .next/
 coverage/
+
+# Artefact do Playwright sinh mỗi lượt chạy — dẫn xuất, không phải nguồn.
+playwright-report/
+test-results/
 pnpm-lock.yaml
 docs/design/*.pen
 

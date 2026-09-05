@@ -1,0 +1,12 @@
+{
+  "extends": "@flowboard/config/tsconfig/base.json",
+  "compilerOptions": {
+    // `dom` là bắt buộc: thân của `page.evaluate` chạy **trong trình duyệt**, nên
+    // nó dùng `document` và `fetch` của trình duyệt dù tệp được biên dịch ở đây.
+    "lib": ["ES2023", "DOM"],
+    "types": ["node"],
+    "noEmit": true,
+    "allowImportingTsExtensions": true
+  },
+  "include": ["src/**/*.ts", "specs/**/*.ts", "playwright.config.ts"]
+}

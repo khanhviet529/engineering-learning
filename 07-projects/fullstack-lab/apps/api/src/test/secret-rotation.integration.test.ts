@@ -161,7 +161,7 @@ describeIfDb("xoay secret", () => {
       const task = await call(f, "POST", `/projects/${projectId}/tasks`, {
         actor: f.wsAdmin,
         idempotencyKey: newKey("task"),
-        body: { title: `Việc ${String(i)}`, columnId, description: null },
+        body: { title: `Việc ${String(i)}`, columnId, description: "" },
       });
       created.push((task.body["data"] as { task: { id: string } }).task.id);
     }

@@ -1,6 +1,11 @@
 packages:
   - "packages/*"
   - "apps/*"
+  # E2E là một workspace riêng chứ không nằm trong `apps/`: nó không phải một
+  # phần của sản phẩm được ship, và nó là workspace **duy nhất** cần một stack
+  # đang chạy. Vì lý do thứ hai, `pnpm test` ở gốc loại nó ra — xem ghi chú ở
+  # `package.json`.
+  - "e2e"
 
 # pnpm không chạy install script của dependency trừ khi được cho phép tường minh.
 # Đây là ranh giới chuỗi cung ứng, nên mỗi mục ở đây phải có lý do, không phải

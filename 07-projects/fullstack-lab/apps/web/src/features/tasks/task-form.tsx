@@ -185,17 +185,23 @@ export function TaskFormPanel({
     if (lastPayload.current !== "" && lastPayload.current !== payload) intent.current.rotate();
     lastPayload.current = payload;
 
+    // `description` và `priority` **không** đi qua `orNull`: hai cột đó là
+    // `NOT NULL` trong database và `taskSchema` trả chúng non-nullable, nên
+    // `null` là một giá trị không đường nào tạo ra được. Trước đây client đổi
+    // `"" → null` rồi server đổi ngược `null → ""` — hai phép quy đổi triệt
+    // tiêu nhau, và chỗ nào phải quy đổi thầm là chỗ hợp đồng đang mô tả sai.
+    // `priority` đã có `"none"` làm giá trị "chưa đặt".
     const orNull = (value: string) => (value === "" ? null : value);
 
     if (editing) {
       const body: UpdateTaskRequest = {
         expectedVersion: task.version,
         title: draft.title.trim(),
-        description: orNull(draft.description),
+        description: draft.description,
         assigneeId: orNull(draft.assigneeId),
         reviewerId: orNull(draft.reviewerId),
         category: orNull(draft.category) as never,
-        priority: orNull(draft.priority) as never,
+        priority: draft.priority as never,
         startDate: orNull(draft.startDate),
         dueDate: orNull(draft.dueDate),
         evidenceUrl: orNull(draft.evidenceUrl.trim()),
@@ -217,12 +223,12 @@ export function TaskFormPanel({
 
     const body: CreateTaskRequest = {
       title: draft.title.trim(),
-      description: orNull(draft.description),
+      description: draft.description,
       columnId: draft.columnId,
       assigneeId: orNull(draft.assigneeId),
       reviewerId: orNull(draft.reviewerId),
       category: orNull(draft.category) as never,
-      priority: orNull(draft.priority) as never,
+      priority: draft.priority as never,
       startDate: orNull(draft.startDate),
       dueDate: orNull(draft.dueDate),
       evidenceUrl: orNull(draft.evidenceUrl.trim()),

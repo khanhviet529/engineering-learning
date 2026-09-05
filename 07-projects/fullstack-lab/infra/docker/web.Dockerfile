@@ -22,7 +22,18 @@ RUN pnpm install --frozen-lockfile --filter @flowboard/web...
 FROM deps AS build
 COPY packages/ packages/
 COPY apps/web/ apps/web/
-RUN pnpm --filter @flowboard/web build
+# `apps/web` import **bản đã build** của ba package trong workspace: cả ba đều
+# trỏ `main` vào `./dist`, và `.dockerignore` loại `**/dist` nên không có gì
+# được mang sẵn vào context. Thiếu chúng thì `next build` chết — đúng như nó đã
+# chết lần đầu tiên có người chạy `web` trong Compose (M5.5).
+#
+# `@flowboard/mock` là devDependency, nên nó ở đây trông thừa. Nó không thừa:
+# `next build` chạy type check trên `src/test/harness.tsx`, tệp này không có
+# `.test.` trong tên nên không rơi vào `exclude` của `apps/web/tsconfig.json`,
+# và nó import `@flowboard/mock`. Ranh giới đó đáng xem lại, nhưng xem lại nó
+# bằng cách bỏ type check của harness là đổi một image hỏng lấy một harness
+# không ai kiểm kiểu.
+RUN pnpm --filter @flowboard/contracts build && pnpm --filter @flowboard/ui build && pnpm --filter @flowboard/mock build && pnpm --filter @flowboard/web build
 
 FROM base AS runtime
 ENV NODE_ENV=production
@@ -32,4 +43,13 @@ COPY --from=build /app/apps/web ./apps/web
 COPY --from=build /app/package.json ./package.json
 USER node
 WORKDIR /app/apps/web
-CMD ["node_modules/.bin/next", "start", "--port", "3000"]
+# `--keepAliveTimeout` cao hơn mặc định của Node (5 giây), và đó không phải một
+# con số tuỳ tiện. Server đóng socket rỗi ở giây thứ 5, còn trình duyệt vẫn giữ
+# nó để dùng lại: hai bên gặp nhau đúng lúc thì request rơi vào một socket vừa
+# bị đóng và client nhận `ERR_CONNECTION_RESET`. Với một trang Next, thứ rơi
+# thường là một chunk JavaScript — trang hiện ra nhưng không hydrate, và mọi
+# form trên đó im lặng không phản hồi. Triệu chứng đã bắt được ở M5.5.
+#
+# Cùng lý do, sau này đặt một load balancer phía trước thì idle timeout của nó
+# phải **nhỏ hơn** con số này.
+CMD ["node_modules/.bin/next", "start", "--port", "3000", "--keepAliveTimeout", "70000"]

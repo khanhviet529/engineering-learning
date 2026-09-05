@@ -233,7 +233,7 @@ describeIfDb("ma trận endpoint ↔ hợp đồng", () => {
       const response = await call(f, "POST", `/projects/${matrixProjectId}/tasks`, {
         actor: f.wsAdmin,
         idempotencyKey: newKey("m-task"),
-        body: { title: "Ma trận task", columnId: matrixColumnId, description: null },
+        body: { title: "Ma trận task", columnId: matrixColumnId, description: "" },
       });
       matrixTaskId = (response.body["data"] as { task: { id: string } }).task.id;
       return response;
@@ -366,7 +366,7 @@ describeIfDb("ma trận endpoint ↔ hợp đồng", () => {
     const taskCreated = await call(f, "POST", `/projects/${f.projectBId}/tasks`, {
       actor: f.owner,
       idempotencyKey: newKey("probe-task"),
-      body: { title: "Task của Project B", columnId, description: null },
+      body: { title: "Task của Project B", columnId, description: "" },
     });
     expect(taskCreated.status).toBe(201);
     const taskId = (taskCreated.body["data"] as { task: { id: string } }).task.id;
@@ -396,7 +396,7 @@ describeIfDb("ma trận endpoint ↔ hợp đồng", () => {
         {
           method: "POST",
           path: `/projects/${f.projectBId}/tasks`,
-          body: { title: "Task chen ngang", columnId, description: null },
+          body: { title: "Task chen ngang", columnId, description: "" },
         },
         { method: "GET", path: `/tasks/${taskId}` },
         { method: "PATCH", path: `/tasks/${taskId}`, body: { title: "X", expectedVersion: 1 } },

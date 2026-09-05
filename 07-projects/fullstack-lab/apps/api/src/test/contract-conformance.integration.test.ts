@@ -406,7 +406,7 @@ describeIfDb("response khớp hợp đồng của @flowboard/contracts", () => {
           const task = await call(f, "POST", `/projects/${projectId}/tasks`, {
             actor: f.wsAdmin,
             idempotencyKey: newKey("conf-vc-task"),
-            body: { title: "Việc", columnId, description: null },
+            body: { title: "Việc", columnId, description: "" },
           });
           const taskId = (task.body["data"] as { task: { id: string } }).task.id;
 

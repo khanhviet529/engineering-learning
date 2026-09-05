@@ -58,6 +58,15 @@ services:
       SMTP_HOST: ${SMTP_HOST}
       SMTP_PORT: ${SMTP_PORT}
       LOG_LEVEL: ${LOG_LEVEL}
+      # Nới rate limit cho **môi trường này**, không cho production.
+      #
+      # E2E tạo dữ liệu qua chính sản phẩm — cố ý, vì một seed ghi thẳng vào
+      # database sẽ bỏ qua đúng phần cần kiểm — và đi ra từ một IP. Không có
+      # biến này, mỗi lượt E2E phải tự giữ nhịp và mất thêm khoảng hai phút.
+      #
+      # Mặc định rỗng: thiếu cấu hình thì API nhận **bảng giới hạn production**,
+      # không phải không giới hạn. Xem `shared/config/env.ts`.
+      RATE_LIMIT_OVERRIDES: ${RATE_LIMIT_OVERRIDES:-}
     depends_on:
       postgres:
         condition: service_healthy
@@ -83,8 +92,15 @@ services:
     build:
       context: ../..
       dockerfile: infra/docker/web.Dockerfile
-    environment:
-      NODE_ENV: ${NODE_ENV}
+    # **Không** truyền `NODE_ENV` xuống đây. Container này chạy `next start`, tức
+    # là server production trên artefact do `next build` sinh ra; đặt
+    # `NODE_ENV=development` lên nó là khai một chế độ mà nó không chạy, và
+    # Next.js cảnh báo đúng như vậy ở log khởi động.
+    #
+    # Biến đó tồn tại trong `.env` vì **api** cần nó: `development` là thứ tắt cờ
+    # `Secure` của cookie phiên, mà không tắt thì trình duyệt không gửi cookie
+    # qua `http://localhost` và mọi request thành `401`. Một biến, hai nghĩa
+    # trái ngược — nên nó chỉ được gắn vào đúng service cần nó.
     depends_on:
       api:
         condition: service_healthy
