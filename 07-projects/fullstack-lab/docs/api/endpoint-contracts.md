@@ -176,6 +176,20 @@ Bản trước của dòng này hứa "page đầu default 25 task độc lập 
 
 Yêu cầu `project:update` (Owner), CSRF và `Idempotency-Key`. Body đúng shape `{ "name" }`; client không gửi description, visibility, archive/delete field, workspaceId, timestamp hay audit field. `200` trả `{ "project", "capabilities" }`; transaction ghi activity `project.updated`. Mọi field non-allowlisted/malformed là `400`; Editor/Viewer nhận `403`, hidden project nhận `404`.
 
+### GET /projects/:projectId/member-candidates — ai có thể được thêm vào project
+
+Yêu cầu `project:member:manage` (Owner). Query chỉ `cursor` và `limit`; `200` trả cursor page của `{ userId, displayName, email }` — **workspace member của workspace chứa project, trừ những người đã là project member**. Thứ tự `displayName`, rồi `userId` để tất định.
+
+Endpoint này tồn tại vì `POST /projects/:projectId/members` nhận `userId`, và **không màn hình nào trong sản phẩm hiển thị `userId` của ai**. Không có danh sách ứng viên thì `PRM-01` chỉ dùng được bằng cách dán UUID lấy từ nơi khác — tức là không dùng được. Danh mục màn hình đã hứa dữ liệu này từ đầu; đây là chỗ hợp đồng bắt kịp lời hứa đó.
+
+**Nó nới phạm vi nhìn thấy, và điều đó là có chủ đích.** Hôm nay `GET /workspaces/:workspaceId/members` đòi `workspace:member:manage` (Workspace Admin), nên một workspace member thường **không** xem được roster. Endpoint này cho một **project Owner** xem tên và email của workspace member.
+
+Lý do chấp nhận được: **không ai tự trở thành project Owner.** Project do Workspace Admin tạo — người vốn đã xem được roster — và Owner thêm chỉ do một Owner đang có cấp qua `POST /projects/:projectId/members`. Tập người được nới quyền vì vậy đúng bằng *"người đã được tin giao quản lý membership của một project"*, và quản lý membership mà không có danh sách ứng viên là một việc không làm được.
+
+Nó **không** lộ thêm: role workspace của ai, người đó thuộc project nào, hay bất cứ gì về project khác. Chỉ đủ để chọn đúng người.
+
+Project không accessible trả `404`; project nhìn thấy được nhưng actor không phải Owner trả `403`. Không side effect, không activity.
+
 ### POST /projects/:projectId/members — thêm project member
 
 Yêu cầu `project:member:manage` (Owner), CSRF và `Idempotency-Key`. Body đúng shape `{ "userId", "role" }`, role là một trong `owner|editor|viewer`; `201` trả project member projection. Target phải là WorkspaceMember của workspace chứa project; duplicate/cross-workspace target bị reject mà không có partial membership. Commit ghi activity `project_member.added`.

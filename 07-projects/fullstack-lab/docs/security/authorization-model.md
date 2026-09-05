@@ -91,6 +91,14 @@ request
 
 `AuthorizationService` là bộ đánh giá policy duy nhất. Controller và AI tool tương lai cung cấp actor, một action trong catalog, và một resource đã resolve; chúng không tự viết câu `if` theo role. Resource identity hay role claim do AI sinh ra đều là **không đáng tin** và được resolve rồi authorize độc lập qua đúng luồng này.
 
+### Một chỗ nới phạm vi nhìn thấy, có chủ đích
+
+`GET /projects/:projectId/member-candidates` cho **project Owner** xem tên và email của workspace member, trong khi `GET /workspaces/:workspaceId/members` đòi `workspace:member:manage` (Workspace Admin). Đó là một khác biệt thật và nó được quyết 06/09/2026.
+
+Vì sao chấp nhận được: **không ai tự trở thành project Owner.** Project do Workspace Admin tạo — người vốn đã xem được roster — và Owner thêm chỉ do một Owner đang có cấp. Tập người được nới quyền đúng bằng *"người đã được tin giao quản lý membership của một project"*, và quản lý membership mà không có danh sách ứng viên là việc không làm được: route thêm member nhận `userId`, và không màn hình nào hiển thị `userId` của ai.
+
+Ranh giới của chỗ nới này hẹp và phải giữ hẹp. Nó cho biết **ai tồn tại trong workspace** và đủ để phân biệt hai người trùng tên. Nó **không** cho biết role workspace của họ, họ đang ở project nào, hay bất cứ gì về project khác — và không được mở rộng theo hướng đó mà không xét lại chính đoạn này.
+
 ## Hợp đồng repository đã scope
 
 Một query hoặc mutation của repository trên dữ liệu project nhận `projectId`/phạm vi project đã được authorize, không nhận một resource ID trần tùy ý. Tối thiểu nó áp các predicate sau:

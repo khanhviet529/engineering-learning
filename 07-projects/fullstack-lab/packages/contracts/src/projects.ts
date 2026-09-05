@@ -148,3 +148,29 @@ export const overviewQuerySchema = z
   .strict();
 
 export type OverviewQuery = z.infer<typeof overviewQuerySchema>;
+
+/**
+ * `GET /projects/:projectId/member-candidates` — ai có thể được thêm vào project.
+ *
+ * Tồn tại vì `POST /projects/:projectId/members` nhận `userId`, và **không màn
+ * hình nào hiển thị `userId` của ai**. Không có danh sách này thì `PRM-01` chỉ
+ * dùng được bằng cách dán UUID lấy từ nơi khác.
+ *
+ * Projection cố tình hẹp: đủ để **chọn đúng người**, không hơn. `email` có mặt
+ * vì hai người có thể trùng tên hiển thị, và Owner cần chắc mình thêm đúng ai.
+ * **Không** có role workspace, không có project nào người đó đang ở — những
+ * thứ đó không giúp chọn người và chúng nới phạm vi nhìn thấy mà không cần.
+ */
+export const memberCandidateSchema = z
+  .object({
+    userId: uuidSchema,
+    displayName: z.string().min(1),
+    email: z.email(),
+  })
+  .strict();
+
+export type MemberCandidate = z.infer<typeof memberCandidateSchema>;
+
+/** Query chỉ có phân trang — không filter, không search. */
+export const listMemberCandidatesQuerySchema = paginationQuerySchema.strict();
+export type ListMemberCandidatesQuery = z.infer<typeof listMemberCandidatesQuerySchema>;
