@@ -12,6 +12,8 @@ GitHub Actions chỉ đọc `.github/workflows/` ở gốc; một workflow nằm
 
 `paths` giới hạn workflow vào `07-projects/fullstack-lab/**`: phần còn lại của repository là kho kiến thức riêng, và một thay đổi ở đó không được kéo theo một lượt CI dựng Docker.
 
+CI chạy trên **Ubuntu** và bắt đầu từ **số không** mỗi lượt — hai tính chất mà máy phát triển không có. Xem [local development](local-development.md) mục "Ba môi trường" để biết loại lỗi nào chỉ khoảng cách đó sinh ra.
+
 ## Pull-request pipeline bắt buộc
 
 Pipeline chạy theo đúng thứ tự để failure rẻ xuất hiện trước:

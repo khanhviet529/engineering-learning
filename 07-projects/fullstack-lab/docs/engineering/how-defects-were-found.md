@@ -19,6 +19,8 @@ Mỗi mục có sáu phần: triệu chứng · vì sao xảy ra · ai hay mắc
 | `exposedHeaders` thiếu | người review, lúc kiểm báo cáo CORS | **chính E2E** |
 | Tiền đề rotate secret sai | backend **đọc code** | người viết yêu cầu |
 | `dueStates` thiếu một khoá | test ghim của backend | **tổng vẫn khớp** |
+| Màu đã sửa chưa bao giờ tới ứng dụng | CI, **lượt chạy đầu tiên** | freeze design, review của tôi, 1.377 test |
+| `dist` thiếu trên runner sạch | cùng lượt chạy đó | mọi máy dev, vì `dist` **còn sót lại** |
 
 > **Mọi cổng bắt được lỗi đều là cổng chạy thứ thật. Mọi cổng im lặng đều là cổng kiểm một *mô hình* của thứ thật.**
 
@@ -178,6 +180,46 @@ Mỗi mục có sáu phần: triệu chứng · vì sao xảy ra · ai hay mắc
 **Chọn: đủ năm khoá.** Một tên chỉ được mang một nghĩa trong toàn hệ thống.
 
 **Bài học.** Bất biến dễ kiểm nhất thường là bất biến yếu nhất. Khi một phép cộng khớp, hãy hỏi thêm: **từng phần có đúng nghĩa cái tên nó mang không?**
+
+## 10. Màu đã sửa chưa bao giờ tới ứng dụng
+
+**Triệu chứng.** `packages/ui/src/tokens.css` ship `--fb-color-text-subtle: #94A3B8` — đúng giá trị **2,6:1** mà vòng design đã sửa. Giá trị đúng `#6B7280` nằm trong artifact và không ở đâu khác.
+
+**Vì sao xảy ra.** `tokens.css` là file **được sinh ra** từ artifact bằng `pnpm tokens`. Vòng design sửa màu, người review xác minh, freeze được chốt, `.pen` được commit — và không ai chạy lệnh sinh lại.
+
+**Ai hay mắc.** Mọi dự án có file sinh ra được commit: client OpenAPI, snapshot i18n, migration từ schema, type sinh từ GraphQL. Nguồn đổi thì file sinh **không tự đổi theo**, và nó vẫn hợp lệ về cú pháp nên không cổng thông thường nào phàn nàn.
+
+**Vì sao cổng cũ im lặng.** Không cổng nào kiểm quan hệ **nguồn → file sinh**. `pnpm verify` xanh vì `tokens.css` là CSS hợp lệ. 1.377 test xanh vì không test nào so nó với artifact. Biên bản freeze ghi "đã sửa" và đúng — với artifact, không với ứng dụng. Bước bắt được nó, `pnpm tokens && git diff --exit-code`, **đã tồn tại trong workflow từ lâu và chưa từng thực thi**.
+
+| Giải pháp | Được | Mất |
+|---|---|---|
+| Nhớ chạy `pnpm tokens` sau mỗi vòng design | Không tốn gì | Dựa vào trí nhớ — đã hỏng ngay lần đầu |
+| Sinh lại lúc build, không commit file sinh | Không thể lệch | Build phụ thuộc artifact; `.pen` phải có mặt ở mọi môi trường build |
+| Commit file sinh **và** một cổng CI so lại | Đọc được trong diff, và lệch thì đỏ | Cần CI thật sự chạy |
+
+**Chọn: cách thứ ba** — nó đã được chọn từ đầu và viết đúng. Thứ thiếu không phải thiết kế mà là **việc cổng đó chưa bao giờ chạy**.
+
+**Bài học.** Một file được sinh ra mà được commit thì **bắt buộc** phải có một cổng so nó với nguồn. Không có cổng đó, nó chỉ là một bản sao sẽ trôi — và nó trôi im lặng, vì bản thân nó vẫn hợp lệ.
+
+## 11. `dist` thiếu trên runner sạch
+
+**Triệu chứng.** `Failed to resolve entry for package "@flowboard/contracts"` — 22 suite đổ ngay lúc import, không phải ở assertion nào.
+
+**Vì sao xảy ra.** Job `integration` chạy test mà không build trước. `packages/contracts` trỏ `main` vào `./dist`.
+
+**Ai hay mắc.** Mọi monorepo có package nội bộ build ra `dist`. Nó **không bao giờ** lộ trên máy phát triển, vì `dist` còn lại từ lần build bất kỳ trước đó.
+
+**Vì sao cổng cũ im lặng.** Không cổng nào từng **bắt đầu từ số không**. Máy dev luôn chạy trên trạng thái tích luỹ; CI chưa từng chạy. Đây là **lần thứ hai** cùng một nguyên nhân — lần đầu là `web.Dockerfile` build thiếu `contracts` và `ui`, tìm ra ở M5.5 khi lần đầu có người dựng image từ context sạch.
+
+| Giải pháp | Được | Mất |
+|---|---|---|
+| Trỏ `main` vào source `.ts` | Không cần build | Mất ranh giới build; mọi consumer phải tự transpile |
+| Thêm bước build vào job | Một dòng, đúng chỗ | Phải nhớ ở **mọi** job có consumer |
+| Một job `build` chạy trước, chia artifact | Khai báo một lần | Thêm bậc trong pipeline |
+
+**Chọn: thêm bước build.** Pipeline hiện có 5 job và chỉ 2 job cần `dist`; chia artifact là thêm phức tạp cho một vấn đề hai dòng.
+
+**Bài học, và nó lớn hơn bản sửa.** **Một phụ thuộc được thoả mãn bằng state còn sót lại thì không phải là một phụ thuộc đã được khai báo.** Chỗ duy nhất chứng minh được điều đó là môi trường bắt đầu từ số không — CI, hoặc một `docker build` không cache. Máy phát triển **không bao giờ** là chỗ đó.
 
 ---
 

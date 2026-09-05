@@ -21,6 +21,35 @@ browser -> web (Next.js) -> api (NestJS/Fastify) -> PostgreSQL
 
 Không thêm Redis, BullMQ, `apps/worker`, queue dashboard hay broker vào core Compose. [Phase 1.2](../product/delivery-roadmap.md) mới thêm Redis và worker sau khi report delivery là asynchronous; thay đổi đó cần ADR, topology/health/backup/telemetry/test cập nhật cùng lúc.
 
+## Ba môi trường, và khoảng cách giữa chúng
+
+Code của dự án này chạy ở **ba** nơi khác nhau, không phải hai. Biết chúng khác nhau ở đâu là biết trước loại lỗi nào sẽ xuất hiện ở đâu.
+
+| Môi trường | Hệ điều hành | Chạy gì | Bắt đầu từ |
+|---|---|---|---|
+| Máy phát triển | **Windows** | `pnpm verify` chạy Node trực tiếp; PostgreSQL và Mailpit trong Compose, nối qua `localhost` | Trạng thái đã có sẵn — `node_modules`, `dist`, `.next` còn từ lần trước |
+| CI runner | **Ubuntu** | Cùng `pnpm verify`; PostgreSQL là service container | **Số không.** Clone sạch, mỗi lượt |
+| Production | **Linux trong container** | `node dist/main.js` | Image build từ chính commit đó |
+
+Không ai cần cài Ubuntu để phát triển. CI **là** cổng Linux, và đó là việc của nó.
+
+### Hai loại lỗi mà chỉ khoảng cách này sinh ra
+
+**Windows ≠ Linux.** Phân biệt hoa/thường trong tên file: `import "./Foo.ts"` cho file `foo.ts` chạy trên Windows, **đỏ trên Linux**. Line ending thì đã được `.gitattributes` ghim `eol=lf` cho mọi loại file toolchain chạm tới — thiếu nó thì `pnpm format` đỏ ngay trên máy vừa clone dù repository hoàn toàn đúng.
+
+**Máy dev không bao giờ bắt đầu từ số không.** Đây là loại lỗi khó thấy hơn, và nó đã xảy ra **hai lần**:
+
+- `apps/api` import `@flowboard/contracts`, package đó trỏ `main` vào `./dist`. Máy dev luôn có `dist` còn sót từ lần build trước; runner sạch thì không, và test đổ ngay ở bước resolve. Job `integration` thiếu một bước build và không ai thấy trong sáu mốc.
+- `web.Dockerfile` chỉ build `apps/web` mà không build `contracts` và `ui`. Cùng nguyên nhân, tìm ra ở M5.5 khi lần đầu có người dựng image từ context sạch.
+
+Quy tắc rút ra: **một phụ thuộc được thoả mãn bằng state còn sót lại thì không phải là một phụ thuộc đã được khai báo.** Chỗ duy nhất chứng minh được điều đó là một môi trường bắt đầu từ số không — tức là CI, hoặc một `docker build` không cache.
+
+### Vì sao khoảng cách này đáng lo hơn nó trông
+
+Production là **Linux**, máy phát triển là **Windows**, và cho tới khi CI thật sự chạy thì **không gì bắc qua khoảng cách đó**. Sáu mốc trôi qua với `pnpm verify` xanh trên đúng một hệ điều hành mà sản phẩm sẽ không bao giờ chạy trên đó.
+
+Xem thêm [ci-cd.md](ci-cd.md) — mục "Nơi workflow phải nằm" giải thích vì sao pipeline đã tồn tại suốt thời gian đó mà chưa từng thực thi.
+
 ## Cách dùng sau khi scaffold
 
 Implementation phải cung cấp một Compose profile/local target có tên ổn định để start/stop bốn service trên, cùng một command rõ ràng để xem service health và log. Tên file/script cụ thể được chọn khi `infra/compose` và package scripts được scaffold; tài liệu này không giả vờ command chưa tồn tại đã chạy được.
