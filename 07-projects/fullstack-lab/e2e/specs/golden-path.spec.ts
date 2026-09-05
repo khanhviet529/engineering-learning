@@ -227,7 +227,13 @@ test("vòng đời Owner → Editor → Viewer đi hết qua giao diện", async
     // được phát cho cả lần tạo lẫn lần sửa, nên một câu còn sót lại từ lần tạo
     // sẽ làm bài kiểm xanh trong khi lần sửa vừa thất bại.
     await expect(editForm).toHaveCount(0);
-    await expect(ownerPage.getByText("Ưu tiên cao")).toBeVisible();
+    // Neo vào **lớp phủ chi tiết**, không vào cả trang: sau khi lưu, cùng một
+    // huy hiệu xuất hiện ở hai chỗ — thẻ trên board và lớp phủ vừa mở lại.
+    // Máy chậm thường chỉ kịp vẽ một chỗ, nên một locator không neo sẽ xanh ở
+    // máy này và đỏ ở máy nhanh hơn. CI là máy nhanh hơn.
+    await expect(
+      ownerPage.getByRole("dialog", { name: taskTitle }).getByText("Ưu tiên cao"),
+    ).toBeVisible();
 
     await visit(ownerPage, `/du-an/${projectId}/thanh-vien`);
     await ownerPage
