@@ -66,6 +66,18 @@ jobs:
           pnpm tokens
           git diff --exit-code -- packages/ui/src/tokens.css
 
+      - name: Build workspace package trước, vì mọi bước sau resolve qua `dist`
+        # `packages/*` trỏ `main`/`types` vào `./dist`, nên `typecheck` của
+        # `packages/mock` và `apps/web` cần chúng **đã build** — trong khi bước
+        # `Build` ở cuối job lại chạy sau. Máy dev không bao giờ thấy vì `dist`
+        # còn sót từ lần build trước; runner sạch thì đổ ngay ở resolve.
+        #
+        # Đây là lần **thứ ba** cùng một nguyên nhân, sau `web.Dockerfile` ở
+        # M5.5 và job `integration` ở lượt CI trước. Quy tắc: một phụ thuộc
+        # được thoả mãn bằng state còn sót lại thì chưa phải một phụ thuộc đã
+        # được khai báo.
+        run: pnpm --filter "./packages/**" build
+
       - name: Format
         run: pnpm format
 
