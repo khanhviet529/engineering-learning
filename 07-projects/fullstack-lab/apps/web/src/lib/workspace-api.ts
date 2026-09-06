@@ -13,7 +13,9 @@ import {
   type InviteWorkspaceMemberRequest,
   type ListInvitationsQuery,
   type PendingInvitation,
+  type ListMemberCandidatesQuery,
   type ListProjectsQuery,
+  type MemberCandidate,
   type Page,
   type Project,
   type ProjectDetail,
@@ -213,6 +215,26 @@ export function renameProject(
   // Hợp đồng: body đúng shape `{ name }`. Không description, không visibility,
   // không archive — thêm field ở đây là hợp thức hoá một field chưa ai duyệt.
   return transport.request(`/projects/${projectId}`, { method: "PATCH", body: { name }, intent });
+}
+
+/**
+ * `GET /projects/:projectId/member-candidates` — ai có thể được thêm vào project.
+ *
+ * Server trả **thành viên workspace trừ project member hiện tại**, đã sắp theo
+ * `displayName` rồi `userId`. Client **không** lọc lại và **không** sắp lại:
+ * làm vậy là nhân bản một quy tắc mà server sở hữu, và bản sao sẽ lệch — đúng
+ * lúc một người vừa được thêm vào project ở tab khác.
+ *
+ * Query chỉ có `cursor` và `limit`. Không có tham số tìm kiếm: hợp đồng cố ý
+ * không mở trục nào, vì mỗi trục là một cách dò xem ai tồn tại trong workspace.
+ */
+export function listMemberCandidates(
+  projectId: string,
+  query: ListMemberCandidatesQuery = { limit: PAGE_LIMIT_DEFAULT },
+): Promise<ApiResult<ListPayload<MemberCandidate>>> {
+  const params = new URLSearchParams({ limit: String(query.limit) });
+  if (query.cursor !== undefined) params.set("cursor", query.cursor);
+  return transport.request(`/projects/${projectId}/member-candidates?${params.toString()}`);
 }
 
 export function addProjectMember(

@@ -24,6 +24,7 @@ import {
   comments,
   ids,
   invitations,
+  memberCandidates,
   members,
   projectB,
   tasks,
@@ -345,7 +346,49 @@ export const projectHandlers = {
     if (failed) return failed;
     return ok({ project: projectB, capabilities: capabilitiesByRole[ctx.role ?? "owner"] });
   },
+
+  /**
+   * `GET /projects/:projectId/member-candidates` — ai có thể được thêm vào project.
+   *
+   * Mock **có** chia trang ở đây, khác với các list handler còn lại. Lý do hẹp:
+   * hợp đồng nói danh sách này phân trang bằng cursor, và một mock luôn trả
+   * đúng một trang sẽ để client bỏ quên nhánh `nextCursor` — bỏ quên mà vẫn
+   * xanh, cho tới ngày gặp một workspace lớn. Phép chia vẫn **không** có trạng
+   * thái: chính giá trị `cursor` chọn ra trang, không có gì được nhớ giữa hai
+   * request.
+   *
+   * Mock **không** hiện thực `limit`. `MOCK_PAGE_SIZE` là con số của mock, không
+   * phải của server; đừng suy ra gì về kích thước trang thật từ đây.
+   *
+   * Fixture đã là roster workspace **trừ** project member hiện tại — server
+   * lọc, không phải client. Xem `memberCandidates`.
+   */
+  memberCandidates(cursor: string | null = null, ctx: HandlerContext = {}): MockResponse<unknown> {
+    const failed = guard(ctx);
+    if (failed) return failed;
+
+    const start = cursor === MOCK_SECOND_PAGE_CURSOR ? MOCK_PAGE_SIZE : 0;
+    const items = memberCandidates.slice(start, start + MOCK_PAGE_SIZE);
+    const hasMore = start + MOCK_PAGE_SIZE < memberCandidates.length;
+    return okList(items, {
+      nextCursor: hasMore ? MOCK_SECOND_PAGE_CURSOR : null,
+      hasMore,
+    });
+  },
+
+  /** Mọi thành viên workspace đã ở trong project — trang rỗng, **không** phải lỗi. */
+  noMemberCandidates(ctx: HandlerContext = {}): MockResponse<unknown> {
+    const failed = guard(ctx);
+    if (failed) return failed;
+    return okList([], { nextCursor: null, hasMore: false });
+  },
 };
+
+/** Kích thước trang của **mock**, không phải của server. */
+const MOCK_PAGE_SIZE = 5;
+
+/** Cursor opaque duy nhất mock phát hành; giá trị khác được coi là trang đầu. */
+const MOCK_SECOND_PAGE_CURSOR = "mock-candidates-page-2";
 
 // ---------------------------------------------------------- board columns
 

@@ -2,7 +2,6 @@ import { expect, test, type Browser, type Page } from "@playwright/test";
 import {
   acceptInvitation,
   addColumn,
-  apiCall,
   createProject,
   createWorkspace,
   inviteToWorkspace,
@@ -31,30 +30,6 @@ test.afterAll(async () => {
   await disposeMailpit();
 });
 
-/**
- * Tra `userId` của một thành viên workspace.
- *
- * **Đây là một lối tắt, và nó là một phát hiện chứ không phải một tiện ích.**
- * `PRM-01` yêu cầu dán UUID vào ô "Mã người dùng", nhưng không màn hình nào
- * trong sản phẩm hiển thị UUID của bất kỳ ai: bảng thành viên chỉ đưa `userId`
- * vào `key` của React, `USR-01` chỉ hiện tên và email. Nghĩa là chặng "thêm
- * người thứ hai vào dự án" **không đi hết được bằng giao diện**.
- *
- * Bộ kiểm đi vòng qua API để phần còn lại của vòng đời vẫn chạy được, và ghi
- * lại đúng chỗ đứt ở đây thay vì giả vờ rằng nó liền.
- */
-async function lookupUserId(page: Page, workspaceId: string, email: string): Promise<string> {
-  const result = await apiCall(page, "GET", `/workspaces/${workspaceId}/members`);
-  expect(result.status, "không đọc được danh sách thành viên workspace").toBe(200);
-  const items = (result.body as { data?: { items?: { userId: string; email: string }[] } }).data
-    ?.items;
-  const match = items?.find((item) => item.email === email);
-  if (match === undefined) {
-    throw new Error(`${email} chưa có trong danh sách thành viên của workspace ${workspaceId}`);
-  }
-  return match.userId;
-}
-
 async function newSession(browser: Browser): Promise<Page> {
   const context = await browser.newContext();
   return context.newPage();
@@ -69,7 +44,6 @@ test("vòng đời Owner → Editor → Viewer đi hết qua giao diện", async
 
   let workspaceId = "";
   let projectId = "";
-  let partnerUserId = "";
   const projectName = `Du an ${Date.now().toString(36)}`;
   const taskTitle = `Viec dau tien ${Date.now().toString(36)}`;
 
@@ -99,12 +73,18 @@ test("vòng đời Owner → Editor → Viewer đi hết qua giao diện", async
   await test.step("3 · tạo dự án, thêm Editor, tạo cột, đổi thứ tự cột", async () => {
     projectId = await createProject(ownerPage, workspaceId, projectName);
 
-    partnerUserId = await lookupUserId(ownerPage, workspaceId, partner.email);
-
+    // Chọn người bằng **tên**, không dán mã.
+    //
+    // Cho tới hôm nay chặng này là lối tắt duy nhất còn lại trong golden path:
+    // `PRM-01` đòi một UUID mà không màn hình nào hiển thị, nên bộ kiểm phải
+    // hỏi `GET /workspaces/:id/members` rồi dán kết quả vào. Lối tắt đó **đã
+    // biến mất** cùng ô nhập: `GET /projects/:projectId/member-candidates` cấp
+    // danh sách, và vòng đời giờ đi hết bằng đúng những cú bấm người dùng bấm.
     await ownerPage.getByRole("button", { name: "Thêm thành viên" }).click();
-    await ownerPage.getByLabel("Mã người dùng").fill(partnerUserId);
-    await ownerPage.getByLabel("Vai trò trong dự án").selectOption("editor");
-    await ownerPage.getByRole("button", { name: "Thêm vào dự án" }).click();
+    const addDialog = ownerPage.getByRole("dialog", { name: "Thêm thành viên dự án" });
+    await addDialog.getByRole("radio", { name: new RegExp(partner.displayName) }).check();
+    await addDialog.getByLabel("Vai trò trong dự án").selectOption("editor");
+    await addDialog.getByRole("button", { name: "Thêm vào dự án" }).click();
     await expect(
       ownerPage.getByRole("rowheader", { name: new RegExp(partner.displayName) }),
     ).toBeVisible();
@@ -127,8 +107,17 @@ test("vòng đời Owner → Editor → Viewer đi hết qua giao diện", async
     const lifted = panel.getByRole("button", { name: /^Sắp xếp cột Xong, vị trí 2 trên 3$/ });
     await expect(lifted).toBeVisible();
     await lifted.click();
-    await panel.getByRole("button", { name: "Lưu thứ tự cột" }).click();
+    const save = panel.getByRole("button", { name: "Lưu thứ tự cột" });
+    await save.click();
     await expect(panel.getByText("Đã lưu thứ tự cột.")).toBeVisible();
+
+    // Chờ tới khi bản nháp **hết dirty**, không chỉ tới khi câu công bố hiện.
+    // Câu công bố phát ra trong `onSuccess`, tức là **trước** lượt đọc lại
+    // `GET /projects/:id`; trong khoảng giữa, `order` đã là thứ tự mới còn
+    // `serverIds` vẫn là thứ tự cũ, nên panel còn coi mình là dirty và `Hủy`
+    // mở hộp xác nhận bỏ thay đổi thay vì đóng. Máy chậm đủ để lọt vào khoảng
+    // đó — đã bắt được một lần. Nút lưu tắt đi **là** dấu hiệu hết dirty.
+    await expect(save).toBeDisabled();
 
     await panel.getByRole("button", { name: "Hủy" }).click();
     await expect(panel).toHaveCount(0);

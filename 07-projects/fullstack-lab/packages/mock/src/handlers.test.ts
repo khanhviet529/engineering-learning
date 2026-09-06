@@ -3,6 +3,7 @@ import {
   errorEnvelopeSchema,
   listEnvelopeSchema,
   pendingInvitationSchema,
+  memberCandidateSchema,
   projectListItemSchema,
   successEnvelopeSchema,
   activitySchema,
@@ -30,7 +31,15 @@ import {
   workspaceHandlers,
   type Scenario,
 } from "./handlers.js";
-import { ids, invitations } from "./fixtures.js";
+import { ids, invitations, memberCandidates, members } from "./fixtures.js";
+
+/** Hình dạng body list của ứng viên, để test đọc `items`/`page` không phải cast rời rạc. */
+interface CandidatePage {
+  data: {
+    items: { userId: string; displayName: string; email: string }[];
+    page: { nextCursor: string | null; hasMore: boolean };
+  };
+}
 
 /**
  * Cổng ra đo được của M0.3.
@@ -189,6 +198,47 @@ describe("nhánh thành công khớp schema contract", () => {
     );
     const parsed = schema.safeParse(res.body);
     expect(parsed.success, JSON.stringify(parsed.error?.issues)).toBe(true);
+  });
+
+  it("danh sách ứng viên parse được bằng memberCandidateSchema", () => {
+    const res = projectHandlers.memberCandidates();
+    const parsed = listEnvelopeSchema(memberCandidateSchema).safeParse(res.body);
+    expect(parsed.success, JSON.stringify(parsed.error?.issues)).toBe(true);
+  });
+
+  it("ứng viên KHÔNG gồm người đã là thành viên project", () => {
+    // Hợp đồng nói server đã lọc. Một fixture chứa họ sẽ dạy frontend rằng nó
+    // phải tự lọc, và frontend viết theo đó sẽ lọc nhầm khi gặp server thật.
+    const everyone = [
+      ...(projectHandlers.memberCandidates().body as CandidatePage).data.items,
+      ...(projectHandlers.memberCandidates("mock-candidates-page-2").body as CandidatePage).data
+        .items,
+    ];
+    const existing = new Set(members.map((member) => member.userId));
+    expect(everyone.filter((candidate) => existing.has(candidate.userId))).toEqual([]);
+  });
+
+  it("cursor dẫn sang trang sau, và trang sau là trang cuối", () => {
+    const first = (projectHandlers.memberCandidates().body as CandidatePage).data;
+    expect(first.page.hasMore).toBe(true);
+    expect(first.page.nextCursor).not.toBeNull();
+
+    const second = (projectHandlers.memberCandidates(first.page.nextCursor).body as CandidatePage)
+      .data;
+    expect(second.page.hasMore).toBe(false);
+    expect(second.page.nextCursor).toBeNull();
+
+    // Hai trang ghép lại đúng bằng fixture, không trùng và không thiếu ai.
+    const ids = [...first.items, ...second.items].map((candidate) => candidate.userId);
+    expect(ids).toEqual(memberCandidates.map((candidate) => candidate.userId));
+  });
+
+  it("trang rỗng là một câu trả lời hợp lệ, không phải lỗi", () => {
+    const res = projectHandlers.noMemberCandidates();
+    expect(res.status).toBe(200);
+    const parsed = listEnvelopeSchema(memberCandidateSchema).safeParse(res.body);
+    expect(parsed.success, JSON.stringify(parsed.error?.issues)).toBe(true);
+    expect((res.body as CandidatePage).data.items).toEqual([]);
   });
 
   it("danh sách task", () => {

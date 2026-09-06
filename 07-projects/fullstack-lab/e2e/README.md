@@ -56,7 +56,9 @@ Chỗ đúng của nó là một job CI riêng, sau `integration`. Xem mục đ�
   event loop của Node — một Docker daemon kẹt sẽ treo luôn đồng hồ của Playwright, và spec đứng im
   thay vì đỏ. Vì vậy lệnh đó có `timeout` và một câu ném đọc được.
 - **Lối tắt phải có chú thích.** Chỗ nào không đi qua giao diện được thì hàm đó nói ra lý do ngay
-  tại chỗ. Xem `lookupUserId` trong `specs/golden-path.spec.ts`.
+  tại chỗ. Golden path hiện **không còn lối tắt nào**: chặng cuối cùng — thêm người thứ hai vào dự
+  án — từng phải hỏi API để lấy một UUID mà không màn hình nào hiển thị, và nó đã đi qua giao diện
+  từ khi `PRM-01` có picker.
 
 ## Bản đồ
 

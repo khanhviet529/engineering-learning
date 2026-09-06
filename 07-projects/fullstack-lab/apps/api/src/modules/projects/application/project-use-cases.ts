@@ -83,6 +83,20 @@ export interface ProjectListView {
   updatedAt: Date;
 }
 
+/**
+ * Một ứng viên: đúng ba field của `memberCandidateSchema`, không hơn.
+ *
+ * Không `role` workspace, không project nào người đó đang ở. Hợp đồng nói rõ
+ * endpoint này **nới phạm vi nhìn thấy** có chủ đích, và thứ giữ cho việc nới
+ * đó có biên là projection hẹp — mỗi field thêm vào đây là một lần nới nữa mà
+ * không ai duyệt.
+ */
+export interface MemberCandidateView {
+  userId: string;
+  displayName: string;
+  email: string;
+}
+
 export interface ProjectDetailView {
   project: ProjectView;
   capabilities: string[];
@@ -191,6 +205,87 @@ export class ProjectUseCases {
     return buildPage(rows, input.limit, fingerprint, this.#deps.cursorSecret, (row) => ({
       sortKey: row.createdAt.toISOString(),
       id: row.id,
+    }));
+  }
+
+  /**
+   * `GET /projects/:projectId/member-candidates` — ai có thể được thêm vào project.
+   *
+   * Guard đã cưỡng chế `project:member:manage`, nên tới đây actor chắc chắn là
+   * **Owner** của project: người ngoài đã nhận `404` và Editor/Viewer đã nhận
+   * `403` trước khi vào đây. Use case không kiểm lại quyền; nó cũng không được
+   * tự nới — mọi lượt đọc dưới đây bám vào `projectId` **đã resolve**, không
+   * vào một ID nào khác do client gửi.
+   *
+   * Ba bước, và thứ tự của chúng là thứ tự của tính đúng:
+   *
+   * 1. Đọc project để lấy `workspaceId`. Phạm vi roster là workspace **chứa
+   *    project**, không phải một workspace nào client nêu.
+   * 2. Đọc member hiện tại của chính project này — bảng của module `projects`,
+   *    không cần port.
+   * 3. Hỏi port một **trang** roster đã trừ sẵn những người đó.
+   *
+   * Không transaction: đây là một lượt đọc không side effect, và hai câu đọc
+   * tách nhau nghĩa là một người vừa được thêm vào project giữa hai câu vẫn có
+   * thể lọt vào trang này. Hậu quả bị chặn: `POST /projects/:projectId/members`
+   * đã từ chối duplicate, nên chọn nhầm người đó chỉ dẫn tới một lỗi đọc được,
+   * không dẫn tới membership hỏng. Mở transaction cho một endpoint đọc để đóng
+   * một khe cửa sổ vài mili-giây là cái giá không tương xứng.
+   */
+  async listMemberCandidates(
+    actor: Actor,
+    projectId: string,
+    input: { limit: number; cursor?: string },
+  ): Promise<PageResult<MemberCandidateView>> {
+    const project = await this.#deps.repository.findProjectById(projectId);
+    // Guard đã cho qua nhưng project không có: dữ liệu không nhất quán. Vẫn
+    // `404` — cùng response với mọi nhánh "không thấy".
+    if (project === undefined) throw new AppError("NOT_FOUND");
+
+    /**
+     * Fingerprint bind **project**, không bind workspace.
+     *
+     * Hai project trong cùng một workspace cho hai tập ứng viên khác nhau, vì
+     * tập loại trừ khác nhau. Bind theo workspace sẽ cho cursor của project A
+     * dùng được ở project B và trả một trang lệch mà không ai báo lỗi.
+     *
+     * `actor` cũng vào fingerprint dù kết quả không phụ thuộc actor: nó giữ
+     * đúng quy ước của mọi endpoint phân trang khác ở đây, và nó chặn việc một
+     * cursor đi qua tay người khác vẫn còn dùng được.
+     */
+    const fingerprint = queryFingerprint({
+      list: "project-member-candidates",
+      actor: actor.id,
+      project: projectId,
+      sort: "displayName:asc,userId:asc",
+    });
+
+    const after =
+      input.cursor === undefined
+        ? undefined
+        : (() => {
+            const decoded = decodeCursor(input.cursor, fingerprint, this.#deps.cursorSecret);
+            // `CursorPayload` vốn đã là một khoá hai cột: `sortKey` cộng `id`.
+            // `displayName` trùng nhau được, nên `userId` là thứ làm cho thứ tự
+            // trở thành toàn phần — không có nó, hai người cùng tên sẽ lặp lại
+            // hoặc biến mất ở ranh giới trang.
+            return { displayName: decoded.sortKey, userId: decoded.id };
+          })();
+
+    // Chỉ id, không kéo tên và email của member hiện tại: chúng không được
+    // dùng ở đây, và đây là endpoint ít nên đọc thừa PII nhất.
+    const existingIds = await this.#deps.repository.findMemberUserIdsOfProject(projectId);
+
+    const rows = await this.#deps.workspaceMembership.listWorkspaceRoster({
+      workspaceId: project.workspaceId,
+      excludeUserIds: existingIds,
+      limit: input.limit,
+      ...(after === undefined ? {} : { after }),
+    });
+
+    return buildPage(rows, input.limit, fingerprint, this.#deps.cursorSecret, (row) => ({
+      sortKey: row.displayName,
+      id: row.userId,
     }));
   }
 

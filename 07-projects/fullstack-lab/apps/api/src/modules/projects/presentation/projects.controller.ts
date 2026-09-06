@@ -19,6 +19,7 @@ import {
   addProjectMemberRequestSchema,
   changeProjectMemberRoleRequestSchema,
   createProjectRequestSchema,
+  listMemberCandidatesQuerySchema,
   listProjectsQuerySchema,
   renameProjectRequestSchema,
 } from "@flowboard/contracts";
@@ -41,6 +42,7 @@ import {
 } from "../../../shared/http/idempotency-runner.ts";
 import type { Database } from "../../../shared/database/client.ts";
 import type {
+  MemberCandidateView,
   ProjectListView,
   ProjectMemberView,
   ProjectUseCases,
@@ -117,6 +119,22 @@ function toColumnProjection(column: ProjectColumnView) {
     isTerminal: column.isTerminal,
     position: formatPosition(column.position),
     archivedAt: column.archivedAt === null ? null : column.archivedAt.toISOString(),
+  };
+}
+
+/**
+ * Projection ứng viên — đúng ba field, viết tường minh.
+ *
+ * Không `...candidate`: spread sẽ để một field mới thêm vào view **tự động** đi
+ * ra response, và endpoint này là chỗ đúng nhất để điều đó không được xảy ra —
+ * nó nới phạm vi nhìn thấy có chủ đích, và biên của việc nới là danh sách field
+ * này.
+ */
+function toCandidateProjection(candidate: MemberCandidateView) {
+  return {
+    userId: candidate.userId,
+    displayName: candidate.displayName,
+    email: candidate.email,
   };
 }
 
@@ -238,6 +256,40 @@ export class ProjectsController {
       capabilities: detail.capabilities,
       columns: detail.columns.map(toColumnProjection),
       members: detail.members.map(toMemberProjection),
+    });
+  }
+
+  /**
+   * `GET /projects/:projectId/member-candidates` — `200`.
+   *
+   * Permission là `project:member:manage` (Owner), không phải `project:read`:
+   * hợp đồng nói rõ đây là một lần **nới phạm vi nhìn thấy**, và tập người được
+   * nới đúng bằng "người đã được tin giao quản lý membership của project này".
+   * Editor và Viewer là member nên guard cho họ `403`, không phải một trang
+   * rỗng — trang rỗng sẽ nói dối rằng workspace không có ai để thêm.
+   *
+   * Không CSRF và không `Idempotency-Key`: đây là một lượt đọc, không side
+   * effect, không activity.
+   */
+  @Get("projects/:projectId/member-candidates")
+  @RequireProjectPermission("project:member:manage")
+  async listMemberCandidates(
+    @Req() request: FastifyRequest,
+    @Param() params: unknown,
+    @Query() query: unknown,
+  ) {
+    const actor = getActor(request);
+    const { projectId } = parse(projectIdParamSchema, params);
+    const page = parse(listMemberCandidatesQuerySchema, query ?? {});
+
+    const result = await this.useCases.listMemberCandidates(actor, projectId, {
+      limit: page.limit,
+      ...(page.cursor === undefined ? {} : { cursor: page.cursor }),
+    });
+
+    return okList(request, result.items.map(toCandidateProjection), {
+      nextCursor: result.nextCursor,
+      hasMore: result.hasMore,
     });
   }
 

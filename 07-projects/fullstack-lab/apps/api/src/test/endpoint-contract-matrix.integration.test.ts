@@ -374,6 +374,7 @@ describeIfDb("ma trận endpoint ↔ hợp đồng", () => {
     const routes: { method: "GET" | "PATCH" | "POST" | "DELETE"; path: string; body?: unknown }[] =
       [
         { method: "GET", path: `/projects/${f.projectBId}` },
+        { method: "GET", path: `/projects/${f.projectBId}/member-candidates` },
         { method: "PATCH", path: `/projects/${f.projectBId}`, body: { name: "x" } },
         {
           method: "POST",

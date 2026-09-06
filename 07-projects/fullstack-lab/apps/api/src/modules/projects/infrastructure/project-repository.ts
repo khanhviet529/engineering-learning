@@ -94,6 +94,24 @@ export class ProjectRepository {
   }
 
   /**
+   * Chỉ **id** của member trong một project.
+   *
+   * Tách khỏi `findMembersOfProject` vì hai chỗ gọi cần hai thứ khác nhau:
+   * `GET /projects/:projectId` cần tên và email để đổ vào bộ chọn assignee;
+   * `member-candidates` chỉ cần biết ai phải bị trừ ra. Dùng lại method kia ở
+   * đây sẽ kéo `display_name` và `email` của mọi member qua mạng rồi vứt đi —
+   * và đó là PII đọc lên mà không có lý do, ở đúng một endpoint đang **nới**
+   * phạm vi nhìn thấy. Truy vấn này không chạm bảng `users`.
+   */
+  async findMemberUserIdsOfProject(projectId: string, tx?: Executor): Promise<string[]> {
+    const rows = await (tx ?? this.#db)
+      .select({ userId: projectMembers.userId })
+      .from(projectMembers)
+      .where(eq(projectMembers.projectId, projectId));
+    return (rows as { userId: string }[]).map((row) => row.userId);
+  }
+
+  /**
    * Project trong **một** workspace mà actor **là thành viên** — không phải
    * "mọi project của workspace".
    *

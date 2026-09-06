@@ -223,6 +223,29 @@ Còn một cái bẫy chỉ lộ ra khi làm: Compose phải truyền **cả hai
 
 **Bài học, và nó lớn hơn bản sửa.** **Một phụ thuộc được thoả mãn bằng state còn sót lại thì không phải là một phụ thuộc đã được khai báo.** Chỗ duy nhất chứng minh được điều đó là môi trường bắt đầu từ số không — CI, hoặc một `docker build` không cache. Máy phát triển **không bao giờ** là chỗ đó.
 
+## 12. Cổng đỏ vì lý do không nằm trong code
+
+**Triệu chứng.** `apps/api` đỏ bốn lượt liên tiếp với `write CONNECT_TIMEOUT localhost:5433` sau 30s, và số file hỏng tăng đều: 1 → 2 → 7 → 10. Không assertion nào sai; các file chết ở `beforeAll` khi dựng fixture.
+
+**Vì sao xảy ra.** Chưa chứng minh được. Thứ đổi kết quả là `docker restart flowboard-postgres-1`: lượt ngay sau đó **815/815**, song song đầy đủ, 239s. Container đã chạy 8 giờ. Một data point, không phải một cơ chế.
+
+**Ai hay mắc.** Ai chạy database trong Docker trên máy phát triển và để nó sống qua nhiều ngày. Triệu chứng giống hệt một lỗi concurrency trong test, nên nó kéo người ta đi sửa test.
+
+**Vì sao cổng cũ im lặng.** Cổng **không** im lặng — nó đỏ, và nó đỏ đúng. Vấn đề ngược lại: nó đỏ với một thông điệp không phân biệt được **"database hỏng"** với **"đường tới database hỏng"**, và ba giả thuyết hợp lý nhất đều sai.
+
+| Giả thuyết | Phép đo bác bỏ nó |
+|---|---|
+| Container `api`/`web` tranh CPU | Dừng cả hai → đỏ **nhiều hơn** |
+| Cạn `max_connections` | `pg_stat_activity` peak **11/100** |
+| Cạn ephemeral port / `TIME_WAIT` | `netstat` peak **1** socket tới `:5433`, 11 `TIME_WAIT` / 16384 cổng |
+| Vitest chạy quá nhiều file song song | `--fileParallelism=false` vẫn đỏ 2 file, và tốn **566s thay vì 200s** |
+
+Ba cái đầu là những thứ tôi tin trước khi đo. Cái thứ tư là bản sửa tôi suýt giữ lại "cho chắc" — nó gấp gần ba lần thời gian để đổi lấy không gì.
+
+**Chọn: không sửa gì trong code.** Không thêm `connect_timeout`, không hạ số worker, không giữ `fileParallelism: false`. Một cấu hình thêm vào để chữa một điều kiện môi trường sẽ ở lại vĩnh viễn và không ai dám gỡ, vì không ai biết nó đang chữa gì. Ghi chẩn đoán vào sổ nợ, kèm cả bốn phép đo, để lần sau không phải đuổi lại ba hướng sai.
+
+**Bài học.** **Một cổng đỏ là bằng chứng rằng có gì đó sai, không phải bằng chứng rằng code sai.** Và khi bốn giả thuyết đều hợp lý, thứ phân biệt chúng là phép đo rẻ nhất bác bỏ được nhiều nhất — `pg_stat_activity` và `netstat` mỗi cái tốn một dòng và mỗi cái giết một hướng. Đo trước, sửa sau; ở đây tôi làm ngược ở hai hướng đầu và mất năm lượt chạy.
+
 ---
 
 ## Bốn thói quen rút ra

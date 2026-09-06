@@ -46,7 +46,7 @@ describeIfDb("database boundary trên PostgreSQL thật", () => {
 
   it("email là duy nhất — database chặn, không chỉ ứng dụng chặn", async () => {
     const email = `unique-${crypto.randomUUID()}@example.test`;
-    const row = { email, displayName: "Kiem Tra", passwordHash: "argon2id$placeholder" };
+    const row = { email, displayName: "Kiem Tra", passwordHash: "$argon2id$placeholder" };
 
     await handle.db.insert(users).values(row);
     await expect(handle.db.insert(users).values(row)).rejects.toThrow();
@@ -58,7 +58,7 @@ describeIfDb("database boundary trên PostgreSQL thật", () => {
     const email = `idem-${crypto.randomUUID()}@example.test`;
     const [user] = await handle.db
       .insert(users)
-      .values({ email, displayName: "Kiem Tra", passwordHash: "argon2id$placeholder" })
+      .values({ email, displayName: "Kiem Tra", passwordHash: "$argon2id$placeholder" })
       .returning();
 
     await expect(
@@ -79,7 +79,7 @@ describeIfDb("database boundary trên PostgreSQL thật", () => {
     const email = `scope-${crypto.randomUUID()}@example.test`;
     const [user] = await handle.db
       .insert(users)
-      .values({ email, displayName: "Kiem Tra", passwordHash: "argon2id$placeholder" })
+      .values({ email, displayName: "Kiem Tra", passwordHash: "$argon2id$placeholder" })
       .returning();
 
     const base = {
@@ -112,7 +112,7 @@ describeIfDb("database boundary trên PostgreSQL thật", () => {
         await tx.insert(users).values({
           email,
           displayName: "Se Bi Rollback",
-          passwordHash: "argon2id$placeholder",
+          passwordHash: "$argon2id$placeholder",
         });
         throw new Error("hỏng giữa chừng");
       }),

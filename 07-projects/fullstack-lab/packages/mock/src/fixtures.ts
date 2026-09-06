@@ -3,6 +3,7 @@ import type {
   Actor,
   BoardColumn,
   Comment,
+  MemberCandidate,
   PendingInvitation,
   Project,
   ProjectMember,
@@ -47,6 +48,14 @@ export const ids = {
   invitationPending: "14141414-1414-4141-8141-141414141414",
   invitationSecond: "15151515-1515-4151-8151-151515151515",
   activity: "12121212-1212-4121-8121-121212121212",
+  // Thành viên workspace **không** có `project_members` row cho Project B.
+  // Họ tồn tại để `GET /projects/:projectId/member-candidates` có nhiều hơn
+  // một trang — xem `memberCandidates`.
+  userCandidateBinh: "16161616-1616-4161-8161-161616161616",
+  userCandidateCuong: "17171717-1717-4171-8171-171717171717",
+  userCandidateDung: "18181818-1818-4181-8181-181818181818",
+  userCandidateGiang: "19191919-1919-4191-8191-191919191919",
+  userCandidateKhanh: "20202020-2020-4202-8202-202020202020",
 } as const;
 
 const T0 = "2026-09-01T08:30:00Z";
@@ -181,6 +190,32 @@ export const members: readonly ProjectMember[] = [
     email: "linh@example.test",
     role: "viewer",
   },
+];
+
+/**
+ * `GET /projects/:projectId/member-candidates` — thành viên workspace **chưa**
+ * ở trong Project B.
+ *
+ * Ba người ở `members` cố ý vắng mặt: hợp đồng nói danh sách này là roster
+ * workspace **trừ** project member hiện tại, nên một fixture chứa họ sẽ dạy
+ * frontend rằng nó phải tự lọc — trong khi server đã lọc rồi.
+ *
+ * `Quan` là Workspace Admin quen thuộc; năm người còn lại tồn tại **chỉ** cho
+ * fixture này. Lý do có họ: bảy dòng đủ để chia hai trang, và một danh sách
+ * vừa đúng một trang sẽ để client bỏ quên nhánh `nextCursor` mà không ai thấy.
+ * `Hue` (Owner của Project A) cũng là ứng viên hợp lệ — cùng workspace, không
+ * phải member của Project B.
+ *
+ * Thứ tự đúng theo hợp đồng: `displayName`, rồi `userId` để tất định.
+ */
+export const memberCandidates: readonly MemberCandidate[] = [
+  { userId: ids.userCandidateBinh, displayName: "Binh", email: "binh@example.test" },
+  { userId: ids.userCandidateCuong, displayName: "Cuong", email: "cuong@example.test" },
+  { userId: ids.userCandidateDung, displayName: "Dung", email: "dung@example.test" },
+  { userId: ids.userCandidateGiang, displayName: "Giang", email: "giang@example.test" },
+  { userId: ids.userOwnerA, displayName: "Hue", email: "hue@example.test" },
+  { userId: ids.userCandidateKhanh, displayName: "Khanh", email: "khanh@example.test" },
+  { userId: ids.userWorkspaceAdmin, displayName: "Quan", email: "quan@example.test" },
 ];
 
 export const tasks: readonly Task[] = [

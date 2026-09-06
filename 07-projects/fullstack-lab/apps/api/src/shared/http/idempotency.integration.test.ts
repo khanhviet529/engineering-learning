@@ -30,7 +30,7 @@ describeIfDb("claim → mutation → outcome trên PostgreSQL thật", () => {
       .values({
         email: `idem-${crypto.randomUUID()}@example.test`,
         displayName: "Kiem Tra Idempotency",
-        passwordHash: "argon2id$placeholder",
+        passwordHash: "$argon2id$placeholder",
       })
       .returning();
     userId = user!.id;
@@ -170,7 +170,7 @@ describeIfDb("claim → mutation → outcome trên PostgreSQL thật", () => {
       .values({
         email: `other-${crypto.randomUUID()}@example.test`,
         displayName: "Actor Khac",
-        passwordHash: "argon2id$placeholder",
+        passwordHash: "$argon2id$placeholder",
       })
       .returning();
 

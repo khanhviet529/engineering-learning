@@ -11,6 +11,22 @@ export const PROJECT_MEMBER_ERROR: MessageTable = {
 };
 
 /**
+ * Chữ lỗi khi **nạp danh sách ứng viên** — một bảng riêng, không dùng chung với
+ * `PROJECT_MEMBER_ERROR`.
+ *
+ * Cùng một `FORBIDDEN` nói hai việc khác nhau ở hai chỗ: ở bảng thành viên nó
+ * nghĩa là "bạn không đổi được membership", còn ở đây nghĩa là "bạn không xem
+ * được ai có thể thêm vào" — và người đọc đang ở giữa một thao tác thêm người,
+ * nên câu chữ phải nói đúng cái họ vừa mất. Đó chính là lý do ADR-0016 để chữ
+ * ở feature chứ không ở một catalogue trung tâm theo `code`.
+ */
+export const MEMBER_CANDIDATES_ERROR: MessageTable = {
+  FORBIDDEN: "Vai trò hiện tại của bạn không xem được danh sách ứng viên.",
+  NOT_FOUND: "Dự án này không còn nằm trong phạm vi bạn thấy được.",
+  fallback: "Không tải được danh sách người có thể thêm vào dự án.",
+};
+
+/**
  * Tiêu đề của ba xung đột membership.
  *
  * Trước ADR-0016, tiêu đề ở đây là `failure.message` của server — nó được chọn

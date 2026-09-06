@@ -337,10 +337,28 @@ describeIfDb("use case xác thực", () => {
     });
   });
 
+  /**
+   * Phép quét này đọc **toàn bảng `users`**, không chỉ user của file này — và
+   * đó là chủ ý: một chỗ rò mật khẩu thô ở module khác vẫn phải bị bắt.
+   *
+   * Nhưng Vitest chạy các file test song song trên **cùng một database**, nên
+   * mọi file chèn user bằng một `passwordHash` giả không đúng dạng đều làm bài
+   * này đỏ — và đỏ ở đây, cách xa file gây ra nó. Đã xảy ra: sáu chỗ chèn
+   * `"argon2id$placeholder"` (thiếu `$` mở đầu) trong `client.integration` và
+   * `idempotency.integration` ngồi trong cửa sổ đó suốt nhiều mốc, chưa nổ chỉ
+   * vì cửa sổ hẹp — không phải vì an toàn.
+   *
+   * Nên bài này in ra **email của hàng vi phạm**, không in ra một con số. Một
+   * `expected 3 to be 0` không nói được file nào chèn; một danh sách email
+   * fixture thì nói ngay. Giữ nguyên phạm vi quét, đổi thứ nó nói khi đỏ.
+   */
   it("không có bản ghi nào rò rỉ mật khẩu hay token thô", async () => {
-    const rows = await handle.db.execute<{ c: number }>(
-      sql`select count(*)::int as c from users where password_hash not like '$argon2id$%'`,
+    const rows = await handle.db.execute<{ email: string }>(
+      sql`select email from users where password_hash not like '$argon2id$%' order by email limit 20`,
     );
-    expect([...rows][0]!.c).toBe(0);
+    expect(
+      [...rows].map((row) => row.email),
+      "hàng có password_hash không đúng dạng argon2id — nếu đây là fixture của một file test khác, sửa fixture đó, đừng nới phép quét này",
+    ).toEqual([]);
   });
 });
