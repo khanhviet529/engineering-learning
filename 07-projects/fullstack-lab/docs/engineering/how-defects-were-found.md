@@ -163,7 +163,9 @@ Mỗi mục có sáu phần: triệu chứng · vì sao xảy ra · ai hay mắc
 
 **Vì sao cổng cũ im lặng.** Không cổng máy móc nào bắt được — đây là lỗi trong một **yêu cầu**, không phải trong code. Backend đọc code, thấy tiền đề sai, và **nói ra thay vì làm theo**. Làm theo là dựng cơ chế hai key cho đường không cần nó và bỏ sót đường cần.
 
-**Chọn: sửa tiền đề, ghi cả cái tên gây hiểu nhầm thành nợ.** Đổi tên là thay đổi vận hành cho mọi môi trường đang chạy, nên nó là một việc riêng có chủ đích.
+**Chọn: sửa tiền đề, ghi cả cái tên gây hiểu nhầm thành nợ.** Đổi tên là thay đổi vận hành cho mọi môi trường đang chạy, nên nó là một việc riêng có chủ đích — và **đã trả 06/09/2026**: nay là `CURSOR_SECRET`, tên cũ vẫn được nhận trong khoảng chuyển tiếp kèm **một** cảnh báo gộp cho cả bảng. Không xoá tên cũ ngay: một lần deploy mà mọi môi trường phải đổi biến đồng thời là một lần deploy sẽ có môi trường bị bỏ quên.
+
+Còn một cái bẫy chỉ lộ ra khi làm: Compose phải truyền **cả hai** tên với default `:-`, và khi đó nó đặt tên vắng mặt thành chuỗi rỗng trong container. `""` không phải `undefined`, nên nó rơi vào `min(32)` và **giết mọi môi trường local**. Đường tương thích ngược đúng trên giấy vẫn có thể sai trên máy.
 
 **Bài học, và đây là bài học đắt nhất trong tài liệu này.** Mỗi prompt giao cho agent đều có một dòng: *"thấy yêu cầu nào sai thì **dừng và nói, đừng làm theo**."* Dòng đó thu về ít nhất **tám** lần chặn được một chỉ thị sai — trong đó hai lệnh xoá code đang chạy. Không viết dòng đó thì agent sẽ làm theo, và làm rất tốt, một việc sai.
 

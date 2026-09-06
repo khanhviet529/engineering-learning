@@ -71,8 +71,8 @@ Config được validate tại process startup bằng schema hẹp. Startup fail
 | Category | Ví dụ | Nơi lưu/cấp | Quy tắc |
 |---|---|---|---|
 | Non-secret config | environment name, public web origin, API listen port, log level, database host/name, Mailpit host/port | `.env.example`, Compose env, deployment config | Version template và validation; không encode product policy vào config tùy ý. |
-| Secret local | database password, session-signing/encryption material, CSRF secret, SMTP credential nếu cần | `.env.local` hoặc secret store local bị ignore | Developer tự tạo; không commit, copy vào ticket/chat/log hoặc dùng lại production secret. |
-| Secret deployed | database credential, session/CSRF material, SMTP/provider credential | approved deployment secret manager/injection | Least privilege, audit access, rotation procedure và no echo in CI. |
+| Secret local | database password, `CURSOR_SECRET` (ký cursor phân trang), `CSRF_SECRET`, SMTP credential nếu cần | `.env.local` hoặc secret store local bị ignore | Developer tự tạo; không commit, copy vào ticket/chat/log hoặc dùng lại production secret. |
+| Secret deployed | database credential, `CURSOR_SECRET`/`CSRF_SECRET` (kèm biến `_PREVIOUS` khi đang rotate), SMTP/provider credential | approved deployment secret manager/injection; tên biến liệt kê ở [.env.production.example](../../.env.production.example) | Least privilege, audit access, rotation procedure và no echo in CI. |
 
 ### Biến đến từ đâu, theo từng cách chạy
 
@@ -81,7 +81,7 @@ Cùng một tên biến có **hai giá trị đúng khác nhau**, tuỳ process 
 | Cách chạy | Nguồn của biến | Ghi chú |
 |---|---|---|
 | Tất cả trong Compose | `.env` ở gốc lab, Compose đọc rồi inject qua `environment:` của từng service | Service `api` liệt kê **từng biến** một, không dùng `env_file:` quét cả file — biến lạ không lọt vào container |
-| API trên host, hạ tầng trong Compose | `.env` rồi `.env.host` ghi đè, cả hai nạp bởi `--env-file-if-exists` trong script `dev` | `.env.host` chỉ chứa ba dòng khác biệt: `DATABASE_URL`, `SMTP_HOST`, `SMTP_PORT` |
+| API trên host, hạ tầng trong Compose | `.env` rồi `.env.host` ghi đè, cả hai nạp bởi `--env-file-if-exists` trong script `dev` | `.env.host` chỉ chứa những dòng **khác** `.env`: `DATABASE_URL`, `SMTP_HOST`, `SMTP_PORT`. `SMTP_USER`/`SMTP_PASSWORD` cố ý **không** có mặt — Mailpit không xác thực, và một credential provider thật không bao giờ được cắm vào máy lập trình viên |
 | Test | `DATABASE_URL_HOST ?? DATABASE_URL` đọc thẳng từ `process.env` | Bộ test không nạp file; CI inject biến |
 | Web dev | Next.js tự nạp `.env`/`.env.local` từ gốc `apps/web` | Không thêm cơ chế nào; web không giữ credential nào |
 | Deployed | Nền tảng inject vào environment; secret từ secret manager | **Không file nào được đọc** |
@@ -94,15 +94,17 @@ Cùng một tên biến có **hai giá trị đúng khác nhau**, tuỳ process 
 
 Mailpit bắt thư lại và **không relay ra Internet**. Đó là tính chất phải giữ mãi, không phải một giai đoạn tạm: một test chạy sai không được gửi thư thật cho ai. Transport hiện tại không có `auth`, `secure: false`, `ignoreTLS: true` — đúng cho một service trong mạng nội bộ của Compose, và **sai** cho bất kỳ đích nào ngoài Internet.
 
-Ba thứ phải mở trước khi cắm được provider thật, và chúng chặn theo ba kiểu khác nhau:
+**Cả ba đã mở từ 06/09/2026**, theo lối optional: không có credential thì hành vi **y hệt** — Mailpit không đổi một dòng.
 
-| Chỗ | Nếu không mở |
-|---|---|
-| `env.ts` là `.strict()`, chưa có `SMTP_USER`/`SMTP_PASSWORD` | App **từ chối khởi động** khi hai biến đó có mặt |
-| `secure: false, ignoreTLS: true` ghi cứng | Credential đi **không mã hoá**, hoặc provider từ chối kết nối |
-| `From: no-reply@flowboard.test` ghi cứng | `.test` là TLD dành riêng — **mọi** provider từ chối |
+| Chỗ | Cách mở | Không có credential |
+|---|---|---|
+| `SMTP_USER` / `SMTP_PASSWORD` | optional, **ràng buộc theo cặp** | vắng mặt → bỏ qua |
+| TLS | `secure`/`requireTLS` suy từ **có credential hay không**, không từ `NODE_ENV` | `secure: false`, `ignoreTLS: true` y nguyên |
+| `From` | biến `MAIL_FROM`, default đúng giá trị cũ | default |
 
-Cả ba mở theo lối **optional**: không có credential thì hành vi y hệt hôm nay, nên Mailpit không đổi một dòng.
+Một mô tả cũ ở đây **nói sai chiều**, và chiều thật tệ hơn. Nó viết rằng `.strict()` khiến app *từ chối khởi động* khi có `SMTP_USER`. Không phải: `loadEnv` **lọc** source xuống đúng những key có trong schema **trước khi** parse, nên `.strict()` không bao giờ thấy key lạ. Đặt `SMTP_USER` trước hôm đó sẽ bị **bỏ qua im lặng** — app chạy bình thường và gửi mail **không xác thực** trong khi người vận hành tin là đã xác thực. "Từ chối khởi động" là lỗi ồn và tự sửa; "im lặng bỏ credential của bạn" là đúng loại lỗi codebase này được dựng để chặn. Đó là lý do ràng buộc cặp là `ConfigError`, không phải một cảnh báo.
+
+`requireTLS` chứ không phải "nâng cấp nếu server mời": một server không mời STARTTLS sẽ nhận credential trên kết nối plaintext, và cách chặn đúng là **huỷ kết nối**. Cổng 465 dùng TLS ngầm định. `MAIL_FROM` còn trỏ `.test` trong khi đã có credential là **cảnh báo**, không phải lỗi — một relay tự dựng có thể chấp nhận nó.
 
 **Mailpit luôn xanh, và đó là giới hạn của nó.** Nó nhận mọi thư, nên nó không nói được gì về việc thư có tới hộp thư người thật hay không — vào Inbox hay Spam, SPF/DKIM/DMARC đã đúng chưa, provider có chặn tên miền mới không, rate limit thật là bao nhiêu. Khoảng trống đó chỉ đóng bằng **một lần gửi thật tới hộp thư thật**, và nó phải xảy ra trước khi ra mắt chứ không phải sau.
 
@@ -112,14 +114,16 @@ Tên miền thật cùng SPF/DKIM/DMARC là **hạng mục có thời gian chờ
 
 Cơ chế đọc config ở trên là đúng hình cho production. Cách **giữ secret** thì chưa, và ghi lại ở đây để không bị phát hiện lúc deploy — xem bảng nợ ở [kế hoạch triển khai](../implementation-plan.md):
 
-1. `SESSION_SECRET`, `CSRF_SECRET` và mật khẩu database đang là **plaintext trong `.env` trên đĩa**. `.gitignore` chặn được việc commit, không chặn được việc file tồn tại và bị đọc.
-2. ~~Không có cửa sổ rotate.~~ **Đã có từ 05/09/2026** — `KeyRing` với `SESSION_SECRET_PREVIOUS` và `CSRF_SECRET_PREVIOUS`: ký bằng key hiện hành, verify bằng cả hai.
+1. `CURSOR_SECRET`, `CSRF_SECRET` và mật khẩu database vẫn là **plaintext trong `.env` trên đĩa**, và điều đó **được giữ có chủ đích**. Phần rẻ đã làm: `.env.production.example` liệt kê **chỉ tên biến**, chia mục bắt buộc/tuỳ chọn, và `ConfigError` nay trỏ thẳng vào nó — cộng một test so danh sách đó với `envSchema`, vì một danh sách chép tay sẽ trôi khỏi schema đúng như `tokens.css` đã trôi khỏi artifact.
+
+   Phần còn lại **bị từ chối có lý do**: ranh giới đã chốt là `start` **không đọc file**, nên một secret store hoặc vi phạm chính ranh giới đó (app đọc store → credential của store lại nằm trên đĩa, tức dời vấn đề chứ không giải), hoặc thừa (nền tảng inject env — thứ mọi platform đã làm). Thêm nữa: chưa có đích deploy, và giá trị trong `.env` local là **giả** — mã hoá secret giả không mua được gì. Mở lại khi có đích thật, và khi đó câu hỏi đúng là *"platform này inject env kiểu gì"*, không phải *"dùng secret manager nào"*.
+2. ~~Không có cửa sổ rotate.~~ **Đã có từ 05/09/2026** — `KeyRing` với `CURSOR_SECRET_PREVIOUS` và `CSRF_SECRET_PREVIOUS`: ký bằng key hiện hành, verify bằng cả hai.
 
    Bản trước của mục này nói sai bài toán, và cách nó sai đáng giữ lại: *"đổi `SESSION_SECRET` là vô hiệu mọi session"*. Không đúng — session token là `randomBytes(32)`, **không ký bằng gì**, database giữ SHA-256 của nó, nên không key nào vô hiệu được nó. Ba secret ký ba thứ khác nhau:
 
    | Secret | Ký gì | Xoay thì sao |
    |---|---|---|
-   | `SESSION_SECRET` (tên là di sản) | **Cursor phân trang** | Cursor đang mở chết → `400`, client về trang đầu |
+   | `CURSOR_SECRET` (tên cũ `SESSION_SECRET` còn được nhận trong khoảng chuyển tiếp, kèm cảnh báo) | **Cursor phân trang** | Cursor đang mở chết → `400`, client về trang đầu |
    | `CSRF_SECRET` | CSRF token (HMAC của session token) | **Mọi mutation từ tab đang mở hỏng `403`** |
    | — | Session token | Không ký gì cả |
 

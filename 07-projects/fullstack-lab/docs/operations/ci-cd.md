@@ -94,9 +94,9 @@ RPO/RTO là service objective, không phải cam kết mất dữ liệu bằng 
 
 ## Security operations và incident runbooks
 
-Environment secret chỉ đến từ approved secret manager/injection; không nằm trong Git, image layer, Compose template, CI log, support dump, OpenAPI example hay error response. Access dùng least privilege và audit: runtime API chỉ đọc secret cần chạy; migration/deploy identity tách khỏi runtime identity; operator break-glass access phải time-bound và reviewed.
+Environment secret chỉ đến từ approved secret manager/injection; không nằm trong Git, image layer, Compose template, CI log, support dump, OpenAPI example hay error response. **Tên** của chúng thì ngược lại — phải công khai và phải được kiểm: [.env.production.example](../../.env.production.example) liệt kê đúng tên biến, chia mục bắt buộc/tuỳ chọn, không một giá trị nào, và một test so danh sách đó với `envSchema` để nó không trôi khỏi schema. Access dùng least privilege và audit: runtime API chỉ đọc secret cần chạy; migration/deploy identity tách khỏi runtime identity; operator break-glass access phải time-bound và reviewed.
 
-Rotation bao gồm database credential, session/CSRF cryptographic material và SMTP/provider credential. Rotation plan phải xác định owner, dual-validity/cutover khi cần, session impact, rollback và verification. Password reset/security revocation có thể revoke server session theo [authentication contract](../security/authentication.md); operator không sửa session/token trực tiếp như workaround.
+Rotation bao gồm database credential, `CURSOR_SECRET`, `CSRF_SECRET` và SMTP/provider credential. Hai secret ký thì có cửa sổ dual-validity qua `CURSOR_SECRET_PREVIOUS`/`CSRF_SECRET_PREVIOUS`: ký bằng key hiện hành, verify bằng cả hai, gỡ biến `_PREVIOUS` sau khi cửa sổ đóng. Rotation plan phải xác định owner, dual-validity/cutover khi cần, session impact, rollback và verification. Password reset/security revocation có thể revoke server session theo [authentication contract](../security/authentication.md); operator không sửa session/token trực tiếp như workaround.
 
 ### Runbook sự cố bảo mật
 
