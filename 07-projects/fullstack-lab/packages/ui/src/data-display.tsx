@@ -54,10 +54,7 @@ export function FbListRow({ primary, secondary, trailing, href }: FbListRowProps
       <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--fb-space-3)" }}>
         {trailing}
         {href !== undefined && (
-          <span
-            aria-hidden="true"
-            style={{ color: "var(--fb-color-text-subtle)", display: "flex" }}
-          >
+          <span aria-hidden="true" style={{ color: "var(--fb-color-text-muted)", display: "flex" }}>
             <FbIcon name="chevron-right" size="nav" />
           </span>
         )}

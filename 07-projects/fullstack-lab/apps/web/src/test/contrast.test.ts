@@ -386,6 +386,11 @@ const NO_OPAQUE_BG_NODES: { fg: string; nodes: string[]; large?: boolean }[] = [
       "FbDateField · Helper",
       "FbActivityItem · Activity meta",
       "FbPageSection · Section description",
+      // Chuyển từ `text.subtle` sang đây ở vòng design v0.5: hai token cách
+      // nhau 0,006 luminance là **một màu**, nên bậc chữ thứ tư bị gộp vào
+      // `muted`. Node **chuyển nhóm** chứ không biến mất — tổng vẫn phải là 22,
+      // vì phép đóng `noOpaqueBg` nói về cùng một tập node.
+      "FbNavGroupTimeTracking · Group Label",
     ],
   },
   {
@@ -398,7 +403,6 @@ const NO_OPAQUE_BG_NODES: { fg: string; nodes: string[]; large?: boolean }[] = [
       "FbNavGroupTimeTracking · Nav Báo cáo giờ",
     ],
   },
-  { fg: "--fb-color-text-subtle", nodes: ["FbNavGroupTimeTracking · Group Label"] },
 ];
 
 /**
