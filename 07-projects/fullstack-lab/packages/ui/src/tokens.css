@@ -123,7 +123,7 @@
   --fb-color-text-secondary-alt: #475569;
   --fb-color-text-soft: #667085;
   --fb-color-text-strong: #344054;
-  --fb-color-text-subtle: #6B7280;
+  --fb-color-text-subtle: #667085;
   --fb-font-family-base: Inter;
   --fb-font-family-mono: JetBrains Mono;
   --fb-font-line-height-base: 1.5;
@@ -269,7 +269,7 @@
     --fb-color-text-secondary-alt: #98A2B3;
     --fb-color-text-soft: #D0D5DD;
     --fb-color-text-strong: #EAECF0;
-    --fb-color-text-subtle: #A8B4C5;
+    --fb-color-text-subtle: #98A2B3;
     --fb-shadow-color: #00000088;
   }
 }
@@ -356,6 +356,6 @@
   --fb-color-text-secondary-alt: #98A2B3;
   --fb-color-text-soft: #D0D5DD;
   --fb-color-text-strong: #EAECF0;
-  --fb-color-text-subtle: #A8B4C5;
+  --fb-color-text-subtle: #98A2B3;
   --fb-shadow-color: #00000088;
 }
