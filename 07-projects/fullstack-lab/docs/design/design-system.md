@@ -83,7 +83,7 @@ Chín component dựng trước theo lối cũ đã chuyển vào frame `99 Arch
 - `fb.color.state.focus-ring`, `fb.color.state.focus-offset`
 - `fb.color.state.drop-target-surface`, `fb.color.state.loading-track`
 
-`focus-visible` là ring 2px `fb.color.state.focus-ring` cách control một offset 3px `fb.color.state.focus-offset`; hai cặp cần tương phản là ring↔offset và ring↔nền trang, đều ≥3:1. Chữ ở trạng thái `disabled` vẫn giữ ≥4.5:1 và không dùng `opacity` để làm mờ.
+`focus-visible` là ring 2px `fb.color.state.focus-ring` vẽ trên **đúng phần tử nhận focus**. Với button, link, hàng danh sách và card, ring nằm ngoài phần tử và cách nó một offset 3px `fb.color.state.focus-offset`. Với field (`FbTextField`, `FbPasswordField`, `FbSelect`, `FbDateField`), ring nằm trên viền của **chính ô control**, không bọc label hay helper: trình duyệt vẽ `:focus-visible` lên `<input>`/`<select>`, nên bọc rộng hơn buộc frontend hoặc lồng hai vòng, hoặc tắt outline gốc rồi dựng lại — tức gỡ một hành vi accessibility để vẽ lại nó. Hai cặp cần tương phản là ring↔offset và ring↔nền trang, đều ≥3:1. Chữ ở trạng thái `disabled` vẫn giữ ≥4.5:1 và không dùng `opacity` để làm mờ.
 
 ## Quy tắc đặt tên component và variant
 

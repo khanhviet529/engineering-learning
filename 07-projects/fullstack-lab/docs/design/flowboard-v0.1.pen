@@ -4662,7 +4662,7 @@
                               "type": "text",
                               "id": "gRsxl",
                               "name": "Việc của tôi danh sách ghi chú trang",
-                              "fill": "$fb.color.text.subtle",
+                              "fill": "$fb.color.text.muted",
                               "textGrowth": "fixed-width",
                               "width": "fill_container",
                               "content": "Trang kế tiếp lấy theo page.hasMore. Hợp đồng không trả tổng số nên màn hình không hiện số đếm.",
@@ -22382,7 +22382,7 @@
                               "type": "text",
                               "id": "rkQfa",
                               "name": "Việc của tôi danh sách ghi chú trang",
-                              "fill": "$fb.color.text.subtle",
+                              "fill": "$fb.color.text.muted",
                               "textGrowth": "fixed-width",
                               "width": "fill_container",
                               "content": "Trang kế tiếp lấy theo page.hasMore. Hợp đồng không trả tổng số nên màn hình không hiện số đếm.",
@@ -53707,7 +53707,7 @@
           "height": 16,
           "icon": "circle",
           "library": "lucide",
-          "fill": "$fb.color.text.subtle"
+          "fill": "$fb.color.text.muted"
         },
         {
           "type": "text",
@@ -54815,7 +54815,7 @@
           "height": 18,
           "icon": "chevron-right",
           "library": "lucide",
-          "fill": "$fb.color.text.subtle"
+          "fill": "$fb.color.text.muted"
         }
       ]
     },
@@ -55924,7 +55924,7 @@
                           "descendants": {
                             "slSvC": {
                               "icon": "circle",
-                              "fill": "$fb.color.text.subtle"
+                              "fill": "$fb.color.text.muted"
                             },
                             "fd97r": {
                               "content": "Không chứa email hoặc tên của bạn"
@@ -59464,7 +59464,7 @@
                           "descendants": {
                             "slSvC": {
                               "icon": "circle",
-                              "fill": "$fb.color.text.subtle"
+                              "fill": "$fb.color.text.muted"
                             },
                             "fd97r": {
                               "content": "Không chứa email hoặc tên của bạn"
@@ -62736,7 +62736,7 @@
               "height": 14,
               "icon": "move-horizontal",
               "library": "lucide",
-              "fill": "$fb.color.text.subtle"
+              "fill": "$fb.color.text.muted"
             },
             {
               "type": "text",
@@ -62775,7 +62775,7 @@
                   "name": "Thumb",
                   "width": 150,
                   "height": 4,
-                  "fill": "$fb.color.text.subtle",
+                  "fill": "$fb.color.text.muted",
                   "cornerRadius": 999
                 }
               ]
@@ -64390,7 +64390,7 @@
               "height": 14,
               "icon": "move-horizontal",
               "library": "lucide",
-              "fill": "$fb.color.text.subtle"
+              "fill": "$fb.color.text.muted"
             },
             {
               "type": "text",
@@ -64429,7 +64429,7 @@
                   "name": "Thumb",
                   "width": 150,
                   "height": 4,
-                  "fill": "$fb.color.text.subtle",
+                  "fill": "$fb.color.text.muted",
                   "cornerRadius": 999
                 }
               ]
@@ -65493,7 +65493,7 @@
           "type": "text",
           "id": "BVsZC",
           "name": "Group Label",
-          "fill": "$fb.color.text.subtle",
+          "fill": "$fb.color.text.muted",
           "content": "CHẤM CÔNG",
           "fontFamily": "Inter",
           "fontSize": 12,
@@ -82911,7 +82911,7 @@
           "fill": "$fb.color.text.muted",
           "textGrowth": "fixed-width",
           "width": "fill_container",
-          "content": "State là override trên đúng một component, không phải component riêng. focus-visible dùng ring 2px $fb.color.state.focus-ring, tách khỏi control bằng offset 3px $fb.color.state.focus-offset — cặp cần tương phản là ring↔offset và ring↔nền trang, cả hai ≥3:1.",
+          "content": "State là override trên đúng một component, không phải component riêng. focus-visible bọc ĐÚNG phần tử nhận focus: khung ngoài ring 2px $fb.color.state.focus-ring + offset 3px $fb.color.state.focus-offset cho button, link, hàng danh sách và card; còn field thì ring nằm trên viền của chính ô control, không bọc label hay helper. Cặp cần tương phản là ring↔offset và ring↔nền trang, cả hai ≥3:1.",
           "lineHeight": 1.5,
           "fontFamily": "Inter",
           "fontSize": 13,
@@ -83426,40 +83426,26 @@
                       "fontWeight": "600"
                     },
                     {
-                      "type": "frame",
-                      "id": "Uveep",
-                      "name": "Focus ring",
+                      "id": "svKzE",
+                      "type": "ref",
+                      "ref": "YmT4f",
+                      "name": "field",
                       "width": "fill_container",
-                      "fill": "$fb.color.state.focus-offset",
-                      "cornerRadius": 11,
-                      "stroke": "$fb.color.state.focus-ring",
-                      "strokeWidth": 2,
-                      "layout": "vertical",
-                      "padding": 3,
-                      "children": [
-                        {
-                          "id": "V7MXh",
-                          "type": "ref",
-                          "ref": "YmT4f",
-                          "name": "field",
-                          "width": "fill_container",
-                          "descendants": {
-                            "d4Gsd": {
-                              "content": "Email"
-                            },
-                            "GT68x": {
-                              "enabled": false
-                            },
-                            "vI2IG": {
-                              "stroke": "$fb.color.state.focus-ring",
-                              "strokeWidth": 2
-                            },
-                            "pdsnZ": {
-                              "enabled": false
-                            }
-                          }
+                      "descendants": {
+                        "d4Gsd": {
+                          "content": "Email"
+                        },
+                        "GT68x": {
+                          "enabled": false
+                        },
+                        "vI2IG": {
+                          "stroke": "$fb.color.state.focus-ring",
+                          "strokeWidth": 2
+                        },
+                        "pdsnZ": {
+                          "enabled": false
                         }
-                      ]
+                      }
                     }
                   ]
                 },
@@ -83672,37 +83658,23 @@
                       "fontWeight": "600"
                     },
                     {
-                      "type": "frame",
-                      "id": "KoE3N",
-                      "name": "Focus ring",
+                      "id": "j1FQQ1",
+                      "type": "ref",
+                      "ref": "ogQ8H",
+                      "name": "field",
                       "width": "fill_container",
-                      "fill": "$fb.color.state.focus-offset",
-                      "cornerRadius": 11,
-                      "stroke": "$fb.color.state.focus-ring",
-                      "strokeWidth": 2,
-                      "layout": "vertical",
-                      "padding": 3,
-                      "children": [
-                        {
-                          "id": "m95eaX",
-                          "type": "ref",
-                          "ref": "ogQ8H",
-                          "name": "field",
-                          "width": "fill_container",
-                          "descendants": {
-                            "jd77Z": {
-                              "content": "Mật khẩu"
-                            },
-                            "XhuEk": {
-                              "enabled": false
-                            },
-                            "CfmY6": {
-                              "stroke": "$fb.color.state.focus-ring",
-                              "strokeWidth": 2
-                            }
-                          }
+                      "descendants": {
+                        "jd77Z": {
+                          "content": "Mật khẩu"
+                        },
+                        "XhuEk": {
+                          "enabled": false
+                        },
+                        "CfmY6": {
+                          "stroke": "$fb.color.state.focus-ring",
+                          "strokeWidth": 2
                         }
-                      ]
+                      }
                     }
                   ]
                 },
@@ -83913,40 +83885,26 @@
                       "fontWeight": "600"
                     },
                     {
-                      "type": "frame",
-                      "id": "xwR0M",
-                      "name": "Focus ring",
+                      "id": "hA7Ni",
+                      "type": "ref",
+                      "ref": "IX5Ro",
+                      "name": "field",
                       "width": "fill_container",
-                      "fill": "$fb.color.state.focus-offset",
-                      "cornerRadius": 11,
-                      "stroke": "$fb.color.state.focus-ring",
-                      "strokeWidth": 2,
-                      "layout": "vertical",
-                      "padding": 3,
-                      "children": [
-                        {
-                          "id": "a1VwME",
-                          "type": "ref",
-                          "ref": "IX5Ro",
-                          "name": "field",
-                          "width": "fill_container",
-                          "descendants": {
-                            "bx0t5": {
-                              "content": "Danh mục"
-                            },
-                            "Sr7qW": {
-                              "enabled": false
-                            },
-                            "guGlU": {
-                              "stroke": "$fb.color.state.focus-ring",
-                              "strokeWidth": 2
-                            },
-                            "k0VuYj": {
-                              "enabled": false
-                            }
-                          }
+                      "descendants": {
+                        "bx0t5": {
+                          "content": "Danh mục"
+                        },
+                        "Sr7qW": {
+                          "enabled": false
+                        },
+                        "guGlU": {
+                          "stroke": "$fb.color.state.focus-ring",
+                          "strokeWidth": 2
+                        },
+                        "k0VuYj": {
+                          "enabled": false
                         }
-                      ]
+                      }
                     }
                   ]
                 },
@@ -84165,40 +84123,26 @@
                       "fontWeight": "600"
                     },
                     {
-                      "type": "frame",
-                      "id": "nG02a",
-                      "name": "Focus ring",
+                      "id": "s1XAc",
+                      "type": "ref",
+                      "ref": "eZ7gG",
+                      "name": "field",
                       "width": "fill_container",
-                      "fill": "$fb.color.state.focus-offset",
-                      "cornerRadius": 11,
-                      "stroke": "$fb.color.state.focus-ring",
-                      "strokeWidth": 2,
-                      "layout": "vertical",
-                      "padding": 3,
-                      "children": [
-                        {
-                          "id": "xy6Bd",
-                          "type": "ref",
-                          "ref": "eZ7gG",
-                          "name": "field",
-                          "width": "fill_container",
-                          "descendants": {
-                            "iXmsF": {
-                              "content": "Ngày kết thúc"
-                            },
-                            "pV9Gc": {
-                              "enabled": false
-                            },
-                            "l56Uph": {
-                              "stroke": "$fb.color.state.focus-ring",
-                              "strokeWidth": 2
-                            },
-                            "yPpQ3": {
-                              "enabled": false
-                            }
-                          }
+                      "descendants": {
+                        "iXmsF": {
+                          "content": "Ngày kết thúc"
+                        },
+                        "pV9Gc": {
+                          "enabled": false
+                        },
+                        "l56Uph": {
+                          "stroke": "$fb.color.state.focus-ring",
+                          "strokeWidth": 2
+                        },
+                        "yPpQ3": {
+                          "enabled": false
                         }
-                      ]
+                      }
                     }
                   ]
                 },
@@ -85675,7 +85619,7 @@
                       "descendants": {
                         "slSvC": {
                           "icon": "circle",
-                          "fill": "$fb.color.text.subtle"
+                          "fill": "$fb.color.text.muted"
                         },
                         "fd97r": {
                           "content": "Tối thiểu 12 ký tự"
@@ -85839,6 +85783,19 @@
               "textGrowth": "fixed-width",
               "width": "fill_container",
               "content": "• focus-visible chỉ hiện khi điều hướng bằng bàn phím; ring 2px + offset 3px giữ nguyên ở cả Light và Dark, không đổi theo trạng thái hover.",
+              "lineHeight": 1.5,
+              "fontFamily": "Inter",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "U4lkM9",
+              "name": "Annotation line",
+              "fill": "$fb.color.text.secondary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "• Focus ring theo phần tử, không theo component: trình duyệt vẽ :focus-visible lên chính <input>/<select>, nên field nhận ring ở ô control. Bọc cả label rồi dựng lại bằng wrapper là phải tắt outline gốc — gỡ một hành vi accessibility để vẽ lại nó.",
               "lineHeight": 1.5,
               "fontFamily": "Inter",
               "fontSize": 12,
@@ -88377,7 +88334,7 @@
                           "height": 20,
                           "icon": "inbox",
                           "library": "lucide",
-                          "fill": "$fb.color.text.subtle"
+                          "fill": "$fb.color.text.muted"
                         },
                         {
                           "type": "text",
@@ -88709,7 +88666,7 @@
                           "height": 20,
                           "icon": "inbox",
                           "library": "lucide",
-                          "fill": "$fb.color.text.subtle"
+                          "fill": "$fb.color.text.muted"
                         },
                         {
                           "type": "text",
@@ -102495,7 +102452,7 @@
           "fill": "$fb.color.text.muted",
           "textGrowth": "fixed-width",
           "width": "fill_container",
-          "content": "State là override trên đúng một component, không phải component riêng. focus-visible dùng ring 2px $fb.color.state.focus-ring, tách khỏi control bằng offset 3px $fb.color.state.focus-offset — cặp cần tương phản là ring↔offset và ring↔nền trang, cả hai ≥3:1.",
+          "content": "State là override trên đúng một component, không phải component riêng. focus-visible bọc ĐÚNG phần tử nhận focus: khung ngoài ring 2px $fb.color.state.focus-ring + offset 3px $fb.color.state.focus-offset cho button, link, hàng danh sách và card; còn field thì ring nằm trên viền của chính ô control, không bọc label hay helper. Cặp cần tương phản là ring↔offset và ring↔nền trang, cả hai ≥3:1.",
           "lineHeight": 1.5,
           "fontFamily": "Inter",
           "fontSize": 13,
@@ -103010,40 +102967,26 @@
                       "fontWeight": "600"
                     },
                     {
-                      "type": "frame",
-                      "id": "G1I2d2",
-                      "name": "Focus ring",
+                      "id": "u2Wnme",
+                      "type": "ref",
+                      "ref": "YmT4f",
+                      "name": "field",
                       "width": "fill_container",
-                      "fill": "$fb.color.state.focus-offset",
-                      "cornerRadius": 11,
-                      "stroke": "$fb.color.state.focus-ring",
-                      "strokeWidth": 2,
-                      "layout": "vertical",
-                      "padding": 3,
-                      "children": [
-                        {
-                          "id": "rKOsn",
-                          "type": "ref",
-                          "ref": "YmT4f",
-                          "name": "field",
-                          "width": "fill_container",
-                          "descendants": {
-                            "d4Gsd": {
-                              "content": "Email"
-                            },
-                            "GT68x": {
-                              "enabled": false
-                            },
-                            "vI2IG": {
-                              "stroke": "$fb.color.state.focus-ring",
-                              "strokeWidth": 2
-                            },
-                            "pdsnZ": {
-                              "enabled": false
-                            }
-                          }
+                      "descendants": {
+                        "d4Gsd": {
+                          "content": "Email"
+                        },
+                        "GT68x": {
+                          "enabled": false
+                        },
+                        "vI2IG": {
+                          "stroke": "$fb.color.state.focus-ring",
+                          "strokeWidth": 2
+                        },
+                        "pdsnZ": {
+                          "enabled": false
                         }
-                      ]
+                      }
                     }
                   ]
                 },
@@ -103256,37 +103199,23 @@
                       "fontWeight": "600"
                     },
                     {
-                      "type": "frame",
-                      "id": "ZEYNq",
-                      "name": "Focus ring",
+                      "id": "q8eVt",
+                      "type": "ref",
+                      "ref": "ogQ8H",
+                      "name": "field",
                       "width": "fill_container",
-                      "fill": "$fb.color.state.focus-offset",
-                      "cornerRadius": 11,
-                      "stroke": "$fb.color.state.focus-ring",
-                      "strokeWidth": 2,
-                      "layout": "vertical",
-                      "padding": 3,
-                      "children": [
-                        {
-                          "id": "MyyhK",
-                          "type": "ref",
-                          "ref": "ogQ8H",
-                          "name": "field",
-                          "width": "fill_container",
-                          "descendants": {
-                            "jd77Z": {
-                              "content": "Mật khẩu"
-                            },
-                            "XhuEk": {
-                              "enabled": false
-                            },
-                            "CfmY6": {
-                              "stroke": "$fb.color.state.focus-ring",
-                              "strokeWidth": 2
-                            }
-                          }
+                      "descendants": {
+                        "jd77Z": {
+                          "content": "Mật khẩu"
+                        },
+                        "XhuEk": {
+                          "enabled": false
+                        },
+                        "CfmY6": {
+                          "stroke": "$fb.color.state.focus-ring",
+                          "strokeWidth": 2
                         }
-                      ]
+                      }
                     }
                   ]
                 },
@@ -103497,40 +103426,26 @@
                       "fontWeight": "600"
                     },
                     {
-                      "type": "frame",
-                      "id": "iwo9b",
-                      "name": "Focus ring",
+                      "id": "IlQhW",
+                      "type": "ref",
+                      "ref": "IX5Ro",
+                      "name": "field",
                       "width": "fill_container",
-                      "fill": "$fb.color.state.focus-offset",
-                      "cornerRadius": 11,
-                      "stroke": "$fb.color.state.focus-ring",
-                      "strokeWidth": 2,
-                      "layout": "vertical",
-                      "padding": 3,
-                      "children": [
-                        {
-                          "id": "AON0Z",
-                          "type": "ref",
-                          "ref": "IX5Ro",
-                          "name": "field",
-                          "width": "fill_container",
-                          "descendants": {
-                            "bx0t5": {
-                              "content": "Danh mục"
-                            },
-                            "Sr7qW": {
-                              "enabled": false
-                            },
-                            "guGlU": {
-                              "stroke": "$fb.color.state.focus-ring",
-                              "strokeWidth": 2
-                            },
-                            "k0VuYj": {
-                              "enabled": false
-                            }
-                          }
+                      "descendants": {
+                        "bx0t5": {
+                          "content": "Danh mục"
+                        },
+                        "Sr7qW": {
+                          "enabled": false
+                        },
+                        "guGlU": {
+                          "stroke": "$fb.color.state.focus-ring",
+                          "strokeWidth": 2
+                        },
+                        "k0VuYj": {
+                          "enabled": false
                         }
-                      ]
+                      }
                     }
                   ]
                 },
@@ -103749,40 +103664,26 @@
                       "fontWeight": "600"
                     },
                     {
-                      "type": "frame",
-                      "id": "d6MZz",
-                      "name": "Focus ring",
+                      "id": "KKl17",
+                      "type": "ref",
+                      "ref": "eZ7gG",
+                      "name": "field",
                       "width": "fill_container",
-                      "fill": "$fb.color.state.focus-offset",
-                      "cornerRadius": 11,
-                      "stroke": "$fb.color.state.focus-ring",
-                      "strokeWidth": 2,
-                      "layout": "vertical",
-                      "padding": 3,
-                      "children": [
-                        {
-                          "id": "jeg5t",
-                          "type": "ref",
-                          "ref": "eZ7gG",
-                          "name": "field",
-                          "width": "fill_container",
-                          "descendants": {
-                            "iXmsF": {
-                              "content": "Ngày kết thúc"
-                            },
-                            "pV9Gc": {
-                              "enabled": false
-                            },
-                            "l56Uph": {
-                              "stroke": "$fb.color.state.focus-ring",
-                              "strokeWidth": 2
-                            },
-                            "yPpQ3": {
-                              "enabled": false
-                            }
-                          }
+                      "descendants": {
+                        "iXmsF": {
+                          "content": "Ngày kết thúc"
+                        },
+                        "pV9Gc": {
+                          "enabled": false
+                        },
+                        "l56Uph": {
+                          "stroke": "$fb.color.state.focus-ring",
+                          "strokeWidth": 2
+                        },
+                        "yPpQ3": {
+                          "enabled": false
                         }
-                      ]
+                      }
                     }
                   ]
                 },
@@ -105259,7 +105160,7 @@
                       "descendants": {
                         "slSvC": {
                           "icon": "circle",
-                          "fill": "$fb.color.text.subtle"
+                          "fill": "$fb.color.text.muted"
                         },
                         "fd97r": {
                           "content": "Tối thiểu 12 ký tự"
@@ -105423,6 +105324,19 @@
               "textGrowth": "fixed-width",
               "width": "fill_container",
               "content": "• focus-visible chỉ hiện khi điều hướng bằng bàn phím; ring 2px + offset 3px giữ nguyên ở cả Light và Dark, không đổi theo trạng thái hover.",
+              "lineHeight": 1.5,
+              "fontFamily": "Inter",
+              "fontSize": 12,
+              "fontWeight": "normal"
+            },
+            {
+              "type": "text",
+              "id": "zU8SM",
+              "name": "Annotation line",
+              "fill": "$fb.color.text.secondary",
+              "textGrowth": "fixed-width",
+              "width": "fill_container",
+              "content": "• Focus ring theo phần tử, không theo component: trình duyệt vẽ :focus-visible lên chính <input>/<select>, nên field nhận ring ở ô control. Bọc cả label rồi dựng lại bằng wrapper là phải tắt outline gốc — gỡ một hành vi accessibility để vẽ lại nó.",
               "lineHeight": 1.5,
               "fontFamily": "Inter",
               "fontSize": 12,
@@ -120567,13 +120481,13 @@
       "type": "color",
       "value": [
         {
-          "value": "#6B7280",
+          "value": "#667085",
           "theme": {
             "mode": "light"
           }
         },
         {
-          "value": "#A8B4C5",
+          "value": "#98A2B3",
           "theme": {
             "mode": "dark"
           }

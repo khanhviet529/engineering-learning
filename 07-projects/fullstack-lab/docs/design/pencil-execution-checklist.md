@@ -109,8 +109,19 @@ Artifact **không có khái niệm page**: `.pen` là một canvas phẳng, mọ
 
   **Vẫn chưa đóng:** `noOpaqueBg 22` — vẫn là lỗ hổng đã công bố, không đọc thành "không có vấn đề". Và `fb.color.text.subtle` sau khi sửa nằm ở luminance ~0,167 trong khi `text.muted` ở ~0,161: bậc chữ thứ tư **tồn tại trên giấy nhưng mắt không phân biệt được** ở theme sáng — nợ riêng, xem [kế hoạch triển khai](../implementation-plan.md).
 
-- [ ] **Backlog v0.5 — focus ring vẽ sai chỗ ở `REF-15`.** Ring hiện bọc cả `ref` của field, tức ôm `Label Row` và `Helper`; phần tử focus được chỉ là `Input`/`Control`. Đo được: **8 cell sai, 10 cell đúng, cùng một sheet**.
+- [x] **Backlog v0.5 — focus ring vẽ sai chỗ ở `REF-15`. Đóng 06/09/2026**, blob `5315cbc7`, kiểm **trên đĩa sau khi save**. Ring hiện bọc cả `ref` của field, tức ôm `Label Row` và `Helper`; phần tử focus được chỉ là `Input`/`Control`. Đo được: **8 cell sai, 10 cell đúng, cùng một sheet**.
 
   Ba lý do nó đáng sửa, không phải chuyện thẩm mỹ. Một sheet dạy **một** quy ước ("ring bọc ref") mà quy ước đó đúng cho button và sai cho field, nên người đọc học đúng một nửa. Code **không dựng lại được bằng đường native**: `:focus-visible` của trình duyệt vẽ outline lên `<input>`, nên muốn ra đúng hình phải bọc thêm wrapper — và khi đó có **hai** vòng lồng nhau, hoặc phải tự tay tắt outline native rồi dựng lại. Và ring nói sai về vùng tương tác: bao quanh label là nói label thuộc vùng đó, trong khi bấm label chỉ chuyển focus đi nơi khác.
 
   Đây đúng loại lỗi mà chính `REF-15` dựng ra để chống — cell `FbSelect` ngay bên dưới ghi *"select gốc, không phải dropdown tự dựng, vì UI chọn dùng nền tảng"*. Cùng lập luận áp cho focus ring.
+
+  **Đã xác minh độc lập, không đọc báo cáo.** Quét cả hai frame `REF-15` với `resolveInstances`, lọc mọi node `strokeWidth: 2` trong các cell `focus`, và in ra **node nào** mang ring cùng kích thước của nó:
+
+  | Cell | Node mang ring trước | Node mang ring sau | Kích thước |
+  |---|---|---|---|
+  | `FbTextField`, `FbPasswordField` × 2 theme | `ref` của field | `Input` | 300×40, trong khi `field` là 300×63 |
+  | `FbSelect`, `FbDateField` × 2 theme | `ref` của field | `Control` | 300×40 |
+
+  Ring là `stroke: $fb.color.state.focus-ring` với `strokeWidth: 2`, đè lên `border.strong` 1px của trạng thái default — tức nó **thay** viền chứ không thêm một lớp thứ hai, đúng hình mà `outline` của trình duyệt sẽ vẽ. 10 cell còn lại giữ nguyên node `Focus ring` riêng của chúng; không cell nào mất ring.
+
+  Vì sao phải đo lại thay vì tin: *"`0 instance` không bao giờ đủ để biện minh một lệnh xoá"* ra đời từ một lần tôi tin số đếm của chính mình — xem [pencil-measurement.md](pencil-measurement.md). Ở đây câu hỏi có một hình dạng kiểm được (**ring nằm trên node nào**), nên nó phải được trả lời bằng một phép đo, không bằng một câu tường thuật.
