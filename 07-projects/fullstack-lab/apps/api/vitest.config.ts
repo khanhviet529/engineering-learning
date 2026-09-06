@@ -18,6 +18,10 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
     globals: false,
+    // Chạy trước mọi file test. Nó **không** đăng ký gì; nó chỉ ném khi
+    // `REQUIRE_DB=1` mà không có URL database — biến một lần bỏ qua im lặng
+    // thành một lần đỏ ồn ào ở nơi việc bỏ qua là không chấp nhận được.
+    setupFiles: ["./src/test/require-db.ts"],
     testTimeout: 60_000,
     hookTimeout: 60_000,
   },

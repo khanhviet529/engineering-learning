@@ -115,6 +115,11 @@ jobs:
           - 5432:5432
     env:
       DATABASE_URL_HOST: postgres://flowboard:ci-local-only@localhost:5432/flowboard
+      # Job này **là** cổng integration, nên bỏ qua vì thiếu database không phải
+      # một lựa chọn. Không có cờ này thì mất `DATABASE_URL_HOST` sẽ cho
+      # `434 passed | 334 skipped` và job vẫn **xanh** — đo được trên lượt CI
+      # thật ở job `quality`, nơi con số đó là đúng và vô hại.
+      REQUIRE_DB: "1"
     steps:
       - uses: actions/checkout@v5
 
@@ -190,7 +195,12 @@ jobs:
         run: |
           cp .env.example .env
           {
-            echo "SESSION_SECRET=ci-session-secret-$(openssl rand -hex 24)"
+            # `CURSOR_SECRET`, **không** phải tên cũ `SESSION_SECRET`. Đường
+            # tương thích ngược để tên mới thắng khi có cả hai, nên append tên
+            # cũ ở đây sẽ khiến CI chạy bằng chuỗi **placeholder** đã commit
+            # trong `.env.example` thay vì chuỗi ngẫu nhiên vừa sinh — và chỉ
+            # nói ra bằng một dòng cảnh báo giữa hàng nghìn dòng log.
+            echo "CURSOR_SECRET=ci-cursor-secret-$(openssl rand -hex 24)"
             echo "CSRF_SECRET=ci-csrf-secret-$(openssl rand -hex 24)"
             echo 'RATE_LIMIT_OVERRIDES={"auth.sign-up":{"limit":200,"windowMs":60000},"auth.sign-in":{"limit":200,"windowMs":60000}}'
           } >> .env
