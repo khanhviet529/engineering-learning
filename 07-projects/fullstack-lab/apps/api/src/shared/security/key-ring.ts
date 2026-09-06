@@ -8,7 +8,7 @@
  *
  * | Secret | Ký cái gì | Đổi key thì sao |
  * |---|---|---|
- * | `SESSION_SECRET` | **Cursor phân trang** (`shared/http/cursor.ts`) | Cursor đang mở chết → `400`, client về trang đầu |
+ * | `CURSOR_SECRET` (tên cũ: `SESSION_SECRET`) | **Cursor phân trang** (`shared/http/cursor.ts`) | Cursor đang mở chết → `400`, client về trang đầu |
  * | `CSRF_SECRET` | CSRF token, là HMAC của session token | **Mọi mutation từ tab đang mở hỏng** `403` cho tới khi client đọc lại token |
  * | (không có) | **Session token** | Không ký gì cả: token là 32 byte ngẫu nhiên, database giữ SHA-256 của nó |
  *

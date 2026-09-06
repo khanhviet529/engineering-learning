@@ -53,10 +53,23 @@ services:
       API_PORT: ${API_PORT}
       WEB_ORIGIN: ${WEB_ORIGIN}
       DATABASE_URL: ${DATABASE_URL}
-      SESSION_SECRET: ${SESSION_SECRET}
+      # Ký cursor phân trang, không ký session — xem `shared/config/env.ts`.
+      #
+      # Nhận cả tên cũ `SESSION_SECRET` trong khoảng chuyển tiếp: một môi
+      # trường chưa kịp đổi biến vẫn khởi động được và nhận một cảnh báo, thay
+      # vì chết vì thiếu biến bắt buộc. Mặc định rỗng ở cả hai để Compose không
+      # cảnh báo biến chưa đặt; `env.ts` mới là chỗ bắt buộc phải có một cái.
+      CURSOR_SECRET: ${CURSOR_SECRET:-}
+      SESSION_SECRET: ${SESSION_SECRET:-}
+      CURSOR_SECRET_PREVIOUS: ${CURSOR_SECRET_PREVIOUS:-}
       CSRF_SECRET: ${CSRF_SECRET}
+      CSRF_SECRET_PREVIOUS: ${CSRF_SECRET_PREVIOUS:-}
       SMTP_HOST: ${SMTP_HOST}
       SMTP_PORT: ${SMTP_PORT}
+      # Credential SMTP: rỗng ở local (Mailpit). Đặt cả hai hoặc không cái nào.
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      MAIL_FROM: ${MAIL_FROM:-Flowboard <no-reply@flowboard.test>}
       LOG_LEVEL: ${LOG_LEVEL}
       # Nới rate limit cho **môi trường này**, không cho production.
       #

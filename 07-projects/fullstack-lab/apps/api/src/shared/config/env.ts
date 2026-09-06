@@ -15,7 +15,7 @@ import { RATE_LIMITED_ROUTES, type RateLimitRules } from "../http/rate-limit.ts"
 
 const portSchema = z.coerce.number().int().min(1).max(65_535);
 
-export const envSchema = z
+const envObjectSchema = z
   .object({
     /** Tên environment, dùng cho log và telemetry — không phải để rẽ nhánh business logic. */
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
@@ -30,14 +30,20 @@ export const envSchema = z
     DATABASE_URL: z.string().min(1),
 
     /**
-     * Vật liệu ký. Bắt buộc đủ dài để không bị đoán.
+     * Vật liệu ký **cursor phân trang**. Bắt buộc đủ dài để không bị đoán.
      *
-     * Tên `SESSION_SECRET` là di sản: nó **không** ký session (session token là
-     * 32 byte ngẫu nhiên và database chỉ giữ SHA-256 của nó). Thứ nó ký là
-     * **cursor phân trang**. Đổi tên biến là một thay đổi vận hành cho mọi môi
-     * trường đang chạy, nên nó được **báo cáo** chứ không tự đổi ở đây.
+     * Tên cũ là `SESSION_SECRET`, và nó được đặt theo thứ nó **không** làm:
+     * session token là 32 byte ngẫu nhiên, không ký bằng gì, database giữ
+     * SHA-256 của nó. Không key nào vô hiệu được một session. Thứ biến này ký
+     * là cursor (`shared/http/cursor.ts`), nên đổi key làm cursor đang mở chết
+     * → `400`, client về trang đầu.
+     *
+     * Cái tên sai đã tốn một vòng thật: yêu cầu của M5 viết "đổi
+     * `SESSION_SECRET` là vô hiệu mọi session" và tiền đề đó sai hoàn toàn.
+     * `SESSION_SECRET` vẫn được nhận qua bảng `RENAMED_KEYS` bên dưới, trong
+     * **một** khoảng chuyển tiếp có cảnh báo.
      */
-    SESSION_SECRET: z.string().min(32),
+    CURSOR_SECRET: z.string().min(32),
     CSRF_SECRET: z.string().min(32),
 
     /**
@@ -51,12 +57,36 @@ export const envSchema = z
      * lần key cũ cứu một request để trả lời đúng câu hỏi khiến người ta do dự —
      * "đóng được chưa?". Xem `shared/security/key-ring.ts`.
      */
-    SESSION_SECRET_PREVIOUS: z.string().min(32).optional(),
+    CURSOR_SECRET_PREVIOUS: z.string().min(32).optional(),
     CSRF_SECRET_PREVIOUS: z.string().min(32).optional(),
 
-    /** SMTP local (Mailpit). Không relay ra Internet. */
+    /** SMTP. Ở local và CI là Mailpit; nó không relay ra Internet. */
     SMTP_HOST: z.string().min(1),
     SMTP_PORT: portSchema,
+
+    /**
+     * Credential SMTP — **optional**, và đúng nghĩa optional.
+     *
+     * Không đặt hai biến này thì transport giữ nguyên hành vi Mailpit hôm nay
+     * (`secure: false`, `ignoreTLS: true`, không xác thực). Đặt cả hai thì
+     * transport bật TLS và xác thực. Không có trạng thái thứ ba: một nửa
+     * credential là **`ConfigError`** lúc khởi động, xem `.superRefine` bên
+     * dưới. Gửi không xác thực trong khi người vận hành tin là đã xác thực là
+     * cách credential đi ra ngoài mà không ai biết.
+     */
+    SMTP_USER: z.string().min(1).optional(),
+    SMTP_PASSWORD: z.string().min(1).optional(),
+
+    /**
+     * Địa chỉ `From` của thư gửi đi.
+     *
+     * Mặc định giữ đúng giá trị đang ghi cứng hôm nay, nên không đặt biến thì
+     * không có gì đổi. Nhưng `.test` là TLD **dành riêng** (RFC 2606): nó
+     * không phân giải được và không ký SPF/DKIM/DMARC được, nên một provider
+     * thật sẽ từ chối. Đó là lý do giá trị này phải cấu hình được **trước** khi
+     * có provider, chứ không phải sau.
+     */
+    MAIL_FROM: z.string().min(1).default("Flowboard <no-reply@flowboard.test>"),
 
     LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace"]).default("info"),
 
@@ -125,7 +155,58 @@ export const envSchema = z
   })
   .strict();
 
+/**
+ * Tên biến mà schema biết. Dùng cho `loadEnv` và cho bộ kiểm template
+ * `.env.production.example` — cả hai phải đọc **cùng một** nguồn, nếu không
+ * template sẽ trôi khỏi schema mà không ai thấy.
+ */
+export const ENV_KEYS: readonly string[] = Object.keys(envObjectSchema.shape).sort();
+
+/** Biến bắt buộc: không có `.optional()` và không có `.default()`. */
+export const REQUIRED_ENV_KEYS: readonly string[] = ENV_KEYS.filter((key) => {
+  const field = envObjectSchema.shape[key as keyof typeof envObjectSchema.shape];
+  return field.safeParse(undefined).success === false;
+});
+
+/**
+ * Ràng buộc **giữa các biến**, không thuộc về biến nào một mình.
+ *
+ * `superRefine` chạy sau khi từng field đã hợp lệ, nên nó chỉ nói về quan hệ.
+ * Issue được gắn vào đúng tên biến **đang thiếu**, để `ConfigError.invalidKeys`
+ * chỉ vào thứ người vận hành phải đặt chứ không vào thứ họ đã đặt đúng.
+ */
+export const envSchema = envObjectSchema.superRefine((value, ctx) => {
+  const hasUser = value.SMTP_USER !== undefined;
+  const hasPassword = value.SMTP_PASSWORD !== undefined;
+  if (hasUser === hasPassword) return;
+
+  const missing = hasUser ? "SMTP_PASSWORD" : "SMTP_USER";
+  const present = hasUser ? "SMTP_USER" : "SMTP_PASSWORD";
+  ctx.addIssue({
+    code: "custom",
+    path: [missing],
+    message:
+      `${present} được đặt nhưng ${missing} thì không. Một nửa credential không phải ` +
+      "cấu hình hợp lệ: nó sẽ gửi mail **không xác thực** trong khi người vận hành tin " +
+      "là đã xác thực. Đặt cả hai, hoặc bỏ cả hai để dùng SMTP không xác thực (Mailpit).",
+  });
+});
+
 export type Env = z.infer<typeof envSchema>;
+
+/**
+ * Biến đã đổi tên, và khoảng chuyển tiếp nhận **cả hai**.
+ *
+ * Vì sao không xoá tên cũ trong cùng một lượt: một lần deploy bắt mọi môi
+ * trường đổi biến **đồng thời** là một lần deploy sẽ có môi trường bị bỏ quên,
+ * và triệu chứng của nó là API không khởi động được. Tên mới thắng khi có cả
+ * hai; chỉ có tên cũ thì vẫn chạy, kèm đúng **một** cảnh báo nói phải đổi sang
+ * tên gì.
+ */
+export const RENAMED_KEYS: readonly { readonly from: string; readonly to: string }[] = [
+  { from: "SESSION_SECRET", to: "CURSOR_SECRET" },
+  { from: "SESSION_SECRET_PREVIOUS", to: "CURSOR_SECRET_PREVIOUS" },
+];
 
 /**
  * Lỗi cấu hình: mang tên biến, tuyệt đối không mang giá trị.
@@ -139,7 +220,10 @@ export class ConfigError extends Error {
   constructor(invalidKeys: readonly string[]) {
     super(
       `Cấu hình không hợp lệ. Các biến sau thiếu hoặc sai định dạng: ${invalidKeys.join(", ")}. ` +
-        "Giá trị cố ý không được in ra.",
+        "Giá trị cố ý không được in ra. " +
+        // Con trỏ tới **danh sách đầy đủ**, để người deploy không phải đọc
+        // schema hay bốn tài liệu mới biết mình còn thiếu gì.
+        "Danh sách biến và biến nào bắt buộc: `.env.production.example`.",
     );
     this.name = "ConfigError";
     this.invalidKeys = invalidKeys;
@@ -152,13 +236,70 @@ export class ConfigError extends Error {
  * Nhận `source` để test kiểm được cả nhánh hỏng mà không phải sửa
  * `process.env` toàn cục.
  */
-export function loadEnv(source: Record<string, string | undefined> = process.env): Env {
+export function loadEnv(
+  source: Record<string, string | undefined> = process.env,
+  options: { warn?: (message: string) => void } = {},
+): Env {
+  const warn = options.warn ?? ((message: string) => void console.warn(message));
+
+  /**
+   * Chuỗi rỗng là **không có**, không phải "có, giá trị rỗng".
+   *
+   * Đây không phải sự dễ dãi mà là hình dạng thật của môi trường: Compose viết
+   * `CURSOR_SECRET: ${CURSOR_SECRET:-}` để khỏi cảnh báo biến chưa đặt, và một
+   * `.env` viết `SMTP_USER=` là cách người ta ghi "chưa dùng". Cả hai đi vào
+   * process là `""`. Không quy đổi ở đây thì một biến optional bỏ trống sẽ
+   * thành `ConfigError`, và thông điệp sẽ nói biến "sai định dạng" trong khi
+   * người vận hành cố ý để trống nó.
+   */
+  const present = (value: string | undefined): string | undefined =>
+    value === undefined || value === "" ? undefined : value;
+
+  const resolved: Record<string, string | undefined> = {};
+  for (const key of Object.keys(source)) resolved[key] = present(source[key]);
+
+  /**
+   * Đưa tên cũ về tên mới **trước** khi validate.
+   *
+   * Gộp thành đúng một cảnh báo cho cả bảng, không một cảnh báo cho mỗi biến:
+   * hai dòng cảnh báo cho cùng một việc phải làm là hai dòng người ta học cách
+   * bỏ qua.
+   */
+  const legacyOnly: string[] = [];
+  const bothSet: string[] = [];
+
+  for (const { from, to } of RENAMED_KEYS) {
+    const legacy = resolved[from];
+    if (legacy === undefined) continue;
+    if (resolved[to] === undefined) {
+      resolved[to] = legacy;
+      legacyOnly.push(`${from} → ${to}`);
+    } else if (resolved[to] !== legacy) {
+      // Tên mới thắng. Nhưng bỏ qua **im lặng** một giá trị người vận hành đã
+      // cố ý đặt là cách họ tin mình đã đổi key trong khi chưa.
+      bothSet.push(`${from} (dùng ${to})`);
+    }
+  }
+
+  if (legacyOnly.length > 0) {
+    warn(
+      `[config] đang dùng tên biến cũ: ${legacyOnly.join(", ")}. ` +
+        "Tên cũ vẫn được nhận trong khoảng chuyển tiếp này rồi sẽ bị bỏ — " +
+        "đổi trong môi trường của bạn. Giá trị cố ý không được in ra.",
+    );
+  }
+  if (bothSet.length > 0) {
+    warn(
+      `[config] có cả tên cũ lẫn tên mới với giá trị khác nhau: ${bothSet.join(", ")}. ` +
+        "Tên mới thắng; tên cũ bị bỏ qua. Giá trị cố ý không được in ra.",
+    );
+  }
+
   // Chỉ lấy các key schema biết: biến lạ trong môi trường không phải lỗi của
   // ứng dụng, nhưng cũng không được lọt vào cấu hình.
-  const known = Object.keys(envSchema.shape);
   const picked: Record<string, unknown> = {};
-  for (const key of known) {
-    if (source[key] !== undefined) picked[key] = source[key];
+  for (const key of ENV_KEYS) {
+    if (resolved[key] !== undefined) picked[key] = resolved[key];
   }
 
   const result = envSchema.safeParse(picked);

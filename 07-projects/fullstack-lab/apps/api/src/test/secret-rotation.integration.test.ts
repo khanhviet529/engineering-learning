@@ -4,7 +4,7 @@ import { KeyRing } from "../shared/security/key-ring.ts";
 import { encodeCursor } from "../shared/http/cursor.ts";
 import {
   CSRF_SECRET_PREVIOUS,
-  SESSION_SECRET_PREVIOUS,
+  CURSOR_SECRET_PREVIOUS,
   call,
   createFixture,
   newKey,
@@ -19,7 +19,7 @@ import {
  *
  * Câu hỏi đặt ra là "đổi `SESSION_SECRET` thì mọi session chết". Đọc code cho
  * thấy **không phải vậy**: session token là 32 byte ngẫu nhiên và database chỉ
- * giữ SHA-256 của nó — không key nào ký nó cả. `SESSION_SECRET` ký **cursor**;
+ * giữ SHA-256 của nó — không key nào ký nó cả. `CURSOR_SECRET` ký **cursor**;
  * `CSRF_SECRET` ký CSRF token. Test đầu tiên dưới đây khẳng định đúng điều đó,
  * vì một thiết kế dựa trên một giả định sai sẽ giải một bài toán không tồn tại.
  */
@@ -181,7 +181,7 @@ describeIfDb("xoay secret", () => {
     const oldSigned = encodeCursor(
       { sortKey: payload.sortKey, id: payload.id },
       payload.f,
-      SESSION_SECRET_PREVIOUS,
+      CURSOR_SECRET_PREVIOUS,
     );
 
     const before = f.cursorKeys.previousKeyHits;

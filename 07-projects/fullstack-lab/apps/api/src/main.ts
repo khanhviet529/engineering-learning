@@ -171,11 +171,55 @@ async function bootstrap(): Promise<void> {
   const env = readEnv();
 
   const database = createDatabase(env.DATABASE_URL);
+  /**
+   * Credential SMTP quyết định hình dạng transport; `env.ts` đã cưỡng chế
+   * "cả hai hoặc không cái nào", nên ở đây chỉ còn hai nhánh.
+   */
+  const smtpAuth =
+    env.SMTP_USER !== undefined && env.SMTP_PASSWORD !== undefined
+      ? { user: env.SMTP_USER, password: env.SMTP_PASSWORD }
+      : undefined;
+
   const mailer = new SmtpMailer({
     host: env.SMTP_HOST,
     port: env.SMTP_PORT,
     webOrigin: env.WEB_ORIGIN,
+    from: env.MAIL_FROM,
+    auth: smtpAuth,
   });
+
+  {
+    /**
+     * Nói ra hình dạng transport **đã dựng**, không phải hình dạng mong đợi.
+     *
+     * `describeTransport()` đọc chính options mà nodemailer đang giữ, nên dòng
+     * log này không thể trôi khỏi thực tế; nó cũng không mang credential —
+     * cùng quy tắc với `ConfigError`.
+     */
+    const shape = mailer.describeTransport();
+    console.warn(
+      `[config] SMTP ${env.SMTP_HOST}:${String(env.SMTP_PORT)} — tls=${shape.tls}, ` +
+        `xác thực=${shape.authenticated ? "có" : "không"}.`,
+    );
+  }
+
+  if (smtpAuth !== undefined) {
+    if (/\.test>?\s*$/.test(env.MAIL_FROM)) {
+      /**
+       * `.test` là TLD dành riêng (RFC 2606): không phân giải được, không ký
+       * SPF/DKIM/DMARC được. Một provider thật sẽ từ chối thư này.
+       *
+       * Cảnh báo chứ không `ConfigError`: một relay tự dựng có thể chấp nhận
+       * nó, và tôi không muốn chặn khởi động vì một điều chỉ **gần như** luôn
+       * đúng. Nhưng im lặng thì lỗi sẽ hiện ra ở lá thư mời đầu tiên, cách xa
+       * chỗ gây ra nó.
+       */
+      console.warn(
+        "[config] MAIL_FROM vẫn trỏ tên miền `.test` trong khi SMTP đã có credential. " +
+          "TLD này là dành riêng và provider thật sẽ từ chối; đặt MAIL_FROM sang tên miền đã xác minh.",
+      );
+    }
+  }
   /**
    * Limiter đọc giới hạn từ config; thiếu cấu hình thì nhận bảng production.
    *
@@ -209,9 +253,9 @@ async function bootstrap(): Promise<void> {
     current: env.CSRF_SECRET,
     previous: env.CSRF_SECRET_PREVIOUS,
   });
-  const cursorKeys = new KeyRing("SESSION_SECRET", {
-    current: env.SESSION_SECRET,
-    previous: env.SESSION_SECRET_PREVIOUS,
+  const cursorKeys = new KeyRing("CURSOR_SECRET", {
+    current: env.CURSOR_SECRET,
+    previous: env.CURSOR_SECRET_PREVIOUS,
   });
 
   if (csrfKeys.rotating || cursorKeys.rotating) {

@@ -156,7 +156,7 @@ export interface Fixture {
 export const WEB_ORIGIN = "http://localhost:3000";
 
 const CSRF_SECRET = "c".repeat(32);
-const SESSION_SECRET = "s".repeat(32);
+const CURSOR_SECRET = "s".repeat(32);
 
 /**
  * Key của **thế hệ trước**, chỉ dùng cho test xoay key.
@@ -167,7 +167,7 @@ const SESSION_SECRET = "s".repeat(32);
  * hay không.
  */
 export const CSRF_SECRET_PREVIOUS = "p".repeat(32);
-export const SESSION_SECRET_PREVIOUS = "q".repeat(32);
+export const CURSOR_SECRET_PREVIOUS = "q".repeat(32);
 
 /**
  * Mailer của test: không gửi gì ra ngoài, nhưng **ghi lại** thư mời.
@@ -293,9 +293,9 @@ export async function createFixture(databaseUrl: string): Promise<Fixture> {
     current: CSRF_SECRET,
     previous: CSRF_SECRET_PREVIOUS,
   });
-  const cursorKeys = new KeyRing("SESSION_SECRET", {
-    current: SESSION_SECRET,
-    previous: SESSION_SECRET_PREVIOUS,
+  const cursorKeys = new KeyRing("CURSOR_SECRET", {
+    current: CURSOR_SECRET,
+    previous: CURSOR_SECRET_PREVIOUS,
   });
 
   /** Công tắc của M3, giữ lại để test "archive cột còn task" khỏi phải tạo task. */

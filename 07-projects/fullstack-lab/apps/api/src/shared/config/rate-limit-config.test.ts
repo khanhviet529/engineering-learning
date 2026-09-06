@@ -15,7 +15,7 @@ import { RATE_LIMIT_RULES, RateLimiter, resolveRateLimitRules } from "../http/ra
 const baseEnv = {
   WEB_ORIGIN: "http://localhost:3000",
   DATABASE_URL: "postgres://u:p@localhost:5432/db",
-  SESSION_SECRET: "s".repeat(32),
+  CURSOR_SECRET: "s".repeat(32),
   CSRF_SECRET: "c".repeat(32),
   SMTP_HOST: "localhost",
   SMTP_PORT: "1025",
