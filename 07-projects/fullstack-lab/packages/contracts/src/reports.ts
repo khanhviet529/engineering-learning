@@ -9,13 +9,20 @@ import { taskFilterFields } from "./tasks.js";
  *
  * | Endpoint | Trả gì | Vì sao tách |
  * |---|---|---|
- * | `POST /projects/:projectId/reports/progress-export` | `202` + record | Sinh file không nằm trong transaction |
+ * | `POST /projects/:projectId/reports/progress-export` | `201` + record | Sinh file không nằm trong transaction |
  * | `GET /reports/:reportId` | metadata | Client hỏi "xong chưa" mà không tải |
  * | `GET /reports/:reportId/download` | stream XLSX | File **không** bọc trong JSON |
  *
- * Vì sao `202` chứ không `201`: request được nhận, file **chưa** tồn tại. Một
- * `201` nói rằng thứ vừa tạo đã có thể lấy được, và client sẽ tải ngay rồi
- * nhận `409`. Mã trạng thái là lời hứa với client, không phải một nhãn.
+ * Vì sao `201` chứ không `202` — [ADR-0018]: ở Phase 1.1 file được sinh **đồng
+ * bộ** trong chính request, sau khi transaction claim commit. `202` nghĩa là
+ * "đã nhận **nhưng xử lý chưa xong**", và khi xử lý đã xong lúc response rời
+ * server thì đó là một phát biểu sai về hệ thống. Mã trạng thái là lời hứa với
+ * client, không phải một nhãn — và đó chính là lý do bản trước của dòng này
+ * sai: nó bảo vệ `202` bằng một lập luận đúng cho một cơ chế dự án chưa có.
+ *
+ * **Client không được rẽ nhánh theo mã trạng thái**, chỉ đọc `status` trong
+ * body. Phase 1.2 có worker sẽ đổi mã thành `202` và status khởi đầu thành
+ * `requested`; không client nào được hỏng vì lần đổi đó.
  *
  * **Chưa có queue, và đó là quyết định.** Owner chủ động bấm tải một file;
  * chưa có delivery bất đồng bộ nên chưa có lý do thêm Redis/BullMQ. Thêm sớm
@@ -88,9 +95,9 @@ export const requestProgressExportRequestSchema = z
 export type RequestProgressExportRequest = z.infer<typeof requestProgressExportRequestSchema>;
 
 /**
- * Metadata của một report. **Một** shape cho cả `202` và `GET`.
+ * Metadata của một report. **Một** shape cho cả `201` và `GET`.
  *
- * Tài liệu văn xuôi trước đây mô tả hai shape: `202` trả năm field, `GET` trả
+ * Tài liệu văn xuôi trước đây mô tả hai shape: `POST` trả năm field, `GET` trả
  * chín. Tôi gộp lại, và sửa tài liệu cho khớp thay vì để code đi một đường.
  * Hai shape cho cùng một tài nguyên là hai đường để client sai, và cái sai đó
  * chỉ lộ ra ở trạng thái `ready` — tức là muộn.
