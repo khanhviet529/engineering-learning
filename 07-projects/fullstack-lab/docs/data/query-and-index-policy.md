@@ -97,6 +97,7 @@ Migrations tạo các index dưới đây cùng constraints ở database design.
 | `activity_logs(project_id, created_at DESC)` | btree | Lịch sử hoạt động của project và task. | Core MVP |
 | `activity_logs(project_id, task_id, created_at DESC, id DESC)` | btree | `GET /tasks/:taskId/activity` sau khi giới hạn project scope, theo thứ tự seek tất định `created_at DESC, id DESC`. | Core MVP |
 | `report_exports(project_id, created_at DESC)` | btree | Danh sách trạng thái và lịch sử export. | Phase 1.1 only |
+| `report_export_files(storage_key)` | PK | Đường đọc **duy nhất** tới bytes, đi qua `GET /reports/:reportId/download` sau khi authorization được kiểm lại. Không có index nào khác, vì không có truy vấn nào khác được phép tồn tại — xem [ADR-0017](../decisions/ADR-0017-report-export-file-storage.md). | Phase 1.1 only |
 | `project_time_approvers(project_id, user_id)` | unique btree | Kiểm tra tư cách approver và chặn trùng. | Phase 1.3 only |
 | `work_logs(project_id, logged_by_user_id, work_date DESC, id DESC)` | btree | Danh sách theo người và theo ngày, cùng phạm vi tổng hợp theo tháng. | Phase 1.3 only |
 | `work_logs(project_id, task_id, work_date DESC, id DESC)` | btree | Tab nhật ký giờ trong Task Detail. | Phase 1.3 only |

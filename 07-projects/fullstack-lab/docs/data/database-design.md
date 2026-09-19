@@ -254,6 +254,28 @@ Migration/table này chỉ được tạo khi Phase 1.1 bắt đầu; nó không
 
 Retention: file phải inaccessible sau `expires_at`; export row giữ audit/snapshot metadata sau expiry. Physical file purge schedule, queue retry/idempotency và delivery state thuộc Phase 1.2/retention policy sau, không phải core MVP.
 
+### `report_export_files`
+
+Bytes của file, tách khỏi `report_exports` theo [ADR-0017](../decisions/ADR-0017-report-export-file-storage.md).
+
+| Cột | PostgreSQL type | Null | Key / constraint | Ghi chú |
+|---|---|:---:|---|---|
+| `storage_key` | `text` | No | PK | Giá trị ngẫu nhiên, **không** suy ra từ `report_exports.id`. Bằng `report_exports.file_storage_key`. |
+| `bytes` | `bytea` | No | `CHECK (octet_length(bytes) BETWEEN 1 AND 26214400)` | Nội dung XLSX. Trần 25 MB. |
+| `created_at` | `timestamptz` | No |  | UTC. |
+
+Ba tính chất phải giữ, và mỗi cái trả lời một câu hỏi khác nhau:
+
+**Vì sao bảng riêng chứ không phải một cột thêm vào `report_exports`.** `GET /reports/:reportId` bị gọi lặp lại trong lúc client chờ trạng thái `ready`. Bytes nằm cùng dòng nghĩa là mỗi lượt đọc metadata đó đụng vào một cột lớn, và một `SELECT *` viết vội sẽ kéo cả file về thật.
+
+**Vì sao `storage_key` không suy ra được từ `reportId`.** Nếu suy ra được thì mọi lỗi kiểm quyền ở tầng trên lập tức trở thành một đường đọc file trực tiếp. Khoá ngẫu nhiên khiến một sai sót như vậy vẫn cần thêm một lần rò rỉ nữa mới khai thác được.
+
+**Vì sao trần nằm trong `CHECK` chứ không chỉ trong code.** Trần là về bộ nhớ của process API khi stream, không phải về giới hạn của `bytea`. Đặt nó ở database nghĩa là một đường ghi mới trong tương lai cũng bị chặn, chứ không chỉ đường ghi hôm nay nhớ kiểm.
+
+Không có đường đọc nào tới bảng này ngoài `GET /reports/:reportId/download`. Nó không xuất hiện trong projection nào, không có endpoint list, không có port.
+
+Xoá một export là xoá cả hai dòng **trong cùng một transaction** với việc đổi status — đó là lý do chọn PostgreSQL thay vì một kho thứ hai: không tồn tại khoảng thời gian mà row nói `ready` còn file thì đã mất.
+
 ## Bảng Phase 1.5, quan hệ giữa Task
 
 Migration Phase 1.5 là additive. Nó không tạo loại quan hệ nào ngoài blocking, không tạo critical path, Gantt hay quan hệ xuyên project.

@@ -31,6 +31,17 @@ Pencil tạo token theo các nhóm và tên semantic sau. Giá trị cụ thể 
 | Layer | `fb.z.header`, `dropdown`, `drawer`, `modal`, `toast` | Thứ tự lớp phủ, không để toast chặn modal. |
 | Breakpoint | `fb.breakpoint.compact`, `tablet`, `desktop` | Variant responsive; board chuyển sang horizontal scroll ở compact. |
 
+**Thang chữ xám có đúng ba bậc.** Sàn tương phản của bảng màu sáng quyết định điều này, không phải sở thích: trên `surface.canvas` (`#F7F8FC`), một màu chữ chỉ đạt 4,5:1 khi luminance ≤ 0,1699, mà bậc 3 đã ở 0,1454 — khoảng trống còn lại bên dưới hẹp hơn một bước mắt phân biệt được, nên **không có bậc thứ tư ở đầu nhạt**.
+
+| Bậc | Token | Light | Dark | Dùng cho |
+|---|---|---|---|---|
+| 1 | `fb.color.text.primary` | `#182230` | `#F9FAFB` | tiêu đề, giá trị, nội dung chính |
+| 2 | `fb.color.text.secondary` | `#475467` | `#E4E7EC` | nhãn field, mô tả, chữ đỡ |
+| 3 | `fb.color.text.muted` | `#616B7D` | `#98A2B3` | caption, metadata, mốc thời gian — **sàn**, không có gì nhạt hơn hợp lệ |
+
+`fb.color.text.placeholder` và `fb.color.state.disabled-text` là **alias của bậc 3**, không phải bậc thứ tư: chúng tồn tại vì là điểm nối `colorTextPlaceholder` và `colorTextDisabled` trong `packages/ui/src/theme.ts`, nên giá trị của chúng phải đi theo bậc 3 từng chữ số. Nhóm `fb.color.text.on-inverse.*` dành cho chữ nằm trên nền đảo (specimen tối trong sheet sáng, preview App Shell) và **không** thuộc thang này.
+
+Bậc 3 dùng `#616B7D` chứ không phải `#667085` vì `#667085` chỉ đạt 4,5:1 trên ba surface sáng nhất: nó cho 4,21 trên `surface.muted`, 4,42 trên `sunken` và 4,51 trên `inset`. Một dòng cấm "đừng đặt bậc 3 lên ba surface đó" không có gì cưỡng chế trên 2.191 chỗ dùng, nên giới hạn nằm ở giá trị: `#616B7D` cho ≥4,54 trên **mọi** surface trung tính sáng. Cái giá là bước `secondary → muted` co từ 1,55 xuống 1,43.
 Tên token dùng theo ngữ nghĩa, không theo màu vật lý như `blue-500`. Một component không tự tạo hex, khoảng cách hay shadow mới nếu token tương đương đã có.
 
 ### Token bắt buộc bổ sung và quy tắc ramp
