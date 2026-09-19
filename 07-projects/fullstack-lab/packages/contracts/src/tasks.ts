@@ -57,7 +57,12 @@ export const taskSortSchema = z.enum(TASK_SORTS);
  * Một `.omit()` hỏng vì vậy đi lọt qua typecheck và qua cả test không import
  * tới nó.
  */
-const taskFilterFields = {
+/**
+ * Bộ lọc task canonical. Export để `reports.ts` dựng bộ lọc export **từ đây**
+ * thay vì chép lại: một bản chép sẽ trôi khỏi bản gốc, và chỗ nó trôi là chỗ
+ * hai endpoint cùng nói "lọc theo assignee" mà hiểu khác nhau.
+ */
+export const taskFilterFields = {
   assigneeId: uuidSchema.optional(),
   createdById: uuidSchema.optional(),
   reviewerId: uuidSchema.optional(),

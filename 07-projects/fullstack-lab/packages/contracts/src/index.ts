@@ -28,4 +28,5 @@ export * from "./web-routes.js";
 export * from "./projects.js";
 export * from "./board-columns.js";
 export * from "./tasks.js";
+export * from "./reports.js";
 export * from "./comments.js";
